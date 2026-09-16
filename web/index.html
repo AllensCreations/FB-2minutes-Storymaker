@@ -9,118 +9,83 @@
   <style>
     body { background-color: #0d1117; color: #e6edf3; }
     .aspect-short { aspect-ratio: 9 / 16; }
-    /* Custom scrollbar for scenes list */
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: #161b22; border-radius: 3px; }
     ::-webkit-scrollbar-thumb { background: #30363d; border-radius: 3px; }
-    ::-webkit-scrollbar-thumb:hover { background: #484f58; }
   </style>
 </head>
 <body class="p-4 sm:p-6 font-sans">
   <div class="max-w-6xl mx-auto space-y-6">
-    <!-- Top Header -->
-    <header class="border-b border-gray-800 pb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+    <!-- Header -->
+    <header class="border-b border-gray-800 pb-4 flex items-center justify-between">
       <div>
-        <h1 class="text-2xl font-bold text-white tracking-tight flex items-center gap-2">
-          <span>🎬</span> StoryShorts Studio
-        </h1>
+        <h1 class="text-2xl font-bold text-white tracking-tight">StoryShorts Studio</h1>
         <p class="text-xs sm:text-sm text-gray-400">Zero-server auto slideshow sync: Audio + Script + Image Zip</p>
       </div>
-      <div class="flex items-center gap-2">
-        <button id="demoBtn" class="py-1.5 px-3 bg-gray-800 hover:bg-gray-700 border border-gray-700 text-amber-400 rounded-lg text-xs font-medium transition flex items-center gap-1.5 shadow-sm">
-          <span>✨</span> Load Demo Story
-        </button>
-      </div>
+      <button id="demoBtn" class="py-1.5 px-3 bg-gray-800 hover:bg-gray-700 border border-gray-700 text-amber-400 rounded text-xs font-medium transition flex items-center gap-1.5">
+        <span>✨</span> Load Demo
+      </button>
     </header>
 
-    <!-- Main 3-Column Studio Grid -->
+    <!-- 3-Column Studio Grid -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
       
-      <!-- Panel 1: Input & Ingestion -->
-      <div class="space-y-4 bg-gray-900 p-5 rounded-xl border border-gray-800 flex flex-col justify-between shadow-lg">
+      <!-- 1. Input Panel -->
+      <div class="space-y-4 bg-gray-900 p-5 rounded-xl border border-gray-800 flex flex-col justify-between">
         <div class="space-y-4">
-          <div class="flex items-center justify-between">
-            <h2 class="text-sm font-semibold text-white uppercase tracking-wider flex items-center gap-1.5">
-              <span class="text-blue-500 font-bold">1.</span> Assets & Ingestion
-            </h2>
-            <span id="assetBadge" class="text-[11px] px-2 py-0.5 rounded bg-gray-800 text-gray-400 font-mono">0/3 Ready</span>
-          </div>
+          <h2 class="text-base font-semibold text-white">1. Assets & Ingestion</h2>
 
-          <!-- Audio Voice-Over Input -->
           <div>
             <label class="block text-xs font-medium text-gray-300 mb-1 flex justify-between">
               <span>Voice-Over (MP3/WAV)</span>
-              <span id="audioDurLabel" class="text-[11px] text-gray-500 font-mono">None</span>
+              <span id="audioDurLabel" class="text-[11px] text-gray-500 font-mono"></span>
             </label>
-            <input type="file" id="audioInput" accept="audio/*" class="w-full text-xs text-gray-400 file:mr-2 file:py-1.5 file:px-3 file:rounded file:border-0 file:bg-blue-600 file:text-white hover:file:bg-blue-700 cursor-pointer bg-gray-950 border border-gray-800 rounded p-1" />
+            <input type="file" id="audioInput" accept="audio/*" class="w-full text-xs text-gray-400 file:mr-2 file:py-1 file:px-3 file:rounded file:border-0 file:bg-blue-600 file:text-white hover:file:bg-blue-700 cursor-pointer" />
           </div>
 
-          <!-- Visuals (Zip or Images) Input -->
           <div>
             <label class="block text-xs font-medium text-gray-300 mb-1 flex justify-between">
-              <span>Images (.zip or multiple images)</span>
-              <span id="imagesCountLabel" class="text-[11px] text-gray-500 font-mono">None</span>
+              <span>Images (.zip archive or multiple images)</span>
+              <span id="imgCountLabel" class="text-[11px] text-gray-500 font-mono"></span>
             </label>
-            <input type="file" id="zipInput" accept=".zip,image/png,image/jpeg,image/webp" multiple class="w-full text-xs text-gray-400 file:mr-2 file:py-1.5 file:px-3 file:rounded file:border-0 file:bg-blue-600 file:text-white hover:file:bg-blue-700 cursor-pointer bg-gray-950 border border-gray-800 rounded p-1" />
+            <input type="file" id="zipInput" accept=".zip,image/*" multiple class="w-full text-xs text-gray-400 file:mr-2 file:py-1 file:px-3 file:rounded file:border-0 file:bg-blue-600 file:text-white hover:file:bg-blue-700 cursor-pointer" />
           </div>
 
-          <!-- Narration Script Textarea -->
           <div>
             <label class="block text-xs font-medium text-gray-300 mb-1 flex justify-between">
               <span>Narration Script (1 line per scene)</span>
-              <span id="scriptCountLabel" class="text-[11px] text-gray-500 font-mono">0 lines</span>
+              <span id="scriptCountLabel" class="text-[11px] text-gray-500 font-mono"></span>
             </label>
-            <textarea id="scriptInput" rows="6" placeholder="Line 1 corresponds to Image 1&#10;Line 2 corresponds to Image 2&#10;Line 3 corresponds to Image 3..." class="w-full bg-gray-950 border border-gray-800 rounded p-2.5 text-xs text-gray-200 focus:outline-none focus:border-blue-500 font-mono leading-relaxed transition"></textarea>
+            <textarea id="scriptInput" rows="6" placeholder="Line 1 corresponds to Image 1&#10;Line 2 corresponds to Image 2&#10;Line 3 corresponds to Image 3..." class="w-full bg-gray-950 border border-gray-800 rounded p-2 text-xs text-gray-200 focus:outline-none focus:border-blue-500 font-mono"></textarea>
           </div>
         </div>
 
         <div class="space-y-2 pt-2">
-          <button id="buildBtn" class="w-full py-2.5 px-4 bg-blue-600 hover:bg-blue-500 text-white rounded-lg font-medium text-xs sm:text-sm transition flex items-center justify-center gap-2 shadow-md hover:shadow-blue-600/20 active:scale-[0.99]">
-            <span>⚡</span> Align & Build Timeline
+          <button id="buildBtn" class="w-full py-2.5 px-4 bg-blue-600 hover:bg-blue-500 text-white rounded font-medium text-sm transition shadow">
+            Align & Build Timeline
           </button>
-          <div id="status" class="text-xs text-gray-400 bg-gray-950 px-3 py-2 rounded border border-gray-800 flex items-center gap-2">
-            <span class="inline-block w-2 h-2 rounded-full bg-gray-600"></span>
-            <span>Ready for files or click "Load Demo Story".</span>
-          </div>
+          <div id="status" class="text-xs text-gray-400">Ready for files.</div>
         </div>
       </div>
 
-      <!-- Panel 2: Canvas Preview (9:16) -->
-      <div class="flex flex-col items-center justify-between bg-gray-900 p-5 rounded-xl border border-gray-800 shadow-lg">
-        <div class="w-full flex items-center justify-between mb-3">
-          <h2 class="text-sm font-semibold text-white uppercase tracking-wider flex items-center gap-1.5">
-            <span class="text-blue-500 font-bold">2.</span> Canvas Preview (9:16)
-          </h2>
-          <span class="text-[11px] px-2 py-0.5 rounded bg-blue-950 text-blue-400 border border-blue-800/60 font-mono">Full-Bleed Cover</span>
-        </div>
-
-        <!-- 9:16 Vertical Screen -->
-        <div class="relative w-full max-w-[280px] aspect-short bg-black rounded-lg overflow-hidden shadow-2xl border border-gray-800 group">
+      <!-- 2. Preview Canvas -->
+      <div class="flex flex-col items-center justify-between bg-gray-900 p-5 rounded-xl border border-gray-800">
+        <h2 class="text-base font-semibold text-white mb-3 self-start">2. Canvas Preview (9:16)</h2>
+        <div class="relative w-full max-w-[280px] aspect-short bg-black rounded-lg overflow-hidden shadow-2xl border border-gray-800">
           <canvas id="previewCanvas" width="720" height="1280" class="w-full h-full object-contain"></canvas>
-          
-          <!-- Hover Overlay Info -->
-          <div id="canvasOverlay" class="absolute top-2 left-2 right-2 flex justify-between items-center text-[10px] text-white/80 bg-black/60 backdrop-blur-sm px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition">
-            <span id="overlayScene">Scene 1</span>
-            <span id="overlayTime" class="font-mono">0.0s</span>
-          </div>
         </div>
         
         <!-- Playback & Export Controls -->
         <div class="w-full max-w-[280px] mt-4 space-y-2">
           <div class="flex items-center gap-2">
-            <button id="playBtn" disabled class="flex-1 py-2 bg-gray-800 hover:bg-gray-700 disabled:opacity-40 text-xs rounded-lg font-medium text-white transition flex items-center justify-center gap-1.5 border border-gray-700">
-              <span id="playIcon">▶</span> <span id="playText">Play</span>
-            </button>
-            <button id="exportBtn" disabled class="flex-1 py-2 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 text-xs rounded-lg font-medium text-white transition flex items-center justify-center gap-1.5 shadow-md hover:shadow-emerald-600/20">
-              <span>🚀</span> Export Video
-            </button>
+            <button id="playBtn" disabled class="flex-1 py-1.5 bg-gray-800 hover:bg-gray-700 disabled:opacity-40 text-xs rounded font-medium text-white transition">Play</button>
+            <button id="exportBtn" disabled class="flex-1 py-1.5 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 text-xs rounded font-medium text-white transition">Export Video</button>
           </div>
-
           <!-- Export Progress Bar -->
-          <div id="exportProgressContainer" class="hidden space-y-1 bg-gray-950 p-2 rounded border border-gray-800">
+          <div id="exportProgress" class="hidden space-y-1 bg-gray-950 p-2 rounded border border-gray-800">
             <div class="flex justify-between text-[10px] text-gray-400">
-              <span id="exportLabel">Rendering video...</span>
-              <span id="exportPercent" class="font-mono text-emerald-400 font-bold">0%</span>
+              <span id="exportText">Rendering video...</span>
+              <span id="exportPct" class="font-mono text-emerald-400 font-bold">0%</span>
             </div>
             <div class="w-full h-1.5 bg-gray-800 rounded-full overflow-hidden">
               <div id="exportBar" class="h-full bg-emerald-500 transition-all duration-75" style="width: 0%;"></div>
@@ -129,107 +94,74 @@
         </div>
       </div>
 
-      <!-- Panel 3: Scene Inspector -->
-      <div class="bg-gray-900 p-5 rounded-xl border border-gray-800 flex flex-col h-[580px] shadow-lg">
-        <div class="flex items-center justify-between mb-3">
-          <h2 class="text-sm font-semibold text-white uppercase tracking-wider flex items-center gap-1.5">
-            <span class="text-blue-500 font-bold">3.</span> Synced Scenes
-          </h2>
-          <span id="sceneBadge" class="text-[11px] px-2 py-0.5 rounded bg-gray-800 text-gray-400 font-mono">0 Scenes</span>
+      <!-- 3. Scene Inspector -->
+      <div class="bg-gray-900 p-5 rounded-xl border border-gray-800 flex flex-col h-[560px]">
+        <div class="flex items-center justify-between mb-2">
+          <h2 class="text-base font-semibold text-white">3. Synced Scenes</h2>
+          <span id="sceneCountBadge" class="text-[11px] text-gray-500 font-mono"></span>
         </div>
-        <p class="text-[11px] text-gray-500 mb-2">Click any scene to seek. Edit script text directly in the card.</p>
-        
         <div id="sceneList" class="flex-1 overflow-y-auto space-y-2 pr-1 text-xs text-gray-400">
-          <div class="flex flex-col items-center justify-center h-48 text-gray-500 italic text-center space-y-2">
-            <span>📭</span>
-            <span>Scenes will appear here after building or loading demo story.</span>
-          </div>
+          <p class="italic">Scenes will appear here after building.</p>
         </div>
       </div>
 
     </div>
 
-    <!-- Bottom Full-Width Horizontal Timeline: Interactive Waveform ("The Wave Thing") -->
-    <div class="bg-gray-900 p-5 rounded-xl border border-gray-800 shadow-lg space-y-3">
-      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-        <div class="flex items-center gap-3">
-          <h2 class="text-sm font-semibold text-white uppercase tracking-wider flex items-center gap-1.5">
-            <span class="text-amber-500 font-bold">4.</span> Audio Waveform & Silence Timeline
-          </h2>
-          <span class="text-[11px] px-2 py-0.5 rounded bg-amber-950 text-amber-400 border border-amber-800/60 font-mono flex items-center gap-1">
-            <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
-            -35dB Gap Snapping
-          </span>
-        </div>
-        <div class="flex items-center gap-4 text-xs font-mono text-gray-400">
-          <div class="flex items-center gap-1.5">
-            <span class="text-gray-500">Position:</span>
-            <span id="timeDisplay" class="text-white font-bold">00:00.0 / 00:00.0</span>
-          </div>
-        </div>
+    <!-- Bottom Waveform & Silence Timeline ("The Wavething") -->
+    <div class="bg-gray-900 p-4 rounded-xl border border-gray-800 space-y-2">
+      <div class="flex items-center justify-between">
+        <h2 class="text-xs font-semibold text-white uppercase tracking-wider flex items-center gap-1.5">
+          <span class="text-amber-500">📊</span> Waveform Timeline & Silence Cut Markers (-36dB)
+        </h2>
+        <span id="timeDisplay" class="text-xs font-mono text-gray-400">00:00.0 / 00:00.0</span>
       </div>
-
-      <!-- Waveform Canvas Container -->
-      <div id="waveformContainer" class="relative w-full h-28 bg-gray-950 rounded-lg border border-gray-800 overflow-hidden cursor-crosshair select-none">
+      <div id="waveformWrapper" class="relative w-full h-24 bg-gray-950 rounded border border-gray-800 overflow-hidden cursor-crosshair select-none">
         <canvas id="waveformCanvas" class="w-full h-full block"></canvas>
-        <div id="waveformEmptyPrompt" class="absolute inset-0 flex items-center justify-center text-xs text-gray-600 italic pointer-events-none">
-          Upload narration audio or load demo to view waveform & draggable cut markers
-        </div>
       </div>
-
-      <div class="flex items-center justify-between text-[11px] text-gray-500">
-        <div class="flex items-center gap-3">
-          <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-sm bg-blue-500 inline-block"></span> Speech RMS</span>
-          <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-sm bg-amber-500 inline-block"></span> Draggable Cut Markers</span>
-          <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-sm bg-white inline-block"></span> Playhead</span>
+      <div class="flex justify-between text-[10px] text-gray-500">
+        <div>Drag orange handles to adjust scene cuts. Click anywhere to scrub playhead.</div>
+        <div class="flex gap-3">
+          <span class="text-blue-400">■ Audio Wave</span>
+          <span class="text-amber-500">■ Cut Marker</span>
+          <span class="text-white">| Playhead</span>
         </div>
-        <div>Drag orange handles to adjust scene cuts. Click timeline to scrub playhead.</div>
       </div>
     </div>
-
   </div>
 
   <script>
-    // State
     let audioBuffer = null;
     let audioContext = null;
     let audioElement = new Audio();
     let scenes = [];
-    let detectedPauses = [];
-    let sceneCuts = [0]; // Timestamps of scene boundaries
-    let activeDraggingMarkerIndex = null;
     let isPlaying = false;
     let animFrameId = null;
+    let detectedPauses = [];
+    let sceneCuts = [0];
+    let loadedImages = [];
+    let draggingMarkerIdx = null;
 
-    // DOM Elements
     const canvas = document.getElementById('previewCanvas');
     const ctx = canvas.getContext('2d');
     const waveCanvas = document.getElementById('waveformCanvas');
     const waveCtx = waveCanvas.getContext('2d');
-    const waveContainer = document.getElementById('waveformContainer');
+    const waveWrapper = document.getElementById('waveformWrapper');
     const statusEl = document.getElementById('status');
     const buildBtn = document.getElementById('buildBtn');
     const playBtn = document.getElementById('playBtn');
-    const playIcon = document.getElementById('playIcon');
-    const playText = document.getElementById('playText');
     const exportBtn = document.getElementById('exportBtn');
     const sceneList = document.getElementById('sceneList');
     const demoBtn = document.getElementById('demoBtn');
     const timeDisplay = document.getElementById('timeDisplay');
     const audioDurLabel = document.getElementById('audioDurLabel');
-    const imagesCountLabel = document.getElementById('imagesCountLabel');
+    const imgCountLabel = document.getElementById('imgCountLabel');
     const scriptCountLabel = document.getElementById('scriptCountLabel');
-    const assetBadge = document.getElementById('assetBadge');
-    const sceneBadge = document.getElementById('sceneBadge');
-    const exportProgressContainer = document.getElementById('exportProgressContainer');
+    const sceneCountBadge = document.getElementById('sceneCountBadge');
+    const exportProgress = document.getElementById('exportProgress');
     const exportBar = document.getElementById('exportBar');
-    const exportPercent = document.getElementById('exportPercent');
-    const exportLabel = document.getElementById('exportLabel');
+    const exportPct = document.getElementById('exportPct');
+    const exportText = document.getElementById('exportText');
 
-    // Store raw uploaded images
-    let uploadedImageObjects = [];
-
-    // Helper: Initialize audio context
     function getAudioContext() {
       if (!audioContext) {
         audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -240,101 +172,78 @@
       return audioContext;
     }
 
-    // Format mm:ss.s
-    function formatTime(sec) {
-      const s = Math.max(0, sec || 0);
-      const m = Math.floor(s / 60);
-      const remS = (s % 60).toFixed(1);
-      return `${String(m).padStart(2, '0')}:${String(remS).padStart(4, '0')}`;
+    function formatTime(s) {
+      const sec = Math.max(0, s || 0);
+      const m = Math.floor(sec / 60);
+      const rem = (sec % 60).toFixed(1);
+      return `${String(m).padStart(2, '0')}:${String(rem).padStart(4, '0')}`;
     }
 
-    // Update Ingestion Badges
-    function updateAssetBadges() {
-      let count = 0;
-      if (audioBuffer) count++;
-      if (uploadedImageObjects.length > 0) count++;
-      const lines = document.getElementById('scriptInput').value.trim().split('\n').filter(l => l.trim().length > 0);
-      if (lines.length > 0) count++;
-      assetBadge.textContent = `${count}/3 Ready`;
-      assetBadge.className = count === 3 
-        ? "text-[11px] px-2 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-800 font-mono"
-        : "text-[11px] px-2 py-0.5 rounded bg-gray-800 text-gray-400 font-mono";
-    }
-
-    // Script Input Change
-    document.getElementById('scriptInput').addEventListener('input', (e) => {
-      const lines = e.target.value.trim().split('\n').filter(l => l.trim().length > 0);
-      scriptCountLabel.textContent = `${lines.length} line(s)`;
-      updateAssetBadges();
-    });
-
-    // 1. Audio Ingestion
+    // Decode Audio into AudioBuffer
     document.getElementById('audioInput').addEventListener('change', async (e) => {
       const file = e.target.files[0];
       if (!file) return;
-      await loadAudioFromFile(file);
+      audioElement.src = URL.createObjectURL(file);
+      statusEl.textContent = "Decoding audio...";
+      const actx = getAudioContext();
+      const arrayBuffer = await file.arrayBuffer();
+      audioBuffer = await actx.decodeAudioData(arrayBuffer);
+      audioDurLabel.textContent = `${audioBuffer.duration.toFixed(1)}s`;
+      statusEl.textContent = `Audio loaded: ${audioBuffer.duration.toFixed(1)}s`;
+      detectedPauses = findPauses(audioBuffer);
+      resizeWaveform();
     });
 
-    async function loadAudioFromFile(file) {
-      audioElement.src = URL.createObjectURL(file);
-      statusEl.innerHTML = `<span class="inline-block w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span> Decoding voice-over audio...`;
-      const ctx = getAudioContext();
-      const arrayBuffer = await file.arrayBuffer();
-      audioBuffer = await ctx.decodeAudioData(arrayBuffer);
-      audioDurLabel.textContent = `${audioBuffer.duration.toFixed(1)}s`;
-      statusEl.innerHTML = `<span class="inline-block w-2 h-2 rounded-full bg-emerald-400"></span> Audio loaded: ${audioBuffer.duration.toFixed(1)}s`;
-      document.getElementById('waveformEmptyPrompt').style.display = 'none';
-      detectedPauses = findPauses(audioBuffer);
-      drawWaveform();
-      updateAssetBadges();
-    }
-
-    // 2. Images Ingestion (ZIP or multiple image files)
+    // Handle Images (.zip archive or multiple images)
     document.getElementById('zipInput').addEventListener('change', async (e) => {
       const files = Array.from(e.target.files);
       if (files.length === 0) return;
 
-      uploadedImageObjects = [];
+      loadedImages = [];
       const zipFile = files.find(f => f.name.toLowerCase().endsWith('.zip'));
 
       if (zipFile) {
-        statusEl.innerHTML = `<span class="inline-block w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span> Extracting ZIP images...`;
+        statusEl.textContent = "Unpacking ZIP archive...";
         const zip = await JSZip.loadAsync(zipFile);
-        const imageFilenames = [];
+        const imageFiles = [];
         for (const filename of Object.keys(zip.files)) {
           if (!zip.files[filename].dir && !filename.startsWith('__MACOSX') && !filename.startsWith('.')) {
             if (filename.match(/\.(png|jpe?g|webp)$/i)) {
-              imageFilenames.push(filename);
+              imageFiles.push(filename);
             }
           }
         }
-        imageFilenames.sort();
-
-        for (const fname of imageFilenames) {
+        imageFiles.sort();
+        for (const fname of imageFiles) {
           const blob = await zip.files[fname].async('blob');
           const img = new Image();
           img.src = URL.createObjectURL(blob);
           await img.decode();
-          uploadedImageObjects.push(img);
+          loadedImages.push(img);
         }
       } else {
-        // Loose image files
-        const imageFiles = files.filter(f => f.type.startsWith('image/')).sort((a, b) => a.name.localeCompare(b.name));
-        for (const file of imageFiles) {
+        // Multiple loose image files
+        const imgs = files.filter(f => f.type.startsWith('image/')).sort((a, b) => a.name.localeCompare(b.name));
+        for (const file of imgs) {
           const img = new Image();
           img.src = URL.createObjectURL(file);
           await img.decode();
-          uploadedImageObjects.push(img);
+          loadedImages.push(img);
         }
       }
 
-      imagesCountLabel.textContent = `${uploadedImageObjects.length} image(s)`;
-      statusEl.innerHTML = `<span class="inline-block w-2 h-2 rounded-full bg-emerald-400"></span> Loaded ${uploadedImageObjects.length} image(s).`;
-      updateAssetBadges();
+      imgCountLabel.textContent = `${loadedImages.length} image(s)`;
+      statusEl.textContent = `Loaded ${loadedImages.length} image(s).`;
     });
 
-    // Detect speech pause timestamps using RMS energy below -35dB
-    function findPauses(buffer, minPauseSec = 0.25, thresholdDb = -35) {
+    // Script Line Counter
+    document.getElementById('scriptInput').addEventListener('input', (e) => {
+      const lines = e.target.value.trim().split('\n').filter(l => l.trim().length > 0);
+      scriptCountLabel.textContent = `${lines.length} line(s)`;
+    });
+
+    // Detect speech pause timestamps using RMS energy
+    function findPauses(buffer, minPauseSec = 0.25, thresholdDb = -36) {
       const data = buffer.getChannelData(0);
       const sampleRate = buffer.sampleRate;
       const step = Math.floor(sampleRate * 0.05); // 50ms window
@@ -368,48 +277,52 @@
     buildBtn.addEventListener('click', async () => {
       const scriptText = document.getElementById('scriptInput').value.trim();
 
-      if (!audioBuffer || uploadedImageObjects.length === 0 || !scriptText) {
-        alert("Please provide the Voice-over Audio, Images (Zip or files), and Script lines (or click 'Load Demo Story').");
+      if (!audioBuffer || loadedImages.length === 0 || !scriptText) {
+        alert("Please provide the Audio file, Images (ZIP or files), and Script lines (or click 'Load Demo').");
         return;
       }
 
       const scriptLines = scriptText.split('\n').map(l => l.trim()).filter(l => l.length > 0);
-      const count = Math.min(uploadedImageObjects.length, scriptLines.length);
+      const count = Math.min(loadedImages.length, scriptLines.length);
 
       if (count === 0) {
-        alert("No matching images and script lines found.");
+        alert("No valid images or script lines found.");
         return;
       }
 
-      statusEl.innerHTML = `<span class="inline-block w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span> Aligning speech silence boundaries (-35dB)...`;
+      statusEl.textContent = "Aligning audio silence boundaries...";
+      if (detectedPauses.length === 0) {
+        detectedPauses = findPauses(audioBuffer);
+      }
       const totalDur = audioBuffer.duration;
       
-      // Calculate scene cuts with snapping to nearest detected silence pause
+      // Calculate scene cuts
       sceneCuts = [0];
       for (let i = 1; i < count; i++) {
         const targetTime = (totalDur / count) * i;
-        const nearPause = detectedPauses.find(p => Math.abs(p - targetTime) < 1.4);
+        // Snap to nearest detected speech pause if within 1.2s window
+        const nearPause = detectedPauses.find(p => Math.abs(p - targetTime) < 1.2);
         sceneCuts.push(nearPause !== undefined ? nearPause : targetTime);
       }
       sceneCuts.push(totalDur);
 
-      rebuildScenesFromCuts(scriptLines);
-      statusEl.innerHTML = `<span class="inline-block w-2 h-2 rounded-full bg-emerald-400"></span> Built ${count} scenes successfully!`;
+      rebuildScenes(scriptLines);
+      statusEl.textContent = `Built ${count} scenes successfully.`;
       playBtn.disabled = false;
       exportBtn.disabled = false;
       drawWaveform();
       drawFrame(0);
     });
 
-    // Rebuild scenes object array and UI inspector from sceneCuts
-    function rebuildScenesFromCuts(scriptLines) {
+    // Assemble scenes & populate side inspector
+    function rebuildScenes(scriptLines) {
       if (!scriptLines) {
         scriptLines = scenes.map(s => s.text);
       }
       const count = sceneCuts.length - 1;
       scenes = [];
       sceneList.innerHTML = '';
-      sceneBadge.textContent = `${count} Scenes`;
+      sceneCountBadge.textContent = `${count} scenes`;
 
       for (let i = 0; i < count; i++) {
         const scene = {
@@ -417,39 +330,30 @@
           start: sceneCuts[i],
           end: sceneCuts[i + 1],
           text: scriptLines[i] || `Scene ${i + 1}`,
-          img: uploadedImageObjects[i] || uploadedImageObjects[0]
+          img: loadedImages[i] || loadedImages[0]
         };
         scenes.push(scene);
 
-        // Populate side inspector with click-to-seek and inline script editing
+        // Populate side inspector with click-to-seek and inline editing
         const div = document.createElement('div');
-        div.className = "p-3 bg-gray-950 border border-gray-800 hover:border-gray-700 rounded-lg text-xs space-y-1.5 transition cursor-pointer group";
-        div.dataset.index = i;
-
+        div.className = "scene-card p-2.5 bg-gray-950 border border-gray-800 rounded text-xs space-y-1.5 transition cursor-pointer hover:border-gray-700";
+        div.dataset.id = scene.id;
         div.innerHTML = `
-          <div class="flex justify-between items-center font-semibold text-gray-300">
-            <span class="flex items-center gap-1.5 text-white">
-              <span class="w-2 h-2 rounded-full bg-blue-500"></span>
-              Scene ${scene.id}
-            </span>
-            <span class="text-[11px] font-mono text-gray-400 bg-gray-900 px-1.5 py-0.5 rounded border border-gray-800">
-              ${scene.start.toFixed(1)}s - ${scene.end.toFixed(1)}s
-            </span>
+          <div class="flex justify-between font-semibold text-gray-300">
+            <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-blue-500 inline-block"></span> Scene ${scene.id}</span>
+            <span class="font-mono text-gray-500">${scene.start.toFixed(1)}s - ${scene.end.toFixed(1)}s</span>
           </div>
-          <div class="mt-1">
-            <input type="text" class="scene-inline-script w-full bg-gray-900 border border-gray-800 focus:border-blue-500 rounded px-2 py-1 text-xs text-gray-200 outline-none transition" value="${escapeHtml(scene.text)}" />
-          </div>
+          <input type="text" class="scene-text-edit w-full bg-transparent border-b border-transparent focus:border-blue-500 outline-none text-gray-300 text-xs py-0.5 truncate" value="${escapeHtml(scene.text)}" />
         `;
 
-        // Click on card body (not input) to seek to scene
+        // Click on card to seek
         div.addEventListener('click', (e) => {
           if (e.target.tagName.toLowerCase() === 'input') return;
           seekTo(scene.start);
         });
 
-        // Inline script edit listener
-        const input = div.querySelector('.scene-inline-script');
-        input.addEventListener('input', (e) => {
+        // Inline text update
+        div.querySelector('.scene-text-edit').addEventListener('input', (e) => {
           scene.text = e.target.value;
           drawFrame(audioElement.currentTime);
         });
@@ -458,26 +362,38 @@
       }
     }
 
-    function escapeHtml(str) {
-      return (str || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    function escapeHtml(s) {
+      return (s || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     }
 
-    // Seek helper
     function seekTo(sec) {
-      const dur = (audioBuffer && audioBuffer.duration) ? audioBuffer.duration : 1;
-      const target = Math.max(0, Math.min(sec, dur));
+      if (!audioBuffer) return;
+      const target = Math.max(0, Math.min(sec, audioBuffer.duration));
       audioElement.currentTime = target;
-      timeDisplay.textContent = `${formatTime(target)} / ${formatTime(dur)}`;
+      timeDisplay.textContent = `${formatTime(target)} / ${formatTime(audioBuffer.duration)}`;
       drawFrame(target);
       drawWaveform();
+      highlightActiveScene(target);
+    }
+
+    function highlightActiveScene(currentTime) {
+      const active = scenes.find(s => currentTime >= s.start && currentTime <= s.end);
+      const cards = sceneList.querySelectorAll('.scene-card');
+      cards.forEach(card => {
+        if (active && parseInt(card.dataset.id) === active.id) {
+          card.classList.add('border-blue-500', 'bg-gray-900');
+        } else {
+          card.classList.remove('border-blue-500', 'bg-gray-900');
+        }
+      });
     }
 
     // =========================================================================
-    // Waveform & Draggable Cut Markers ("The Wave Thing")
+    // Waveform & Cut Markers Timeline ("The Wavething")
     // =========================================================================
     function resizeWaveform() {
       const dpr = window.devicePixelRatio || 1;
-      const rect = waveContainer.getBoundingClientRect();
+      const rect = waveWrapper.getBoundingClientRect();
       waveCanvas.width = rect.width * dpr;
       waveCanvas.height = rect.height * dpr;
       waveCtx.scale(dpr, dpr);
@@ -492,7 +408,7 @@
 
       waveCtx.clearRect(0, 0, W, H);
 
-      // Background grid line
+      // Baseline
       waveCtx.strokeStyle = '#1c2128';
       waveCtx.lineWidth = 1;
       waveCtx.beginPath();
@@ -505,9 +421,9 @@
       const duration = audioBuffer.duration;
       const data = audioBuffer.getChannelData(0);
       const step = Math.ceil(data.length / W);
-      const amp = H * 0.42;
+      const amp = H * 0.44;
 
-      // 1. Draw RMS Waveform Peaks
+      // 1. Draw Waveform Peaks
       waveCtx.fillStyle = '#388bfd';
       for (let x = 0; x < W; x++) {
         let min = 1.0;
@@ -515,50 +431,50 @@
         const start = x * step;
         const end = Math.min(start + step, data.length);
         for (let j = start; j < end; j++) {
-          const datum = data[j];
-          if (datum < min) min = datum;
-          if (datum > max) max = datum;
+          const val = data[j];
+          if (val < min) min = val;
+          if (val > max) max = val;
         }
         const barH = Math.max(2, (max - min) * amp);
         waveCtx.fillRect(x, (H - barH) / 2, 1, barH);
       }
 
-      // 2. Draw Detected -35dB Silence Indicators (subtle dots)
-      waveCtx.fillStyle = 'rgba(251, 146, 60, 0.35)';
+      // 2. Draw -36dB Silence Marks
+      waveCtx.fillStyle = 'rgba(249, 115, 22, 0.3)';
       for (const p of detectedPauses) {
         const px = (p / duration) * W;
         waveCtx.fillRect(px - 1, 0, 2, H);
       }
 
-      // 3. Draw Scene Cut Markers with Top Handles (Draggable)
+      // 3. Draw Cut Markers with Handles
       for (let i = 1; i < sceneCuts.length - 1; i++) {
         const cutTime = sceneCuts[i];
         const cx = (cutTime / duration) * W;
 
-        // Cut Line
+        // Line
         waveCtx.strokeStyle = '#f97316';
         waveCtx.lineWidth = 2;
-        waveCtx.setLineDash([4, 3]);
+        waveCtx.setLineDash([3, 2]);
         waveCtx.beginPath();
         waveCtx.moveTo(cx, 0);
         waveCtx.lineTo(cx, H);
         waveCtx.stroke();
         waveCtx.setLineDash([]);
 
-        // Handle Badge at Top
+        // Handle Badge
         waveCtx.fillStyle = '#f97316';
         waveCtx.beginPath();
-        waveCtx.roundRect(cx - 24, 4, 48, 18, 9);
+        waveCtx.roundRect(cx - 20, 3, 40, 16, 8);
         waveCtx.fill();
 
         waveCtx.fillStyle = '#ffffff';
-        waveCtx.font = 'bold 9px ui-monospace, monospace';
+        waveCtx.font = 'bold 9px monospace';
         waveCtx.textAlign = 'center';
         waveCtx.textBaseline = 'middle';
-        waveCtx.fillText(`${cutTime.toFixed(1)}s`, cx, 13);
+        waveCtx.fillText(`${cutTime.toFixed(1)}s`, cx, 11);
       }
 
-      // 4. Draw White Playhead
+      // 4. Draw Playhead
       const curTime = audioElement.currentTime || 0;
       const playX = (curTime / duration) * W;
 
@@ -569,123 +485,103 @@
       waveCtx.lineTo(playX, H);
       waveCtx.stroke();
 
-      // Playhead Top Pointer
       waveCtx.fillStyle = '#ffffff';
       waveCtx.beginPath();
-      waveCtx.moveTo(playX - 6, 0);
-      waveCtx.lineTo(playX + 6, 0);
-      waveCtx.lineTo(playX, 8);
+      waveCtx.moveTo(playX - 5, 0);
+      waveCtx.lineTo(playX + 5, 0);
+      waveCtx.lineTo(playX, 7);
       waveCtx.closePath();
       waveCtx.fill();
     }
 
-    // Hit test cut marker handles
     function getMarkerUnderPointer(clientX) {
       if (!audioBuffer || sceneCuts.length < 3) return -1;
-      const rect = waveContainer.getBoundingClientRect();
+      const rect = waveWrapper.getBoundingClientRect();
       const clickX = clientX - rect.left;
       const W = rect.width;
       const duration = audioBuffer.duration;
 
       for (let i = 1; i < sceneCuts.length - 1; i++) {
         const mx = (sceneCuts[i] / duration) * W;
-        if (Math.abs(clickX - mx) <= 24) {
-          return i;
-        }
+        if (Math.abs(clickX - mx) <= 22) return i;
       }
       return -1;
     }
 
-    // Pointer Events for Dragging Cut Markers & Scrubbing (Mouse + Touch)
     function onPointerDown(e) {
       if (!audioBuffer) return;
       const clientX = e.touches ? e.touches[0].clientX : e.clientX;
       const markerIdx = getMarkerUnderPointer(clientX);
 
       if (markerIdx !== -1) {
-        activeDraggingMarkerIndex = markerIdx;
+        draggingMarkerIdx = markerIdx;
         window.addEventListener('mousemove', onPointerMove);
         window.addEventListener('touchmove', onPointerMove);
         window.addEventListener('mouseup', onPointerUp);
         window.addEventListener('touchend', onPointerUp);
       } else {
-        // Scrub
-        const rect = waveContainer.getBoundingClientRect();
+        const rect = waveWrapper.getBoundingClientRect();
         const ratio = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
         seekTo(ratio * audioBuffer.duration);
       }
     }
 
     function onPointerMove(e) {
-      if (activeDraggingMarkerIndex === null || !audioBuffer) return;
+      if (draggingMarkerIdx === null || !audioBuffer) return;
       const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-      const rect = waveContainer.getBoundingClientRect();
+      const rect = waveWrapper.getBoundingClientRect();
       const ratio = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
       let newTime = ratio * audioBuffer.duration;
 
-      // Auto-snap to detected silences within 0.4s
-      const nearPause = detectedPauses.find(p => Math.abs(p - newTime) < 0.4);
-      if (nearPause !== undefined) {
-        newTime = nearPause;
-      }
+      // Auto-snap to detected silences within 0.35s
+      const nearPause = detectedPauses.find(p => Math.abs(p - newTime) < 0.35);
+      if (nearPause !== undefined) newTime = nearPause;
 
-      // Constraints with neighbors (minimum 0.5s scene length)
-      const prevCut = sceneCuts[activeDraggingMarkerIndex - 1] + 0.5;
-      const nextCut = sceneCuts[activeDraggingMarkerIndex + 1] - 0.5;
+      // Boundary constraints
+      const prevCut = sceneCuts[draggingMarkerIdx - 1] + 0.4;
+      const nextCut = sceneCuts[draggingMarkerIdx + 1] - 0.4;
       newTime = Math.max(prevCut, Math.min(newTime, nextCut));
 
-      sceneCuts[activeDraggingMarkerIndex] = newTime;
-      rebuildScenesFromCuts();
+      sceneCuts[draggingMarkerIdx] = newTime;
+      rebuildScenes();
       drawWaveform();
       drawFrame(audioElement.currentTime);
     }
 
     function onPointerUp() {
-      activeDraggingMarkerIndex = null;
+      draggingMarkerIdx = null;
       window.removeEventListener('mousemove', onPointerMove);
       window.removeEventListener('touchmove', onPointerMove);
       window.removeEventListener('mouseup', onPointerUp);
       window.removeEventListener('touchend', onPointerUp);
     }
 
-    waveContainer.addEventListener('mousedown', onPointerDown);
-    waveContainer.addEventListener('touchstart', onPointerDown, { passive: true });
-
-    // Cursor update on hover over markers
-    waveContainer.addEventListener('mousemove', (e) => {
+    waveWrapper.addEventListener('mousedown', onPointerDown);
+    waveWrapper.addEventListener('touchstart', onPointerDown, { passive: true });
+    waveWrapper.addEventListener('mousemove', (e) => {
       const idx = getMarkerUnderPointer(e.clientX);
-      waveContainer.style.cursor = idx !== -1 ? 'ew-resize' : 'crosshair';
+      waveWrapper.style.cursor = idx !== -1 ? 'ew-resize' : 'crosshair';
     });
 
     // =========================================================================
-    // Canvas Preview & Full-Bleed Ken Burns Motion & Stroked Subtitles
+    // Canvas Preview: Full-Bleed Cover & Ken Burns Zoom & Subtitles
     // =========================================================================
     function drawFrame(currentTime) {
-      ctx.fillStyle = '#000000';
+      ctx.fillStyle = '#000';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      if (scenes.length === 0) {
-        ctx.fillStyle = '#555555';
-        ctx.font = 'bold 28px sans-serif';
-        ctx.textAlign = 'center';
-        ctx.fillText('Load assets or demo to preview', canvas.width / 2, canvas.height / 2);
-        return;
-      }
+      if (scenes.length === 0) return;
 
       // Find active scene
       let activeScene = scenes.find(s => currentTime >= s.start && currentTime <= s.end);
       if (!activeScene) activeScene = scenes[scenes.length - 1];
 
-      // Update overlay
-      document.getElementById('overlayScene').textContent = `Scene ${activeScene.id} of ${scenes.length}`;
-      document.getElementById('overlayTime').textContent = `${currentTime.toFixed(1)}s`;
+      // Ken Burns Calculation (1.0 -> 1.1 scale)
+      const sceneDur = activeScene.end - activeScene.start;
+      const progress = sceneDur > 0 ? (currentTime - activeScene.start) / sceneDur : 0;
+      const scale = 1.0 + 0.1 * Math.min(Math.max(progress, 0), 1);
 
-      // Ken Burns Calculation (1.0 -> 1.1 continuous push zoom)
-      const sceneDur = Math.max(0.1, activeScene.end - activeScene.start);
-      const progress = Math.min(1.0, Math.max(0, (currentTime - activeScene.start) / sceneDur));
-      const scale = 1.0 + 0.10 * progress;
-
-      // Draw Scaled Image (Full-Bleed Cover Fit)
+      // Draw Scaled Image (Cover)
       const img = activeScene.img;
       if (img && img.complete) {
         const hRatio = canvas.width / img.width;
@@ -699,37 +595,23 @@
         ctx.restore();
       }
 
-      // Draw Subtitles (Full sentence bold white with heavy black stroke on lower third)
+      // Draw Subtitles
       if (activeScene.text) {
         ctx.save();
-        const fontSize = Math.round(canvas.width * 0.048); // ~35px on 720x1280
-        const lineHeight = Math.round(fontSize * 1.34);
-        const strokeW = Math.max(4, Math.round(fontSize * 0.13));
-
-        ctx.font = `bold ${fontSize}px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`;
+        ctx.font = 'bold 36px sans-serif';
         ctx.textAlign = 'center';
         ctx.fillStyle = '#FFFFFF';
-        ctx.shadowColor = 'rgba(0, 0, 0, 0.95)';
-        ctx.shadowBlur = 12;
-        ctx.lineWidth = strokeW;
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.9)';
+        ctx.shadowBlur = 8;
+        ctx.lineWidth = 4;
         ctx.strokeStyle = '#000000';
-        ctx.lineJoin = 'round';
 
-        // Word-wrap onto bottom third
-        wrapText(ctx, activeScene.text, canvas.width / 2, canvas.height - 180, canvas.width - 100, lineHeight);
+        // Word-wrap caption text onto bottom third
+        wrapText(ctx, activeScene.text, canvas.width / 2, canvas.height - 180, canvas.width - 80, 46);
         ctx.restore();
       }
-
-      // Subtle Bottom Progress Bar
-      const totalDur = (audioBuffer && audioBuffer.duration) ? audioBuffer.duration : 1;
-      const totalProg = Math.min(1.0, currentTime / totalDur);
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
-      ctx.fillRect(0, canvas.height - 8, canvas.width, 8);
-      ctx.fillStyle = '#3b82f6';
-      ctx.fillRect(0, canvas.height - 8, canvas.width * totalProg, 8);
     }
 
-    // Word-wrap caption text onto bottom third, centered vertically around y
     function wrapText(context, text, x, y, maxWidth, lineHeight) {
       const words = text.split(' ');
       let line = '';
@@ -739,23 +621,17 @@
         const testLine = line + words[n] + ' ';
         const metrics = context.measureText(testLine);
         if (metrics.width > maxWidth && n > 0) {
-          lines.push(line.trim());
+          lines.push(line);
           line = words[n] + ' ';
         } else {
           line = testLine;
         }
       }
-      if (line.trim().length > 0) {
-        lines.push(line.trim());
-      }
+      lines.push(line);
 
-      const displayLines = lines.slice(0, 3);
-      const totalH = displayLines.length * lineHeight;
-      const startY = y - (totalH / 2) + (lineHeight / 2);
-
-      for (let k = 0; k < displayLines.length; k++) {
-        context.strokeText(displayLines[k], x, startY + k * lineHeight);
-        context.fillText(displayLines[k], x, startY + k * lineHeight);
+      for (let k = 0; k < lines.length; k++) {
+        context.strokeText(lines[k], x, y + k * lineHeight);
+        context.fillText(lines[k], x, y + k * lineHeight);
       }
     }
 
@@ -766,11 +642,10 @@
         timeDisplay.textContent = `${formatTime(t)} / ${formatTime(audioBuffer.duration)}`;
         drawFrame(t);
         drawWaveform();
+        highlightActiveScene(t);
         animFrameId = requestAnimationFrame(updateLoop);
       } else {
-        isPlaying = false;
-        playIcon.textContent = '▶';
-        playText.textContent = 'Play';
+        playBtn.textContent = 'Play';
       }
     }
 
@@ -778,46 +653,36 @@
       getAudioContext();
       if (audioElement.paused) {
         audioElement.play();
-        isPlaying = true;
-        playIcon.textContent = '⏸';
-        playText.textContent = 'Pause';
+        playBtn.textContent = 'Pause';
         updateLoop();
       } else {
         audioElement.pause();
-        isPlaying = false;
-        playIcon.textContent = '▶';
-        playText.textContent = 'Play';
+        playBtn.textContent = 'Play';
         cancelAnimationFrame(animFrameId);
       }
     });
 
     audioElement.addEventListener('ended', () => {
-      isPlaying = false;
-      playIcon.textContent = '▶';
-      playText.textContent = 'Play';
+      playBtn.textContent = 'Play';
     });
 
-    // =========================================================================
-    // In-Browser MediaRecorder Export with Live Progress Bar
-    // =========================================================================
+    // In-Browser MediaRecorder Export with Progress Bar (MP4 with WebM fallback)
     exportBtn.addEventListener('click', async () => {
       if (!audioBuffer) return;
       audioElement.pause();
       audioElement.currentTime = 0;
-      isPlaying = false;
-      playIcon.textContent = '▶';
-      playText.textContent = 'Play';
+      playBtn.textContent = 'Play';
 
       exportBtn.disabled = true;
       playBtn.disabled = true;
-      exportProgressContainer.classList.remove('hidden');
+      exportProgress.classList.remove('hidden');
 
       const videoStream = canvas.captureStream(30);
-      const actx = getAudioContext();
-      const sourceNode = actx.createBufferSource();
+      const audioCtx = getAudioContext();
+      const sourceNode = audioCtx.createBufferSource();
       sourceNode.buffer = audioBuffer;
 
-      const dest = actx.createMediaStreamDestination();
+      const dest = audioCtx.createMediaStreamDestination();
       sourceNode.connect(dest);
 
       const combined = new MediaStream([
@@ -844,17 +709,18 @@
         const blob = new Blob(chunks, { type: mimeType });
         const a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
-        a.download = `story_short.${ext}`;
+        a.download = `short_video.${ext}`;
         a.click();
 
         exportBtn.disabled = false;
         playBtn.disabled = false;
-        exportLabel.textContent = 'Export completed! Downloading...';
-        exportPercent.textContent = '100%';
+        exportText.textContent = 'Video exported!';
+        exportPct.textContent = '100%';
         exportBar.style.width = '100%';
-        statusEl.innerHTML = `<span class="inline-block w-2 h-2 rounded-full bg-emerald-400"></span> Video exported successfully!`;
+        statusEl.textContent = 'Video exported!';
       };
 
+      statusEl.textContent = 'Rendering & recording video...';
       recorder.start();
       sourceNode.start(0);
 
@@ -865,7 +731,7 @@
         const elapsed = (performance.now() - startTime) / 1000;
         const prog = Math.min(1.0, elapsed / duration);
         exportBar.style.width = `${Math.round(prog * 100)}%`;
-        exportPercent.textContent = `${Math.round(prog * 100)}%`;
+        exportPct.textContent = `${Math.round(prog * 100)}%`;
 
         if (elapsed < duration) {
           drawFrame(elapsed);
@@ -879,126 +745,102 @@
     });
 
     // =========================================================================
-    // 1-Click Load Demo Story (Instant Testing)
+    // 1-Click Load Demo Story
     // =========================================================================
     demoBtn.addEventListener('click', async () => {
-      await loadDemoStory();
-    });
-
-    async function loadDemoStory() {
-      statusEl.innerHTML = `<span class="inline-block w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span> Synthesizing demo audio & artwork...`;
-      
+      statusEl.textContent = "Synthesizing demo audio & visuals...";
       const actx = getAudioContext();
       const sampleRate = actx.sampleRate;
-      const totalSec = 22.0;
-      const cuts = [0, 5.2, 10.8, 16.5, 22.0];
+      const totalSec = 18.0;
+      const cuts = [0, 6.0, 12.0, 18.0];
       const audioBuf = actx.createBuffer(1, Math.floor(sampleRate * totalSec), sampleRate);
       const data = audioBuf.getChannelData(0);
 
       const demoLines = [
-        "In a quiet village nestled between rolling hills, a young baker named Elsa begins her day before sunrise.",
-        "But today, the magical yeast that makes her bread rise has gone missing from her pantry.",
-        "Elsa must venture into the Enchanted Forest to find the legendary Golden Yeast.",
-        "With the Golden Yeast restored, Elsa bakes the most magnificent bread the village has ever seen."
+        "In a quiet village, Elsa begins her day before sunrise.",
+        "The magical yeast that makes her bread rise has gone missing.",
+        "Elsa ventures into the Enchanted Forest to find the Golden Yeast."
       ];
 
-      // Synthesize 4 melodic chords with 0.4s breathing gaps
-      const freqs = [220, 261.6, 293.7, 329.6];
+      // Melodic chimes with pauses
+      const freqs = [261.6, 329.6, 392.0];
       for (let s = 0; s < demoLines.length; s++) {
         const startSamp = Math.floor(cuts[s] * sampleRate);
-        const endSamp = Math.floor((cuts[s + 1] - 0.45) * sampleRate);
+        const endSamp = Math.floor((cuts[s + 1] - 0.4) * sampleRate);
         const chordF = freqs[s];
-
         for (let i = startSamp; i < endSamp; i++) {
           const t = (i - startSamp) / sampleRate;
-          const tone = 0.28 * Math.sin(2 * Math.PI * chordF * t)
-                     + 0.14 * Math.sin(2 * Math.PI * (chordF * 1.5) * t)
-                     + 0.08 * Math.sin(2 * Math.PI * (chordF * 2.0) * t);
-          const cadence = 0.85 + 0.15 * Math.sin(2 * Math.PI * 1.8 * t);
-          data[i] = tone * cadence * Math.min(1.0, t / 0.08);
+          data[i] = (0.28 * Math.sin(2 * Math.PI * chordF * t) + 0.12 * Math.sin(2 * Math.PI * (chordF * 1.5) * t)) * Math.min(1.0, t / 0.08);
         }
       }
 
       audioBuffer = audioBuf;
       audioDurLabel.textContent = `${totalSec.toFixed(1)}s`;
 
-      // Synthesize WAV blob for audioElement
+      // Convert audio buffer to WAV for audio element
       const wavBlob = audioBufferToWavBlob(audioBuf);
       audioElement.src = URL.createObjectURL(wavBlob);
 
-      // Generate 4 vertical 1080x1920 artwork cards
-      const demoArtSpecs = [
-        { title: "Dawn at the Bakery", symbol: "🥐", bg: "#d97706", accent: "#f59e0b" },
-        { title: "The Empty Pantry", symbol: "✨", bg: "#2563eb", accent: "#38bdf8" },
-        { title: "The Enchanted Forest", symbol: "🌲", bg: "#059669", accent: "#34d399" },
-        { title: "The Golden Loaf", symbol: "🍞", bg: "#b45309", accent: "#fbbf24" }
+      // Create 3 demo images
+      const specs = [
+        { bg: "#d97706", symbol: "🥐", title: "THE BAKERY" },
+        { bg: "#2563eb", symbol: "✨", title: "EMPTY PANTRY" },
+        { bg: "#059669", symbol: "🌲", title: "ENCHANTED FOREST" }
       ];
 
-      uploadedImageObjects = [];
-      for (let i = 0; i < demoArtSpecs.length; i++) {
-        const spec = demoArtSpecs[i];
+      loadedImages = [];
+      for (let i = 0; i < specs.length; i++) {
         const c = document.createElement('canvas');
-        c.width = 1080;
-        c.height = 1920;
+        c.width = 720;
+        c.height = 1280;
         const g = c.getContext('2d');
 
-        // Vertical gradient
-        const grad = g.createLinearGradient(0, 0, 0, 1920);
+        const grad = g.createLinearGradient(0, 0, 0, 1280);
         grad.addColorStop(0, '#0f172a');
-        grad.addColorStop(0.5, spec.bg);
-        grad.addColorStop(1, '#090d16');
+        grad.addColorStop(0.5, specs[i].bg);
+        grad.addColorStop(1, '#020617');
         g.fillStyle = grad;
-        g.fillRect(0, 0, 1080, 1920);
+        g.fillRect(0, 0, 720, 1280);
 
-        // Center artistic aura
-        g.fillStyle = 'rgba(255, 255, 255, 0.15)';
+        g.fillStyle = 'rgba(255, 255, 255, 0.18)';
         g.beginPath();
-        g.arc(540, 780, 320, 0, Math.PI * 2);
+        g.arc(360, 520, 220, 0, Math.PI * 2);
         g.fill();
 
-        // Symbol
-        g.font = '240px sans-serif';
+        g.font = '160px sans-serif';
         g.textAlign = 'center';
         g.textBaseline = 'middle';
-        g.fillText(spec.symbol, 540, 760);
+        g.fillText(specs[i].symbol, 360, 500);
 
-        // Tag
-        g.fillStyle = spec.accent;
-        g.font = 'bold 44px -apple-system, sans-serif';
-        g.fillText(spec.title.toUpperCase(), 540, 1060);
+        g.fillStyle = '#ffffff';
+        g.font = 'bold 32px sans-serif';
+        g.fillText(specs[i].title, 360, 720);
 
         const img = new Image();
         img.src = c.toDataURL('image/png');
         await img.decode();
-        uploadedImageObjects.push(img);
+        loadedImages.push(img);
       }
 
-      // Populate script textarea
       document.getElementById('scriptInput').value = demoLines.join('\n');
       scriptCountLabel.textContent = `${demoLines.length} line(s)`;
-      imagesCountLabel.textContent = `${uploadedImageObjects.length} image(s)`;
+      imgCountLabel.textContent = `${loadedImages.length} image(s)`;
 
-      // Set detected pauses & cuts
-      detectedPauses = [5.0, 10.6, 16.3];
+      detectedPauses = [5.8, 11.8];
       sceneCuts = cuts.slice();
-
-      rebuildScenesFromCuts(demoLines);
-      document.getElementById('waveformEmptyPrompt').style.display = 'none';
-      drawWaveform();
+      rebuildScenes(demoLines);
+      resizeWaveform();
       seekTo(0);
       playBtn.disabled = false;
       exportBtn.disabled = false;
-      updateAssetBadges();
-      statusEl.innerHTML = `<span class="inline-block w-2 h-2 rounded-full bg-emerald-400"></span> Demo loaded: 4 scenes, 22.0s audio ready!`;
-    }
+      statusEl.textContent = "Built 3 scenes successfully.";
+    });
 
-    // Helper: Convert AudioBuffer to WAV Blob
     function audioBufferToWavBlob(buffer) {
       const numOfChan = buffer.numberOfChannels;
       const length = buffer.length * numOfChan * 2 + 44;
       const out = new DataView(new ArrayBuffer(length));
       const channels = [];
-      let sample = 0;
       let offset = 0;
       let pos = 0;
 
@@ -1025,7 +867,7 @@
 
       while (offset < buffer.length) {
         for (let i = 0; i < numOfChan; i++) {
-          sample = Math.max(-1, Math.min(1, channels[i][offset]));
+          let sample = Math.max(-1, Math.min(1, channels[i][offset]));
           sample = (0.5 + sample < 0 ? sample * 32768 : sample * 32767) | 0;
           out.setInt16(pos, sample, true);
           pos += 2;
@@ -1035,10 +877,8 @@
       return new Blob([out.buffer], { type: 'audio/wav' });
     }
 
-    // Initialize layout and load demo on start
     window.addEventListener('DOMContentLoaded', () => {
       resizeWaveform();
-      loadDemoStory();
     });
   </script>
 </body>

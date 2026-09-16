@@ -120,9 +120,9 @@
     "semantic_hash": ""
   },
   "index.html": {
-    "mtime": 1789594222.4888802,
-    "seen": 1789594262.4521039,
-    "ast_hash": "d410cef6351894e8a7189fb136e8d916",
+    "mtime": 1789595355.1808798,
+    "seen": 1789595411.8527675,
+    "ast_hash": "9492803b4528c5803423c40693436624",
     "semantic_hash": ""
   },
   "requirements.txt": {
@@ -156,9 +156,9 @@
     "semantic_hash": ""
   },
   "web/index.html": {
-    "mtime": 1789594226.58488,
-    "seen": 1789594262.452117,
-    "ast_hash": "d410cef6351894e8a7189fb136e8d916",
+    "mtime": 1789595371.3448799,
+    "seen": 1789595411.8527837,
+    "ast_hash": "9492803b4528c5803423c40693436624",
     "semantic_hash": ""
   },
   "assets/voice-over/narration.mp3": {
@@ -186,15 +186,15 @@
     "semantic_hash": ""
   },
   "AR.html": {
-    "mtime": 1789594932.7888799,
-    "seen": 1789594954.2560647,
-    "ast_hash": "d410cef6351894e8a7189fb136e8d916",
+    "mtime": 1789595371.35688,
+    "seen": 1789595411.8527555,
+    "ast_hash": "9492803b4528c5803423c40693436624",
     "semantic_hash": ""
   },
   "web/AR.html": {
-    "mtime": 1789594932.80088,
-    "seen": 1789594954.2560904,
-    "ast_hash": "d410cef6351894e8a7189fb136e8d916",
+    "mtime": 1789595371.39288,
+    "seen": 1789595411.8527815,
+    "ast_hash": "9492803b4528c5803423c40693436624",
     "semantic_hash": ""
   }
 }
