@@ -23,6 +23,9 @@ run:
 web:
 	$(PYTHON) main.py --web
 
+tui:
+	$(PYTHON) main.py --tui
+
 sample-assets:
 	$(PYTHON) scripts/generate_sample_assets.py
 
@@ -58,6 +61,7 @@ help:
 	@echo "  make termux-setup  - Install Termux Android packages (python-pillow, ffmpeg)"
 	@echo "  make run           - Run the full storytelling pipeline and render final_story.mp4"
 	@echo "  make web           - Launch the local Web UI Studio on http://localhost:8000"
+	@echo "  make tui           - Launch the interactive Termux / mobile Terminal UI"
 	@echo "  make sample-assets - Regenerate demo sample story assets"
 	@echo "  make test          - Run unit and pipeline integration tests"
 	@echo "  make clean         - Remove generated outputs, processed files, and python caches"

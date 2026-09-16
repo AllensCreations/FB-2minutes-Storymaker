@@ -70,11 +70,16 @@ This single command automatically:
 ### Ready to Run:
 
 ```bash
-# Launch the Creative Studio Web UI (open http://localhost:8000)
+# 📱 Interactive Terminal Studio (Optimized for Android Termux)
+fb-storymaker --tui
+# or simply:
+fb-storymaker
+
+# 🌐 Launch the Creative Studio Web UI (open http://localhost:8000)
 fb-storymaker --web
 
-# Or render the 9:16 master story video directly via CLI
-fb-storymaker
+# 🎬 Render the 9:16 master story video directly in batch mode
+fb-storymaker --render
 ```
 
 ---
@@ -90,9 +95,51 @@ cd FB-2minutes-Storymaker
 make setup
 
 # Run the Storymaker
-make run   # CLI Video Render -> assets/output/final_story.mp4
-make web   # Creative Studio Web UI -> http://localhost:8000
+make tui   # 📱 Interactive Terminal Studio (best for Termux on Android)
+make web   # 🌐 Creative Studio Web UI -> http://localhost:8000
+make run   # 🎬 Batch Video Render -> assets/output/final_story.mp4
 ```
+
+---
+
+## 📱 Interactive Termux Terminal UI (TUI)
+
+For Android Termux users who want an interactive dashboard without memorizing command line flags:
+
+```bash
+make tui
+# or
+fb-storymaker --tui
+```
+
+```text
+┌────────────────────────────────────────────────────────┐
+│  FB-2MINUTES STORYMAKER  -  TERMUX CREATIVE STUDIO     │
+│  Picture-Book Motion & Narrative Synchronizer          │
+└────────────────────────────────────────────────────────┘
+  [✓] Narration Audio  : assets/voice-over/narration.mp3
+  [✓] Story Script     : assets/scripts/story.txt
+  [✓] Visuals (Zip)    : assets/visuals/story_visuals.zip
+  [✓] Master Video     : assets/output/final_story.mp4 (4.2 MB)
+──────────────────────────────────────────────────────────
+  [1] 🎬 Render Master Video (Picture-Book Motion 9:16)
+  [2] 🌐 Launch Web Creative Studio (open in Android browser)
+  [3] 🔍 Inspect Scene Mapping Matrix & Audio Beats
+  [4] ▶️  Play / Watch Rendered Video (Android Player)
+  [5] ✨ Switch / Reset Sample Story (Scout & Jem / Elsa)
+  [6] 🩺 Termux Dependency Check & Auto-Repair
+  [0] 🚪 Exit
+```
+
+### Features built specifically for Termux:
+- **Zero External Dependencies**: Pure Python 3 ANSI escape codes and UTF-8 box drawing.
+- **Live Asset Monitor**: Instantly see if your voice-over, script, and image assets are in place.
+- **Live Render Progress**: Real-time rendering percentage bar `[████████░░░░] 67%`.
+- **Android Intent Integration**:
+  - Automatically opens Web Studio in Android Chrome/Firefox via `termux-open-url`.
+  - Automatically opens the rendered `.mp4` directly in your phone's default video player via `termux-open`.
+- **Termux Doctor**: Checks for `pkg install -y python-pillow ffmpeg` and repairs missing packages with a single keystroke.
+
 
 ---
 

@@ -96,15 +96,15 @@
     "semantic_hash": ""
   },
   "EXAMPLE_WORKFLOW.md": {
-    "mtime": 1789589684.1128793,
-    "seen": 1789589710.3555663,
-    "ast_hash": "4de97d203e340bf4d30d7250d668bd94",
+    "mtime": 1789591420.452879,
+    "seen": 1789591442.238803,
+    "ast_hash": "d090fb454deab63034cb50c76ce01559",
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1789590730.8088791,
-    "seen": 1789590741.4339938,
-    "ast_hash": "8338405b0c3de42f397be5542d75444f",
+    "mtime": 1789591432.004879,
+    "seen": 1789591442.238807,
+    "ast_hash": "6858685972009ae448ee3dc8cb285038",
     "semantic_hash": ""
   },
   "assets/processed/alignment.txt": {
@@ -120,9 +120,9 @@
     "semantic_hash": ""
   },
   "index.html": {
-    "mtime": 1789588390.3688796,
-    "seen": 1789589710.3555746,
-    "ast_hash": "4c7086b75b5a529fdfc72cefb27d9e65",
+    "mtime": 1789591407.404879,
+    "seen": 1789591442.2388144,
+    "ast_hash": "8569b670c4d37d7f426fdec5ecec2115",
     "semantic_hash": ""
   },
   "requirements.txt": {
@@ -156,9 +156,9 @@
     "semantic_hash": ""
   },
   "web/index.html": {
-    "mtime": 1789589519.1128793,
-    "seen": 1789589710.355587,
-    "ast_hash": "8bd16b88e1f72a514637ca29f6f6fcdd",
+    "mtime": 1789591403.404879,
+    "seen": 1789591442.2388275,
+    "ast_hash": "8569b670c4d37d7f426fdec5ecec2115",
     "semantic_hash": ""
   },
   "assets/voice-over/narration.mp3": {

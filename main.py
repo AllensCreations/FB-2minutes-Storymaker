@@ -103,7 +103,10 @@ def start_web_server(port: int = 8000):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="FB 2minutes Storymaker - Automated Storytelling Engine")
+    parser = argparse.ArgumentParser(
+        description="FB 2minutes Storymaker - Automated Storytelling Engine"
+    )
+    parser.add_argument("--tui", action="store_true", help="Launch the interactive Termux / mobile Terminal UI")
     parser.add_argument("--run", action="store_true", help="Execute the complete story generation pipeline")
     parser.add_argument("--web", action="store_true", help="Launch the local Web UI Studio")
     parser.add_argument("--port", type=int, default=8000, help="Port for the Web UI (default: 8000)")
@@ -112,6 +115,12 @@ def main():
     parser.add_argument("--check", action="store_true", help="Check asset status and exit")
 
     args = parser.parse_args()
+
+    # Route: Termux Interactive TUI
+    if args.tui or (len(sys.argv) == 1 and sys.stdin.isatty()):
+        from termux_ui import run_tui_main
+        run_tui_main()
+        return
 
     # Route: Web UI
     if args.web:
