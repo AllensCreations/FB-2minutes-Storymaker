@@ -13,9 +13,8 @@ import sys
 def is_termux() -> bool:
     """Detect if running in Termux on Android."""
     return (
-        os.path.exists("/data/data/com.termux")
-        or bool(os.environ.get("TERMUX_VERSION"))
-        or (shutil.which("pkg") is not None and "termux" in os.environ.get("PREFIX", "").lower())
+        bool(os.environ.get("TERMUX_VERSION"))
+        or (shutil.which("pkg") is not None and "com.termux" in os.environ.get("PREFIX", ""))
     )
 
 

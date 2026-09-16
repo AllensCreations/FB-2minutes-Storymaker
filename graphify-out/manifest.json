@@ -18,9 +18,9 @@
     "semantic_hash": ""
   },
   "setup_local.sh": {
-    "mtime": 1789590259.0728793,
-    "seen": 1789590307.5068617,
-    "ast_hash": "d0de2b2821a32fe26bc6d4891f99ca20",
+    "mtime": 1789590655.6888793,
+    "seen": 1789590741.43396,
+    "ast_hash": "5d712e9983474f3f45e0a3fae327b839",
     "semantic_hash": ""
   },
   "src/align_engine/__init__.py": {
@@ -102,9 +102,9 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1789590297.9528792,
-    "seen": 1789590307.5069306,
-    "ast_hash": "246fb1f85a04834cf562104e3addea5d",
+    "mtime": 1789590730.8088791,
+    "seen": 1789590741.4339938,
+    "ast_hash": "8338405b0c3de42f397be5542d75444f",
     "semantic_hash": ""
   },
   "assets/processed/alignment.txt": {
@@ -114,8 +114,8 @@
     "semantic_hash": ""
   },
   "assets/scripts/story.txt": {
-    "mtime": 1789589277.6408794,
-    "seen": 1789589710.3555725,
+    "mtime": 1789590696.1408792,
+    "seen": 1789590741.4339979,
     "ast_hash": "5c1796d89f2ef18564d3b0e153ac5838",
     "semantic_hash": ""
   },
@@ -162,15 +162,21 @@
     "semantic_hash": ""
   },
   "assets/voice-over/narration.mp3": {
-    "mtime": 1789589280.2248793,
-    "seen": 1789589710.3555892,
+    "mtime": 1789590698.704879,
+    "seen": 1789590741.4340138,
     "ast_hash": "2305a497cf0fe4dbe4b58128b17f4322",
     "semantic_hash": ""
   },
   "src/deps_helper.py": {
-    "mtime": 1789590225.1328793,
-    "seen": 1789590307.506888,
-    "ast_hash": "a2b9a8bfaf8fb8398146092f7d705c2a",
+    "mtime": 1789590661.9928792,
+    "seen": 1789590741.4339712,
+    "ast_hash": "c1f7878ae166c050cbaad8cb498af33d",
+    "semantic_hash": ""
+  },
+  "install.sh": {
+    "mtime": 1789590650.6608791,
+    "seen": 1789590741.4339354,
+    "ast_hash": "b5562fee6b0f5637412c1de644e22634",
     "semantic_hash": ""
   }
 }

@@ -16,15 +16,11 @@ echo "========================================================"
 
 # 0. Check for Termux (Android)
 IS_TERMUX=0
-if [ -d "/data/data/com.termux" ] || [ -n "$TERMUX_VERSION" ]; then
+if [ -n "$TERMUX_VERSION" ] || (command -v pkg >/dev/null 2>&1 && [ -n "$PREFIX" ]); then
     IS_TERMUX=1
     echo "📱 Termux (Android) environment detected!"
     echo "Installing Termux pre-compiled packages (python-pillow, ffmpeg)..."
-    if command -v pkg >/dev/null 2>&1; then
-        pkg install -y python-pillow ffmpeg || true
-    elif command -v apt >/dev/null 2>&1; then
-        apt install -y python-pillow ffmpeg || true
-    fi
+    pkg install -y python-pillow ffmpeg || true
 fi
 
 # 1. Check Python

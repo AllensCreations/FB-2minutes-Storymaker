@@ -52,36 +52,47 @@ FB-2minutes Storymaker implements the editorial behavior, narrative pacing, and 
 
 ---
 
-## 🚀 Quickstart: Running Locally
+## 🚀 Quickstart: One-Line Installation
 
-### 1. Prerequisites
-- **Python 3.8+**
-- **FFmpeg & Pillow** (required for frame rendering, video export, and audio multiplexing)
-  - **Android (Termux)**: `pkg install -y python-pillow ffmpeg` (or `make termux-setup`)
-  - **Ubuntu / Debian**: `sudo apt update && sudo apt install -y python3-pil ffmpeg`
-  - **macOS (Homebrew)**: `brew install ffmpeg && pip install Pillow`
-  - **Windows**: `winget install Gyan.FFmpeg && pip install Pillow`
+Install and configure everything in one command (no manual cloning required):
 
-### 2. Automated One-Command Setup
-Clone the repository and run the setup script:
+```bash
+curl -fsSL https://raw.githubusercontent.com/AllensCreations/FB-2minutes-Storymaker/main/install.sh | bash
+```
+
+This single command automatically:
+1. **Detects your system**: **Android (Termux)**, **Debian/Ubuntu**, **macOS**, or generic Linux
+2. **Installs packages**: `python-pillow`, `ffmpeg`, `python3`, and `git`
+3. **Clones or updates** the repository into `./FB-2minutes-Storymaker`
+4. **Prepares demo assets**: Creates the sample story script, illustration cards, and narration audio
+5. **Installs global launcher**: Adds the `fb-storymaker` command directly to your PATH
+
+### Ready to Run:
+
+```bash
+# Launch the Creative Studio Web UI (open http://localhost:8000)
+fb-storymaker --web
+
+# Or render the 9:16 master story video directly via CLI
+fb-storymaker
+```
+
+---
+
+### Alternative: Clone & Run via Makefile
+
+If you prefer cloning manually:
 ```bash
 git clone https://github.com/AllensCreations/FB-2minutes-Storymaker.git
 cd FB-2minutes-Storymaker
 
-# One-command environment setup (checks ffmpeg, python, dependencies, sample assets)
+# Automated local setup
 make setup
-```
-*(Alternatively: `./setup_local.sh`)*
 
-### 3. Generate the Master Video via CLI
-To run the full end-to-end rendering pipeline:
-```bash
-make run
+# Run the Storymaker
+make run   # CLI Video Render -> assets/output/final_story.mp4
+make web   # Creative Studio Web UI -> http://localhost:8000
 ```
-*(Or `python3 main.py`)*
-
-Output video will be saved to:
-`assets/output/final_story.mp4`
 
 ---
 
