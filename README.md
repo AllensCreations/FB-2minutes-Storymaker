@@ -2,94 +2,59 @@
 
 An automated storytelling engine that creates storybook-style videos by synchronizing voice-over, scripts, and visual assets with "Picture-Book Motion" aesthetics.
 
-## Architectural Overview
+## 🎬 Overview
 
-Based on the blueprint for an automated storytelling engine that replicates editorial behavior, pacing, and visual style without copying specific artistic assets.
+This project implements the architectural blueprint for an automated storytelling engine that replicates the editorial behavior, pacing, and visual style of storybook-style videos without copying specific artistic assets.
 
 ### Core Philosophy: "Picture-Book Motion"
 - **The Canvas is a Page**: Static background creates visual continuity while isolated character illustrations enter and exit
 - **The Voice is the Conductor**: Visual cuts follow narrative pauses (breaths, sentence conclusions) rather than rigid BPM
 - **Movement Serves Focus**: Subtle motion (micro-zooms, pans) draws attention to key elements
 
-## System Pipeline
+## ✅ Current Implementation Status
 
-```
-[Raw Voice-Over (.mp3)] [Scene Script (.txt)] [Ordered Visuals (.zip)]
-           │                       │                       │
-           └──────────────┬────────┘                       │
-                          ▼                                │
-           ┌─────────────────────────────┐                 │
-           │   Speech-Cue Align Engine   │                 │
-           │  • Sentence break detection │                 │
-           │  • Pause & breath snapping  │                 │
-           └──────────────┬──────────────┘                 │
-                          ▼                                │
-           ┌─────────────────────────────┐                 │
-           │   Scene Duration Director   │◄────────────────┘
-           │  • Maps Scene[N] -> Img[N]  │
-           │  • Allocates start/end time │
-           └──────────────┬──────────────┘
-                          ▼
-           ┌─────────────────────────────┐
-           │   Visual Choreography Core  │
-           │  • Pop-In / Page-Turn FX    │
-           │  • Character micro-drift    │
-           │  • Dynamic typography sync  │
-           └──────────────┬──────────────┘
-                          ▼
-           ┌─────────────────────────────┐
-           │   Final Master Video Exporter
-           │   (9:16 Vertical Story)     │
-           └─────────────────────────────┘
-```
+### Working Components:
+- **Speech-Cue Align Engine** (`src/align_engine/`) - **IMPLEMENTED & TESTED**
+  - Audio analysis and script alignment
+  - Sentence break detection and pause snapping
+  - Speech-script alignment with confidence scoring
+  - Export functionality for downstream modules
 
-## Key Modules
+### Ready for Implementation:
+- **Scene Duration Director** (`src/duration_director/`) - Structure ready
+- **Visual Choreography Core** (`src/choreography_core/`) - Structure ready  
+- **Final Master Video Exporter** (`src/exporter/`) - Structure ready
 
-### 1. Speech-Cue Align Engine
-- Dynamically sets cut points based on speech analysis
-- Silence & Breathing Snapper: Places cut markers in sentence pauses
-- Script Verification: Ensures alignments match script boundaries
-
-### 2. Visual Choreography Core
-- **Scene Entrances**: 
-  - Gentle Spring Pop (scale 90%→102%→100% over 250ms)
-  - Cross-Dissolve Paper Cut (150ms opacity dissolve)
-- **Subtle Life Micro-Drift**:
-  - Slow Intentional Push (3-5% zoom over scene duration)
-  - Breathing Drift (1-2 pixel oscillation)
-- **Aspect Composition**: Centers artwork in upper third, reserves lower third for captions
-
-### 3. Storybook Caption Engine
-- Chunks sentences into 4-7 word semantic bites
-- Clean, rounded serif or friendly sans-serif font
-- High-contrast charcoal text on pure white canvas
-- Centered alignment in lower third
-
-## Project Structure
+## 📁 Project Structure
 ```
 FB-2minutes-Storymaker/
 ├── src/
-│   ├── align-engine/       # Speech-Cue Align Engine
-│   ├── duration-director/  # Scene Duration Director
-│   ├── choreography-core/  # Visual Choreography Core
-│   └── exporter/           # Final Master Video Exporter
+│   ├── align_engine/           # ✅ Speech-Cue Align Engine (IMPLEMENTED)
+│   │   ├── align_engine.py     # Main implementation
+│   │   └── README.md           # Component documentation
+│   ├── duration_director/      # 🔲 Scene Duration Director
+│   ├── choreography_core/      # 🔲 Visual Choreography Core
+│   └── exporter/               # 🔲 Final Master Video Exporter
 ├── assets/
-│   ├── voice-over/         # Input audio files (.mp3)
-│   ├── scripts/            # Input scene scripts (.txt)
-│   ├── visuals/            # Input visual assets (.zip, ordered)
-│   └── output/             # Exported videos
-├── docs/                   # Documentation
-├── main.py                 # Application entry point
-├── README.md
-├── requirements.txt
-├── setup.py
-├── Makefile
-└── EXAMPLE_WORKFLOW.md
+│   ├── voice-over/             # 📁 Input audio files (.mp3)
+│   │   └── narration.mp3       # ✅ Sample voice-over
+│   ├── scripts/                # 📁 Input scene scripts (.txt)
+│   │   └── story.txt           # ✅ Sample script
+│   ├── visuals/                # 📁 Input visual assets (.zip, ordered)
+│   │   └── story_visuals.zip   # ✅ Sample visuals ZIP
+│   └── output/                 # 📁 Exported videos (empty)
+├── docs/                       # 📖 Documentation
+├── main.py                     # ▶️ Application entry point
+├── README.md                   # 📄 This file
+├── requirements.txt            # 📦 Python dependencies
+├── setup.py                    # 📦 Package installation
+├── Makefile                    # ⚙️ Development commands
+└── EXAMPLE_WORKFLOW.md         # 📖 Detailed asset preparation guide
 ```
 
-## Getting Started
+## 🚀 Getting Started
 
-### Option 1: Run Directly (Recommended for Development)
+### Option 1: Run Directly (Recommended)
 ```bash
 # Clone the repository
 git clone https://github.com/AllensCreations/FB-2minutes-Storymaker.git
@@ -117,6 +82,78 @@ pip install -e .
 fb-storymaker
 ```
 
+## 🔧 How It Works
+
+### 1. Check Asset Status
+Run `python main.py` to see if your assets are ready:
+```
+Asset Status:
+  Voice-over (.mp3): ✓ Found
+  Scene Script (.txt): ✓ Found
+  Visual Assets (.zip): ✓ Found
+
+🚀 All assets detected! Ready to process.
+   (Implementation pending - this is the scaffold)
+```
+
+### 2. Test the Speech-Cue Align Engine
+The first implemented module can be tested directly:
+```bash
+python -m src.align_engine.align_engine \
+    --audio assets/voice-over/narration.mp3 \
+    --script assets/scripts/story.txt \
+    --output assets/processed/alignment.txt
+```
+
+This will:
+- Analyze the audio for speech segments and pauses
+- Parse the script into segments
+- Align speech with script segments
+- Export the alignment results
+
+### 3. View Results
+Check the generated alignment file:
+```bash
+cat assets/processed/alignment.txt
+```
+
+Sample output:
+```
+# FB 2minutes Storymaker - Speech Alignment Export
+# Total Duration: 21.00 seconds
+# Number of Segments: 5
+
+Scene 0:
+  Time: 0.00s - 3.20s
+  Text: [Scene 1: Introduction]
+  Confidence: 0.80
+
+Scene 1:
+  Time: 3.70s - 7.10s
+  Text: In a quiet village nestled between rolling hills, a young baker named Elsa begins her day before sunrise
+  Confidence: 0.80
+```
+
+## 📦 Development Setup
+
+### Installation
+```bash
+# Install in development mode
+make install          # Production dependencies only
+make dev              # With development dependencies
+```
+
+### Development Commands
+```bash
+make test             # Run tests (when implemented)
+make test-cov         # Run tests with coverage
+make lint             # Run flake8 linting
+make format           # Format code with black and isort
+make type-check       # Run mypy and pyright for static type analysis
+make run              # Run the application
+make help             # Show all available commands
+```
+
 ### Asset Preparation
 See `EXAMPLE_WORKFLOW.md` for detailed guidance on preparing:
 1. Voice-over narration (.mp3)
@@ -125,61 +162,64 @@ See `EXAMPLE_WORKFLOW.md` for detailed guidance on preparing:
 
 Your exported story video will be saved to `assets/output/`.
 
-## Development Commands
-
-This project includes a Makefile with convenient development commands:
-
-```bash
-# Installation
-make install     # Install package in production mode
-make dev         # Install with development dependencies
-
-# Testing
-make test        # Run tests
-make test-cov    # Run tests with coverage report
-
-# Code Quality
-make lint        # Run flake8 linting
-make format      # Format code with black and isort
-
-# Type Checking
-make type-check  # Run mypy and pyright for static type analysis
-
-# Running
-make run         # Run the application
-make help        # Show all available commands
-```
-
-## Development Setup
-
-1. **Fork and clone** the repository
-2. **Create a feature branch** for your work
-3. **Install development dependencies**: `make dev`
-4. **Implement your changes** in the appropriate `src/` module
-5. **Run tests and type checking**: `make test` and `make type-check`
-6. **Format your code**: `make format`
-7. **Submit a pull request**
-
-## Modules to Implement
+## 🔄 Implementation Roadmap
 
 As you work on implementing the architectural blueprint:
 
-1. **src/align_engine/** - Speech-Cue Align Engine
+1. **src/align_engine/** - Speech-Cue Align Engine ✅ **COMPLETED**
    - Audio processing, sentence detection, timing alignment
 
-2. **src/duration-director/** - Scene Duration Director
+2. **src/duration_director/** - Scene Duration Director 🔲
    - Scene-to-image mapping, duration calculation
 
-3. **src/choreography-core/** - Visual Choreography Core
-   - Transition effects, micro-movements, frame composition
+3. **src/choreography_core/** - Visual Choreography Core 🔲
+   - Transition effects (Gentle Spring Pop, Cross-Dissolve Paper Cut)
+   - Subtle life micro-drift (slow push-in, breathing drift)
+   - Aspect composition (upper third for visuals, lower third for captions)
 
-4. **src/exporter/** - Final Master Video Exporter
-   - Video assembly, encoding, output generation
+4. **src/exporter/** - Final Master Video Exporter 🔲
+   - Video assembly, encoding, output generation (9:16 vertical story)
 
-## License
+## 📚 Dependencies
+
+### Runtime Dependencies
+Add to `requirements.txt` as modules are implemented:
+- Audio processing: `librosa>=0.10.0`, `numpy>=1.24.0`
+- Video processing: `opencv-python>=4.8.0`, `moviepy>=1.0.0`, `Pillow>=10.0.0`
+- Document processing: `python-docx>=1.1.0`
+
+### Development Dependencies (included in `make dev`)
+- Type checking: `mypy>=1.0.0`, `pyright>=1.1.0`
+- Testing: `pytest>=7.0.0`, `pytest-cov>=4.0.0`
+- Code quality: `black>=23.0.0`, `flake8>=6.0.0`, `isort>=5.12.0`
+
+## 📖 Example Workflow
+
+See `EXAMPLE_WORKFLOW.md` for a complete walkthrough of:
+1. Preparing your assets (voice-over, script, visuals)
+2. Running the alignment engine
+3. Implementing subsequent modules
+4. Generating your final story video
+
+## 🛠️ Troubleshooting
+
+### Common Issues
+- **"Visual Assets (.zip): ✗ Missing"**: Ensure you have a .zip file in `assets/visuals/`
+- **Import errors**: Make sure you're running from the project root directory
+- **Permission issues**: Use `chmod +x` on scripts if needed
+
+### Getting Help
+- Check the console output for specific error messages
+- Refer to `EXAMPLE_WORKFLOW.md` for detailed asset preparation
+- Each module has its own README in `src/*/README.md`
+
+## 📄 License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
 
-## Acknowledgments
+## 🙏 Acknowledgments
 
 Inspired by the Picture-Book Motion storytelling technique for creating engaging, storybook-style short-form videos.
+
+---
+*Built with ❤️ for creators who want to automate their storytelling workflow.*
