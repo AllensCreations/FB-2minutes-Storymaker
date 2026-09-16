@@ -1,89 +1,101 @@
 # Example Workflow for FB 2minutes Storymaker
 
+This guide explains how to prepare assets, run the storytelling engine, and preview your creations.
+
+---
+
 ## Step 1: Prepare Your Assets
 
-### Voice-Over
-Place your narration audio file in `assets/voice-over/`:
+The pipeline expects 3 primary inputs in the `assets/` directory:
+
+### 1. Voice-Over (`assets/voice-over/narration.mp3` or `.wav`)
+Place your voice-over narration in `assets/voice-over/`:
 ```
 assets/voice-over/
 └── narration.mp3
 ```
 
-### Scene Script
-Create a text file with your scene descriptions in `assets/scripts/`:
+### 2. Scene Script (`assets/scripts/story.txt`)
+Create a text file with your scenes in `assets/scripts/`:
 ```
 assets/scripts/
 └── story.txt
 ```
 
-Example story.txt format:
-```
+Example `story.txt` format:
+```text
 [Scene 1: Introduction]
 In a quiet village nestled between rolling hills, a young baker named Elsa begins her day before sunrise.
 
-[Scene 2: Conflict]
+[Scene 2: The Problem]
 But today, the magical yeast that makes her bread rise has gone missing from her pantry.
 
-[Scene 3: Journey]
+[Scene 3: The Journey]
 Elsa must venture into the Enchanted Forest to find the legendary Golden Yeast.
 
-[Scene 4: Resolution]
+[Scene 4: The Discovery]
+Deep in the forest, she discovers the yeast guarded by a friendly forest spirit.
+
+[Scene 5: The Return]
 With the Golden Yeast restored, Elsa bakes the most magnificent bread the village has ever seen.
+
+[Scene 6: Celebration]
+The village celebrates with a feast, and Elsa's fame as the finest baker spreads throughout the land.
 ```
 
-### Visual Assets
-Prepare a ZIP file with numbered illustrations in `assets/visuals/`:
+### 3. Visual Assets (`assets/visuals/story_visuals.zip`)
+Prepare a ZIP file with sequentially numbered illustrations (PNG, JPG, or WebP):
 ```
 assets/visuals/
 └── story_visuals.zip
 ```
 
-Inside the ZIP, name your files sequentially:
+Inside the ZIP archive, name the files matching scene numbers:
 ```
 story_visuals.zip
-├── 01.png    # Village sunrise
-├── 02.png    # Empty pantry
-├── 03.png    # Enchanted forest path
-├── 04.png    # Golden yeast discovery
-└── 05.png    # Village feast
+├── scene_1.png    # Village bakery sunrise
+├── scene_2.png    # Empty yeast jar
+├── scene_3.png    # Enchanted forest trail
+├── scene_4.png    # Forest spirit discovery
+├── scene_5.png    # Golden loaf
+└── scene_6.png    # Village celebration feast
 ```
+
+*(Tip: You can regenerate sample assets anytime using `make sample-assets` or `python3 main.py --generate-assets`)*
+
+---
 
 ## Step 2: Run the Storymaker
 
+### Option A: Via Command Line
 ```bash
-# Using the installed command
-fb-storymaker
-
-# Or directly with Python
-python main.py
+# Run full rendering pipeline
+make run
+# or
+python3 main.py
 ```
 
-## Step 3: Find Your Output
+### Option B: Via Creative Studio Web UI
+```bash
+# Launch local Web Studio
+make web
+# or
+python3 main.py --web
+```
+Open **http://localhost:8000** in your browser to inspect assets, preview storyboard cards, trigger rendering, and watch the video playback.
 
-Your completed story video will be in:
+---
+
+## Step 3: View & Export Your Master Video
+
+The completed 9:16 vertical video will be exported to:
 ```
 assets/output/
-└── story_video.mp4
+└── final_story.mp4
 ```
 
-## Development Notes
-
-As you implement each module:
-
-1. **Speech-Cue Align Engine** (`src/align_engine/`):
-   - Will analyze narration.mp3 for sentence breaks and breaths
-   - Will read story.txt for semantic boundaries
-   - Will output timing mappings for each scene
-
-2. **Scene Duration Director** (`src/duration-director/`):
-   - Will map each scene to its corresponding visual (01.png, 02.png, etc.)
-   - Will allocate display time based on speech analysis
-
-3. **Visual Choreography Core** (`src/choreography-core/`):
-   - Will apply Gentle Spring Pop transitions between scenes
-   - Will add subtle micro-movements to keep visuals engaging
-   - Will compose frames with visuals in upper third, text in lower third
-
-4. **Final Master Video Exporter** (`src/exporter/`):
-   - Will assemble the processed visual sequence with audio
-   - Will export as MP4 in 9:16 vertical format suitable for stories/reels
+### Video Specifications:
+- **Format**: H.264 / AAC MP4 (FastStart enabled)
+- **Aspect Ratio**: 9:16 vertical (1080 &times; 1920)
+- **Frame Rate**: 24 fps (customizable with `--fps`)
+- **Aesthetics**: Picture-Book Motion (Spring-pop entrances, slow push micro-drift, dynamic narrative caption card)

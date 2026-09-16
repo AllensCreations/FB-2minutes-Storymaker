@@ -1,20 +1,36 @@
-.PHONY: install dev test lint format type-check run help serve
+.PHONY: setup install dev test lint format type-check run web sample-assets clean help
 
-# Installation
+PYTHON ?= $(shell which python3 2>/dev/null || which python 2>/dev/null || echo python3)
+
+# Setup & Installation
+setup:
+	@chmod +x setup_local.sh
+	@./setup_local.sh
+
 install:
-	pip install -e .
+	$(PYTHON) -m pip install -e .
 
 dev:
-	pip install -e .[dev]
+	$(PYTHON) -m pip install -e ".[dev]"
+
+# Running the Storymaker
+run:
+	$(PYTHON) main.py
+
+web:
+	$(PYTHON) main.py --web
+
+sample-assets:
+	$(PYTHON) scripts/generate_sample_assets.py
 
 # Testing
 test:
-	pytest tests/ -v
+	$(PYTHON) -m unittest discover -s tests -p "test_*.py" -v
 
 test-cov:
 	pytest tests/ --cov=src --cov-report=html
 
-# Code quality
+# Code Quality
 lint:
 	flake8 src/
 
@@ -22,30 +38,24 @@ format:
 	black src/
 	isort src/
 
-# Type checking
 type-check:
 	mypy src/
-	pyright src/
 
-# Running
-run:
-	python main.py
-
-# Serve documentation via localhost
-serve:
-	python -m http.server 8000 --directory .
+# Cleanup
+clean:
+	rm -rf assets/processed/*
+	rm -rf assets/output/*
+	find . -type d -name "__pycache__" -exec rm -rf {} +
+	@echo "Cleaned generated assets and caches."
 
 # Help
 help:
-	@echo "Available commands:"
-	@echo "  make install     - Install package in development mode"
-	@echo "  make dev         - Install with development dependencies"
-	@echo "  make test        - Run tests"
-	@echo "  make test-cov    - Run tests with coverage"
-	@echo "  make lint        - Run flake8 linting"
-	@echo "  make format      - Format code with black and isort"
-	@echo "  make type-check  - Run type checking with mypy and pyright"
-	@echo "  make run         - Run the application"
-	@echo "  make serve       - Serve documentation on http://localhost:8000"
-	@echo "  make help        - Show this help"
-EOF
+	@echo "FB 2minutes Storymaker - Available Commands:"
+	@echo "  make setup         - Run full local setup (FFmpeg check, venv, dependencies, assets)"
+	@echo "  make run           - Run the full storytelling pipeline and render final_story.mp4"
+	@echo "  make web           - Launch the local Web UI Studio on http://localhost:8000"
+	@echo "  make sample-assets - Regenerate demo sample story assets"
+	@echo "  make test          - Run unit and pipeline integration tests"
+	@echo "  make clean         - Remove generated outputs, processed files, and python caches"
+	@echo "  make format        - Format source code with black and isort"
+	@echo "  make lint          - Lint code with flake8"

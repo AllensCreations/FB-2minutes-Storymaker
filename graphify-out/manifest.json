@@ -1,0 +1,170 @@
+{
+  "main.py": {
+    "mtime": 1789589542.9248793,
+    "seen": 1789589710.3555174,
+    "ast_hash": "3e60426b285f32899c8fa8a0a1ca504a",
+    "semantic_hash": ""
+  },
+  "scripts/generate_sample_assets.py": {
+    "mtime": 1789589270.9368794,
+    "seen": 1789589710.3555286,
+    "ast_hash": "8871a726b9c0a98e60e147f72318dd3d",
+    "semantic_hash": ""
+  },
+  "setup.py": {
+    "mtime": 1789585333.4368799,
+    "seen": 1789589710.3555336,
+    "ast_hash": "9247ce7726ebb044dc682d28a359ec34",
+    "semantic_hash": ""
+  },
+  "setup_local.sh": {
+    "mtime": 1789589580.8248794,
+    "seen": 1789589710.3555367,
+    "ast_hash": "75ba34058d9b03086838afe1e66e8321",
+    "semantic_hash": ""
+  },
+  "src/align_engine/__init__.py": {
+    "mtime": 1789589326.3928792,
+    "seen": 1789589710.355539,
+    "ast_hash": "e23b6807b6bb14411045f7227cf08611",
+    "semantic_hash": ""
+  },
+  "src/align_engine/align_engine.py": {
+    "mtime": 1789589315.1688793,
+    "seen": 1789589710.3555417,
+    "ast_hash": "07f851ca9f7b3ee9bfb3a4357eda7a90",
+    "semantic_hash": ""
+  },
+  "src/choreography_core/__init__.py": {
+    "mtime": 1789589425.5688794,
+    "seen": 1789589710.3555443,
+    "ast_hash": "646fc52952660fb448976ae04700eec1",
+    "semantic_hash": ""
+  },
+  "src/choreography_core/choreography_core.py": {
+    "mtime": 1789589420.1648793,
+    "seen": 1789589710.3555465,
+    "ast_hash": "afcdc2fd548ce602834ed0928da3f848",
+    "semantic_hash": ""
+  },
+  "src/duration_director/__init__.py": {
+    "mtime": 1789589370.8528793,
+    "seen": 1789589710.3555486,
+    "ast_hash": "cdb2611c2a821f154045da7ab671cff4",
+    "semantic_hash": ""
+  },
+  "src/duration_director/duration_director.py": {
+    "mtime": 1789589391.5168793,
+    "seen": 1789589710.3555508,
+    "ast_hash": "ea5d3cdaf572cb92f46d3f9df7c50d53",
+    "semantic_hash": ""
+  },
+  "src/exporter/__init__.py": {
+    "mtime": 1789589447.6168792,
+    "seen": 1789589710.3555534,
+    "ast_hash": "d973c5fbe6b168827386e44a540d0573",
+    "semantic_hash": ""
+  },
+  "src/exporter/video_exporter.py": {
+    "mtime": 1789589443.5488794,
+    "seen": 1789589710.3555553,
+    "ast_hash": "f13ed516bab1512e98efd18b8850cd5a",
+    "semantic_hash": ""
+  },
+  "tests/test_align_engine.py": {
+    "mtime": 1789589609.5328794,
+    "seen": 1789589710.3555574,
+    "ast_hash": "274732fb733b907286f227e5a8d49141",
+    "semantic_hash": ""
+  },
+  "tests/test_choreography_core.py": {
+    "mtime": 1789589626.9088793,
+    "seen": 1789589710.3555593,
+    "ast_hash": "a1b5dc66a7bd88a3bab6235061b2bbd4",
+    "semantic_hash": ""
+  },
+  "tests/test_duration_director.py": {
+    "mtime": 1789589619.6928792,
+    "seen": 1789589710.3555615,
+    "ast_hash": "f824b41d36a7f9b17e247feabbcb4b05",
+    "semantic_hash": ""
+  },
+  "web/server.py": {
+    "mtime": 1789589498.3768792,
+    "seen": 1789589710.3555639,
+    "ast_hash": "a644c683286935e55a18decca892ec61",
+    "semantic_hash": ""
+  },
+  "EXAMPLE_WORKFLOW.md": {
+    "mtime": 1789589684.1128793,
+    "seen": 1789589710.3555663,
+    "ast_hash": "4de97d203e340bf4d30d7250d668bd94",
+    "semantic_hash": ""
+  },
+  "README.md": {
+    "mtime": 1789589646.7168794,
+    "seen": 1789589710.3555684,
+    "ast_hash": "98fd210298657dfc16192bffdbeb5a53",
+    "semantic_hash": ""
+  },
+  "assets/processed/alignment.txt": {
+    "mtime": 1789589547.7608793,
+    "seen": 1789589710.3555703,
+    "ast_hash": "9a439c82cb9b87fd4034b418addf3da4",
+    "semantic_hash": ""
+  },
+  "assets/scripts/story.txt": {
+    "mtime": 1789589277.6408794,
+    "seen": 1789589710.3555725,
+    "ast_hash": "5c1796d89f2ef18564d3b0e153ac5838",
+    "semantic_hash": ""
+  },
+  "index.html": {
+    "mtime": 1789588390.3688796,
+    "seen": 1789589710.3555746,
+    "ast_hash": "4c7086b75b5a529fdfc72cefb27d9e65",
+    "semantic_hash": ""
+  },
+  "requirements.txt": {
+    "mtime": 1789589598.0688794,
+    "seen": 1789589710.355576,
+    "ast_hash": "559cb883d68404e4f5439637e00bd100",
+    "semantic_hash": ""
+  },
+  "src/align_engine/README.md": {
+    "mtime": 1789586092.21288,
+    "seen": 1789589710.3555794,
+    "ast_hash": "26d8e513a66ed6f6bf13a4950b21ea8e",
+    "semantic_hash": ""
+  },
+  "src/choreography_core/README.md": {
+    "mtime": 1789585173.97288,
+    "seen": 1789589710.355581,
+    "ast_hash": "a42d35facaf68daee7273bb526f667c8",
+    "semantic_hash": ""
+  },
+  "src/duration_director/README.md": {
+    "mtime": 1789585173.96888,
+    "seen": 1789589710.355583,
+    "ast_hash": "26384df48bd7a70f9146df927e91d95e",
+    "semantic_hash": ""
+  },
+  "src/exporter/README.md": {
+    "mtime": 1789585173.97288,
+    "seen": 1789589710.355585,
+    "ast_hash": "2a409372d935a8f34b7285773eff2404",
+    "semantic_hash": ""
+  },
+  "web/index.html": {
+    "mtime": 1789589519.1128793,
+    "seen": 1789589710.355587,
+    "ast_hash": "8bd16b88e1f72a514637ca29f6f6fcdd",
+    "semantic_hash": ""
+  },
+  "assets/voice-over/narration.mp3": {
+    "mtime": 1789589280.2248793,
+    "seen": 1789589710.3555892,
+    "ast_hash": "2305a497cf0fe4dbe4b58128b17f4322",
+    "semantic_hash": ""
+  }
+}

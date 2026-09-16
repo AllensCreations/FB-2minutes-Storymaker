@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FB-2minutes Storymaker | Creative Studio</title>
+  <style>
+    :root {
+      --bg: #0d0f14;
+      --surface-1: #151821;
+      --surface-2: #1e2230;
+      --surface-3: #272d3e;
+      --border: rgba(255, 255, 255, 0.08);
+      --border-focus: rgba(235, 140, 60, 0.4);
+      --accent: #eb8c3c;
+      --accent-hover: #f39c12;
+      --accent-glow: rgba(235, 140, 60, 0.25);
+      --text: #f0f2f8;
+      --text-muted: #9aa1b5;
+      --text-dim: #656d82;
+      --success: #10b981;
+      --success-glow: rgba(16, 185, 129, 0.2);
+      --danger: #ef4444;
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+      --radius-full: 9999px;
+      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: var(--font-sans);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      line-height: 1.5;
+      overflow-x: hidden;
+    }
+
+    /* Header */
+    header {
+      border-bottom: 1px solid var(--border);
+      background: rgba(21, 24, 33, 0.85);
+      backdrop-filter: blur(16px);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      padding: 16px 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .brand-logo {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-md);
+      background: linear-gradient(135deg, #eb8c3c, #d35400);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      box-shadow: 0 4px 14px var(--accent-glow);
+    }
+
+    .brand-info h1 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .brand-info span {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .badge-pill {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      color: var(--accent);
+      padding: 3px 10px;
+      border-radius: var(--radius-full);
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    /* Layout */
+    .container {
+      max-width: 1480px;
+      margin: 0 auto;
+      padding: 28px;
+      display: grid;
+      grid-template-columns: 460px 1fr;
+      gap: 28px;
+      flex: 1;
+      width: 100%;
+    }
+
+    @media (max-width: 1100px) {
+      .container {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Cards */
+    .card {
+      background: var(--surface-1);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      position: relative;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
+    }
+
+    .card-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--text-muted);
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    /* Asset Status Items */
+    .status-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .status-item {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: all 0.2s ease;
+    }
+
+    .status-item:hover {
+      border-color: rgba(255, 255, 255, 0.15);
+      background: var(--surface-3);
+    }
+
+    .status-item-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .status-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      background: var(--surface-1);
+    }
+
+    .status-name {
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    .status-path {
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      font-family: var(--font-mono);
+    }
+
+    .tag-status {
+      padding: 4px 10px;
+      border-radius: var(--radius-full);
+      font-size: 0.72rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .tag-ready {
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--success);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .tag-missing {
+      background: rgba(239, 68, 68, 0.15);
+      color: var(--danger);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-weight: 600;
+      font-size: 0.92rem;
+      padding: 12px 20px;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s ease;
+      text-decoration: none;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #eb8c3c, #d35400);
+      color: #fff;
+      box-shadow: 0 4px 18px var(--accent-glow);
+      width: 100%;
+      padding: 15px 24px;
+      font-size: 1rem;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 22px rgba(235, 140, 60, 0.4);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .btn-secondary {
+      background: var(--surface-2);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .btn-secondary:hover {
+      background: var(--surface-3);
+      border-color: rgba(255, 255, 255, 0.15);
+    }
+
+    /* Progress Box */
+    .progress-box {
+      margin-top: 18px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      display: none;
+    }
+
+    .progress-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+
+    .progress-bar-bg {
+      width: 100%;
+      height: 8px;
+      background: var(--surface-1);
+      border-radius: var(--radius-full);
+      overflow: hidden;
+      margin-bottom: 8px;
+    }
+
+    .progress-bar-fill {
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, #eb8c3c, #10b981);
+      border-radius: var(--radius-full);
+      transition: width 0.3s ease;
+    }
+
+    .progress-msg {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Audio Player Widget */
+    .audio-widget {
+      margin-top: 20px;
+      padding: 16px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+    }
+
+    .audio-widget-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    audio {
+      width: 100%;
+      height: 38px;
+      border-radius: var(--radius-sm);
+      outline: none;
+    }
+
+    /* Logs Console */
+    .console-box {
+      margin-top: 20px;
+      background: #090a0d;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 14px;
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      color: #929bb0;
+      height: 140px;
+      overflow-y: auto;
+      line-height: 1.6;
+    }
+
+    .console-box p {
+      margin-bottom: 4px;
+    }
+
+    .console-box .highlight {
+      color: var(--accent);
+    }
+
+    .console-box .success {
+      color: var(--success);
+    }
+
+    /* Right Column: Video & Storyboard */
+    .stage-section {
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+    }
+
+    .video-theater {
+      background: var(--surface-1);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      display: flex;
+      gap: 28px;
+      align-items: center;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
+    }
+
+    @media (max-width: 800px) {
+      .video-theater {
+        flex-direction: column;
+      }
+    }
+
+    /* 9:16 Vertical Player Frame */
+    .video-viewport {
+      width: 290px;
+      height: 515px;
+      background: #000;
+      border-radius: 28px;
+      overflow: hidden;
+      position: relative;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6), 0 0 0 4px rgba(255, 255, 255, 0.08);
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .video-viewport video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .video-placeholder {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 28px;
+      color: var(--text-dim);
+      gap: 12px;
+    }
+
+    .video-placeholder .icon {
+      font-size: 42px;
+      opacity: 0.5;
+    }
+
+    .video-details {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .video-details h2 {
+      font-size: 1.6rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .video-meta-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin: 12px 0;
+    }
+
+    .meta-card {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      padding: 12px 14px;
+      border-radius: var(--radius-md);
+    }
+
+    .meta-card label {
+      display: block;
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+
+    .meta-card value {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    /* Storyboard Grid */
+    .storyboard-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 18px;
+    }
+
+    .storyboard-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 18px;
+    }
+
+    .scene-card {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: all 0.25s ease;
+    }
+
+    .scene-card:hover {
+      transform: translateY(-3px);
+      border-color: var(--border-focus);
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+    }
+
+    .scene-thumb-wrap {
+      width: 100%;
+      height: 180px;
+      background: #000;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .scene-thumb-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.4s ease;
+    }
+
+    .scene-card:hover .scene-thumb-wrap img {
+      transform: scale(1.05);
+    }
+
+    .scene-badge {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: rgba(15, 17, 23, 0.85);
+      backdrop-filter: blur(8px);
+      color: var(--accent);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 3px 8px;
+      border-radius: var(--radius-full);
+      font-size: 0.7rem;
+      font-weight: 700;
+    }
+
+    .scene-content {
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      flex: 1;
+    }
+
+    .scene-title {
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .scene-script {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      line-height: 1.45;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .scene-footer {
+      margin-top: auto;
+      padding-top: 10px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.72rem;
+      color: var(--text-dim);
+    }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 20px 28px;
+      text-align: center;
+      font-size: 0.82rem;
+      color: var(--text-dim);
+      margin-top: auto;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Header -->
+  <header>
+    <div class="brand">
+      <div class="brand-logo">📖</div>
+      <div class="brand-info">
+        <h1>FB-2minutes Storymaker</h1>
+        <span>Automated Picture-Book Motion Engine &bull; Local Creative Studio</span>
+      </div>
+    </div>
+    <div class="header-actions">
+      <span class="badge-pill">9:16 Vertical Video</span>
+      <button class="btn btn-secondary" onclick="refreshSampleAssets()" title="Regenerate sample demo story">
+        🎨 Refresh Assets
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <div class="container">
+
+    <!-- Left Controls Panel -->
+    <aside class="sidebar">
+      <div class="card">
+        <div class="card-title">
+          <span>Asset Readiness</span>
+          <span id="all-assets-tag" class="tag-status tag-ready">Checking...</span>
+        </div>
+
+        <div class="status-list">
+          <div class="status-item">
+            <div class="status-item-left">
+              <div class="status-icon">🎙️</div>
+              <div>
+                <div class="status-name">Voice-Over Audio</div>
+                <div class="status-path" id="voice-path">assets/voice-over/narration.mp3</div>
+              </div>
+            </div>
+            <span id="voice-tag" class="tag-status tag-ready">Found</span>
+          </div>
+
+          <div class="status-item">
+            <div class="status-item-left">
+              <div class="status-icon">📜</div>
+              <div>
+                <div class="status-name">Scene Script</div>
+                <div class="status-path" id="script-path">assets/scripts/story.txt</div>
+              </div>
+            </div>
+            <span id="script-tag" class="tag-status tag-ready">Found</span>
+          </div>
+
+          <div class="status-item">
+            <div class="status-item-left">
+              <div class="status-icon">🖼️</div>
+              <div>
+                <div class="status-name">Visual Assets</div>
+                <div class="status-path" id="visuals-path">assets/visuals/story_visuals.zip</div>
+              </div>
+            </div>
+            <span id="visuals-tag" class="tag-status tag-ready">Found</span>
+          </div>
+        </div>
+
+        <!-- Render Action Button -->
+        <button id="btn-render" class="btn btn-primary" onclick="startRender()">
+          ✨ Render Master Video (9:16)
+        </button>
+
+        <!-- Progress Box -->
+        <div id="progress-box" class="progress-box">
+          <div class="progress-header">
+            <span id="progress-label">Rendering Pipeline...</span>
+            <span id="progress-percent">0%</span>
+          </div>
+          <div class="progress-bar-bg">
+            <div id="progress-bar-fill" class="progress-bar-fill"></div>
+          </div>
+          <div id="progress-msg" class="progress-msg">Preparing frame composition...</div>
+        </div>
+
+        <!-- Voice-Over Preview Player -->
+        <div class="audio-widget">
+          <div class="audio-widget-header">
+            <span>🎵 Narration Audio Preview</span>
+            <span id="audio-time">21.0s</span>
+          </div>
+          <audio id="audio-player" controls preload="metadata">
+            <source src="/media/audio" type="audio/mpeg" />
+            Your browser does not support audio element.
+          </audio>
+        </div>
+
+        <!-- Live Activity Log -->
+        <div class="console-box" id="console-logs">
+          <p class="highlight">[Storymaker Studio Initialized]</p>
+          <p>Ready to choreograph Picture-Book Motion vertical story.</p>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Right Creation Stage -->
+    <main class="stage-section">
+
+      <!-- Master Video Theater -->
+      <div class="video-theater">
+        <div class="video-viewport">
+          <video id="video-player" controls playsinline poster="/media/thumbnail?scene=1" style="display: none;">
+            <source id="video-source" src="/media/video" type="video/mp4" />
+            Your browser does not support HTML5 video.
+          </video>
+          <div id="video-placeholder" class="video-placeholder">
+            <div class="icon">🎬</div>
+            <div style="font-weight: 600; color: var(--text);">No Video Rendered Yet</div>
+            <p style="font-size: 0.8rem;">Click "Render Master Video" to compose your 9:16 story.</p>
+          </div>
+        </div>
+
+        <div class="video-details">
+          <div>
+            <span class="badge-pill">Master Creation</span>
+            <h2 style="margin-top: 8px;">Final Storybook Video</h2>
+            <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 6px;">
+              Crafted with Picture-Book Motion aesthetics: gentle spring-pop entrances, slow intentional push micro-drifts, and synced dynamic captions.
+            </p>
+          </div>
+
+          <div class="video-meta-grid">
+            <div class="meta-card">
+              <label>Resolution</label>
+              <value>1080 &times; 1920</value>
+            </div>
+            <div class="meta-card">
+              <label>Pacing & Duration</label>
+              <value id="meta-duration">~21.0s</value>
+            </div>
+            <div class="meta-card">
+              <label>Aspect Ratio</label>
+              <value>9:16 Vertical</value>
+            </div>
+            <div class="meta-card">
+              <label>File Size</label>
+              <value id="meta-size">--</value>
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 12px; margin-top: 8px;">
+            <a id="btn-download" href="/media/video" download="final_story.mp4" class="btn btn-secondary" style="display: none;">
+              ⬇️ Download MP4
+            </a>
+            <button class="btn btn-secondary" onclick="document.getElementById('video-player').play()">
+              ▶️ Play Video
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Storyboard Visualizer -->
+      <div class="card">
+        <div class="storyboard-header">
+          <div>
+            <h3 style="font-size: 1.1rem; font-weight: 700;">Storyboard &amp; Scenes</h3>
+            <p style="font-size: 0.82rem; color: var(--text-muted);">
+              Extracted scenes mapped with timed narrative pacing and illustrations.
+            </p>
+          </div>
+          <span class="badge-pill" id="scene-count-badge">6 Scenes</span>
+        </div>
+
+        <div id="storyboard-grid" class="storyboard-grid">
+          <!-- Populated dynamically via JS -->
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    FB-2minutes Storymaker &bull; Automated Storytelling Engine &bull; Picture-Book Motion Architecture
+  </footer>
+
+  <script>
+    let pollInterval = null;
+
+    function log(msg, type = "info") {
+      const consoleBox = document.getElementById("console-logs");
+      const p = document.createElement("p");
+      if (type === "highlight") p.className = "highlight";
+      if (type === "success") p.className = "success";
+      p.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+      consoleBox.appendChild(p);
+      consoleBox.scrollTop = consoleBox.scrollHeight;
+    }
+
+    async function loadStatus() {
+      try {
+        const res = await fetch("/api/status");
+        const data = await res.json();
+
+        // Update asset pills
+        document.getElementById("voice-tag").className = data.voice_over.found ? "tag-status tag-ready" : "tag-status tag-missing";
+        document.getElementById("voice-tag").textContent = data.voice_over.found ? "Found" : "Missing";
+
+        document.getElementById("script-tag").className = data.script.found ? "tag-status tag-ready" : "tag-status tag-missing";
+        document.getElementById("script-tag").textContent = data.script.found ? "Found" : "Missing";
+
+        document.getElementById("visuals-tag").className = data.visuals.found ? "tag-status tag-ready" : "tag-status tag-missing";
+        document.getElementById("visuals-tag").textContent = data.visuals.found ? "Found" : "Missing";
+
+        const allReady = data.voice_over.found && data.script.found && data.visuals.found;
+        document.getElementById("all-assets-tag").className = allReady ? "tag-status tag-ready" : "tag-status tag-missing";
+        document.getElementById("all-assets-tag").textContent = allReady ? "Ready to Render" : "Assets Missing";
+
+        // Video status
+        const videoPlayer = document.getElementById("video-player");
+        const videoPlaceholder = document.getElementById("video-placeholder");
+        const downloadBtn = document.getElementById("btn-download");
+        const metaSize = document.getElementById("meta-size");
+
+        if (data.video.found && data.video.details) {
+          videoPlayer.style.display = "block";
+          videoPlaceholder.style.display = "none";
+          downloadBtn.style.display = "inline-flex";
+          metaSize.textContent = `${data.video.details.size_mb} MB`;
+        } else {
+          videoPlayer.style.display = "none";
+          videoPlaceholder.style.display = "flex";
+          downloadBtn.style.display = "none";
+          metaSize.textContent = "--";
+        }
+      } catch (e) {
+        console.error("Status fetch failed:", e);
+      }
+    }
+
+    async function loadScenes() {
+      try {
+        const res = await fetch("/api/scenes");
+        const data = await res.json();
+        const grid = document.getElementById("storyboard-grid");
+        grid.innerHTML = "";
+
+        document.getElementById("scene-count-badge").textContent = `${data.scenes.length} Scenes`;
+
+        data.scenes.forEach(s => {
+          const card = document.createElement("div");
+          card.className = "scene-card";
+          card.innerHTML = `
+            <div class="scene-thumb-wrap">
+              <img src="${s.thumbnail_url}" alt="${s.title}" loading="lazy" />
+              <div class="scene-badge">SCENE ${s.index + 1}</div>
+            </div>
+            <div class="scene-content">
+              <div class="scene-title">${s.title}</div>
+              <div class="scene-script">${s.text}</div>
+              <div class="scene-footer">
+                <span>⏱️ ~3.5s duration</span>
+                <span>✨ Spring Pop</span>
+              </div>
+            </div>
+          `;
+          grid.appendChild(card);
+        });
+      } catch (e) {
+        console.error("Scenes load failed:", e);
+      }
+    }
+
+    async function startRender() {
+      const renderBtn = document.getElementById("btn-render");
+      const progressBox = document.getElementById("progress-box");
+      renderBtn.disabled = true;
+      progressBox.style.display = "block";
+      log("Initiating pipeline render...", "highlight");
+
+      try {
+        const res = await fetch("/api/render", { method: "POST" });
+        const data = await res.json();
+        if (!data.ok) {
+          log(`Render request error: ${data.message}`, "highlight");
+          renderBtn.disabled = false;
+          return;
+        }
+
+        if (pollInterval) clearInterval(pollInterval);
+        pollInterval = setInterval(pollRenderStatus, 800);
+      } catch (e) {
+        log(`Failed to trigger render: ${e}`, "highlight");
+        renderBtn.disabled = false;
+      }
+    }
+
+    async function pollRenderStatus() {
+      try {
+        const res = await fetch("/api/render-status");
+        const state = await res.json();
+
+        const pFill = document.getElementById("progress-bar-fill");
+        const pPercent = document.getElementById("progress-percent");
+        const pMsg = document.getElementById("progress-msg");
+
+        pFill.style.width = `${state.progress}%`;
+        pPercent.textContent = `${Math.round(state.progress)}%`;
+        pMsg.textContent = state.message;
+
+        if (state.status === "running") {
+          log(state.message);
+        } else if (state.status === "done") {
+          clearInterval(pollInterval);
+          pollInterval = null;
+          log("✅ Video render completed successfully!", "success");
+          document.getElementById("btn-render").disabled = false;
+
+          // Reload video source to bust browser cache
+          const videoPlayer = document.getElementById("video-player");
+          const videoSource = document.getElementById("video-source");
+          videoSource.src = `/media/video?t=${Date.now()}`;
+          videoPlayer.load();
+          videoPlayer.style.display = "block";
+          document.getElementById("video-placeholder").style.display = "none";
+          document.getElementById("btn-download").style.display = "inline-flex";
+
+          loadStatus();
+        } else if (state.status === "error") {
+          clearInterval(pollInterval);
+          pollInterval = null;
+          log(`❌ Render error: ${state.error}`, "highlight");
+          document.getElementById("btn-render").disabled = false;
+        }
+      } catch (e) {
+        console.error("Poll status error:", e);
+      }
+    }
+
+    async function refreshSampleAssets() {
+      log("Regenerating sample demo assets...");
+      try {
+        const res = await fetch("/api/generate-assets", { method: "POST" });
+        const data = await res.json();
+        if (data.ok) {
+          log("✅ Sample assets regenerated successfully.", "success");
+          loadStatus();
+          loadScenes();
+          // Reload audio
+          const audio = document.getElementById("audio-player");
+          audio.src = `/media/audio?t=${Date.now()}`;
+          audio.load();
+        } else {
+          log(`Asset refresh failed: ${data.error}`, "highlight");
+        }
+      } catch (e) {
+        log(`Error refreshing assets: ${e}`, "highlight");
+      }
+    }
+
+    // Initialize on page load
+    window.addEventListener("DOMContentLoaded", () => {
+      loadStatus();
+      loadScenes();
+    });
+  </script>
+</body>
+</html>

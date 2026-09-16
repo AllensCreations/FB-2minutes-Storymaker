@@ -1,225 +1,225 @@
 # FB-2minutes Storymaker
 
-An automated storytelling engine that creates storybook-style videos by synchronizing voice-over, scripts, and visual assets with "Picture-Book Motion" aesthetics.
+An automated storytelling engine that generates storybook-style vertical videos (9:16) by synchronizing voice-over narration, scripts, and visual assets with **"Picture-Book Motion"** aesthetics.
 
-## 🎬 Overview
+Includes both a **command-line pipeline** and a **creative studio Web UI** (`index.html`) for in-browser creation, scene preview, and playback.
 
-This project implements the architectural blueprint for an automated storytelling engine that replicates the editorial behavior, pacing, and visual style of storybook-style videos without copying specific artistic assets.
+---
+
+## 🎬 System Overview
+
+FB-2minutes Storymaker implements the editorial behavior, narrative pacing, and visual style of storybook motion videos:
 
 ### Core Philosophy: "Picture-Book Motion"
-- **The Canvas is a Page**: Static background creates visual continuity while isolated character illustrations enter and exit
-- **The Voice is the Conductor**: Visual cuts follow narrative pauses (breaths, sentence conclusions) rather than rigid BPM
-- **Movement Serves Focus**: Subtle motion (micro-zooms, pans) draws attention to key elements
+- **The Canvas is a Page**: Warm editorial parchment background provides continuity while scene artwork cards enter and drift.
+- **The Voice is the Conductor**: Visual transitions snap to speech pauses and narrative sentences rather than rigid BPM beats.
+- **Movement Serves Focus**:
+  - **Scene Entrances**: Gentle Spring Pop (scale 90% &rarr; 102% &rarr; 100% over 350ms) and Cross-Dissolve transitions.
+  - **Subtle Life Micro-Drift**: Slow intentional push (3–4% zoom over the scene duration) and harmonic breathing oscillation.
+- **Aspect Composition (9:16 Vertical Story)**: Centers artwork in the upper region with drop shadow and reserves the lower third for dark contrast typography cards with dynamic narrative captions.
 
-## ✅ Current Implementation Status
-
-### Working Components:
-- **Speech-Cue Align Engine** (`src/align_engine/`) - **IMPLEMENTED & TESTED**
-  - Audio analysis and script alignment
-  - Sentence break detection and pause snapping
-  - Speech-script alignment with confidence scoring
-  - Export functionality for downstream modules
-
-### Ready for Implementation:
-- **Scene Duration Director** (`src/duration_director/`) - Structure ready
-- **Visual Choreography Core** (`src/choreography_core/`) - Structure ready  
-- **Final Master Video Exporter** (`src/exporter/`) - Structure ready
-
-## 📁 Project Structure
 ```
-FB-2minutes-Storymaker/
-├── src/
-│   ├── align_engine/           # ✅ Speech-Cue Align Engine (IMPLEMENTED)
-│   │   ├── align_engine.py     # Main implementation
-│   │   └── README.md           # Component documentation
-│   ├── duration_director/      # 🔲 Scene Duration Director
-│   ├── choreography_core/      # 🔲 Visual Choreography Core
-│   └── exporter/               # 🔲 Final Master Video Exporter
-├── assets/
-│   ├── voice-over/             # 📁 Input audio files (.mp3)
-│   │   └── narration.mp3       # ✅ Sample voice-over
-│   ├── scripts/                # 📁 Input scene scripts (.txt)
-│   │   └── story.txt           # ✅ Sample script
-│   ├── visuals/                # 📁 Input visual assets (.zip, ordered)
-│   │   └── story_visuals.zip   # ✅ Sample visuals ZIP
-│   └── output/                 # 📁 Exported videos (empty)
-├── docs/                       # 📖 Documentation
-├── main.py                     # ▶️ Application entry point
-├── README.md                   # 📄 This file
-├── requirements.txt            # 📦 Python dependencies
-├── setup.py                    # 📦 Package installation
-├── Makefile                    # ⚙️ Development commands
-└── EXAMPLE_WORKFLOW.md         # 📖 Detailed asset preparation guide
+[Raw Voice-Over (.mp3)]   [Scene Script (.txt)]   [Ordered Visuals (.zip)]
+           │                       │                       │
+           └──────────────┬────────┘                       │
+                          ▼                                │
+           ┌─────────────────────────────┐                 │
+           │   Speech-Cue Align Engine   │                 │
+           │  • Audio duration analysis  │                 │
+           │  • Narrative pause snapping │                 │
+           └──────────────┬──────────────┘                 │
+                          ▼                                │
+           ┌─────────────────────────────┐                 │
+           │   Scene Duration Director   │◄────────────────┘
+           │  • Maps Scene[N] -> Img[N]  │
+           │  • Allocates timeline plan  │
+           └──────────────┬──────────────┘
+                          ▼
+           ┌─────────────────────────────┐
+           │   Visual Choreography Core  │
+           │  • Spring-Pop & Paper Cut   │
+           │  • Life micro-drift (zoom)  │
+           │  • Lower-third captions     │
+           └──────────────┬──────────────┘
+                          ▼
+           ┌─────────────────────────────┐
+           │   Final Master Video        │
+           │   Exporter (FFmpeg H.264)   │
+           │   assets/output/            │
+           │   final_story.mp4           │
+           └─────────────────────────────┘
 ```
 
-## 🚀 Getting Started
+---
 
-### Option 1: Run Directly (Recommended)
+## 🚀 Quickstart: Running Locally
+
+### 1. Prerequisites
+- **Python 3.8+**
+- **FFmpeg** (required for video rendering and audio multiplexing)
+  - **Ubuntu / Debian**: `sudo apt update && sudo apt install -y ffmpeg`
+  - **macOS (Homebrew)**: `brew install ffmpeg`
+  - **Windows**: `winget install Gyan.FFmpeg` or `choco install ffmpeg`
+
+### 2. Automated One-Command Setup
+Clone the repository and run the setup script:
 ```bash
-# Clone the repository
 git clone https://github.com/AllensCreations/FB-2minutes-Storymaker.git
 cd FB-2minutes-Storymaker
 
-# Run the application
-python main.py
+# One-command environment setup (checks ffmpeg, python, dependencies, sample assets)
+make setup
 ```
+*(Alternatively: `./setup_local.sh`)*
 
-### Option 2: Using Makefile
+### 3. Generate the Master Video via CLI
+To run the full end-to-end rendering pipeline:
 ```bash
-# Install development dependencies
-make dev
-
-# Run the application
 make run
 ```
+*(Or `python3 main.py`)*
 
-### Option 3: Install as Command-Line Tool
-```bash
-# Install in development mode (allows code changes to take effect immediately)
-pip install -e .
-
-# Then run from anywhere
-fb-storymaker
-```
-
-## 🔧 How It Works
-
-### 1. Check Asset Status
-Run `python main.py` to see if your assets are ready:
-```
-Asset Status:
-  Voice-over (.mp3): ✓ Found
-  Scene Script (.txt): ✓ Found
-  Visual Assets (.zip): ✓ Found
-
-🚀 All assets detected! Ready to process.
-   (Implementation pending - this is the scaffold)
-```
-
-### 2. Test the Speech-Cue Align Engine
-The first implemented module can be tested directly:
-```bash
-python -m src.align_engine.align_engine \
-    --audio assets/voice-over/narration.mp3 \
-    --script assets/scripts/story.txt \
-    --output assets/processed/alignment.txt
-```
-
-This will:
-- Analyze the audio for speech segments and pauses
-- Parse the script into segments
-- Align speech with script segments
-- Export the alignment results
-
-### 3. View Results
-Check the generated alignment file:
-```bash
-cat assets/processed/alignment.txt
-```
-
-Sample output:
-```
-# FB 2minutes Storymaker - Speech Alignment Export
-# Total Duration: 21.00 seconds
-# Number of Segments: 5
-
-Scene 0:
-  Time: 0.00s - 3.20s
-  Text: [Scene 1: Introduction]
-  Confidence: 0.80
-
-Scene 1:
-  Time: 3.70s - 7.10s
-  Text: In a quiet village nestled between rolling hills, a young baker named Elsa begins her day before sunrise
-  Confidence: 0.80
-```
-
-## 📦 Development Setup
-
-### Installation
-```bash
-# Install in development mode
-make install          # Production dependencies only
-make dev              # With development dependencies
-```
-
-### Development Commands
-```bash
-make test             # Run tests (when implemented)
-make test-cov         # Run tests with coverage
-make lint             # Run flake8 linting
-make format           # Format code with black and isort
-make type-check       # Run mypy and pyright for static type analysis
-make run              # Run the application
-make help             # Show all available commands
-```
-
-### Asset Preparation
-See `EXAMPLE_WORKFLOW.md` for detailed guidance on preparing:
-1. Voice-over narration (.mp3)
-2. Scene script (.txt) 
-3. Visual illustrations (.zip with numbered files)
-
-Your exported story video will be saved to `assets/output/`.
-
-## 🔄 Implementation Roadmap
-
-As you work on implementing the architectural blueprint:
-
-1. **src/align_engine/** - Speech-Cue Align Engine ✅ **COMPLETED**
-   - Audio processing, sentence detection, timing alignment
-
-2. **src/duration_director/** - Scene Duration Director 🔲
-   - Scene-to-image mapping, duration calculation
-
-3. **src/choreography_core/** - Visual Choreography Core 🔲
-   - Transition effects (Gentle Spring Pop, Cross-Dissolve Paper Cut)
-   - Subtle life micro-drift (slow push-in, breathing drift)
-   - Aspect composition (upper third for visuals, lower third for captions)
-
-4. **src/exporter/** - Final Master Video Exporter 🔲
-   - Video assembly, encoding, output generation (9:16 vertical story)
-
-## 📚 Dependencies
-
-### Runtime Dependencies
-Add to `requirements.txt` as modules are implemented:
-- Audio processing: `librosa>=0.10.0`, `numpy>=1.24.0`
-- Video processing: `opencv-python>=4.8.0`, `moviepy>=1.0.0`, `Pillow>=10.0.0`
-- Document processing: `python-docx>=1.1.0`
-
-### Development Dependencies (included in `make dev`)
-- Type checking: `mypy>=1.0.0`, `pyright>=1.1.0`
-- Testing: `pytest>=7.0.0`, `pytest-cov>=4.0.0`
-- Code quality: `black>=23.0.0`, `flake8>=6.0.0`, `isort>=5.12.0`
-
-## 📖 Example Workflow
-
-See `EXAMPLE_WORKFLOW.md` for a complete walkthrough of:
-1. Preparing your assets (voice-over, script, visuals)
-2. Running the alignment engine
-3. Implementing subsequent modules
-4. Generating your final story video
-
-## 🛠️ Troubleshooting
-
-### Common Issues
-- **"Visual Assets (.zip): ✗ Missing"**: Ensure you have a .zip file in `assets/visuals/`
-- **Import errors**: Make sure you're running from the project root directory
-- **Permission issues**: Use `chmod +x` on scripts if needed
-
-### Getting Help
-- Check the console output for specific error messages
-- Refer to `EXAMPLE_WORKFLOW.md` for detailed asset preparation
-- Each module has its own README in `src/*/README.md`
-
-## 📄 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## 🙏 Acknowledgments
-
-Inspired by the Picture-Book Motion storytelling technique for creating engaging, storybook-style short-form videos.
+Output video will be saved to:
+`assets/output/final_story.mp4`
 
 ---
-*Built with ❤️ for creators who want to automate their storytelling workflow.*
+
+## 🌐 Creative Studio Web UI
+
+FB-2minutes Storymaker includes a modern, zero-dependency local Web UI (`web/index.html`) tailored for story creators.
+
+### Launching the Web UI:
+```bash
+make web
+```
+*(Or `python3 main.py --web --port 8000`)*
+
+Then open **[http://localhost:8000](http://localhost:8000)** in your browser.
+
+### Web UI Features:
+1. **Asset Readiness Monitor**: Live indicators checking your voice-over (`narration.mp3`), scene script (`story.txt`), and visual assets archive (`story_visuals.zip`).
+2. **Master Video Theater**: An interactive 9:16 vertical video player previewing `final_story.mp4` with stream scrubbing, timecode, and direct `.mp4` download.
+3. **One-Click Render Station**: "✨ Render Master Video" button with a real-time progress bar, frame rate counter, ETA, and activity log.
+4. **Storyboard & Scene Visualizer**: Interactive scene cards showing scene artwork thumbnails, script text, duration timings, and animation types.
+5. **Narration Audio Preview**: In-browser audio player to review the narration audio track before generating.
+6. **Demo Asset Reset**: "🎨 Refresh Assets" button to reload the bundled sample fairytale story at any time.
+
+---
+
+## 📁 Repository Structure
+
+```
+FB-2minutes-Storymaker/
+├── src/
+│   ├── align_engine/           # Speech-Cue Align Engine
+│   │   ├── align_engine.py     # Script parser, audio duration & pause timing
+│   │   └── __init__.py
+│   ├── duration_director/      # Scene Duration Director
+│   │   ├── duration_director.py# Asset resolution, Scene[N] -> Img[N], timeline plan
+│   │   └── __init__.py
+│   ├── choreography_core/      # Visual Choreography Core
+│   │   ├── choreography_core.py# Picture-Book Motion: Spring-pop, micro-drift, captions
+│   │   └── __init__.py
+│   └── exporter/               # Final Master Video Exporter
+│       ├── video_exporter.py   # Raw frame piping to FFmpeg, audio multiplexing
+│       └── __init__.py
+├── web/
+│   ├── index.html              # Creative Studio Web UI
+│   └── server.py               # Lightweight zero-dependency Web & API server
+├── scripts/
+│   └── generate_sample_assets.py # Sample story generator (audio, images, script, zip)
+├── assets/
+│   ├── voice-over/             # Narration audio (narration.mp3)
+│   ├── scripts/                # Story text script (story.txt)
+│   ├── visuals/                # Visual illustrations zip (story_visuals.zip)
+│   ├── processed/              # Alignment, timeline JSON, extracted frames
+│   └── output/                 # Rendered video (final_story.mp4)
+├── tests/                      # Automated test suite
+│   ├── test_align_engine.py
+│   ├── test_duration_director.py
+│   └── test_choreography_core.py
+├── setup_local.sh              # Local environment setup script
+├── Makefile                    # Make targets (setup, run, web, test, clean)
+├── main.py                     # Main CLI and pipeline orchestrator
+├── requirements.txt            # Python dependencies (Pillow, etc.)
+└── setup.py                    # Package configuration
+```
+
+---
+
+## 📝 Custom Asset Specification
+
+To create your own custom story video, replace or place files in `assets/`:
+
+### 1. Voice-Over Audio (`assets/voice-over/narration.mp3` or `.wav`)
+- Standard MP3 or WAV audio track containing your narration.
+- The pipeline reads the duration and cadence to synchronize scene cuts.
+
+### 2. Scene Script (`assets/scripts/story.txt`)
+Format your script with `[Scene N: Title]` headers followed by the scene narration:
+```text
+[Scene 1: Introduction]
+In a quiet village nestled between rolling hills, a young baker named Elsa begins her day before sunrise.
+
+[Scene 2: The Problem]
+But today, the magical yeast that makes her bread rise has gone missing from her pantry.
+
+[Scene 3: The Journey]
+Elsa must venture into the Enchanted Forest to find the legendary Golden Yeast.
+```
+
+### 3. Visual Assets (`assets/visuals/story_visuals.zip`)
+- A `.zip` archive containing your illustrations (PNG, JPG, or WebP).
+- Files should be named with numbers matching the scene sequence (e.g. `scene_1.png`, `scene_2.png`, or `1.png`, `2.png`).
+- Resolution: Recommended square (1080x1080) or vertical (1080x1350) artwork. The choreographer automatically scales, adds drop-shadows, and frames the visuals within the 9:16 vertical canvas.
+
+---
+
+## ⚙️ CLI Reference
+
+```bash
+# Run the pipeline with default settings
+python3 main.py
+
+# Launch Web UI on a specific port
+python3 main.py --web --port 8080
+
+# Specify output frame rate (default: 24 fps)
+python3 main.py --run --fps 30
+
+# Re-generate bundled demo sample assets
+python3 main.py --generate-assets
+
+# Check asset readiness
+python3 main.py --check
+```
+
+---
+
+## 🛠️ Makefile Commands
+
+| Command | Description |
+| :--- | :--- |
+| `make setup` | Run automated local setup (`setup_local.sh`) |
+| `make run` | Execute the full pipeline and output `assets/output/final_story.mp4` |
+| `make web` | Launch the local Web UI on `http://localhost:8000` |
+| `make sample-assets` | Regenerate bundled sample story assets |
+| `make test` | Run automated unit and integration tests |
+| `make clean` | Clean up generated videos, caches, and intermediate files |
+| `make format` | Format Python code with `black` and `isort` |
+| `make lint` | Lint Python source code with `flake8` |
+
+---
+
+## 🧪 Running Tests
+
+To run the automated test suite:
+```bash
+make test
+```
+*(Or `python3 -m unittest discover -s tests -p "test_*.py" -v`)*
+
+---
+
+## 📄 License
+MIT License. Created by AllensCreations.

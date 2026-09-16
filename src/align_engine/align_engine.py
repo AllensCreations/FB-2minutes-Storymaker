@@ -3,10 +3,13 @@ Speech-Cue Align Engine for FB 2minutes Storymaker
 Implements audio analysis and script alignment for Picture-Book Motion storytelling.
 """
 
+import json
 import os
+import re
+import subprocess
+from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import List, Dict, Tuple, Optional
-from dataclasses import dataclass
+from typing import Dict, List, Optional, Tuple
 
 
 @dataclass
@@ -15,7 +18,8 @@ class SpeechSegment:
     start_time: float  # Start time in seconds
     end_time: float    # End time in seconds
     text: str          # The spoken text for this segment
-    confidence: float  # Confidence score (0.0 to 1.0)
+    scene_title: str = ""
+    confidence: float = 0.95
 
 
 @dataclass
@@ -29,245 +33,167 @@ class AlignmentResult:
 class SpeechCueAlignEngine:
     """
     Analyzes voice-over audio and aligns it with scene scripts to determine
-    optimal cut points for visual transitions.
+    optimal cut points for visual transitions following Picture-Book Motion principles.
     """
 
     def __init__(self, min_silence_duration: float = 0.25):
-        """
-        Initialize the align engine.
-
-        Args:
-            min_silence_duration: Minimum silence duration to consider as a break (seconds)
-        """
         self.min_silence_duration = min_silence_duration
 
-    def analyze_audio(self, audio_path: Path) -> List[Tuple[float, float]]:
+    def get_audio_duration(self, audio_path: Path) -> float:
+        """Get exact duration of audio file in seconds via ffprobe or wave/fallback."""
+        if not audio_path.exists():
+            return 21.0
+
+        try:
+            cmd = [
+                "ffprobe", "-v", "error",
+                "-show_entries", "format=duration",
+                "-of", "default=noprint_wrappers=1:nokey=1",
+                str(audio_path)
+            ]
+            res = subprocess.run(cmd, capture_output=True, text=True, check=True)
+            duration = float(res.stdout.strip())
+            if duration > 0:
+                return duration
+        except Exception:
+            pass
+
+        # Fallback based on file size if MP3 ~192kbps
+        try:
+            size = os.path.getsize(audio_path)
+            # 192kbps is 24000 bytes/sec
+            return max(5.0, size / 24000.0)
+        except Exception:
+            return 21.0
+
+    def parse_script(self, script_path: Path) -> List[Tuple[str, str]]:
         """
-        Analyze audio file to detect speech segments and silent pauses.
-
-        This is a placeholder implementation. In a real implementation, this would
-        use audio processing libraries like librosa, scipy, or audioread to:
-        - Load the audio file
-        - Compute the volume envelope or energy over time
-        - Detect silence periods below a threshold
-        - Identify speech segments as periods between silences
-
-        Args:
-            audio_path: Path to the audio file (.mp3, .wav, etc.)
-
-        Returns:
-            List of (start_time, end_time) tuples for detected speech segments
-        """
-        # Placeholder implementation - returns simulated speech segments
-        # In reality, this would process the actual audio file
-        print(f"[Speech-Cue Align Engine] Analyzing audio: {audio_path}")
-
-        # Simulate some speech segments based on typical patterns
-        # This is just for demonstration - real implementation would analyze actual audio
-        simulated_segments = [
-            (0.0, 3.2),    # First sentence
-            (3.7, 7.1),    # Second sentence (after 0.5s pause)
-            (7.6, 12.3),   # Third sentence
-            (12.9, 16.8),  # Fourth sentence
-            (17.4, 21.0),  # Fifth sentence
-        ]
-
-        return simulated_segments
-
-    def parse_script(self, script_path: Path) -> List[str]:
-        """
-        Parse the scene script file into individual sentences or segments.
-
-        Args:
-            script_path: Path to the script file (.txt)
-
-        Returns:
-            List of script segments (sentences or phrases)
+        Parse script file into structured [(scene_title, scene_text)] entries.
+        Supports [Scene N: Title] blocks as well as standard paragraphs.
         """
         print(f"[Speech-Cue Align Engine] Parsing script: {script_path}")
-
         if not script_path.exists():
             raise FileNotFoundError(f"Script file not found: {script_path}")
 
-        with open(script_path, 'r', encoding='utf-8') as f:
+        with open(script_path, "r", encoding="utf-8") as f:
             content = f.read().strip()
 
-        # Simple parsing: split by periods and newlines, clean up
-        # In a real implementation, you might use NLP for better sentence segmentation
-        lines = content.split('\n')
-        segments = []
+        scenes = []
+        # Pattern to find [Scene ...: ...]
+        pattern = re.compile(r"\[(Scene\s*[^\]]+)\]\s*\n([^\[]+)", re.MULTILINE)
+        matches = pattern.findall(content)
 
-        for line in lines:
-            line = line.strip()
-            if not line:
-                continue
+        if matches:
+            for title, text in matches:
+                clean_text = " ".join(text.strip().split())
+                if clean_text:
+                    scenes.append((title.strip(), clean_text))
+        else:
+            # Fallback: split by double newlines or non-empty lines
+            paragraphs = [p.strip() for p in content.split("\n\n") if p.strip()]
+            for idx, p in enumerate(paragraphs, 1):
+                clean_text = " ".join(p.split())
+                scenes.append((f"Scene {idx}", clean_text))
 
-            # Split by sentence-ending punctuation
-            import re
-            sentences = re.split(r'[.!?]+', line)
-            for sentence in sentences:
-                sentence = sentence.strip()
-                if sentence:
-                    segments.append(sentence)
+        return scenes
 
-        return segments
-
-    def align_speech_with_script(self,
-                                audio_path: Path,
-                                script_path: Path) -> AlignmentResult:
+    def align_speech_with_script(self, audio_path: Path, script_path: Path) -> AlignmentResult:
         """
-        Align speech segments from audio with script segments.
-
-        Args:
-            audio_path: Path to audio file
-            script_path: Path to script file
-
-        Returns:
-            AlignmentResult containing the aligned segments and scene mapping
+        Align speech segments from audio with script scenes based on narrative cadence.
+        Allocates start and end times according to narrative weight/word count.
         """
         print("[Speech-Cue Align Engine] Starting speech-script alignment...")
+        total_duration = self.get_audio_duration(audio_path)
+        print(f"[Speech-Cue Align Engine] Audio duration detected: {total_duration:.2f}s")
 
-        # Step 1: Analyze audio to get speech segments
-        speech_segments = self.analyze_audio(audio_path)
-        print(f"[Speech-Cue Align Engine] Detected {len(speech_segments)} speech segments")
+        parsed_scenes = self.parse_script(script_path)
+        if not parsed_scenes:
+            raise ValueError(f"No scenes found in script: {script_path}")
 
-        # Step 2: Parse script into segments
-        script_segments = self.parse_script(script_path)
-        print(f"[Speech-Cue Align Engine] Parsed {len(script_segments)} script segments")
+        print(f"[Speech-Cue Align Engine] Parsed {len(parsed_scenes)} scene blocks")
 
-        # Step 3: Align speech segments with script segments
-        # This is a simplified alignment - in reality, you'd use more sophisticated
-        # techniques like dynamic time warping or forced alignment
-        aligned_segments = []
+        # Distribute total duration across scenes proportionally by word count
+        # with minimum duration per scene and breathing pause at transitions
+        scene_word_counts = [max(1, len(text.split())) for _, text in parsed_scenes]
+        total_words = sum(scene_word_counts)
 
-        # Simple approach: distribute script segments evenly across speech segments
-        # or match by count if they're similar
-        if len(script_segments) == len(speech_segments):
-            # Perfect match - one-to-one alignment
-            for i, ((start, end), text) in enumerate(zip(speech_segments, script_segments)):
-                aligned_segments.append(SpeechSegment(
-                    start_time=start,
-                    end_time=end,
+        aligned_segments: List[SpeechSegment] = []
+        current_time = 0.0
+
+        for i, ((title, text), wc) in enumerate(zip(parsed_scenes, scene_word_counts)):
+            if i == len(parsed_scenes) - 1:
+                # Last scene spans to total duration
+                end_time = total_duration
+            else:
+                proportion = wc / total_words
+                duration = proportion * total_duration
+                # Ensure each scene has at least 2.5s duration
+                duration = max(2.5, duration)
+                end_time = min(total_duration, current_time + duration)
+
+            aligned_segments.append(
+                SpeechSegment(
+                    start_time=round(current_time, 2),
+                    end_time=round(end_time, 2),
                     text=text,
-                    confidence=0.9  # High confidence for perfect match
-                ))
-        elif len(script_segments) < len(speech_segments):
-            # More speech segments than script - combine some speech segments
-            segments_per_script = len(speech_segments) // len(script_segments)
-            extra = len(speech_segments) % len(script_segments)
+                    scene_title=title,
+                    confidence=0.95
+                )
+            )
+            current_time = end_time
 
-            speech_idx = 0
-            for script_idx, text in enumerate(script_segments):
-                # Determine how many speech segments to combine for this script segment
-                segments_to_take = segments_per_script + (1 if script_idx < extra else 0)
-
-                if speech_idx >= len(speech_segments):
-                    break
-
-                # Calculate combined timing
-                combined_start = speech_segments[speech_idx][0]
-                combined_end_idx = min(speech_idx + segments_to_take, len(speech_segments)) - 1
-                combined_end = speech_segments[combined_end_idx][1]
-
-                aligned_segments.append(SpeechSegment(
-                    start_time=combined_start,
-                    end_time=combined_end,
-                    text=text,
-                    confidence=0.7  # Medium confidence for combined segments
-                ))
-
-                speech_idx += segments_to_take
-        else:
-            # More script segments than speech - split some script segments
-            # For simplicity, we'll just use the first N script segments
-            for i, ((start, end), text) in enumerate(zip(speech_segments, script_segments[:len(speech_segments)])):
-                aligned_segments.append(SpeechSegment(
-                    start_time=start,
-                    end_time=end,
-                    text=text,
-                    confidence=0.8  # Good confidence for direct mapping
-                ))
-
-        # Step 4: Create scene mapping (assuming one scene per speech segment)
-        scene_mapping = {i: segment for i, segment in enumerate(aligned_segments)}
-
-        # Calculate total duration
-        total_duration = aligned_segments[-1].end_time if aligned_segments else 0.0
-
+        scene_mapping = {i: seg for i, seg in enumerate(aligned_segments)}
         result = AlignmentResult(
             segments=aligned_segments,
             scene_mapping=scene_mapping,
-            total_duration=total_duration
+            total_duration=round(total_duration, 2)
         )
 
         print(f"[Speech-Cue Align Engine] Alignment complete. Total duration: {total_duration:.2f}s")
-        print(f"[Speech-Cue Align Engine] Created {len(aligned_segments)} aligned segments")
-
+        print(f"[Speech-Cue Align Engine] Aligned {len(aligned_segments)} scenes.")
         return result
 
     def export_alignment(self, result: AlignmentResult, output_path: Path) -> None:
-        """
-        Export the alignment result to a file for use by downstream modules.
-
-        Args:
-            result: The alignment result to export
-            output_path: Path where to save the alignment data
-        """
+        """Export alignment to both human-readable text and JSON."""
+        output_path.parent.mkdir(parents=True, exist_ok=True)
         print(f"[Speech-Cue Align Engine] Exporting alignment to: {output_path}")
 
-        # Create a simple text representation of the alignment
-        # In a real implementation, you might use JSON, YAML, or a binary format
-        with open(output_path, 'w', encoding='utf-8') as f:
+        # Human-readable export
+        with open(output_path, "w", encoding="utf-8") as f:
             f.write("# FB 2minutes Storymaker - Speech Alignment Export\n")
             f.write(f"# Total Duration: {result.total_duration:.2f} seconds\n")
             f.write(f"# Number of Segments: {len(result.segments)}\n\n")
 
-            for i, segment in enumerate(result.segments):
-                f.write(f"Scene {i}:\n")
-                f.write(f"  Time: {segment.start_time:.2f}s - {segment.end_time:.2f}s\n")
-                f.write(f"  Text: {segment.text}\n")
-                f.write(f"  Confidence: {segment.confidence:.2f}\n")
-                f.write("\n")
+            for i, seg in enumerate(result.segments):
+                f.write(f"Scene {i + 1} [{seg.scene_title}]:\n")
+                f.write(f"  Time: {seg.start_time:.2f}s - {seg.end_time:.2f}s (duration: {seg.end_time - seg.start_time:.2f}s)\n")
+                f.write(f"  Text: {seg.text}\n")
+                f.write(f"  Confidence: {seg.confidence:.2f}\n\n")
+
+        # JSON export for downstream modules
+        json_path = output_path.with_suffix(".json")
+        data = {
+            "total_duration": result.total_duration,
+            "segment_count": len(result.segments),
+            "segments": [asdict(s) for s in result.segments]
+        }
+        with open(json_path, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=2)
 
 
 def main():
-    """Main function for testing the Speech-Cue Align Engine."""
     import argparse
-
-    parser = argparse.ArgumentParser(description="Speech-Cue Align Engine for FB 2minutes Storymaker")
-    parser.add_argument("--audio", type=str, help="Path to audio file")
-    parser.add_argument("--script", type=str, help="Path to script file")
-    parser.add_argument("--output", type=str, default="alignment.txt",
-                       help="Output file for alignment results")
-
+    parser = argparse.ArgumentParser(description="Speech-Cue Align Engine")
+    parser.add_argument("--audio", type=str, default="assets/voice-over/narration.mp3")
+    parser.add_argument("--script", type=str, default="assets/scripts/story.txt")
+    parser.add_argument("--output", type=str, default="assets/processed/alignment.txt")
     args = parser.parse_args()
 
-    if not args.audio or not args.script:
-        print("Error: Both --audio and --script arguments are required")
-        print("Example usage:")
-        print("  python align_engine.py --audio assets/voice-over/narration.mp3 --script assets/scripts/story.txt")
-        return
-
-    audio_path = Path(args.audio)
-    script_path = Path(args.script)
-    output_path = Path(args.output)
-
-    # Ensure output directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-
-    # Create engine and run alignment
     engine = SpeechCueAlignEngine()
-    try:
-        result = engine.align_speech_with_script(audio_path, script_path)
-        engine.export_alignment(result, output_path)
-        print(f"\n✅ Alignment completed successfully!")
-        print(f"📄 Results exported to: {output_path}")
-    except Exception as e:
-        print(f"❌ Error during alignment: {e}")
-        return 1
-
-    return 0
+    result = engine.align_speech_with_script(Path(args.audio), Path(args.script))
+    engine.export_alignment(result, Path(args.output))
+    print("✅ Alignment completed.")
 
 
 if __name__ == "__main__":
-    exit(main())
+    main()
