@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FB 2minutes Storymaker</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        header {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+        }
+        h1 {
+            margin: 0;
+            font-size: 2.5rem;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .status-implemented {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status-pending {
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        .section {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+        .section h2 {
+            color: #2c3e50;
+            border-bottom: 2px solid #ecf0f1;
+            padding-bottom: 0.5rem;
+        }
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+        .feature-list li {
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+        }
+        .feature-list li:last-child {
+            border-bottom: none;
+        }
+        .feature-icon {
+            margin-right: 1rem;
+            font-size: 1.2rem;
+            width: 2rem;
+            text-align: center;
+        }
+        .feature-icon.implemented {
+            color: #28a745;
+        }
+        .feature-icon.pending {
+            color: #ffc107;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #eee;
+            color: #666;
+            font-size: 0.9rem;
+        }
+        .btn {
+            display: inline-block;
+            background: #2575fc;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 0.5rem;
+            transition: background 0.3s;
+        }
+        .btn:hover {
+            background: #1a56db;
+        }
+        .code-block {
+            background: #f8f9fa;
+            border-left: 4px solid #2575fc;
+            padding: 1rem;
+            margin: 1rem 0;
+            overflow-x: auto;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>FB 2minutes Storymaker</h1>
+        <p>Automated Storytelling Engine for Picture-Book Motion Videos</p>
+    </header>
+
+    <div class="section">
+        <h2>Project Status</h2>
+        <div>
+            <span class="status-badge status-implemented">✓ Speech-Cue Align Engine</span>
+            <span class="status-badge status-pending">▢ Scene Duration Director</span>
+            <span class="status-badge status-pending">▢ Visual Choreography Core</span>
+            <span class="status-badge status-pending">▢ Final Master Video Exporter</span>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>How to Use</h2>
+        <p>This project is primarily a command-line tool. Follow these steps to run the storytelling engine:</p>
+
+        <div class="code-block">
+# 1. Check your assets are ready
+python main.py
+
+# 2. Test the Speech-Cue Align Engine (first implemented module)
+python -m src.align_engine.align_engine \\
+    --audio assets/voice-over/narration.mp3 \\
+    --script assets/scripts/story.txt \\
+    --output assets/processed/alignment.txt
+
+# 3. View the alignment results
+cat assets/processed/alignment.txt
+        </div>
+
+        <p><strong>Alternative: Using Makefile</strong></p>
+        <div class="code-block">
+# Install development dependencies
+make dev
+
+# Run the asset check
+make run
+
+# Test the align engine
+python -m src.align_engine.align_engine --audio assets/voice-over/narration.mp3 --script assets/scripts/story.txt --output assets/processed/alignment.txt
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>Project Structure</h2>
+        <div class="code-block">
+FB-2minutes-Storymaker/
+├── src/
+│   ├── align_engine/           # ✓ Speech-Cue Align Engine (IMPLEMENTED)
+│   │   ├── align_engine.py
+│   │   └── README.md
+│   ├── duration_director/      # ▢ Scene Duration Director
+│   ├── choreography_core/      # ▢ Visual Choreography Core
+│   └── exporter/               # ▢ Final Master Video Exporter
+├── assets/
+│   ├── voice-over/             # 📁 Input audio files (.mp3)
+│   │   └── narration.mp3       # ✅ Sample voice-over
+│   ├── scripts/                # 📁 Input scene scripts (.txt)
+│   │   └── story.txt           # ✅ Sample script
+│   ├── visuals/                # 📁 Input visual assets (.zip, ordered)
+│   │   └── story_visuals.zip   # ✅ Sample visuals ZIP
+│   └── output/                 # 📁 Exported videos (empty)
+├── docs/                       # 📖 Documentation
+├── main.py                     # ▶️ Application entry point
+├── README.md                   # 📄 This file
+├── requirements.txt            # 📦 Python dependencies
+├── setup.py                    # 📦 Package installation
+├── Makefile                    # ⚙️ Development commands
+├── index.html                  # 🌐 This web UI
+└── EXAMPLE_WORKFLOW.md         # 📖 Detailed asset preparation guide
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>Next Steps for Implementation</h2>
+        <ul>
+            <li><strong>Scene Duration Director</strong>: Map scenes to images and allocate display time based on speech analysis</li>
+            <li><strong>Visual Choreography Core</strong>: Apply transition effects (Gentle Spring Pop, Cross-Dissolve Paper Cut) and subtle life micro-drift</li>
+            <li><strong>Final Master Video Exporter</strong>: Assemble the processed visual sequence with audio and export as 9:16 vertical story</li>
+        </ul>
+        <p>Each module has its own directory with a README file to guide implementation.</li>
+    </div>
+
+    <div class="footer">
+        <p>Built with ❤️ for creators who want to automate their storytelling workflow.</p>
+        <p>
+            <a href="https://github.com/AllensCreations/FB-2minutes-Storymaker" class="btn">View on GitHub</a>
+            <a href="EXAMPLE_WORKFLOW.md" class="btn">Asset Preparation Guide</a>
+        </p>
+    </div>
+</body>
+</html>

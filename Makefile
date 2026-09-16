@@ -1,4 +1,4 @@
-.PHONY: install dev test lint format type-check run help
+.PHONY: install dev test lint format type-check run help serve
 
 # Installation
 install:
@@ -31,6 +31,10 @@ type-check:
 run:
 	python main.py
 
+# Serve documentation via localhost
+serve:
+	python -m http.server 8000 --directory .
+
 # Help
 help:
 	@echo "Available commands:"
@@ -42,4 +46,6 @@ help:
 	@echo "  make format      - Format code with black and isort"
 	@echo "  make type-check  - Run type checking with mypy and pyright"
 	@echo "  make run         - Run the application"
+	@echo "  make serve       - Serve documentation on http://localhost:8000"
 	@echo "  make help        - Show this help"
+EOF
