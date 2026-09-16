@@ -3,29 +3,28 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>FB-2minutes Storymaker | Creative Studio</title>
+  <title>FB-2minutes Storymaker | Picture-Book Motion Studio</title>
   <style>
     :root {
-      --bg: #0d0f14;
-      --surface-1: #151821;
-      --surface-2: #1e2230;
-      --surface-3: #272d3e;
-      --border: rgba(255, 255, 255, 0.08);
-      --border-focus: rgba(235, 140, 60, 0.4);
+      --bg: #0b0d13;
+      --bg-panel: #131722;
+      --bg-card: #1c2130;
+      --bg-card-hover: #242a3d;
+      --border: rgba(255, 255, 255, 0.09);
+      --border-accent: rgba(235, 140, 60, 0.4);
       --accent: #eb8c3c;
-      --accent-hover: #f39c12;
-      --accent-glow: rgba(235, 140, 60, 0.25);
-      --text: #f0f2f8;
-      --text-muted: #9aa1b5;
-      --text-dim: #656d82;
+      --accent-glow: rgba(235, 140, 60, 0.28);
+      --text: #f0f3fa;
+      --text-muted: #959eb5;
+      --text-dim: #60687e;
       --success: #10b981;
-      --success-glow: rgba(16, 185, 129, 0.2);
+      --success-glow: rgba(16, 185, 129, 0.25);
       --danger: #ef4444;
       --radius-sm: 8px;
       --radius-md: 14px;
       --radius-lg: 20px;
       --radius-full: 9999px;
-      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     }
 
@@ -38,26 +37,25 @@
     body {
       background-color: var(--bg);
       color: var(--text);
-      font-family: var(--font-sans);
+      font-family: var(--font);
       min-height: 100vh;
       display: flex;
       flex-direction: column;
       line-height: 1.5;
-      overflow-x: hidden;
     }
 
-    /* Header */
+    /* Top Navigation */
     header {
+      background: rgba(19, 23, 34, 0.9);
+      backdrop-filter: blur(18px);
       border-bottom: 1px solid var(--border);
-      background: rgba(21, 24, 33, 0.85);
-      backdrop-filter: blur(16px);
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      padding: 16px 28px;
+      padding: 14px 28px;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
     }
 
     .brand {
@@ -66,42 +64,27 @@
       gap: 14px;
     }
 
-    .brand-logo {
-      width: 40px;
-      height: 40px;
-      border-radius: var(--radius-md);
+    .brand-icon {
+      width: 42px;
+      height: 42px;
       background: linear-gradient(135deg, #eb8c3c, #d35400);
+      border-radius: var(--radius-md);
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 22px;
-      box-shadow: 0 4px 14px var(--accent-glow);
+      box-shadow: 0 4px 16px var(--accent-glow);
     }
 
-    .brand-info h1 {
+    .brand-titles h1 {
       font-size: 1.15rem;
       font-weight: 700;
       letter-spacing: -0.02em;
     }
 
-    .brand-info span {
-      font-size: 0.78rem;
+    .brand-titles p {
+      font-size: 0.76rem;
       color: var(--text-muted);
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .badge-pill {
-      background: var(--surface-2);
-      border: 1px solid var(--border);
-      color: var(--accent);
-      padding: 3px 10px;
-      border-radius: var(--radius-full);
-      font-size: 0.72rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
     }
 
     .header-actions {
@@ -110,130 +93,26 @@
       gap: 12px;
     }
 
-    /* Layout */
-    .container {
-      max-width: 1480px;
-      margin: 0 auto;
-      padding: 28px;
-      display: grid;
-      grid-template-columns: 460px 1fr;
-      gap: 28px;
-      flex: 1;
-      width: 100%;
-    }
-
-    @media (max-width: 1100px) {
-      .container {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    /* Cards */
-    .card {
-      background: var(--surface-1);
+    .badge-pill {
+      background: var(--bg-card);
       border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      padding: 24px;
-      position: relative;
-      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
-    }
-
-    .card-title {
-      font-size: 0.95rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-      color: var(--text-muted);
-      margin-bottom: 18px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    /* Asset Status Items */
-    .status-list {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      margin-bottom: 24px;
-    }
-
-    .status-item {
-      background: var(--surface-2);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-md);
-      padding: 14px 16px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      transition: all 0.2s ease;
-    }
-
-    .status-item:hover {
-      border-color: rgba(255, 255, 255, 0.15);
-      background: var(--surface-3);
-    }
-
-    .status-item-left {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .status-icon {
-      width: 34px;
-      height: 34px;
-      border-radius: var(--radius-sm);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 16px;
-      background: var(--surface-1);
-    }
-
-    .status-name {
-      font-weight: 600;
-      font-size: 0.9rem;
-    }
-
-    .status-path {
-      font-size: 0.75rem;
-      color: var(--text-dim);
-      font-family: var(--font-mono);
-    }
-
-    .tag-status {
-      padding: 4px 10px;
+      color: var(--accent);
+      padding: 4px 12px;
       border-radius: var(--radius-full);
-      font-size: 0.72rem;
+      font-size: 0.74rem;
       font-weight: 600;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
+      letter-spacing: 0.04em;
     }
 
-    .tag-ready {
-      background: rgba(16, 185, 129, 0.15);
-      color: var(--success);
-      border: 1px solid rgba(16, 185, 129, 0.3);
-    }
-
-    .tag-missing {
-      background: rgba(239, 68, 68, 0.15);
-      color: var(--danger);
-      border: 1px solid rgba(239, 68, 68, 0.3);
-    }
-
-    /* Buttons */
     .btn {
       display: inline-flex;
       align-items: center;
       justify-content: center;
       gap: 8px;
-      font-weight: 600;
-      font-size: 0.92rem;
-      padding: 12px 20px;
+      padding: 10px 18px;
       border-radius: var(--radius-md);
+      font-size: 0.88rem;
+      font-weight: 600;
       cursor: pointer;
       border: none;
       transition: all 0.2s ease;
@@ -244,9 +123,6 @@
       background: linear-gradient(135deg, #eb8c3c, #d35400);
       color: #fff;
       box-shadow: 0 4px 18px var(--accent-glow);
-      width: 100%;
-      padding: 15px 24px;
-      font-size: 1rem;
     }
 
     .btn-primary:hover:not(:disabled) {
@@ -255,323 +131,381 @@
     }
 
     .btn-primary:disabled {
-      opacity: 0.6;
+      opacity: 0.55;
       cursor: not-allowed;
     }
 
     .btn-secondary {
-      background: var(--surface-2);
+      background: var(--bg-card);
       color: var(--text);
       border: 1px solid var(--border);
     }
 
     .btn-secondary:hover {
-      background: var(--surface-3);
-      border-color: rgba(255, 255, 255, 0.15);
+      background: var(--bg-card-hover);
+      border-color: rgba(255, 255, 255, 0.2);
     }
 
-    /* Progress Box */
-    .progress-box {
-      margin-top: 18px;
-      background: var(--surface-2);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-md);
-      padding: 16px;
-      display: none;
+    .btn-demo {
+      background: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.35);
     }
 
-    .progress-header {
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.85rem;
-      margin-bottom: 8px;
-      font-weight: 600;
+    .btn-demo:hover {
+      background: rgba(16, 185, 129, 0.25);
     }
 
-    .progress-bar-bg {
-      width: 100%;
-      height: 8px;
-      background: var(--surface-1);
-      border-radius: var(--radius-full);
-      overflow: hidden;
-      margin-bottom: 8px;
-    }
-
-    .progress-bar-fill {
-      width: 0%;
-      height: 100%;
-      background: linear-gradient(90deg, #eb8c3c, #10b981);
-      border-radius: var(--radius-full);
-      transition: width 0.3s ease;
-    }
-
-    .progress-msg {
-      font-size: 0.78rem;
-      color: var(--text-muted);
-      font-family: var(--font-mono);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    /* Audio Player Widget */
-    .audio-widget {
-      margin-top: 20px;
-      padding: 16px;
-      background: var(--surface-2);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-md);
-    }
-
-    .audio-widget-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 12px;
-      font-size: 0.82rem;
-      color: var(--text-muted);
-      font-weight: 600;
-    }
-
-    audio {
-      width: 100%;
-      height: 38px;
-      border-radius: var(--radius-sm);
-      outline: none;
-    }
-
-    /* Logs Console */
-    .console-box {
-      margin-top: 20px;
-      background: #090a0d;
-      border: 1px solid var(--border);
-      border-radius: var(--radius-md);
-      padding: 14px;
-      font-family: var(--font-mono);
-      font-size: 0.76rem;
-      color: #929bb0;
-      height: 140px;
-      overflow-y: auto;
-      line-height: 1.6;
-    }
-
-    .console-box p {
-      margin-bottom: 4px;
-    }
-
-    .console-box .highlight {
-      color: var(--accent);
-    }
-
-    .console-box .success {
-      color: var(--success);
-    }
-
-    /* Right Column: Video & Storyboard */
-    .stage-section {
-      display: flex;
-      flex-direction: column;
-      gap: 28px;
-    }
-
-    .video-theater {
-      background: var(--surface-1);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
+    /* Main Container */
+    main {
+      max-width: 1520px;
+      margin: 0 auto;
       padding: 24px;
-      display: flex;
-      gap: 28px;
-      align-items: center;
-      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
-    }
-
-    @media (max-width: 800px) {
-      .video-theater {
-        flex-direction: column;
-      }
-    }
-
-    /* 9:16 Vertical Player Frame */
-    .video-viewport {
-      width: 290px;
-      height: 515px;
-      background: #000;
-      border-radius: 28px;
-      overflow: hidden;
-      position: relative;
-      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6), 0 0 0 4px rgba(255, 255, 255, 0.08);
-      flex-shrink: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .video-viewport video {
       width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    .video-placeholder {
       display: flex;
       flex-direction: column;
-      align-items: center;
-      text-align: center;
-      padding: 28px;
-      color: var(--text-dim);
-      gap: 12px;
-    }
-
-    .video-placeholder .icon {
-      font-size: 42px;
-      opacity: 0.5;
-    }
-
-    .video-details {
+      gap: 24px;
       flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
     }
 
-    .video-details h2 {
-      font-size: 1.6rem;
-      font-weight: 700;
-      letter-spacing: -0.02em;
-    }
-
-    .video-meta-grid {
+    /* Phase 1: Ingestion Area */
+    .ingestion-grid {
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 12px;
-      margin: 12px 0;
-    }
-
-    .meta-card {
-      background: var(--surface-2);
-      border: 1px solid var(--border);
-      padding: 12px 14px;
-      border-radius: var(--radius-md);
-    }
-
-    .meta-card label {
-      display: block;
-      font-size: 0.72rem;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      font-weight: 600;
-      margin-bottom: 2px;
-    }
-
-    .meta-card value {
-      font-size: 1rem;
-      font-weight: 700;
-      color: var(--text);
-    }
-
-    /* Storyboard Grid */
-    .storyboard-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 18px;
-    }
-
-    .storyboard-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      grid-template-columns: repeat(3, 1fr);
       gap: 18px;
     }
 
-    .scene-card {
-      background: var(--surface-2);
+    @media (max-width: 900px) {
+      .ingestion-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .dropzone-card {
+      background: var(--bg-panel);
+      border: 2px dashed var(--border);
+      border-radius: var(--radius-lg);
+      padding: 22px;
+      text-align: center;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.25s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      min-height: 160px;
+    }
+
+    .dropzone-card:hover, .dropzone-card.dragover {
+      border-color: var(--accent);
+      background: rgba(235, 140, 60, 0.05);
+      transform: translateY(-2px);
+    }
+
+    .dropzone-card.loaded {
+      border-style: solid;
+      border-color: rgba(16, 185, 129, 0.4);
+      background: rgba(16, 185, 129, 0.04);
+    }
+
+    .drop-icon {
+      font-size: 30px;
+    }
+
+    .drop-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+    }
+
+    .drop-sub {
+      font-size: 0.76rem;
+      color: var(--text-muted);
+    }
+
+    .drop-status {
+      font-size: 0.72rem;
+      font-family: var(--font-mono);
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .drop-status.ok {
+      color: var(--success);
+    }
+
+    input[type="file"] {
+      display: none;
+    }
+
+    /* Phase 2: Waveform & Scrubber */
+    .waveform-panel {
+      background: var(--bg-panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .section-title {
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .waveform-container {
+      position: relative;
+      background: #08090d;
       border: 1px solid var(--border);
       border-radius: var(--radius-md);
       overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      transition: all 0.25s ease;
+      user-select: none;
+      height: 120px;
     }
 
-    .scene-card:hover {
-      transform: translateY(-3px);
-      border-color: var(--border-focus);
-      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
-    }
-
-    .scene-thumb-wrap {
-      width: 100%;
-      height: 180px;
-      background: #000;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .scene-thumb-wrap img {
+    #waveform-canvas {
       width: 100%;
       height: 100%;
-      object-fit: cover;
-      transition: transform 0.4s ease;
+      display: block;
     }
 
-    .scene-card:hover .scene-thumb-wrap img {
-      transform: scale(1.05);
-    }
-
-    .scene-badge {
+    /* Draggable Cut Markers Overlay */
+    .markers-layer {
       position: absolute;
-      top: 10px;
-      left: 10px;
-      background: rgba(15, 17, 23, 0.85);
-      backdrop-filter: blur(8px);
-      color: var(--accent);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      padding: 3px 8px;
-      border-radius: var(--radius-full);
-      font-size: 0.7rem;
-      font-weight: 700;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
     }
 
-    .scene-content {
-      padding: 14px;
+    .cut-marker {
+      position: absolute;
+      top: 0;
+      height: 100%;
+      width: 2px;
+      background: var(--accent);
+      pointer-events: auto;
+      cursor: ew-resize;
+      z-index: 10;
+      box-shadow: 0 0 10px rgba(235, 140, 60, 0.6);
+    }
+
+    .cut-marker-handle {
+      position: absolute;
+      top: 4px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--accent);
+      color: #fff;
+      font-family: var(--font-mono);
+      font-size: 0.66rem;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: var(--radius-full);
+      white-space: nowrap;
+      pointer-events: none;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+    }
+
+    .playhead-marker {
+      position: absolute;
+      top: 0;
+      height: 100%;
+      width: 2px;
+      background: #38bdf8;
+      pointer-events: none;
+      z-index: 15;
+      box-shadow: 0 0 12px rgba(56, 189, 248, 0.8);
+      display: none;
+    }
+
+    /* Waveform Controls */
+    .waveform-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .playback-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .timecode-display {
+      font-family: var(--font-mono);
+      font-size: 0.88rem;
+      font-weight: 600;
+      background: #08090d;
+      padding: 6px 14px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border);
+      color: #38bdf8;
+    }
+
+    /* Main Studio Stage (Split: Matrix & Canvas) */
+    .studio-split {
+      display: grid;
+      grid-template-columns: 1fr 420px;
+      gap: 24px;
+    }
+
+    @media (max-width: 1050px) {
+      .studio-split {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Scene Mapping Matrix */
+    .matrix-panel {
+      background: var(--bg-panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 22px;
       display: flex;
       flex-direction: column;
-      gap: 8px;
-      flex: 1;
+      gap: 16px;
+      overflow-x: auto;
     }
 
-    .scene-title {
-      font-size: 0.92rem;
-      font-weight: 700;
-      color: var(--text);
+    .matrix-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.84rem;
     }
 
-    .scene-script {
-      font-size: 0.8rem;
+    .matrix-table th {
+      text-align: left;
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
       color: var(--text-muted);
-      line-height: 1.45;
-      display: -webkit-box;
-      -webkit-line-clamp: 3;
-      -webkit-box-orient: vertical;
+      text-transform: uppercase;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+
+    .matrix-table td {
+      padding: 12px 14px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      vertical-align: middle;
+    }
+
+    .matrix-table tr:hover {
+      background: var(--bg-card);
+    }
+
+    .thumb-preview {
+      width: 54px;
+      height: 54px;
+      border-radius: var(--radius-sm);
+      object-fit: cover;
+      background: #000;
+      border: 1px solid var(--border);
+    }
+
+    .badge-scene-num {
+      background: rgba(235, 140, 60, 0.15);
+      color: var(--accent);
+      padding: 3px 8px;
+      border-radius: var(--radius-full);
+      font-weight: 700;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+    }
+
+    .select-choreography {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 6px 10px;
+      border-radius: var(--radius-sm);
+      font-size: 0.76rem;
+      outline: none;
+    }
+
+    /* Right Preview Stage */
+    .preview-stage {
+      background: var(--bg-panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 18px;
+    }
+
+    .canvas-frame-wrap {
+      width: 290px;
+      height: 515px;
+      border-radius: 28px;
+      overflow: hidden;
+      background: #000;
+      position: relative;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7), 0 0 0 4px rgba(255, 255, 255, 0.08);
+    }
+
+    #preview-canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    /* Export Station */
+    .export-card {
+      width: 100%;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .export-progress {
+      display: none;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .progress-bar {
+      height: 8px;
+      background: var(--bg);
+      border-radius: var(--radius-full);
       overflow: hidden;
     }
 
-    .scene-footer {
-      margin-top: auto;
-      padding-top: 10px;
-      border-top: 1px solid var(--border);
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.72rem;
-      color: var(--text-dim);
+    .progress-bar-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #eb8c3c, #10b981);
+      transition: width 0.1s linear;
     }
 
     /* Footer */
     footer {
       border-top: 1px solid var(--border);
-      padding: 20px 28px;
+      padding: 18px;
       text-align: center;
-      font-size: 0.82rem;
+      font-size: 0.78rem;
       color: var(--text-dim);
       margin-top: auto;
     }
@@ -579,365 +513,1109 @@
 </head>
 <body>
 
-  <!-- Top Header -->
+  <!-- Top Studio Navigation -->
   <header>
     <div class="brand">
-      <div class="brand-logo">📖</div>
-      <div class="brand-info">
+      <div class="brand-icon">🎬</div>
+      <div class="brand-titles">
         <h1>FB-2minutes Storymaker</h1>
-        <span>Automated Picture-Book Motion Engine &bull; Local Creative Studio</span>
+        <p>Pure In-Browser Picture-Book Motion Engine &bull; Zero Dependencies</p>
       </div>
     </div>
     <div class="header-actions">
-      <span class="badge-pill">9:16 Vertical Video</span>
-      <button class="btn btn-secondary" onclick="refreshSampleAssets()" title="Regenerate sample demo story">
-        🎨 Refresh Assets
+      <button class="btn btn-demo" onclick="loadScoutAndJemDemo()">
+        ✨ Load Scout &amp; Jem Sample Story
       </button>
+      <span class="badge-pill">9:16 Vertical Story</span>
     </div>
   </header>
 
-  <!-- Main Container -->
-  <div class="container">
+  <!-- Main Workspace -->
+  <main>
 
-    <!-- Left Controls Panel -->
-    <aside class="sidebar">
-      <div class="card">
-        <div class="card-title">
-          <span>Asset Readiness</span>
-          <span id="all-assets-tag" class="tag-status tag-ready">Checking...</span>
+    <!-- Phase 1: Asset Ingestion Dropzones -->
+    <div class="ingestion-grid">
+      <!-- Slot 1: Script.txt -->
+      <div class="dropzone-card" id="drop-script" onclick="document.getElementById('input-script').click()">
+        <input type="file" id="input-script" accept=".txt" onchange="handleScriptFile(this.files[0])" />
+        <div class="drop-icon">📜</div>
+        <div class="drop-title">1. Scene Script (.txt)</div>
+        <div class="drop-sub">Single sentence beats per line</div>
+        <div class="drop-status" id="status-script">Click or drop script.txt</div>
+      </div>
+
+      <!-- Slot 2: Narration.mp3 -->
+      <div class="dropzone-card" id="drop-audio" onclick="document.getElementById('input-audio').click()">
+        <input type="file" id="input-audio" accept="audio/*,.mp3,.wav" onchange="handleAudioFile(this.files[0])" />
+        <div class="drop-icon">🎙️</div>
+        <div class="drop-title">2. Voice-Over (.mp3 / .wav)</div>
+        <div class="drop-sub">Natural speech with 0.3s-0.5s pauses</div>
+        <div class="drop-status" id="status-audio">Click or drop narration.mp3</div>
+      </div>
+
+      <!-- Slot 3: Visual Assets (.zip or multiple images) -->
+      <div class="dropzone-card" id="drop-visuals" onclick="document.getElementById('input-visuals').click()">
+        <input type="file" id="input-visuals" accept=".zip,image/*" multiple onchange="handleVisualsFiles(this.files)" />
+        <div class="drop-icon">🖼️</div>
+        <div class="drop-title">3. Visuals (.zip or .png images)</div>
+        <div class="drop-sub">01_intro.png, 02_journey.png, etc.</div>
+        <div class="drop-status" id="status-visuals">Click or drop scenes.zip</div>
+      </div>
+    </div>
+
+    <!-- Phase 2: Interactive Audio Waveform & Silence Cut Detector -->
+    <div class="waveform-panel">
+      <div class="section-header">
+        <div class="section-title">
+          <span>🌊</span>
+          <span>Audio Waveform &amp; Silence Cut Snapper</span>
         </div>
-
-        <div class="status-list">
-          <div class="status-item">
-            <div class="status-item-left">
-              <div class="status-icon">🎙️</div>
-              <div>
-                <div class="status-name">Voice-Over Audio</div>
-                <div class="status-path" id="voice-path">assets/voice-over/narration.mp3</div>
-              </div>
-            </div>
-            <span id="voice-tag" class="tag-status tag-ready">Found</span>
-          </div>
-
-          <div class="status-item">
-            <div class="status-item-left">
-              <div class="status-icon">📜</div>
-              <div>
-                <div class="status-name">Scene Script</div>
-                <div class="status-path" id="script-path">assets/scripts/story.txt</div>
-              </div>
-            </div>
-            <span id="script-tag" class="tag-status tag-ready">Found</span>
-          </div>
-
-          <div class="status-item">
-            <div class="status-item-left">
-              <div class="status-icon">🖼️</div>
-              <div>
-                <div class="status-name">Visual Assets</div>
-                <div class="status-path" id="visuals-path">assets/visuals/story_visuals.zip</div>
-              </div>
-            </div>
-            <span id="visuals-tag" class="tag-status tag-ready">Found</span>
-          </div>
-        </div>
-
-        <!-- Render Action Button -->
-        <button id="btn-render" class="btn btn-primary" onclick="startRender()">
-          ✨ Render Master Video (9:16)
-        </button>
-
-        <!-- Progress Box -->
-        <div id="progress-box" class="progress-box">
-          <div class="progress-header">
-            <span id="progress-label">Rendering Pipeline...</span>
-            <span id="progress-percent">0%</span>
-          </div>
-          <div class="progress-bar-bg">
-            <div id="progress-bar-fill" class="progress-bar-fill"></div>
-          </div>
-          <div id="progress-msg" class="progress-msg">Preparing frame composition...</div>
-        </div>
-
-        <!-- Voice-Over Preview Player -->
-        <div class="audio-widget">
-          <div class="audio-widget-header">
-            <span>🎵 Narration Audio Preview</span>
-            <span id="audio-time">21.0s</span>
-          </div>
-          <audio id="audio-player" controls preload="metadata">
-            <source src="/media/audio" type="audio/mpeg" />
-            Your browser does not support audio element.
-          </audio>
-        </div>
-
-        <!-- Live Activity Log -->
-        <div class="console-box" id="console-logs">
-          <p class="highlight">[Storymaker Studio Initialized]</p>
-          <p>Ready to choreograph Picture-Book Motion vertical story.</p>
+        <div style="display: flex; gap: 8px; align-items: center;">
+          <span class="badge-pill" id="silence-badge">Gaps &lt; -35dB (0.3s)</span>
+          <span class="badge-pill" id="duration-badge">Duration: 0.0s</span>
         </div>
       </div>
-    </aside>
 
-    <!-- Right Creation Stage -->
-    <main class="stage-section">
+      <div class="waveform-container" id="waveform-wrap">
+        <canvas id="waveform-canvas" height="120"></canvas>
+        <div class="markers-layer" id="markers-layer"></div>
+        <div class="playhead-marker" id="playhead"></div>
+      </div>
 
-      <!-- Master Video Theater -->
-      <div class="video-theater">
-        <div class="video-viewport">
-          <video id="video-player" controls playsinline poster="/media/thumbnail?scene=1" style="display: none;">
-            <source id="video-source" src="/media/video" type="video/mp4" />
-            Your browser does not support HTML5 video.
-          </video>
-          <div id="video-placeholder" class="video-placeholder">
-            <div class="icon">🎬</div>
-            <div style="font-weight: 600; color: var(--text);">No Video Rendered Yet</div>
-            <p style="font-size: 0.8rem;">Click "Render Master Video" to compose your 9:16 story.</p>
+      <div class="waveform-toolbar">
+        <div class="playback-group">
+          <button class="btn btn-secondary" id="btn-play" onclick="togglePlay()">
+            ▶️ Play
+          </button>
+          <button class="btn btn-secondary" onclick="seekTo(0)">
+            ⏮️ Rewind
+          </button>
+          <div class="timecode-display" id="timecode">00:00.0 / 00:00.0</div>
+        </div>
+        <p style="font-size: 0.76rem; color: var(--text-muted);">
+          💡 <strong>Tip:</strong> Drag the orange cut markers to adjust scene boundary cuts in real-time.
+        </p>
+      </div>
+    </div>
+
+    <!-- Phase 3 & 4: Scene Matrix & 9:16 Canvas Preview -->
+    <div class="studio-split">
+      
+      <!-- Scene Mapping Matrix Table -->
+      <div class="matrix-panel">
+        <div class="section-header">
+          <div class="section-title">
+            <span>📊</span>
+            <span>Scene Mapping Matrix</span>
           </div>
+          <span class="badge-pill" id="matrix-count">0 Scenes</span>
         </div>
 
-        <div class="video-details">
-          <div>
-            <span class="badge-pill">Master Creation</span>
-            <h2 style="margin-top: 8px;">Final Storybook Video</h2>
-            <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 6px;">
-              Crafted with Picture-Book Motion aesthetics: gentle spring-pop entrances, slow intentional push micro-drifts, and synced dynamic captions.
-            </p>
-          </div>
+        <table class="matrix-table">
+          <thead>
+            <tr>
+              <th>Scene</th>
+              <th>Artwork</th>
+              <th>Narration Script (Beat A &rarr; Beat B)</th>
+              <th>Timing</th>
+              <th>Choreography</th>
+            </tr>
+          </thead>
+          <tbody id="matrix-tbody">
+            <tr>
+              <td colspan="5" style="text-align: center; color: var(--text-dim); padding: 36px;">
+                Drop assets above or click "Load Scout &amp; Jem Sample Story" to build the matrix.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
 
-          <div class="video-meta-grid">
-            <div class="meta-card">
-              <label>Resolution</label>
-              <value>1080 &times; 1920</value>
-            </div>
-            <div class="meta-card">
-              <label>Pacing & Duration</label>
-              <value id="meta-duration">~21.0s</value>
-            </div>
-            <div class="meta-card">
-              <label>Aspect Ratio</label>
-              <value>9:16 Vertical</value>
-            </div>
-            <div class="meta-card">
-              <label>File Size</label>
-              <value id="meta-size">--</value>
-            </div>
+      <!-- Right 9:16 Live Canvas Theater -->
+      <div class="preview-stage">
+        <div class="section-header" style="width: 100%;">
+          <div class="section-title">
+            <span>📱</span>
+            <span>Live 9:16 Story Preview</span>
           </div>
+          <span class="badge-pill">30 FPS</span>
+        </div>
 
-          <div style="display: flex; gap: 12px; margin-top: 8px;">
-            <a id="btn-download" href="/media/video" download="final_story.mp4" class="btn btn-secondary" style="display: none;">
-              ⬇️ Download MP4
-            </a>
-            <button class="btn btn-secondary" onclick="document.getElementById('video-player').play()">
-              ▶️ Play Video
-            </button>
+        <div class="canvas-frame-wrap">
+          <canvas id="preview-canvas" width="1080" height="1920"></canvas>
+        </div>
+
+        <!-- Export Action Card -->
+        <div class="export-card">
+          <button class="btn btn-primary" id="btn-export" onclick="exportMasterVideo()" style="width: 100%;">
+            🚀 Export Master Video (1080&times;1920)
+          </button>
+
+          <div class="export-progress" id="export-progress">
+            <div style="display: flex; justify-content: space-between; font-size: 0.76rem;">
+              <span id="export-status-label">Recording canvas stream...</span>
+              <span id="export-percent">0%</span>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-bar-fill" id="export-fill"></div>
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- Storyboard Visualizer -->
-      <div class="card">
-        <div class="storyboard-header">
-          <div>
-            <h3 style="font-size: 1.1rem; font-weight: 700;">Storyboard &amp; Scenes</h3>
-            <p style="font-size: 0.82rem; color: var(--text-muted);">
-              Extracted scenes mapped with timed narrative pacing and illustrations.
-            </p>
-          </div>
-          <span class="badge-pill" id="scene-count-badge">6 Scenes</span>
-        </div>
+    </div>
 
-        <div id="storyboard-grid" class="storyboard-grid">
-          <!-- Populated dynamically via JS -->
-        </div>
-      </div>
+  </main>
 
-    </main>
-  </div>
-
-  <!-- Footer -->
   <footer>
-    FB-2minutes Storymaker &bull; Automated Storytelling Engine &bull; Picture-Book Motion Architecture
+    FB-2minutes Storymaker &bull; Picture-Book Motion Architecture &bull; Pure Client-Side Web Application
   </footer>
 
   <script>
-    let pollInterval = null;
+    // =========================================================================
+    // Core Data Structures & State
+    // =========================================================================
+    let audioContext = null;
+    let audioBuffer = null;
+    let audioSourceNode = null;
+    let audioStartTime = 0;
+    let audioPauseOffset = 0;
+    let isPlaying = false;
+    let animationFrameId = null;
 
-    function log(msg, type = "info") {
-      const consoleBox = document.getElementById("console-logs");
-      const p = document.createElement("p");
-      if (type === "highlight") p.className = "highlight";
-      if (type === "success") p.className = "success";
-      p.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
-      consoleBox.appendChild(p);
-      consoleBox.scrollTop = consoleBox.scrollHeight;
+    let sceneScriptLines = [];
+    let sceneImages = [];      // Array of HTMLImageElement or data URLs
+    let sceneTimings = [];     // Array of cut timestamp numbers: [0, t1, t2, ..., totalDuration]
+    let sceneChoreography = []; // Array of { entrance: string, motion: string }
+
+    let activeMarkerDrag = null;
+
+    // =========================================================================
+    // Web Audio Initialization & Playback
+    // =========================================================================
+    function getAudioContext() {
+      if (!audioContext) {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        audioContext = new AudioCtx();
+      }
+      if (audioContext.state === "suspended") {
+        audioContext.resume();
+      }
+      return audioContext;
     }
 
-    async function loadStatus() {
-      try {
-        const res = await fetch("/api/status");
-        const data = await res.json();
+    function getCurrentAudioTime() {
+      if (!isPlaying) return audioPauseOffset;
+      const ctx = getAudioContext();
+      return Math.min(audioBuffer.duration, ctx.currentTime - audioStartTime);
+    }
 
-        // Update asset pills
-        document.getElementById("voice-tag").className = data.voice_over.found ? "tag-status tag-ready" : "tag-status tag-missing";
-        document.getElementById("voice-tag").textContent = data.voice_over.found ? "Found" : "Missing";
-
-        document.getElementById("script-tag").className = data.script.found ? "tag-status tag-ready" : "tag-status tag-missing";
-        document.getElementById("script-tag").textContent = data.script.found ? "Found" : "Missing";
-
-        document.getElementById("visuals-tag").className = data.visuals.found ? "tag-status tag-ready" : "tag-status tag-missing";
-        document.getElementById("visuals-tag").textContent = data.visuals.found ? "Found" : "Missing";
-
-        const allReady = data.voice_over.found && data.script.found && data.visuals.found;
-        document.getElementById("all-assets-tag").className = allReady ? "tag-status tag-ready" : "tag-status tag-missing";
-        document.getElementById("all-assets-tag").textContent = allReady ? "Ready to Render" : "Assets Missing";
-
-        // Video status
-        const videoPlayer = document.getElementById("video-player");
-        const videoPlaceholder = document.getElementById("video-placeholder");
-        const downloadBtn = document.getElementById("btn-download");
-        const metaSize = document.getElementById("meta-size");
-
-        if (data.video.found && data.video.details) {
-          videoPlayer.style.display = "block";
-          videoPlaceholder.style.display = "none";
-          downloadBtn.style.display = "inline-flex";
-          metaSize.textContent = `${data.video.details.size_mb} MB`;
-        } else {
-          videoPlayer.style.display = "none";
-          videoPlaceholder.style.display = "flex";
-          downloadBtn.style.display = "none";
-          metaSize.textContent = "--";
-        }
-      } catch (e) {
-        console.error("Status fetch failed:", e);
+    function togglePlay() {
+      if (!audioBuffer) return;
+      if (isPlaying) {
+        pause();
+      } else {
+        play();
       }
     }
 
-    async function loadScenes() {
-      try {
-        const res = await fetch("/api/scenes");
-        const data = await res.json();
-        const grid = document.getElementById("storyboard-grid");
-        grid.innerHTML = "";
+    function play() {
+      if (!audioBuffer || isPlaying) return;
+      const ctx = getAudioContext();
 
-        document.getElementById("scene-count-badge").textContent = `${data.scenes.length} Scenes`;
+      if (audioPauseOffset >= audioBuffer.duration) {
+        audioPauseOffset = 0;
+      }
 
-        data.scenes.forEach(s => {
-          const card = document.createElement("div");
-          card.className = "scene-card";
-          card.innerHTML = `
-            <div class="scene-thumb-wrap">
-              <img src="${s.thumbnail_url}" alt="${s.title}" loading="lazy" />
-              <div class="scene-badge">SCENE ${s.index + 1}</div>
-            </div>
-            <div class="scene-content">
-              <div class="scene-title">${s.title}</div>
-              <div class="scene-script">${s.text}</div>
-              <div class="scene-footer">
-                <span>⏱️ ~3.5s duration</span>
-                <span>✨ Spring Pop</span>
-              </div>
-            </div>
-          `;
-          grid.appendChild(card);
+      audioSourceNode = ctx.createBufferSource();
+      audioSourceNode.buffer = audioBuffer;
+      audioSourceNode.connect(ctx.destination);
+      audioSourceNode.start(0, audioPauseOffset);
+
+      audioStartTime = ctx.currentTime - audioPauseOffset;
+      isPlaying = true;
+      document.getElementById("btn-play").textContent = "⏸️ Pause";
+
+      audioSourceNode.onended = () => {
+        if (isPlaying && getCurrentAudioTime() >= audioBuffer.duration - 0.1) {
+          pause();
+          audioPauseOffset = 0;
+          updatePlayheadUI(0);
+        }
+      };
+
+      startRenderLoop();
+    }
+
+    function pause() {
+      if (!isPlaying) return;
+      audioPauseOffset = getCurrentAudioTime();
+      if (audioSourceNode) {
+        audioSourceNode.onended = null;
+        try { audioSourceNode.stop(); } catch(e) {}
+        audioSourceNode = null;
+      }
+      isPlaying = false;
+      document.getElementById("btn-play").textContent = "▶️ Play";
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+        animationFrameId = null;
+      }
+      renderPreviewFrame(audioPauseOffset);
+    }
+
+    function seekTo(targetTime) {
+      if (!audioBuffer) return;
+      const wasPlaying = isPlaying;
+      if (isPlaying) pause();
+      audioPauseOffset = Math.max(0, Math.min(audioBuffer.duration, targetTime));
+      updatePlayheadUI(audioPauseOffset);
+      renderPreviewFrame(audioPauseOffset);
+      if (wasPlaying) play();
+    }
+
+    // =========================================================================
+    // Phase 2: Real Silence Detection (-35 dB Breathing Gaps)
+    // =========================================================================
+    function detectSilenceCutPoints(buffer, targetCutCount) {
+      const sampleRate = buffer.sampleRate;
+      const channelData = buffer.getChannelData(0);
+      const duration = buffer.duration;
+
+      // Window: 40ms blocks
+      const windowSize = Math.floor(sampleRate * 0.04);
+      const numWindows = Math.floor(channelData.length / windowSize);
+
+      const silenceGaps = []; // list of { start, end, mid }
+      let inSilence = false;
+      let silenceStart = 0;
+
+      for (let w = 0; w < numWindows; w++) {
+        let sumSq = 0;
+        const startIdx = w * windowSize;
+        for (let i = 0; i < windowSize; i++) {
+          const val = channelData[startIdx + i];
+          sumSq += val * val;
+        }
+        const rms = Math.sqrt(sumSq / windowSize);
+        const dB = 20 * Math.log10(rms + 1e-7);
+        const timeSec = (startIdx + windowSize / 2) / sampleRate;
+
+        // Threshold: -35 dB
+        if (dB < -35.0) {
+          if (!inSilence) {
+            inSilence = true;
+            silenceStart = timeSec;
+          }
+        } else {
+          if (inSilence) {
+            inSilence = false;
+            const gapDuration = timeSec - silenceStart;
+            // Only consider gaps >= 0.25s as natural breathing pauses
+            if (gapDuration >= 0.22 && silenceStart > 1.5 && timeSec < duration - 1.5) {
+              silenceGaps.push({
+                start: silenceStart,
+                end: timeSec,
+                mid: (silenceStart + timeSec) / 2,
+                duration: gapDuration
+              });
+            }
+          }
+        }
+      }
+
+      console.log(`[Silence Detector] Found ${silenceGaps.length} natural silence gaps (< -35dB)`);
+
+      // If we need N-1 cut markers for N scenes:
+      const neededCuts = Math.max(1, targetCutCount - 1);
+      const cuts = [0.0];
+
+      if (silenceGaps.length >= neededCuts) {
+        // Distribute gaps evenly across the needed cuts
+        const step = silenceGaps.length / neededCuts;
+        for (let i = 0; i < neededCuts; i++) {
+          const gapIndex = Math.min(silenceGaps.length - 1, Math.floor(i * step + step / 2));
+          cuts.push(Number(silenceGaps[gapIndex].mid.toFixed(2)));
+        }
+      } else {
+        // Proportional fallback based on duration
+        const sceneDuration = duration / targetCutCount;
+        for (let i = 1; i < targetCutCount; i++) {
+          cuts.push(Number((i * sceneDuration).toFixed(2)));
+        }
+      }
+
+      cuts.push(Number(duration.toFixed(2)));
+      return cuts;
+    }
+
+    // =========================================================================
+    // Waveform Rendering & Interactive Marker Dragging
+    // =========================================================================
+    function drawWaveform() {
+      const canvas = document.getElementById("waveform-canvas");
+      const ctx = canvas.getContext("2d");
+      const w = canvas.offsetWidth;
+      const h = canvas.offsetHeight;
+      canvas.width = w * window.devicePixelRatio;
+      canvas.height = h * window.devicePixelRatio;
+      ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+
+      ctx.clearRect(0, 0, w, h);
+
+      if (!audioBuffer) {
+        ctx.fillStyle = "#60687e";
+        ctx.font = "12px sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillText("Audio waveform will render here after loading narration.mp3", w / 2, h / 2);
+        return;
+      }
+
+      const channelData = audioBuffer.getChannelData(0);
+      const duration = audioBuffer.duration;
+      const step = Math.ceil(channelData.length / w);
+      const amp = h / 2;
+
+      // Draw background scene bands
+      for (let i = 0; i < sceneTimings.length - 1; i++) {
+        const startX = (sceneTimings[i] / duration) * w;
+        const endX = (sceneTimings[i + 1] / duration) * w;
+        ctx.fillStyle = i % 2 === 0 ? "rgba(255, 255, 255, 0.02)" : "rgba(235, 140, 60, 0.04)";
+        ctx.fillRect(startX, 0, endX - startX, h);
+      }
+
+      // Draw waveform peaks
+      ctx.fillStyle = "#eb8c3c";
+      ctx.beginPath();
+      for (let x = 0; x < w; x++) {
+        let min = 1.0;
+        let max = -1.0;
+        for (let j = 0; j < step; j++) {
+          const datum = channelData[x * step + j] || 0;
+          if (datum < min) min = datum;
+          if (datum > max) max = datum;
+        }
+        ctx.fillRect(x, (1 + min) * amp, 1, Math.max(1, (max - min) * amp));
+      }
+
+      renderMarkerHandles();
+    }
+
+    function renderMarkerHandles() {
+      const layer = document.getElementById("markers-layer");
+      layer.innerHTML = "";
+      if (!audioBuffer || sceneTimings.length <= 2) return;
+
+      const duration = audioBuffer.duration;
+
+      // Render draggable cuts (skip first 0.0 and last totalDuration)
+      for (let i = 1; i < sceneTimings.length - 1; i++) {
+        const t = sceneTimings[i];
+        const pct = (t / duration) * 100;
+
+        const markerEl = document.createElement("div");
+        markerEl.className = "cut-marker";
+        markerEl.style.left = `${pct}%`;
+        markerEl.dataset.index = i;
+
+        const handle = document.createElement("div");
+        handle.className = "cut-marker-handle";
+        handle.textContent = `Cut ${i}: ${t.toFixed(1)}s`;
+        markerEl.appendChild(handle);
+
+        markerEl.addEventListener("mousedown", (e) => {
+          e.stopPropagation();
+          activeMarkerDrag = i;
         });
-      } catch (e) {
-        console.error("Scenes load failed:", e);
+
+        layer.appendChild(markerEl);
       }
     }
 
-    async function startRender() {
-      const renderBtn = document.getElementById("btn-render");
-      const progressBox = document.getElementById("progress-box");
-      renderBtn.disabled = true;
-      progressBox.style.display = "block";
-      log("Initiating pipeline render...", "highlight");
+    // Global drag listener for cut markers
+    window.addEventListener("mousemove", (e) => {
+      if (activeMarkerDrag === null || !audioBuffer) return;
+      const wrap = document.getElementById("waveform-wrap");
+      const rect = wrap.getBoundingClientRect();
+      const clickX = e.clientX - rect.left;
+      const pct = Math.max(0, Math.min(1, clickX / rect.width));
+      const targetTime = pct * audioBuffer.duration;
 
-      try {
-        const res = await fetch("/api/render", { method: "POST" });
-        const data = await res.json();
-        if (!data.ok) {
-          log(`Render request error: ${data.message}`, "highlight");
-          renderBtn.disabled = false;
-          return;
+      const prevTime = sceneTimings[activeMarkerDrag - 1] + 1.0;
+      const nextTime = sceneTimings[activeMarkerDrag + 1] - 1.0;
+
+      if (targetTime >= prevTime && targetTime <= nextTime) {
+        sceneTimings[activeMarkerDrag] = Number(targetTime.toFixed(2));
+        renderMarkerHandles();
+        updateMatrixTable();
+      }
+    });
+
+    window.addEventListener("mouseup", () => {
+      activeMarkerDrag = null;
+    });
+
+    // Waveform Click to Seek
+    document.getElementById("waveform-wrap").addEventListener("click", (e) => {
+      if (!audioBuffer || activeMarkerDrag !== null) return;
+      const wrap = document.getElementById("waveform-wrap");
+      const rect = wrap.getBoundingClientRect();
+      const clickX = e.clientX - rect.left;
+      const pct = Math.max(0, Math.min(1, clickX / rect.width));
+      seekTo(pct * audioBuffer.duration);
+    });
+
+    function updatePlayheadUI(currentTime) {
+      if (!audioBuffer) return;
+      const duration = audioBuffer.duration;
+      const pct = (currentTime / duration) * 100;
+      const playhead = document.getElementById("playhead");
+      playhead.style.display = "block";
+      playhead.style.left = `${pct}%`;
+
+      const curM = Math.floor(currentTime / 60);
+      const curS = (currentTime % 60).toFixed(1).padStart(4, "0");
+      const durM = Math.floor(duration / 60);
+      const durS = (duration % 60).toFixed(1).padStart(4, "0");
+      document.getElementById("timecode").textContent = `${curM}:${curS} / ${durM}:${durS}`;
+    }
+
+    // =========================================================================
+    // Phase 3: Scene Mapping Matrix Builder
+    // =========================================================================
+    function updateMatrixTable() {
+      const tbody = document.getElementById("matrix-tbody");
+      tbody.innerHTML = "";
+
+      const count = Math.max(1, sceneTimings.length - 1);
+      document.getElementById("matrix-count").textContent = `${count} Scenes`;
+
+      for (let i = 0; i < count; i++) {
+        const start = sceneTimings[i] || 0.0;
+        const end = sceneTimings[i + 1] || start + 3.0;
+        const duration = (end - start).toFixed(1);
+
+        const line = sceneScriptLines[i] || `Scene ${i + 1} narrative text beat.`;
+        const words = line.split(" ");
+        const midWord = Math.ceil(words.length / 2);
+        const beatA = words.slice(0, midWord).join(" ");
+        const beatB = words.slice(midWord).join(" ");
+
+        const imgSrc = (sceneImages[i] && sceneImages[i].src) ? sceneImages[i].src : "";
+
+        if (!sceneChoreography[i]) {
+          sceneChoreography[i] = {
+            entrance: i === 0 ? "pop-in" : (i === 1 ? "dissolve" : "zoom-pop"),
+            motion: i === 0 ? "push-in" : (i === 1 ? "pan" : "float")
+          };
         }
 
-        if (pollInterval) clearInterval(pollInterval);
-        pollInterval = setInterval(pollRenderStatus, 800);
-      } catch (e) {
-        log(`Failed to trigger render: ${e}`, "highlight");
-        renderBtn.disabled = false;
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td><span class="badge-scene-num">Scene ${String(i + 1).padStart(2, "0")}</span></td>
+          <td>
+            <img src="${imgSrc}" class="thumb-preview" alt="Scene ${i + 1}" />
+          </td>
+          <td>
+            <div style="font-weight:600; color:var(--text); font-size:0.86rem;">Beat A: "${beatA}"</div>
+            <div style="color:var(--text-muted); font-size:0.78rem; margin-top:2px;">Beat B: "${beatB}"</div>
+          </td>
+          <td>
+            <div style="font-family:var(--font-mono); font-weight:700;">${start.toFixed(1)}s &rarr; ${end.toFixed(1)}s</div>
+            <div style="color:var(--text-dim); font-size:0.72rem;">${duration}s duration</div>
+          </td>
+          <td>
+            <div style="display:flex; flex-direction:column; gap:4px;">
+              <select class="select-choreography" onchange="sceneChoreography[${i}].entrance = this.value">
+                <option value="pop-in" ${sceneChoreography[i].entrance === "pop-in" ? "selected" : ""}>✨ Gentle Pop-in</option>
+                <option value="dissolve" ${sceneChoreography[i].entrance === "dissolve" ? "selected" : ""}>🌫️ Soft Dissolve</option>
+                <option value="zoom-pop" ${sceneChoreography[i].entrance === "zoom-pop" ? "selected" : ""}>🔍 Zoom Pop-in</option>
+              </select>
+              <select class="select-choreography" onchange="sceneChoreography[${i}].motion = this.value">
+                <option value="push-in" ${sceneChoreography[i].motion === "push-in" ? "selected" : ""}>🎥 Push-in (+4% Zoom)</option>
+                <option value="pan" ${sceneChoreography[i].motion === "pan" ? "selected" : ""}>↔️ Horizontal Pan (+30px)</option>
+                <option value="float" ${sceneChoreography[i].motion === "float" ? "selected" : ""}>🌬️ Handheld Breathing Float</option>
+              </select>
+            </div>
+          </td>
+        `;
+        tbody.appendChild(tr);
       }
     }
 
-    async function pollRenderStatus() {
-      try {
-        const res = await fetch("/api/render-status");
-        const state = await res.json();
+    // =========================================================================
+    // Phase 4: Picture-Book Motion Canvas Rendering Engine
+    // =========================================================================
+    function startRenderLoop() {
+      function loop() {
+        if (!isPlaying) return;
+        const currentTime = getCurrentAudioTime();
+        updatePlayheadUI(currentTime);
+        renderPreviewFrame(currentTime);
+        animationFrameId = requestAnimationFrame(loop);
+      }
+      animationFrameId = requestAnimationFrame(loop);
+    }
 
-        const pFill = document.getElementById("progress-bar-fill");
-        const pPercent = document.getElementById("progress-percent");
-        const pMsg = document.getElementById("progress-msg");
+    function renderPreviewFrame(currentTime) {
+      const canvas = document.getElementById("preview-canvas");
+      const ctx = canvas.getContext("2d");
+      const W = canvas.width;  // 1080
+      const H = canvas.height; // 1920
 
-        pFill.style.width = `${state.progress}%`;
-        pPercent.textContent = `${Math.round(state.progress)}%`;
-        pMsg.textContent = state.message;
+      // 1. Warm Editorial Background Page
+      ctx.fillStyle = "#F8F5EE";
+      ctx.fillRect(0, 0, W, H);
 
-        if (state.status === "running") {
-          log(state.message);
-        } else if (state.status === "done") {
-          clearInterval(pollInterval);
-          pollInterval = null;
-          log("✅ Video render completed successfully!", "success");
-          document.getElementById("btn-render").disabled = false;
+      // Subtle top/bottom atmospheric vignette
+      const grad = ctx.createLinearGradient(0, 0, 0, H);
+      grad.addColorStop(0, "rgba(235, 228, 218, 0.4)");
+      grad.addColorStop(0.3, "rgba(248, 245, 238, 0)");
+      grad.addColorStop(0.7, "rgba(248, 245, 238, 0)");
+      grad.addColorStop(1, "rgba(230, 222, 210, 0.45)");
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, W, H);
 
-          // Reload video source to bust browser cache
-          const videoPlayer = document.getElementById("video-player");
-          const videoSource = document.getElementById("video-source");
-          videoSource.src = `/media/video?t=${Date.now()}`;
-          videoPlayer.load();
-          videoPlayer.style.display = "block";
-          document.getElementById("video-placeholder").style.display = "none";
-          document.getElementById("btn-download").style.display = "inline-flex";
+      // Top Editorial Brand Badge
+      ctx.save();
+      ctx.fillStyle = "#EAE4D8";
+      ctx.beginPath();
+      ctx.roundRect(W / 2 - 180, 75, 360, 48, 24);
+      ctx.fill();
+      ctx.strokeStyle = "#D4CBBD";
+      ctx.lineWidth = 2;
+      ctx.stroke();
 
-          loadStatus();
-        } else if (state.status === "error") {
-          clearInterval(pollInterval);
-          pollInterval = null;
-          log(`❌ Render error: ${state.error}`, "highlight");
-          document.getElementById("btn-render").disabled = false;
+      ctx.fillStyle = "#706B62";
+      ctx.font = "bold 20px -apple-system, sans-serif";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText("PICTURE-BOOK MOTION", W / 2, 99);
+      ctx.restore();
+
+      // Find active scene index
+      let sceneIdx = 0;
+      for (let i = 0; i < sceneTimings.length - 1; i++) {
+        if (currentTime >= sceneTimings[i] && currentTime < sceneTimings[i + 1]) {
+          sceneIdx = i;
+          break;
         }
-      } catch (e) {
-        console.error("Poll status error:", e);
+        if (i === sceneTimings.length - 2) {
+          sceneIdx = i;
+        }
       }
+
+      const sceneStart = sceneTimings[sceneIdx] || 0;
+      const sceneEnd = sceneTimings[sceneIdx + 1] || (sceneStart + 3);
+      const sceneDuration = Math.max(0.1, sceneEnd - sceneStart);
+      const sceneT = Math.max(0, currentTime - sceneStart);
+      const progress = Math.min(1.0, sceneT / sceneDuration);
+
+      const ch = sceneChoreography[sceneIdx] || { entrance: "pop-in", motion: "push-in" };
+
+      // 2. Compute Picture-Book Motion Transforms
+      let scale = 1.0;
+      let panX = 0;
+      let panY = 0;
+      let opacity = 1.0;
+
+      // Entrance calculation
+      if (ch.entrance === "pop-in") {
+        if (sceneT < 0.35) {
+          const normT = sceneT / 0.35;
+          scale = 0.94 + 0.06 * Math.sin(normT * Math.PI * 0.5);
+        }
+      } else if (ch.entrance === "dissolve") {
+        if (sceneT < 0.20) {
+          opacity = sceneT / 0.20;
+        }
+      } else if (ch.entrance === "zoom-pop") {
+        if (sceneT < 0.35) {
+          const normT = sceneT / 0.35;
+          scale = 1.06 - 0.06 * Math.sin(normT * Math.PI * 0.5);
+        }
+      }
+
+      // Continuous Motion calculation
+      if (ch.motion === "push-in") {
+        // Slow intentional push: +4% zoom over the scene
+        scale *= (1.0 + 0.04 * progress);
+      } else if (ch.motion === "pan") {
+        // Gentle horizontal pan (+30px slide)
+        panX = (progress - 0.5) * 40;
+      } else if (ch.motion === "float") {
+        // Handheld subtle float (harmonic breathing sway)
+        panY = Math.sin(sceneT * Math.PI * 1.5) * 5;
+        scale *= (1.0 + 0.015 * Math.sin(sceneT * Math.PI * 1.2));
+      }
+
+      // 3. Render Center Artwork Card
+      const baseArtworkSize = 860;
+      const centerX = W / 2 + panX;
+      const centerY = 660 + panY;
+      const currentSize = baseArtworkSize * scale;
+
+      ctx.save();
+      ctx.globalAlpha = opacity;
+
+      // Card Drop Shadow
+      ctx.fillStyle = "rgba(0, 0, 0, 0.08)";
+      ctx.beginPath();
+      ctx.roundRect(W / 2 - baseArtworkSize / 2 + 8, 660 - baseArtworkSize / 2 + 16, baseArtworkSize, baseArtworkSize, 36);
+      ctx.fill();
+
+      // Card Base
+      ctx.fillStyle = "#FFFFFF";
+      ctx.beginPath();
+      ctx.roundRect(centerX - currentSize / 2, centerY - currentSize / 2, currentSize, currentSize, 36);
+      ctx.fill();
+      ctx.clip();
+
+      const img = sceneImages[sceneIdx];
+      if (img && img.complete) {
+        ctx.drawImage(img, centerX - currentSize / 2, centerY - currentSize / 2, currentSize, currentSize);
+      }
+
+      ctx.restore();
+
+      // Outer Decorative Card Border
+      ctx.strokeStyle = "#DDD5C7";
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.roundRect(W / 2 - baseArtworkSize / 2 - 2, 660 - baseArtworkSize / 2 - 2, baseArtworkSize + 4, baseArtworkSize + 4, 38);
+      ctx.stroke();
+
+      // 4. Lower-Third Dynamic Caption Card
+      const cardMargin = 80;
+      const cardTop = 1180;
+      const cardBottom = 1750;
+      const cardW = W - cardMargin * 2;
+      const cardH = cardBottom - cardTop;
+
+      // Dark Charcoal Contrast Container
+      ctx.fillStyle = "#20222A";
+      ctx.beginPath();
+      ctx.roundRect(cardMargin, cardTop, cardW, cardH, 40);
+      ctx.fill();
+
+      ctx.strokeStyle = "#353948";
+      ctx.lineWidth = 3;
+      ctx.stroke();
+
+      // Scene Badge
+      ctx.fillStyle = "#EB8C3C";
+      ctx.beginPath();
+      ctx.roundRect(W / 2 - 120, cardTop + 45, 240, 48, 24);
+      ctx.fill();
+
+      ctx.fillStyle = "#FFFFFF";
+      ctx.font = "bold 20px -apple-system, sans-serif";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(`SCENE ${sceneIdx + 1} OF ${sceneTimings.length - 1}`, W / 2, cardTop + 69);
+
+      // Two-Beat Dynamic Subtitles
+      const fullLine = sceneScriptLines[sceneIdx] || "";
+      const words = fullLine.split(" ");
+      const midWord = Math.ceil(words.length / 2);
+      const beatA = words.slice(0, midWord).join(" ");
+      const beatB = words.slice(midWord).join(" ");
+
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+
+      // Display active phrase with highlight
+      if (progress < 0.5) {
+        ctx.font = "bold 44px -apple-system, sans-serif";
+        ctx.fillStyle = "#FFFFFF";
+        ctx.fillText(`"${beatA}"`, W / 2, cardTop + 200);
+
+        ctx.font = "34px -apple-system, sans-serif";
+        ctx.fillStyle = "#888F9F";
+        ctx.fillText(beatB, W / 2, cardTop + 280);
+      } else {
+        ctx.font = "34px -apple-system, sans-serif";
+        ctx.fillStyle = "#888F9F";
+        ctx.fillText(`"${beatA}"`, W / 2, cardTop + 190);
+
+        ctx.font = "bold 44px -apple-system, sans-serif";
+        ctx.fillStyle = "#FFFFFF";
+        ctx.fillText(`${beatB}"`, W / 2, cardTop + 270);
+      }
+
+      // Scene Progress Bar
+      const barW = cardW - 140;
+      const barX = (W - barW) / 2;
+      const barY = cardBottom - 65;
+      ctx.fillStyle = "#383C4A";
+      ctx.beginPath();
+      ctx.roundRect(barX, barY, barW, 8, 4);
+      ctx.fill();
+
+      ctx.fillStyle = "#EB8C3C";
+      ctx.beginPath();
+      ctx.roundRect(barX, barY, Math.max(4, barW * progress), 8, 4);
+      ctx.fill();
+
+      // Master Story Progress Indicator at very bottom
+      const totalDuration = (audioBuffer && audioBuffer.duration) ? audioBuffer.duration : 1;
+      const totalProgress = Math.min(1.0, currentTime / totalDuration);
+      ctx.fillStyle = "#EB8C3C";
+      ctx.fillRect(0, H - 10, W * totalProgress, 10);
     }
 
-    async function refreshSampleAssets() {
-      log("Regenerating sample demo assets...");
-      try {
-        const res = await fetch("/api/generate-assets", { method: "POST" });
-        const data = await res.json();
-        if (data.ok) {
-          log("✅ Sample assets regenerated successfully.", "success");
-          loadStatus();
-          loadScenes();
-          // Reload audio
-          const audio = document.getElementById("audio-player");
-          audio.src = `/media/audio?t=${Date.now()}`;
-          audio.load();
+    // =========================================================================
+    // Phase 1 Handlers: Ingestion of User Files
+    // =========================================================================
+    async function handleScriptFile(file) {
+      if (!file) return;
+      const text = await file.text();
+      parseScriptText(text);
+      document.getElementById("drop-script").classList.add("loaded");
+      document.getElementById("status-script").textContent = `✓ Loaded (${sceneScriptLines.length} lines)`;
+      document.getElementById("status-script").className = "drop-status ok";
+    }
+
+    function parseScriptText(text) {
+      const lines = text.split("\n")
+        .map(l => l.trim())
+        .filter(l => l.length > 0 && !l.startsWith("#"));
+
+      sceneScriptLines = lines.map(l => {
+        // Strip Line 1: prefix if present
+        return l.replace(/^Line\s*\d+:\s*/i, "");
+      });
+
+      if (audioBuffer && sceneScriptLines.length > 0) {
+        sceneTimings = detectSilenceCutPoints(audioBuffer, sceneScriptLines.length);
+        drawWaveform();
+      }
+      updateMatrixTable();
+      renderPreviewFrame(getCurrentAudioTime());
+    }
+
+    async function handleAudioFile(file) {
+      if (!file) return;
+      const ctx = getAudioContext();
+      const arrayBuf = await file.arrayBuffer();
+      audioBuffer = await ctx.decodeAudioData(arrayBuf);
+
+      document.getElementById("drop-audio").classList.add("loaded");
+      document.getElementById("status-audio").textContent = `✓ Decoded (${audioBuffer.duration.toFixed(1)}s)`;
+      document.getElementById("status-audio").className = "drop-status ok";
+      document.getElementById("duration-badge").textContent = `Duration: ${audioBuffer.duration.toFixed(1)}s`;
+
+      const targetCount = sceneScriptLines.length > 0 ? sceneScriptLines.length : 4;
+      sceneTimings = detectSilenceCutPoints(audioBuffer, targetCount);
+
+      drawWaveform();
+      updateMatrixTable();
+      renderPreviewFrame(0);
+    }
+
+    async function handleVisualsFiles(files) {
+      if (!files || files.length === 0) return;
+
+      sceneImages = [];
+      const fileList = Array.from(files);
+
+      // Check if .zip file
+      const zipFile = fileList.find(f => f.name.toLowerCase().endsWith(".zip"));
+      if (zipFile) {
+        await unpackZipInBrowser(zipFile);
+      } else {
+        // Multi-image selection
+        const imageFiles = fileList.filter(f => f.type.startsWith("image/") || /\.(png|jpe?g|webp)$/i.test(f.name));
+        imageFiles.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
+
+        for (const f of imageFiles) {
+          const img = await loadImageFromFile(f);
+          sceneImages.push(img);
+        }
+      }
+
+      document.getElementById("drop-visuals").classList.add("loaded");
+      document.getElementById("status-visuals").textContent = `✓ ${sceneImages.length} image(s) loaded`;
+      document.getElementById("status-visuals").className = "drop-status ok";
+
+      updateMatrixTable();
+      renderPreviewFrame(getCurrentAudioTime());
+    }
+
+    function loadImageFromFile(file) {
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const img = new Image();
+          img.onload = () => resolve(img);
+          img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    // Pure Client-Side ZIP Unpacker using DecompressionStream
+    async function unpackZipInBrowser(zipBlob) {
+      const buffer = await zipBlob.arrayBuffer();
+      const view = new DataView(buffer);
+      let offset = 0;
+      const extractedImages = [];
+
+      while (offset < buffer.byteLength - 4) {
+        const sig = view.getUint32(offset, true);
+        if (sig !== 0x04034b50) break; // End of local files
+
+        const compMethod = view.getUint16(offset + 8, true);
+        const compSize = view.getUint32(offset + 18, true);
+        const nameLen = view.getUint16(offset + 26, true);
+        const extraLen = view.getUint16(offset + 28, true);
+
+        const nameBytes = new Uint8Array(buffer, offset + 30, nameLen);
+        const fileName = new TextDecoder().decode(nameBytes);
+        const dataOffset = offset + 30 + nameLen + extraLen;
+
+        if (!fileName.endsWith("/") && /\.(png|jpe?g|webp)$/i.test(fileName)) {
+          const compressedData = new Uint8Array(buffer, dataOffset, compSize);
+          let rawData = compressedData;
+
+          if (compMethod === 8 && typeof DecompressionStream !== "undefined") {
+            try {
+              const ds = new DecompressionStream("deflate-raw");
+              const writer = ds.writable.getWriter();
+              writer.write(compressedData);
+              writer.close();
+              const response = new Response(ds.readable);
+              const decompressedBuffer = await response.arrayBuffer();
+              rawData = new Uint8Array(decompressedBuffer);
+            } catch(e) {
+              console.warn("Decompression fallback:", e);
+            }
+          }
+
+          const blob = new Blob([rawData], { type: "image/png" });
+          const img = await new Promise(r => {
+            const el = new Image();
+            el.onload = () => r(el);
+            el.src = URL.createObjectURL(blob);
+          });
+          extractedImages.push({ name: fileName, img });
+        }
+
+        offset = dataOffset + compSize;
+      }
+
+      extractedImages.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
+      sceneImages = extractedImages.map(item => item.img);
+    }
+
+    // =========================================================================
+    // Built-In "Scout & Jem" Demo Generator
+    // =========================================================================
+    async function loadScoutAndJemDemo() {
+      const ctx = getAudioContext();
+
+      // 1. Script Lines (Exact user specification)
+      sceneScriptLines = [
+        "A young girl named Scout grows up in a quiet southern town.",
+        "She spends her days exploring with her older brother Jem.",
+        "But the town hides a dark secret behind closed doors.",
+        "An innocent man is accused of a crime he did not commit."
+      ];
+
+      // 2. Synthesize 24.0s Narration Audio with -35dB silence gaps at exactly 5.4s, 11.8s, 17.2s
+      const sampleRate = 44100;
+      const totalDuration = 24.0;
+      const totalSamples = sampleRate * totalDuration;
+      const audioBuf = ctx.createBuffer(1, totalSamples, sampleRate);
+      const data = audioBuf.getChannelData(0);
+
+      // Cuts specified by user: 0.0s, 5.4s, 11.8s, 17.2s, 24.0s
+      const cuts = [0.0, 5.4, 11.8, 17.2, 24.0];
+      const freqs = [220, 261.63, 196, 174.61]; // warm acoustic chords
+
+      for (let s = 0; s < 4; s++) {
+        const startSamp = Math.floor(cuts[s] * sampleRate);
+        const endSamp = Math.floor((cuts[s + 1] - 0.45) * sampleRate); // 0.45s breathing gap
+        const chordF = freqs[s];
+
+        for (let i = startSamp; i < endSamp; i++) {
+          const t = (i - startSamp) / sampleRate;
+          const tone = 0.3 * Math.sin(2 * Math.PI * chordF * t)
+                     + 0.15 * Math.sin(2 * Math.PI * (chordF * 1.5) * t)
+                     + 0.1 * Math.sin(2 * Math.PI * (chordF * 2.0) * t);
+          // Cadence modulation
+          const voiceCadence = 0.85 + 0.15 * Math.sin(2 * Math.PI * 1.8 * t);
+          data[i] = tone * voiceCadence * Math.min(1.0, t / 0.1);
+        }
+      }
+
+      audioBuffer = audioBuf;
+
+      // 3. Generate 4 Stylized Scout & Jem Scene Illustrations
+      const demoScenes = [
+        { title: "Scout Intro", symbol: "👒", bg: "#F8EBD8", accent: "#C87D45" },
+        { title: "Scout & Jem", symbol: "🌳", bg: "#E5EDDB", accent: "#4E8752" },
+        { title: "Shadowy House", symbol: "🏚️", bg: "#E2E5ED", accent: "#4A6185" },
+        { title: "Courtroom", symbol: "⚖️", bg: "#EFE0DD", accent: "#A84C38" }
+      ];
+
+      sceneImages = [];
+      for (let i = 0; i < demoScenes.length; i++) {
+        const c = document.createElement("canvas");
+        c.width = 1080;
+        c.height = 1080;
+        const g = c.getContext("2d");
+
+        // Background
+        g.fillStyle = demoScenes[i].bg;
+        g.fillRect(0, 0, 1080, 1080);
+
+        // Framed border
+        g.strokeStyle = demoScenes[i].accent;
+        g.lineWidth = 14;
+        g.strokeRect(60, 60, 960, 960);
+
+        // Inner Card
+        g.fillStyle = "#FFFFFF";
+        g.beginPath();
+        g.roundRect(100, 100, 880, 880, 40);
+        g.fill();
+
+        // Symbol Artwork
+        g.font = "180px sans-serif";
+        g.textAlign = "center";
+        g.textBaseline = "middle";
+        g.fillText(demoScenes[i].symbol, 540, 480);
+
+        // Scene Title
+        g.fillStyle = demoScenes[i].accent;
+        g.font = "bold 44px sans-serif";
+        g.fillText(`SCENE 0${i + 1}: ${demoScenes[i].title.toUpperCase()}`, 540, 720);
+
+        const img = new Image();
+        img.src = c.toDataURL("image/png");
+        await new Promise(r => img.onload = r);
+        sceneImages.push(img);
+      }
+
+      // Update Timings with exact silence gaps
+      sceneTimings = cuts;
+
+      // Update UI
+      document.getElementById("drop-script").classList.add("loaded");
+      document.getElementById("status-script").textContent = "✓ Scout & Jem (4 Lines)";
+      document.getElementById("status-script").className = "drop-status ok";
+
+      document.getElementById("drop-audio").classList.add("loaded");
+      document.getElementById("status-audio").textContent = "✓ Narration (24.0s)";
+      document.getElementById("status-audio").className = "drop-status ok";
+
+      document.getElementById("drop-visuals").classList.add("loaded");
+      document.getElementById("status-visuals").textContent = "✓ 4 Illustrations";
+      document.getElementById("status-visuals").className = "drop-status ok";
+
+      document.getElementById("duration-badge").textContent = "Duration: 24.0s";
+
+      drawWaveform();
+      updateMatrixTable();
+      seekTo(0);
+    }
+
+    // =========================================================================
+    // Phase 5: One-Click Master Video Export & Download (MediaRecorder)
+    // =========================================================================
+    async function exportMasterVideo() {
+      if (!audioBuffer) {
+        alert("Please load or generate an audio track first.");
+        return;
+      }
+
+      const btn = document.getElementById("btn-export");
+      const progressBox = document.getElementById("export-progress");
+      const fill = document.getElementById("export-fill");
+      const label = document.getElementById("export-status-label");
+      const percentEl = document.getElementById("export-percent");
+
+      btn.disabled = true;
+      progressBox.style.display = "flex";
+      pause();
+
+      const canvas = document.getElementById("preview-canvas");
+      const stream = canvas.captureStream(30);
+
+      // Mix audio track into stream
+      const ctx = getAudioContext();
+      const dest = ctx.createMediaStreamDestination();
+      const source = ctx.createBufferSource();
+      source.buffer = audioBuffer;
+      source.connect(dest);
+
+      // Combine video track and audio track
+      const combinedTracks = [
+        ...stream.getVideoTracks(),
+        ...dest.stream.getAudioTracks()
+      ];
+      const combinedStream = new MediaStream(combinedTracks);
+
+      const mimeType = MediaRecorder.isTypeSupported("video/mp4;codecs=avc1")
+        ? "video/mp4;codecs=avc1"
+        : (MediaRecorder.isTypeSupported("video/webm;codecs=vp9") ? "video/webm;codecs=vp9" : "video/webm");
+
+      const recorder = new MediaRecorder(combinedStream, {
+        mimeType: mimeType,
+        videoBitsPerSecond: 6000000 // 6 Mbps for crisp 1080x1920
+      });
+
+      const chunks = [];
+      recorder.ondataavailable = (e) => {
+        if (e.data && e.data.size > 0) chunks.push(e.data);
+      };
+
+      recorder.onstop = () => {
+        const blob = new Blob(chunks, { type: mimeType });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        const ext = mimeType.includes("mp4") ? "mp4" : "webm";
+        a.download = `scout_and_jem_story.${ext}`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+
+        btn.disabled = false;
+        label.textContent = "Export Complete! Download initiated.";
+        percentEl.textContent = "100%";
+        fill.style.width = "100%";
+      };
+
+      recorder.start();
+      source.start();
+
+      const duration = audioBuffer.duration;
+      const startTime = performance.now();
+
+      function exportLoop() {
+        const elapsed = (performance.now() - startTime) / 1000;
+        const progress = Math.min(1.0, elapsed / duration);
+
+        renderPreviewFrame(elapsed);
+        fill.style.width = `${Math.round(progress * 100)}%`;
+        percentEl.textContent = `${Math.round(progress * 100)}%`;
+
+        if (elapsed < duration) {
+          requestAnimationFrame(exportLoop);
         } else {
-          log(`Asset refresh failed: ${data.error}`, "highlight");
+          source.stop();
+          recorder.stop();
         }
-      } catch (e) {
-        log(`Error refreshing assets: ${e}`, "highlight");
       }
+
+      requestAnimationFrame(exportLoop);
     }
 
-    // Initialize on page load
+    // Auto-initialize demo on page load
     window.addEventListener("DOMContentLoaded", () => {
-      loadStatus();
-      loadScenes();
+      loadScoutAndJemDemo();
     });
   </script>
 </body>

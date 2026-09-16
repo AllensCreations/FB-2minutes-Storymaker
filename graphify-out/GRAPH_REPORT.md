@@ -1,7 +1,7 @@
 # Graph Report - FB-2minutes-Storymaker  (2026-09-16)
 
 ## Corpus Check
-- 24 files · ~13,214 words
+- 24 files · ~20,774 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 3 file(s) not represented in the graph (top: (none) 2, .zip 1)
 
@@ -11,7 +11,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `e2a0981e`
+- Built from commit: `12f5edaf`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -26,7 +26,7 @@
 - video_exporter.py
 - main.py
 - Speech-Cue Align Engine
-- Example Workflow for FB 2minutes Storymaker
+- End-to-End Workflow: FB 2minutes Storymaker
 - setup.py
 - setup_local.sh
 - choreography_core/README.md
@@ -76,7 +76,7 @@ Nodes (16): AlignmentResult, main(), Path, Align speech segments from audio with
 
 ### Community 3 - "FB-2minutes Storymaker"
 Cohesion: 0.11
-Nodes (18): 1. Voice-Over Audio (`assets/voice-over/narration.mp3` or `.wav`), 2. Scene Script (`assets/scripts/story.txt`), 3. Visual Assets (`assets/visuals/story_visuals.zip`), Alternative: Clone & Run via Makefile, ⚙️ CLI Reference, Core Philosophy: "Picture-Book Motion", 🌐 Creative Studio Web UI, 📝 Custom Asset Specification (+10 more)
+Nodes (18): 1. Voice-Over Audio (`assets/voice-over/narration.mp3` or `.wav`), 2. Scene Script (`assets/scripts/story.txt`), 3. Visual Assets (`assets/visuals/story_visuals.zip`), Alternative: Clone & Run via Makefile, ⚙️ CLI Reference, Core Philosophy: "Picture-Book Motion", 🌐 Creative Studio: Pure In-Browser Web App, 📝 Custom Asset Specification (+10 more)
 
 ### Community 4 - "duration_director.py"
 Cohesion: 0.18
@@ -98,13 +98,13 @@ Nodes (26): argparse, check_assets(), generate_sample_assets(), main(), FB 2minu
 Cohesion: 0.17
 Nodes (11): 1. Audio Analysis, 2. Speech-Script Alignment, As a Module, Command Line Interface, Dependencies, Functionality, Future Enhancements, Integration with Pipeline (+3 more)
 
-### Community 10 - "Example Workflow for FB 2minutes Storymaker"
+### Community 10 - "End-to-End Workflow: FB 2minutes Storymaker"
 Cohesion: 0.18
-Nodes (10): 1. Voice-Over (`assets/voice-over/narration.mp3` or `.wav`), 2. Scene Script (`assets/scripts/story.txt`), 3. Visual Assets (`assets/visuals/story_visuals.zip`), Example Workflow for FB 2minutes Storymaker, Option A: Via Command Line, Option B: Via Creative Studio Web UI, Step 1: Prepare Your Assets, Step 2: Run the Storymaker (+2 more)
+Nodes (10): 1. Script Preparation (`script.txt`), 2. Voice-Over Recording (`narration.mp3` or `.wav`), 3. Visual Asset Packaging (`scenes.zip` or individual images), End-to-End Workflow: FB 2minutes Storymaker, Phase 1: Asset Preparation & Ingestion, Phase 2: Automated Analysis & Timing Alignment, Phase 3: Visual Choreography & Styling Engine, Phase 4: Review & One-Click Master Export (+2 more)
 
 ## Knowledge Gaps
-- **33 isolated node(s):** `install.sh script`, `setup_local.sh script`, `1. Voice-Over (`assets/voice-over/narration.mp3` or `.wav`)`, `2. Scene Script (`assets/scripts/story.txt`)`, `3. Visual Assets (`assets/visuals/story_visuals.zip`)` (+28 more)
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 112 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **34 isolated node(s):** `install.sh script`, `setup_local.sh script`, `1. Script Preparation (`script.txt`)`, `2. Voice-Over Recording (`narration.mp3` or `.wav`)`, `3. Visual Asset Packaging (`scenes.zip` or individual images)` (+29 more)
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 113 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
 - **6 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions

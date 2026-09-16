@@ -96,25 +96,41 @@ make web   # Creative Studio Web UI -> http://localhost:8000
 
 ---
 
-## 🌐 Creative Studio Web UI
+## 🌐 Creative Studio: Pure In-Browser Web App
 
-FB-2minutes Storymaker includes a modern, zero-dependency local Web UI (`web/index.html`) tailored for story creators.
+FB-2minutes Storymaker features a complete, zero-dependency **in-browser Creative Studio** (`index.html` & `web/index.html`). It runs 100% in your browser using the HTML5 Canvas, Web Audio API, and MediaRecorder—requiring **zero installation of Python C-libraries or FFmpeg**!
 
-### Launching the Web UI:
+### Launching the Studio:
 ```bash
 make web
+# or
+python3 -m http.server 8000
+# or
+fb-storymaker --web
 ```
-*(Or `python3 main.py --web --port 8000`)*
+Then open **[http://localhost:8000](http://localhost:8000)** in any browser (Chrome, Safari, Firefox, or Android Termux browser).
 
-Then open **[http://localhost:8000](http://localhost:8000)** in your browser.
+### The 4-Phase End-to-End Workflow:
+1. **Phase 1: Ingestion Deck**
+   - Drop `script.txt` (single sentence beats per line).
+   - Drop `narration.mp3` or `.wav` (recorded voice-over with 0.3s–0.5s pauses).
+   - Drop `scenes.zip` or select individual image files (`01_scout_intro.png`, etc.).
+   - *Tip:* Click **"✨ Load Scout & Jem Sample Story"** to instantly load a complete ready-to-test demo with synthesized voice-over, script beats, and illustrations!
 
-### Web UI Features:
-1. **Asset Readiness Monitor**: Live indicators checking your voice-over (`narration.mp3`), scene script (`story.txt`), and visual assets archive (`story_visuals.zip`).
-2. **Master Video Theater**: An interactive 9:16 vertical video player previewing `final_story.mp4` with stream scrubbing, timecode, and direct `.mp4` download.
-3. **One-Click Render Station**: "✨ Render Master Video" button with a real-time progress bar, frame rate counter, ETA, and activity log.
-4. **Storyboard & Scene Visualizer**: Interactive scene cards showing scene artwork thumbnails, script text, duration timings, and animation types.
-5. **Narration Audio Preview**: In-browser audio player to review the narration audio track before generating.
-6. **Demo Asset Reset**: "🎨 Refresh Assets" button to reload the bundled sample fairytale story at any time.
+2. **Phase 2: Real Waveform & -35dB Silence Detection**
+   - Analyzes audio volume envelope and automatically spots natural breathing gaps below **-35dB**.
+   - Interactive waveform canvas with **draggable cut markers**: simply drag markers left or right to fine-tune scene cuts.
+   - Click anywhere to scrub the playhead.
+
+3. **Phase 3: Scene Mapping Matrix**
+   - Interactive matrix table pairing Scene #, Illustration artwork, Narration lines (split into dynamic Beat A &rarr; Beat B), and Start/End timestamps.
+   - Customize choreography rules per scene:
+     - **Entrances**: Gentle Pop-in (scale $0.94 \to 1.0$), Soft 150ms Dissolve, or Zoom Pop-in.
+     - **Continuous Motion**: Camera Push-in (+4% Zoom), Horizontal Pan (+30px slide), or Handheld Subtle Float (breathing sway).
+
+4. **Phase 4: Live 9:16 Canvas & 1-Click Master Export**
+   - Watch real-time 30 FPS Picture-Book Motion playback directly on the 9:16 vertical canvas with synced audio and two-beat lower-third captions.
+   - Click **"🚀 Export Master Video"** to record the canvas stream and download the finished vertical 1080&times;1920 video directly to your device downloads folder.
 
 ---
 

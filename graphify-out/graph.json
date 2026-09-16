@@ -999,7 +999,7 @@
       "label": "EXAMPLE_WORKFLOW.md",
       "_origin": "ast",
       "community": 10,
-      "community_name": "Example Workflow for FB 2minutes Storymaker",
+      "community_name": "End-to-End Workflow: FB 2minutes Storymaker",
       "file_type": "document",
       "node_kind": "page",
       "norm_label": "example_workflow.md",
@@ -1007,124 +1007,124 @@
       "source_location": "L1"
     },
     {
-      "id": "example_workflow_1_voice_over_assets_voice_over_narration_mp3_or_wav",
-      "label": "1. Voice-Over (`assets/voice-over/narration.mp3` or `.wav`)",
+      "id": "example_workflow_1_script_preparation_script_txt",
+      "label": "1. Script Preparation (`script.txt`)",
       "_origin": "ast",
       "community": 10,
-      "community_name": "Example Workflow for FB 2minutes Storymaker",
+      "community_name": "End-to-End Workflow: FB 2minutes Storymaker",
       "file_type": "document",
       "node_kind": "heading",
-      "norm_label": "1. voice-over (`assets/voice-over/narration.mp3` or `.wav`)",
+      "norm_label": "1. script preparation (`script.txt`)",
       "source_file": "EXAMPLE_WORKFLOW.md",
-      "source_location": "L11"
+      "source_location": "L9"
     },
     {
-      "id": "example_workflow_2_scene_script_assets_scripts_story_txt",
-      "label": "2. Scene Script (`assets/scripts/story.txt`)",
+      "id": "example_workflow_2_voice_over_recording_narration_mp3_or_wav",
+      "label": "2. Voice-Over Recording (`narration.mp3` or `.wav`)",
       "_origin": "ast",
       "community": 10,
-      "community_name": "Example Workflow for FB 2minutes Storymaker",
+      "community_name": "End-to-End Workflow: FB 2minutes Storymaker",
       "file_type": "document",
       "node_kind": "heading",
-      "norm_label": "2. scene script (`assets/scripts/story.txt`)",
+      "norm_label": "2. voice-over recording (`narration.mp3` or `.wav`)",
       "source_file": "EXAMPLE_WORKFLOW.md",
       "source_location": "L18"
     },
     {
-      "id": "example_workflow_3_visual_assets_assets_visuals_story_visuals_zip",
-      "label": "3. Visual Assets (`assets/visuals/story_visuals.zip`)",
+      "id": "example_workflow_3_visual_asset_packaging_scenes_zip_or_individual_images",
+      "label": "3. Visual Asset Packaging (`scenes.zip` or individual images)",
       "_origin": "ast",
       "community": 10,
-      "community_name": "Example Workflow for FB 2minutes Storymaker",
+      "community_name": "End-to-End Workflow: FB 2minutes Storymaker",
       "file_type": "document",
       "node_kind": "heading",
-      "norm_label": "3. visual assets (`assets/visuals/story_visuals.zip`)",
+      "norm_label": "3. visual asset packaging (`scenes.zip` or individual images)",
       "source_file": "EXAMPLE_WORKFLOW.md",
-      "source_location": "L46"
+      "source_location": "L22"
     },
     {
-      "id": "example_workflow_example_workflow_for_fb_2minutes_storymaker",
-      "label": "Example Workflow for FB 2minutes Storymaker",
+      "id": "example_workflow_end_to_end_workflow_fb_2minutes_storymaker",
+      "label": "End-to-End Workflow: FB 2minutes Storymaker",
       "_origin": "ast",
       "community": 10,
-      "community_name": "Example Workflow for FB 2minutes Storymaker",
+      "community_name": "End-to-End Workflow: FB 2minutes Storymaker",
       "file_type": "document",
       "node_kind": "heading",
-      "norm_label": "example workflow for fb 2minutes storymaker",
+      "norm_label": "end-to-end workflow: fb 2minutes storymaker",
       "source_file": "EXAMPLE_WORKFLOW.md",
       "source_location": "L1"
     },
     {
-      "id": "example_workflow_option_a_via_command_line",
-      "label": "Option A: Via Command Line",
+      "id": "example_workflow_phase_1_asset_preparation_ingestion",
+      "label": "Phase 1: Asset Preparation & Ingestion",
       "_origin": "ast",
       "community": 10,
-      "community_name": "Example Workflow for FB 2minutes Storymaker",
+      "community_name": "End-to-End Workflow: FB 2minutes Storymaker",
       "file_type": "document",
       "node_kind": "heading",
-      "norm_label": "option a: via command line",
-      "source_file": "EXAMPLE_WORKFLOW.md",
-      "source_location": "L70"
-    },
-    {
-      "id": "example_workflow_option_b_via_creative_studio_web_ui",
-      "label": "Option B: Via Creative Studio Web UI",
-      "_origin": "ast",
-      "community": 10,
-      "community_name": "Example Workflow for FB 2minutes Storymaker",
-      "file_type": "document",
-      "node_kind": "heading",
-      "norm_label": "option b: via creative studio web ui",
-      "source_file": "EXAMPLE_WORKFLOW.md",
-      "source_location": "L78"
-    },
-    {
-      "id": "example_workflow_step_1_prepare_your_assets",
-      "label": "Step 1: Prepare Your Assets",
-      "_origin": "ast",
-      "community": 10,
-      "community_name": "Example Workflow for FB 2minutes Storymaker",
-      "file_type": "document",
-      "node_kind": "heading",
-      "norm_label": "step 1: prepare your assets",
+      "norm_label": "phase 1: asset preparation & ingestion",
       "source_file": "EXAMPLE_WORKFLOW.md",
       "source_location": "L7"
     },
     {
-      "id": "example_workflow_step_2_run_the_storymaker",
-      "label": "Step 2: Run the Storymaker",
+      "id": "example_workflow_phase_2_automated_analysis_timing_alignment",
+      "label": "Phase 2: Automated Analysis & Timing Alignment",
       "_origin": "ast",
       "community": 10,
-      "community_name": "Example Workflow for FB 2minutes Storymaker",
+      "community_name": "End-to-End Workflow: FB 2minutes Storymaker",
       "file_type": "document",
       "node_kind": "heading",
-      "norm_label": "step 2: run the storymaker",
+      "norm_label": "phase 2: automated analysis & timing alignment",
       "source_file": "EXAMPLE_WORKFLOW.md",
-      "source_location": "L68"
+      "source_location": "L31"
     },
     {
-      "id": "example_workflow_step_3_view_export_your_master_video",
-      "label": "Step 3: View & Export Your Master Video",
+      "id": "example_workflow_phase_3_visual_choreography_styling_engine",
+      "label": "Phase 3: Visual Choreography & Styling Engine",
       "_origin": "ast",
       "community": 10,
-      "community_name": "Example Workflow for FB 2minutes Storymaker",
+      "community_name": "End-to-End Workflow: FB 2minutes Storymaker",
       "file_type": "document",
       "node_kind": "heading",
-      "norm_label": "step 3: view & export your master video",
+      "norm_label": "phase 3: visual choreography & styling engine",
       "source_file": "EXAMPLE_WORKFLOW.md",
-      "source_location": "L89"
+      "source_location": "L54"
     },
     {
-      "id": "example_workflow_video_specifications",
-      "label": "Video Specifications:",
+      "id": "example_workflow_phase_4_review_one_click_master_export",
+      "label": "Phase 4: Review & One-Click Master Export",
       "_origin": "ast",
       "community": 10,
-      "community_name": "Example Workflow for FB 2minutes Storymaker",
+      "community_name": "End-to-End Workflow: FB 2minutes Storymaker",
       "file_type": "document",
       "node_kind": "heading",
-      "norm_label": "video specifications:",
+      "norm_label": "phase 4: review & one-click master export",
       "source_file": "EXAMPLE_WORKFLOW.md",
-      "source_location": "L97"
+      "source_location": "L76"
+    },
+    {
+      "id": "example_workflow_step_a_silence_detection",
+      "label": "Step A: Silence Detection",
+      "_origin": "ast",
+      "community": 10,
+      "community_name": "End-to-End Workflow: FB 2minutes Storymaker",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "step a: silence detection",
+      "source_file": "EXAMPLE_WORKFLOW.md",
+      "source_location": "L35"
+    },
+    {
+      "id": "example_workflow_step_b_scene_mapping_matrix",
+      "label": "Step B: Scene Mapping Matrix",
+      "_origin": "ast",
+      "community": 10,
+      "community_name": "End-to-End Workflow: FB 2minutes Storymaker",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "step b: scene mapping matrix",
+      "source_file": "EXAMPLE_WORKFLOW.md",
+      "source_location": "L42"
     },
     {
       "id": "setup",
@@ -1398,7 +1398,7 @@
       "node_kind": "heading",
       "norm_label": "1. voice-over audio (`assets/voice-over/narration.mp3` or `.wav`)",
       "source_file": "README.md",
-      "source_location": "L166"
+      "source_location": "L182"
     },
     {
       "id": "readme_2_scene_script_assets_scripts_story_txt",
@@ -1410,7 +1410,7 @@
       "node_kind": "heading",
       "norm_label": "2. scene script (`assets/scripts/story.txt`)",
       "source_file": "README.md",
-      "source_location": "L170"
+      "source_location": "L186"
     },
     {
       "id": "readme_3_visual_assets_assets_visuals_story_visuals_zip",
@@ -1422,7 +1422,7 @@
       "node_kind": "heading",
       "norm_label": "3. visual assets (`assets/visuals/story_visuals.zip`)",
       "source_file": "README.md",
-      "source_location": "L183"
+      "source_location": "L199"
     },
     {
       "id": "readme_alternative_clone_run_via_makefile",
@@ -1446,7 +1446,7 @@
       "node_kind": "heading",
       "norm_label": "\u2699\ufe0f cli reference",
       "source_file": "README.md",
-      "source_location": "L190"
+      "source_location": "L206"
     },
     {
       "id": "readme_core_philosophy_picture_book_motion",
@@ -1461,14 +1461,14 @@
       "source_location": "L13"
     },
     {
-      "id": "readme_creative_studio_web_ui",
-      "label": "\ud83c\udf10 Creative Studio Web UI",
+      "id": "readme_creative_studio_pure_in_browser_web_app",
+      "label": "\ud83c\udf10 Creative Studio: Pure In-Browser Web App",
       "_origin": "ast",
       "community": 3,
       "community_name": "FB-2minutes Storymaker",
       "file_type": "document",
       "node_kind": "heading",
-      "norm_label": "\ud83c\udf10 creative studio web ui",
+      "norm_label": "\ud83c\udf10 creative studio: pure in-browser web app",
       "source_file": "README.md",
       "source_location": "L99"
     },
@@ -1482,7 +1482,7 @@
       "node_kind": "heading",
       "norm_label": "\ud83d\udcdd custom asset specification",
       "source_file": "README.md",
-      "source_location": "L162"
+      "source_location": "L178"
     },
     {
       "id": "readme_fb_2minutes_storymaker",
@@ -1497,14 +1497,14 @@
       "source_location": "L1"
     },
     {
-      "id": "readme_launching_the_web_ui",
-      "label": "Launching the Web UI:",
+      "id": "readme_launching_the_studio",
+      "label": "Launching the Studio:",
       "_origin": "ast",
       "community": 3,
       "community_name": "FB-2minutes Storymaker",
       "file_type": "document",
       "node_kind": "heading",
-      "norm_label": "launching the web ui:",
+      "norm_label": "launching the studio:",
       "source_file": "README.md",
       "source_location": "L103"
     },
@@ -1518,7 +1518,7 @@
       "node_kind": "heading",
       "norm_label": "\ud83d\udcc4 license",
       "source_file": "README.md",
-      "source_location": "L236"
+      "source_location": "L252"
     },
     {
       "id": "readme_makefile_commands",
@@ -1530,7 +1530,7 @@
       "node_kind": "heading",
       "norm_label": "\ud83d\udee0\ufe0f makefile commands",
       "source_file": "README.md",
-      "source_location": "L211"
+      "source_location": "L227"
     },
     {
       "id": "readme_quickstart_one_line_installation",
@@ -1566,7 +1566,7 @@
       "node_kind": "heading",
       "norm_label": "\ud83d\udcc1 repository structure",
       "source_file": "README.md",
-      "source_location": "L121"
+      "source_location": "L137"
     },
     {
       "id": "readme_running_tests",
@@ -1578,7 +1578,7 @@
       "node_kind": "heading",
       "norm_label": "\ud83e\uddea running tests",
       "source_file": "README.md",
-      "source_location": "L226"
+      "source_location": "L242"
     },
     {
       "id": "readme_system_overview",
@@ -1593,16 +1593,16 @@
       "source_location": "L9"
     },
     {
-      "id": "readme_web_ui_features",
-      "label": "Web UI Features:",
+      "id": "readme_the_4_phase_end_to_end_workflow",
+      "label": "The 4-Phase End-to-End Workflow:",
       "_origin": "ast",
       "community": 3,
       "community_name": "FB-2minutes Storymaker",
       "file_type": "document",
       "node_kind": "heading",
-      "norm_label": "web ui features:",
+      "norm_label": "the 4-phase end-to-end workflow:",
       "source_file": "README.md",
-      "source_location": "L111"
+      "source_location": "L113"
     },
     {
       "id": "src_align_engine_align_engine",
@@ -4520,7 +4520,7 @@
     },
     {
       "source": "example_workflow",
-      "target": "example_workflow_example_workflow_for_fb_2minutes_storymaker",
+      "target": "example_workflow_end_to_end_workflow_fb_2minutes_storymaker",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -4530,19 +4530,30 @@
       "weight": 1.0
     },
     {
-      "source": "example_workflow_example_workflow_for_fb_2minutes_storymaker",
-      "target": "example_workflow_step_2_run_the_storymaker",
+      "source": "example_workflow_end_to_end_workflow_fb_2minutes_storymaker",
+      "target": "example_workflow_phase_2_automated_analysis_timing_alignment",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "EXAMPLE_WORKFLOW.md",
-      "source_location": "L68",
+      "source_location": "L31",
       "weight": 1.0
     },
     {
-      "source": "example_workflow_example_workflow_for_fb_2minutes_storymaker",
-      "target": "example_workflow_step_1_prepare_your_assets",
+      "source": "example_workflow_end_to_end_workflow_fb_2minutes_storymaker",
+      "target": "example_workflow_phase_3_visual_choreography_styling_engine",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "EXAMPLE_WORKFLOW.md",
+      "source_location": "L54",
+      "weight": 1.0
+    },
+    {
+      "source": "example_workflow_end_to_end_workflow_fb_2minutes_storymaker",
+      "target": "example_workflow_phase_1_asset_preparation_ingestion",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -4552,30 +4563,19 @@
       "weight": 1.0
     },
     {
-      "source": "example_workflow_example_workflow_for_fb_2minutes_storymaker",
-      "target": "example_workflow_step_3_view_export_your_master_video",
+      "source": "example_workflow_end_to_end_workflow_fb_2minutes_storymaker",
+      "target": "example_workflow_phase_4_review_one_click_master_export",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "EXAMPLE_WORKFLOW.md",
-      "source_location": "L89",
+      "source_location": "L76",
       "weight": 1.0
     },
     {
-      "source": "example_workflow_step_1_prepare_your_assets",
-      "target": "example_workflow_1_voice_over_assets_voice_over_narration_mp3_or_wav",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "EXAMPLE_WORKFLOW.md",
-      "source_location": "L11",
-      "weight": 1.0
-    },
-    {
-      "source": "example_workflow_step_1_prepare_your_assets",
-      "target": "example_workflow_2_scene_script_assets_scripts_story_txt",
+      "source": "example_workflow_phase_1_asset_preparation_ingestion",
+      "target": "example_workflow_2_voice_over_recording_narration_mp3_or_wav",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -4585,47 +4585,47 @@
       "weight": 1.0
     },
     {
-      "source": "example_workflow_step_1_prepare_your_assets",
-      "target": "example_workflow_3_visual_assets_assets_visuals_story_visuals_zip",
+      "source": "example_workflow_phase_1_asset_preparation_ingestion",
+      "target": "example_workflow_3_visual_asset_packaging_scenes_zip_or_individual_images",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "EXAMPLE_WORKFLOW.md",
-      "source_location": "L46",
+      "source_location": "L22",
       "weight": 1.0
     },
     {
-      "source": "example_workflow_step_2_run_the_storymaker",
-      "target": "example_workflow_option_a_via_command_line",
+      "source": "example_workflow_phase_1_asset_preparation_ingestion",
+      "target": "example_workflow_1_script_preparation_script_txt",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "EXAMPLE_WORKFLOW.md",
-      "source_location": "L70",
+      "source_location": "L9",
       "weight": 1.0
     },
     {
-      "source": "example_workflow_step_2_run_the_storymaker",
-      "target": "example_workflow_option_b_via_creative_studio_web_ui",
+      "source": "example_workflow_phase_2_automated_analysis_timing_alignment",
+      "target": "example_workflow_step_a_silence_detection",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "EXAMPLE_WORKFLOW.md",
-      "source_location": "L78",
+      "source_location": "L35",
       "weight": 1.0
     },
     {
-      "source": "example_workflow_step_3_view_export_your_master_video",
-      "target": "example_workflow_video_specifications",
+      "source": "example_workflow_phase_2_automated_analysis_timing_alignment",
+      "target": "example_workflow_step_b_scene_mapping_matrix",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "EXAMPLE_WORKFLOW.md",
-      "source_location": "L97",
+      "source_location": "L42",
       "weight": 1.0
     },
     {
@@ -4706,8 +4706,8 @@
       "weight": 1.0
     },
     {
-      "source": "readme_creative_studio_web_ui",
-      "target": "readme_launching_the_web_ui",
+      "source": "readme_creative_studio_pure_in_browser_web_app",
+      "target": "readme_launching_the_studio",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -4717,14 +4717,14 @@
       "weight": 1.0
     },
     {
-      "source": "readme_creative_studio_web_ui",
-      "target": "readme_web_ui_features",
+      "source": "readme_creative_studio_pure_in_browser_web_app",
+      "target": "readme_the_4_phase_end_to_end_workflow",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L111",
+      "source_location": "L113",
       "weight": 1.0
     },
     {
@@ -4735,7 +4735,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L166",
+      "source_location": "L182",
       "weight": 1.0
     },
     {
@@ -4746,7 +4746,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L170",
+      "source_location": "L186",
       "weight": 1.0
     },
     {
@@ -4757,7 +4757,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L183",
+      "source_location": "L199",
       "weight": 1.0
     },
     {
@@ -4768,7 +4768,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L121",
+      "source_location": "L137",
       "weight": 1.0
     },
     {
@@ -4779,7 +4779,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L162",
+      "source_location": "L178",
       "weight": 1.0
     },
     {
@@ -4790,7 +4790,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L190",
+      "source_location": "L206",
       "weight": 1.0
     },
     {
@@ -4801,7 +4801,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L211",
+      "source_location": "L227",
       "weight": 1.0
     },
     {
@@ -4812,7 +4812,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L226",
+      "source_location": "L242",
       "weight": 1.0
     },
     {
@@ -4823,7 +4823,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L236",
+      "source_location": "L252",
       "weight": 1.0
     },
     {
@@ -4850,7 +4850,7 @@
     },
     {
       "source": "readme_fb_2minutes_storymaker",
-      "target": "readme_creative_studio_web_ui",
+      "target": "readme_creative_studio_pure_in_browser_web_app",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -6684,5 +6684,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "e2a0981e9ad0846147cc203de3abdf16535d947a"
+  "built_at_commit": "12f5edaf7230e4c25774aeb3d5634dae2126efef"
 }
