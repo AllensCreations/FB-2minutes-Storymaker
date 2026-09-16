@@ -6,9 +6,9 @@
     "semantic_hash": ""
   },
   "scripts/generate_sample_assets.py": {
-    "mtime": 1789589270.9368794,
-    "seen": 1789589710.3555286,
-    "ast_hash": "8871a726b9c0a98e60e147f72318dd3d",
+    "mtime": 1789592705.788879,
+    "seen": 1789592856.3053236,
+    "ast_hash": "7843bccf4c04a579ee02aca0c7a6d90e",
     "semantic_hash": ""
   },
   "setup.py": {
@@ -42,9 +42,9 @@
     "semantic_hash": ""
   },
   "src/choreography_core/choreography_core.py": {
-    "mtime": 1789589420.1648793,
-    "seen": 1789589710.3555465,
-    "ast_hash": "afcdc2fd548ce602834ed0928da3f848",
+    "mtime": 1789592748.5008788,
+    "seen": 1789592856.3054059,
+    "ast_hash": "680467ea17407c408a04a98b85e1d66b",
     "semantic_hash": ""
   },
   "src/duration_director/__init__.py": {
@@ -108,21 +108,21 @@
     "semantic_hash": ""
   },
   "assets/processed/alignment.txt": {
-    "mtime": 1789589547.7608793,
-    "seen": 1789589710.3555703,
+    "mtime": 1789592781.232879,
+    "seen": 1789592856.305568,
     "ast_hash": "9a439c82cb9b87fd4034b418addf3da4",
     "semantic_hash": ""
   },
   "assets/scripts/story.txt": {
-    "mtime": 1789590696.1408792,
-    "seen": 1789590741.4339979,
+    "mtime": 1789592722.8368788,
+    "seen": 1789592856.3055797,
     "ast_hash": "5c1796d89f2ef18564d3b0e153ac5838",
     "semantic_hash": ""
   },
   "index.html": {
-    "mtime": 1789591407.404879,
-    "seen": 1789591442.2388144,
-    "ast_hash": "8569b670c4d37d7f426fdec5ecec2115",
+    "mtime": 1789594222.4888802,
+    "seen": 1789594262.4521039,
+    "ast_hash": "d410cef6351894e8a7189fb136e8d916",
     "semantic_hash": ""
   },
   "requirements.txt": {
@@ -156,14 +156,14 @@
     "semantic_hash": ""
   },
   "web/index.html": {
-    "mtime": 1789591403.404879,
-    "seen": 1789591442.2388275,
-    "ast_hash": "8569b670c4d37d7f426fdec5ecec2115",
+    "mtime": 1789594226.58488,
+    "seen": 1789594262.452117,
+    "ast_hash": "d410cef6351894e8a7189fb136e8d916",
     "semantic_hash": ""
   },
   "assets/voice-over/narration.mp3": {
-    "mtime": 1789590698.704879,
-    "seen": 1789590741.4340138,
+    "mtime": 1789592725.4488788,
+    "seen": 1789592856.3056762,
     "ast_hash": "2305a497cf0fe4dbe4b58128b17f4322",
     "semantic_hash": ""
   },

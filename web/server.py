@@ -180,7 +180,7 @@ class StorymakerRequestHandler(SimpleHTTPRequestHandler):
         parsed = urlparse(self.path)
         path = parsed.path
 
-        if path == "/" or path == "/index.html":
+        if path == "/" or path == "/index.html" or path == "/AR.html":
             self.serve_file(WEB_DIR / "index.html", "text/html")
         elif path == "/api/status":
             self.send_json(get_assets_status())
@@ -263,7 +263,9 @@ class StorymakerRequestHandler(SimpleHTTPRequestHandler):
             self.send_response(200)
             self.send_header("Content-Type", content_type)
             self.send_header("Content-Length", str(len(content)))
-            self.send_header("Cache-Control", "no-cache")
+            self.send_header("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0")
+            self.send_header("Pragma", "no-cache")
+            self.send_header("Expires", "0")
             self.end_headers()
             self.wfile.write(content)
         except Exception as e:
@@ -318,6 +320,7 @@ class StorymakerRequestHandler(SimpleHTTPRequestHandler):
 
 def start_server(host: str = "0.0.0.0", port: int = 8000):
     server_address = (host, port)
+    HTTPServer.allow_reuse_address = True
     httpd = HTTPServer(server_address, StorymakerRequestHandler)
     print("==================================================")
     print(f"🎬 FB-2minutes Storymaker Web UI Server Running")

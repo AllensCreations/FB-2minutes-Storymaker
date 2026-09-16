@@ -265,7 +265,7 @@
       "file_type": "code",
       "norm_label": ".serve_video_range()",
       "source_file": "web/server.py",
-      "source_location": "L272"
+      "source_location": "L274"
     },
     {
       "id": "src_choreography_core_choreography_core_main",
@@ -985,7 +985,7 @@
       "file_type": "code",
       "norm_label": "start_server()",
       "source_file": "web/server.py",
-      "source_location": "L319"
+      "source_location": "L321"
     },
     {
       "id": "simplehttprequesthandler",
@@ -1054,7 +1054,7 @@
       "source_location": "L177"
     },
     {
-      "id": "web_server_rationale_273",
+      "id": "web_server_rationale_275",
       "label": "Supports HTTP 206 Partial Content for streaming/scrubbing in HTML5 video.",
       "_origin": "ast",
       "community": 0,
@@ -1062,7 +1062,7 @@
       "file_type": "rationale",
       "norm_label": "supports http 206 partial content for streaming/scrubbing in html5 video.",
       "source_file": "web/server.py",
-      "source_location": "L273"
+      "source_location": "L275"
     },
     {
       "id": "web_server_rationale_57",
@@ -4766,7 +4766,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "web/server.py",
-      "source_location": "L335",
+      "source_location": "L338",
       "weight": 1.0
     },
     {
@@ -5462,7 +5462,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "web/server.py",
-      "source_location": "L272",
+      "source_location": "L274",
       "weight": 1.0
     },
     {
@@ -6556,7 +6556,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "web/server.py",
-      "source_location": "L319",
+      "source_location": "L321",
       "weight": 1.0
     },
     {
@@ -6941,7 +6941,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "web/server.py",
-      "source_location": "L272",
+      "source_location": "L274",
       "weight": 1.0
     },
     {
@@ -7528,14 +7528,14 @@
       "weight": 1.0
     },
     {
-      "source": "web_server_rationale_273",
+      "source": "web_server_rationale_275",
       "target": "web_server_storymakerrequesthandler_serve_video_range",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "web/server.py",
-      "source_location": "L273",
+      "source_location": "L275",
       "weight": 1.0
     },
     {
@@ -7990,5 +7990,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "d286276a8bd0c98427f14340e4a943ace48144a0"
+  "built_at_commit": "31955e78254b2875b858d0b46839c1ed23856f9a"
 }

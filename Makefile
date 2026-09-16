@@ -23,6 +23,9 @@ run:
 web:
 	$(PYTHON) main.py --web
 
+update:
+	git pull origin main
+
 tui:
 	$(PYTHON) main.py --tui
 

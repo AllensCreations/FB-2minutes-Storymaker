@@ -1,11 +1,10 @@
 {
-  "0": "run_pipeline_thread",
+  "0": "server.py",
   "1": "video_exporter.py",
   "2": "SpeechCueAlignEngine",
   "3": "FB-2minutes Storymaker",
-  "4": "server.py",
   "5": "install.sh",
-  "6": "main.py",
+  "6": "generate_sample_assets.py",
   "7": "SceneDurationDirector",
   "8": "termux_ui.py",
   "9": "Speech-Cue Align Engine",
