@@ -164,7 +164,7 @@ make help        # Show all available commands
 
 As you work on implementing the architectural blueprint:
 
-1. **src/align-engine/** - Speech-Cue Align Engine
+1. **src/align_engine/** - Speech-Cue Align Engine
    - Audio processing, sentence detection, timing alignment
 
 2. **src/duration-director/** - Scene Duration Director

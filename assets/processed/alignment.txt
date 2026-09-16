@@ -1,0 +1,29 @@
+# FB 2minutes Storymaker - Speech Alignment Export
+# Total Duration: 21.00 seconds
+# Number of Segments: 5
+
+Scene 0:
+  Time: 0.00s - 3.20s
+  Text: [Scene 1: Introduction]
+  Confidence: 0.80
+
+Scene 1:
+  Time: 3.70s - 7.10s
+  Text: In a quiet village nestled between rolling hills, a young baker named Elsa begins her day before sunrise
+  Confidence: 0.80
+
+Scene 2:
+  Time: 7.60s - 12.30s
+  Text: [Scene 2: The Problem]
+  Confidence: 0.80
+
+Scene 3:
+  Time: 12.90s - 16.80s
+  Text: But today, the magical yeast that makes her bread rise has gone missing from her pantry
+  Confidence: 0.80
+
+Scene 4:
+  Time: 17.40s - 21.00s
+  Text: [Scene 3: The Journey]
+  Confidence: 0.80
+

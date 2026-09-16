@@ -70,7 +70,7 @@ assets/output/
 
 As you implement each module:
 
-1. **Speech-Cue Align Engine** (`src/align-engine/`):
+1. **Speech-Cue Align Engine** (`src/align_engine/`):
    - Will analyze narration.mp3 for sentence breaks and breaths
    - Will read story.txt for semantic boundaries
    - Will output timing mappings for each scene
