@@ -14,9 +14,7 @@ SRC_DIR = BASE_DIR / "src"
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
-from align_engine import SpeechCueAlignEngine
-from duration_director import SceneDurationDirector
-from exporter import VideoExporter
+from deps_helper import ensure_ffmpeg, ensure_pillow
 
 
 def check_assets():
@@ -36,12 +34,26 @@ def check_assets():
 
 def generate_sample_assets():
     """Invoke the sample asset generator."""
+    if not ensure_pillow():
+        print("❌ Cannot generate sample assets without Pillow. Please install Pillow and try again.")
+        return
+
     from scripts.generate_sample_assets import generate_all_sample_assets
     generate_all_sample_assets()
 
 
 def run_pipeline(fps: int = 24):
     """Executes the full Picture-Book Motion storytelling pipeline."""
+    # Ensure dependencies before running
+    if not ensure_pillow() or not ensure_ffmpeg():
+        print("❌ Dependencies missing. Execution aborted.")
+        sys.exit(1)
+
+    # Lazy import pipeline modules once dependencies are guaranteed
+    from align_engine import SpeechCueAlignEngine
+    from duration_director import SceneDurationDirector
+    from exporter import VideoExporter
+
     print("\n=======================================================")
     print("🎬 FB 2minutes Storymaker - Video Generation Pipeline")
     print("=======================================================")
@@ -85,6 +97,7 @@ def run_pipeline(fps: int = 24):
 
 def start_web_server(port: int = 8000):
     """Starts the local web studio interface."""
+    ensure_pillow()
     from web.server import start_server
     start_server(host="0.0.0.0", port=port)
 

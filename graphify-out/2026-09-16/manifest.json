@@ -1,8 +1,8 @@
 {
   "main.py": {
-    "mtime": 1789590232.7968793,
-    "seen": 1789590307.506826,
-    "ast_hash": "d73e22931099bc4e57c9b4cfce35aa57",
+    "mtime": 1789589542.9248793,
+    "seen": 1789589710.3555174,
+    "ast_hash": "3e60426b285f32899c8fa8a0a1ca504a",
     "semantic_hash": ""
   },
   "scripts/generate_sample_assets.py": {
@@ -18,9 +18,9 @@
     "semantic_hash": ""
   },
   "setup_local.sh": {
-    "mtime": 1789590259.0728793,
-    "seen": 1789590307.5068617,
-    "ast_hash": "d0de2b2821a32fe26bc6d4891f99ca20",
+    "mtime": 1789589580.8248794,
+    "seen": 1789589710.3555367,
+    "ast_hash": "75ba34058d9b03086838afe1e66e8321",
     "semantic_hash": ""
   },
   "src/align_engine/__init__.py": {
@@ -78,9 +78,9 @@
     "semantic_hash": ""
   },
   "tests/test_choreography_core.py": {
-    "mtime": 1789590275.1408792,
-    "seen": 1789590307.506915,
-    "ast_hash": "66176524d0cd0723a7489940f7968c62",
+    "mtime": 1789589626.9088793,
+    "seen": 1789589710.3555593,
+    "ast_hash": "a1b5dc66a7bd88a3bab6235061b2bbd4",
     "semantic_hash": ""
   },
   "tests/test_duration_director.py": {
@@ -90,9 +90,9 @@
     "semantic_hash": ""
   },
   "web/server.py": {
-    "mtime": 1789590248.8728793,
-    "seen": 1789590307.506924,
-    "ast_hash": "42e6851b964f11220d53e97bab4b85c7",
+    "mtime": 1789589498.3768792,
+    "seen": 1789589710.3555639,
+    "ast_hash": "a644c683286935e55a18decca892ec61",
     "semantic_hash": ""
   },
   "EXAMPLE_WORKFLOW.md": {
@@ -102,9 +102,9 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1789590297.9528792,
-    "seen": 1789590307.5069306,
-    "ast_hash": "246fb1f85a04834cf562104e3addea5d",
+    "mtime": 1789589646.7168794,
+    "seen": 1789589710.3555684,
+    "ast_hash": "98fd210298657dfc16192bffdbeb5a53",
     "semantic_hash": ""
   },
   "assets/processed/alignment.txt": {
@@ -165,12 +165,6 @@
     "mtime": 1789589280.2248793,
     "seen": 1789589710.3555892,
     "ast_hash": "2305a497cf0fe4dbe4b58128b17f4322",
-    "semantic_hash": ""
-  },
-  "src/deps_helper.py": {
-    "mtime": 1789590225.1328793,
-    "seen": 1789590307.506888,
-    "ast_hash": "a2b9a8bfaf8fb8398146092f7d705c2a",
     "semantic_hash": ""
   }
 }

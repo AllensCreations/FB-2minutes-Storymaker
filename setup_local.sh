@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # ==============================================================================
 # FB 2minutes Storymaker - Local Setup Script
-# Sets up Python virtual environment, dependencies, FFmpeg check, and sample assets.
+# Sets up Python environment, dependencies, FFmpeg check, and sample assets.
+# Includes first-class support for Termux (Android), Debian/Ubuntu, macOS, Windows.
 # ==============================================================================
 
 set -e
@@ -12,6 +13,19 @@ cd "$REPO_DIR"
 echo "========================================================"
 echo "🎬 Setting up FB 2minutes Storymaker Environment"
 echo "========================================================"
+
+# 0. Check for Termux (Android)
+IS_TERMUX=0
+if [ -d "/data/data/com.termux" ] || [ -n "$TERMUX_VERSION" ]; then
+    IS_TERMUX=1
+    echo "📱 Termux (Android) environment detected!"
+    echo "Installing Termux pre-compiled packages (python-pillow, ffmpeg)..."
+    if command -v pkg >/dev/null 2>&1; then
+        pkg install -y python-pillow ffmpeg || true
+    elif command -v apt >/dev/null 2>&1; then
+        apt install -y python-pillow ffmpeg || true
+    fi
+fi
 
 # 1. Check Python
 echo -n "Checking Python 3... "
@@ -34,48 +48,66 @@ if command -v ffmpeg >/dev/null 2>&1; then
 else
     echo "⚠️  FFmpeg is not installed!"
     echo "FFmpeg is required to export video and encode audio."
-    if [ -f /etc/debian_version ] && [ "$(id -u)" -eq 0 ]; then
+    if [ "$IS_TERMUX" -eq 1 ]; then
+        echo "Installing FFmpeg via pkg..."
+        pkg install -y ffmpeg || true
+    elif [ -f /etc/debian_version ] && [ "$(id -u)" -eq 0 ]; then
         echo "Installing FFmpeg via apt..."
         apt-get update -qq && apt-get install -y -qq ffmpeg
         echo "✓ FFmpeg installed successfully."
     else
         echo "Please install FFmpeg:"
-        echo "  - Ubuntu/Debian: sudo apt update && sudo apt install -y ffmpeg"
-        echo "  - macOS:         brew install ffmpeg"
-        echo "  - Windows:       winget install Gyan.FFmpeg or choco install ffmpeg"
+        echo "  - Termux (Android): pkg install -y ffmpeg"
+        echo "  - Ubuntu/Debian:    sudo apt update && sudo apt install -y ffmpeg"
+        echo "  - macOS:            brew install ffmpeg"
+        echo "  - Windows:          winget install Gyan.FFmpeg or choco install ffmpeg"
     fi
 fi
 
-# 3. Setup Virtual Environment
-if [ -z "$VIRTUAL_ENV" ]; then
-    if [ ! -d ".venv" ]; then
-        echo "Creating Python virtual environment (.venv)..."
-        $PYTHON_CMD -m venv .venv || true
-    fi
-
-    if [ -f ".venv/bin/activate" ]; then
-        echo "Activating virtual environment (.venv)..."
-        # shellcheck disable=SC1091
-        source .venv/bin/activate
-        PIP_CMD="pip"
-        RUN_PYTHON=".venv/bin/python"
-    else
-        echo "Using system Python environment..."
-        PIP_CMD="$PYTHON_CMD -m pip"
-        RUN_PYTHON="$PYTHON_CMD"
-    fi
+# 3. Setup Virtual Environment (optional on Termux)
+if [ "$IS_TERMUX" -eq 1 ]; then
+    echo "Using Termux Python environment directly to utilize system-installed python-pillow..."
+    RUN_PYTHON="$PYTHON_CMD"
+    PIP_CMD="$PYTHON_CMD -m pip"
 else
-    echo "Using existing active virtual environment: $VIRTUAL_ENV"
-    PIP_CMD="pip"
-    RUN_PYTHON="python"
+    if [ -z "$VIRTUAL_ENV" ]; then
+        if [ ! -d ".venv" ]; then
+            echo "Creating Python virtual environment (.venv)..."
+            $PYTHON_CMD -m venv .venv || true
+        fi
+
+        if [ -f ".venv/bin/activate" ]; then
+            echo "Activating virtual environment (.venv)..."
+            # shellcheck disable=SC1091
+            source .venv/bin/activate
+            PIP_CMD="pip"
+            RUN_PYTHON=".venv/bin/python"
+        else
+            echo "Using system Python environment..."
+            PIP_CMD="$PYTHON_CMD -m pip"
+            RUN_PYTHON="$PYTHON_CMD"
+        fi
+    else
+        echo "Using existing active virtual environment: $VIRTUAL_ENV"
+        PIP_CMD="pip"
+        RUN_PYTHON="python"
+    fi
 fi
 
-# 4. Install Dependencies
-echo "Installing Python dependencies from requirements.txt..."
-$PIP_CMD install -r requirements.txt || {
-    echo "Falling back to installing Pillow..."
-    $PIP_CMD install "Pillow>=10.0.0" || true
-}
+# 4. Check & Install Pillow
+echo -n "Checking Pillow (PIL)... "
+if $RUN_PYTHON -c "import PIL" >/dev/null 2>&1; then
+    echo "✓ Pillow is installed."
+else
+    echo "⚠️ Pillow not detected."
+    if [ "$IS_TERMUX" -eq 1 ]; then
+        echo "Installing python-pillow via pkg..."
+        pkg install -y python-pillow || true
+    else
+        echo "Installing Pillow via pip..."
+        $PIP_CMD install "Pillow>=10.0.0" || $PIP_CMD install "Pillow>=10.0.0" --break-system-packages || true
+    fi
+fi
 
 # 5. Generate Sample Assets
 echo "Ensuring sample story assets exist..."

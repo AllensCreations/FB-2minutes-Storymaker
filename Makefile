@@ -1,4 +1,4 @@
-.PHONY: setup install dev test lint format type-check run web sample-assets clean help
+.PHONY: setup termux-setup install dev test lint format type-check run web sample-assets clean help
 
 PYTHON ?= $(shell which python3 2>/dev/null || which python 2>/dev/null || echo python3)
 
@@ -6,6 +6,9 @@ PYTHON ?= $(shell which python3 2>/dev/null || which python 2>/dev/null || echo 
 setup:
 	@chmod +x setup_local.sh
 	@./setup_local.sh
+
+termux-setup:
+	pkg install -y python-pillow ffmpeg
 
 install:
 	$(PYTHON) -m pip install -e .
@@ -52,6 +55,7 @@ clean:
 help:
 	@echo "FB 2minutes Storymaker - Available Commands:"
 	@echo "  make setup         - Run full local setup (FFmpeg check, venv, dependencies, assets)"
+	@echo "  make termux-setup  - Install Termux Android packages (python-pillow, ffmpeg)"
 	@echo "  make run           - Run the full storytelling pipeline and render final_story.mp4"
 	@echo "  make web           - Launch the local Web UI Studio on http://localhost:8000"
 	@echo "  make sample-assets - Regenerate demo sample story assets"

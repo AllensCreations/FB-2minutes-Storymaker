@@ -56,10 +56,11 @@ FB-2minutes Storymaker implements the editorial behavior, narrative pacing, and 
 
 ### 1. Prerequisites
 - **Python 3.8+**
-- **FFmpeg** (required for video rendering and audio multiplexing)
-  - **Ubuntu / Debian**: `sudo apt update && sudo apt install -y ffmpeg`
-  - **macOS (Homebrew)**: `brew install ffmpeg`
-  - **Windows**: `winget install Gyan.FFmpeg` or `choco install ffmpeg`
+- **FFmpeg & Pillow** (required for frame rendering, video export, and audio multiplexing)
+  - **Android (Termux)**: `pkg install -y python-pillow ffmpeg` (or `make termux-setup`)
+  - **Ubuntu / Debian**: `sudo apt update && sudo apt install -y python3-pil ffmpeg`
+  - **macOS (Homebrew)**: `brew install ffmpeg && pip install Pillow`
+  - **Windows**: `winget install Gyan.FFmpeg && pip install Pillow`
 
 ### 2. Automated One-Command Setup
 Clone the repository and run the setup script:

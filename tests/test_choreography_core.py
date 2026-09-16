@@ -8,10 +8,16 @@ SRC_DIR = REPO_ROOT / "src"
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
-from choreography_core import VisualChoreographer
+try:
+    from choreography_core import VisualChoreographer
+    HAS_CHOREOGRAPHER = True
+except ImportError:
+    HAS_CHOREOGRAPHER = False
+
 from duration_director import SceneTimeline
 
 
+@unittest.skipUnless(HAS_CHOREOGRAPHER, "Pillow is required for VisualChoreographer tests (run: pkg install python-pillow or pip install Pillow)")
 class TestChoreographyCore(unittest.TestCase):
 
     def setUp(self):

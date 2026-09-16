@@ -26,7 +26,7 @@ if str(SRC_DIR) not in sys.path:
 
 from align_engine import SpeechCueAlignEngine
 from duration_director import SceneDurationDirector
-from exporter import VideoExporter
+from deps_helper import ensure_pillow, ensure_ffmpeg
 
 WEB_DIR = Path(__file__).resolve().parent
 ASSETS_DIR = REPO_ROOT / "assets"
@@ -139,6 +139,11 @@ def run_pipeline_thread():
         director.export_timeline(timeline, PROCESSED_DIR / "timeline.json")
 
         # 3. Visual Choreography & Exporter
+        if not ensure_pillow() or not ensure_ffmpeg():
+            raise RuntimeError("Required dependencies (Pillow or FFmpeg) are missing.")
+
+        from exporter import VideoExporter
+
         def on_render_progress(percent: float, status_msg: str):
             with RENDER_LOCK:
                 scaled_pct = 25.0 + (percent * 0.74)
