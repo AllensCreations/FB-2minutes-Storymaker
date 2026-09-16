@@ -120,9 +120,9 @@
     "semantic_hash": ""
   },
   "index.html": {
-    "mtime": 1789592773.5888789,
-    "seen": 1789592856.3055918,
-    "ast_hash": "1966c96529581865b79fa15ad30c7063",
+    "mtime": 1789594222.4888802,
+    "seen": 1789594262.4521039,
+    "ast_hash": "d410cef6351894e8a7189fb136e8d916",
     "semantic_hash": ""
   },
   "requirements.txt": {
@@ -156,9 +156,9 @@
     "semantic_hash": ""
   },
   "web/index.html": {
-    "mtime": 1789592776.8488789,
-    "seen": 1789592856.3056643,
-    "ast_hash": "1966c96529581865b79fa15ad30c7063",
+    "mtime": 1789594226.58488,
+    "seen": 1789594262.452117,
+    "ast_hash": "d410cef6351894e8a7189fb136e8d916",
     "semantic_hash": ""
   },
   "assets/voice-over/narration.mp3": {

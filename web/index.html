@@ -3,1061 +3,733 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>FB-2minutes Storymaker | Picture-Book Motion Studio</title>
+  <title>StoryShorts Studio</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
   <style>
-    :root {
-      --bg: #0b0d13;
-      --bg-panel: #131722;
-      --bg-card: #1c2130;
-      --bg-card-hover: #242a3d;
-      --border: rgba(255, 255, 255, 0.09);
-      --border-accent: rgba(235, 140, 60, 0.4);
-      --accent: #eb8c3c;
-      --accent-glow: rgba(235, 140, 60, 0.28);
-      --text: #f0f3fa;
-      --text-muted: #959eb5;
-      --text-dim: #60687e;
-      --success: #10b981;
-      --success-glow: rgba(16, 185, 129, 0.25);
-      --danger: #ef4444;
-      --radius-sm: 8px;
-      --radius-md: 14px;
-      --radius-lg: 20px;
-      --radius-full: 9999px;
-      --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-    }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    body {
-      background-color: var(--bg);
-      color: var(--text);
-      font-family: var(--font);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      line-height: 1.5;
-    }
-
-    /* Top Navigation */
-    header {
-      background: rgba(19, 23, 34, 0.9);
-      backdrop-filter: blur(18px);
-      border-bottom: 1px solid var(--border);
-      padding: 14px 28px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-    }
-
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-    }
-
-    .brand-icon {
-      width: 42px;
-      height: 42px;
-      background: linear-gradient(135deg, #eb8c3c, #d35400);
-      border-radius: var(--radius-md);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 22px;
-      box-shadow: 0 4px 16px var(--accent-glow);
-    }
-
-    .brand-titles h1 {
-      font-size: 1.15rem;
-      font-weight: 700;
-      letter-spacing: -0.02em;
-    }
-
-    .brand-titles p {
-      font-size: 0.76rem;
-      color: var(--text-muted);
-    }
-
-    .header-actions {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .badge-pill {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      color: var(--accent);
-      padding: 4px 12px;
-      border-radius: var(--radius-full);
-      font-size: 0.74rem;
-      font-weight: 600;
-      letter-spacing: 0.04em;
-    }
-
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      padding: 10px 18px;
-      border-radius: var(--radius-md);
-      font-size: 0.88rem;
-      font-weight: 600;
-      cursor: pointer;
-      border: none;
-      transition: all 0.2s ease;
-      text-decoration: none;
-    }
-
-    .btn-primary {
-      background: linear-gradient(135deg, #eb8c3c, #d35400);
-      color: #fff;
-      box-shadow: 0 4px 18px var(--accent-glow);
-    }
-
-    .btn-primary:hover:not(:disabled) {
-      transform: translateY(-1px);
-      box-shadow: 0 6px 22px rgba(235, 140, 60, 0.4);
-    }
-
-    .btn-primary:disabled {
-      opacity: 0.55;
-      cursor: not-allowed;
-    }
-
-    .btn-secondary {
-      background: var(--bg-card);
-      color: var(--text);
-      border: 1px solid var(--border);
-    }
-
-    .btn-secondary:hover {
-      background: var(--bg-card-hover);
-      border-color: rgba(255, 255, 255, 0.2);
-    }
-
-    .btn-demo {
-      background: rgba(16, 185, 129, 0.15);
-      color: #34d399;
-      border: 1px solid rgba(16, 185, 129, 0.35);
-    }
-
-    .btn-demo:hover {
-      background: rgba(16, 185, 129, 0.25);
-    }
-
-    /* Main Container */
-    main {
-      max-width: 1520px;
-      margin: 0 auto;
-      padding: 24px;
-      width: 100%;
-      display: flex;
-      flex-direction: column;
-      gap: 24px;
-      flex: 1;
-    }
-
-    /* Phase 1: Ingestion Area */
-    .ingestion-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 18px;
-    }
-
-    @media (max-width: 900px) {
-      .ingestion-grid {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    .dropzone-card {
-      background: var(--bg-panel);
-      border: 2px dashed var(--border);
-      border-radius: var(--radius-lg);
-      padding: 22px;
-      text-align: center;
-      cursor: pointer;
-      position: relative;
-      transition: all 0.25s ease;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      min-height: 160px;
-    }
-
-    .dropzone-card:hover, .dropzone-card.dragover {
-      border-color: var(--accent);
-      background: rgba(235, 140, 60, 0.05);
-      transform: translateY(-2px);
-    }
-
-    .dropzone-card.loaded {
-      border-style: solid;
-      border-color: rgba(16, 185, 129, 0.4);
-      background: rgba(16, 185, 129, 0.04);
-    }
-
-    .drop-icon {
-      font-size: 30px;
-    }
-
-    .drop-title {
-      font-size: 0.95rem;
-      font-weight: 700;
-    }
-
-    .drop-sub {
-      font-size: 0.76rem;
-      color: var(--text-muted);
-    }
-
-    .drop-status {
-      font-size: 0.72rem;
-      font-family: var(--font-mono);
-      color: var(--accent);
-      font-weight: 600;
-    }
-
-    .drop-status.ok {
-      color: var(--success);
-    }
-
-    input[type="file"] {
-      display: none;
-    }
-
-    /* Phase 2: Waveform & Scrubber */
-    .waveform-panel {
-      background: var(--bg-panel);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      padding: 22px;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
-    }
-
-    .section-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .section-title {
-      font-size: 1rem;
-      font-weight: 700;
-      letter-spacing: -0.01em;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .waveform-container {
-      position: relative;
-      background: #08090d;
-      border: 1px solid var(--border);
-      border-radius: var(--radius-md);
-      overflow: hidden;
-      user-select: none;
-      height: 120px;
-    }
-
-    #waveform-canvas {
-      width: 100%;
-      height: 100%;
-      display: block;
-    }
-
-    /* Draggable Cut Markers Overlay */
-    .markers-layer {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-    }
-
-    .cut-marker {
-      position: absolute;
-      top: 0;
-      height: 100%;
-      width: 2px;
-      background: var(--accent);
-      pointer-events: auto;
-      cursor: ew-resize;
-      z-index: 10;
-      box-shadow: 0 0 10px rgba(235, 140, 60, 0.6);
-    }
-
-    .cut-marker-handle {
-      position: absolute;
-      top: 4px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: var(--accent);
-      color: #fff;
-      font-family: var(--font-mono);
-      font-size: 0.66rem;
-      font-weight: 700;
-      padding: 2px 6px;
-      border-radius: var(--radius-full);
-      white-space: nowrap;
-      pointer-events: none;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
-    }
-
-    .playhead-marker {
-      position: absolute;
-      top: 0;
-      height: 100%;
-      width: 2px;
-      background: #38bdf8;
-      pointer-events: none;
-      z-index: 15;
-      box-shadow: 0 0 12px rgba(56, 189, 248, 0.8);
-      display: none;
-    }
-
-    /* Waveform Controls */
-    .waveform-toolbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 16px;
-      flex-wrap: wrap;
-    }
-
-    .playback-group {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .timecode-display {
-      font-family: var(--font-mono);
-      font-size: 0.88rem;
-      font-weight: 600;
-      background: #08090d;
-      padding: 6px 14px;
-      border-radius: var(--radius-md);
-      border: 1px solid var(--border);
-      color: #38bdf8;
-    }
-
-    /* Main Studio Stage (Split: Matrix & Canvas) */
-    .studio-split {
-      display: grid;
-      grid-template-columns: 1fr 420px;
-      gap: 24px;
-    }
-
-    @media (max-width: 1050px) {
-      .studio-split {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    /* Scene Mapping Matrix */
-    .matrix-panel {
-      background: var(--bg-panel);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      padding: 22px;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-      overflow-x: auto;
-    }
-
-    .matrix-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.84rem;
-    }
-
-    .matrix-table th {
-      text-align: left;
-      padding: 10px 14px;
-      border-bottom: 1px solid var(--border);
-      color: var(--text-muted);
-      text-transform: uppercase;
-      font-size: 0.72rem;
-      font-weight: 700;
-      letter-spacing: 0.05em;
-    }
-
-    .matrix-table td {
-      padding: 12px 14px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-      vertical-align: middle;
-    }
-
-    .matrix-table tr:hover {
-      background: var(--bg-card);
-    }
-
-    .thumb-preview {
-      width: 54px;
-      height: 54px;
-      border-radius: var(--radius-sm);
-      object-fit: cover;
-      background: #000;
-      border: 1px solid var(--border);
-    }
-
-    .badge-scene-num {
-      background: rgba(235, 140, 60, 0.15);
-      color: var(--accent);
-      padding: 3px 8px;
-      border-radius: var(--radius-full);
-      font-weight: 700;
-      font-family: var(--font-mono);
-      font-size: 0.74rem;
-    }
-
-    .select-choreography {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      color: var(--text);
-      padding: 6px 10px;
-      border-radius: var(--radius-sm);
-      font-size: 0.76rem;
-      outline: none;
-    }
-
-    /* Right Preview Stage */
-    .preview-stage {
-      background: var(--bg-panel);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      padding: 22px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 18px;
-    }
-
-    .canvas-frame-wrap {
-      width: 290px;
-      height: 515px;
-      border-radius: 28px;
-      overflow: hidden;
-      background: #000;
-      position: relative;
-      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7), 0 0 0 4px rgba(255, 255, 255, 0.08);
-    }
-
-    #preview-canvas {
-      width: 100%;
-      height: 100%;
-      display: block;
-    }
-
-    /* Export Station */
-    .export-card {
-      width: 100%;
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-md);
-      padding: 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .export-progress {
-      display: none;
-      flex-direction: column;
-      gap: 6px;
-    }
-
-    .progress-bar {
-      height: 8px;
-      background: var(--bg);
-      border-radius: var(--radius-full);
-      overflow: hidden;
-    }
-
-    .progress-bar-fill {
-      height: 100%;
-      width: 0%;
-      background: linear-gradient(90deg, #eb8c3c, #10b981);
-      transition: width 0.1s linear;
-    }
-
-    /* Footer */
-    footer {
-      border-top: 1px solid var(--border);
-      padding: 18px;
-      text-align: center;
-      font-size: 0.78rem;
-      color: var(--text-dim);
-      margin-top: auto;
-    }
+    body { background-color: #0d1117; color: #e6edf3; }
+    .aspect-short { aspect-ratio: 9 / 16; }
+    /* Custom scrollbar for scenes list */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #161b22; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb { background: #30363d; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #484f58; }
   </style>
 </head>
-<body>
-
-  <!-- Top Studio Navigation -->
-  <header>
-    <div class="brand">
-      <div class="brand-icon">🎬</div>
-      <div class="brand-titles">
-        <h1>FB-2minutes Storymaker</h1>
-        <p>Pure In-Browser Picture-Book Motion Engine &bull; Zero Dependencies</p>
+<body class="p-4 sm:p-6 font-sans">
+  <div class="max-w-6xl mx-auto space-y-6">
+    <!-- Top Header -->
+    <header class="border-b border-gray-800 pb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+      <div>
+        <h1 class="text-2xl font-bold text-white tracking-tight flex items-center gap-2">
+          <span>🎬</span> StoryShorts Studio
+        </h1>
+        <p class="text-xs sm:text-sm text-gray-400">Zero-server auto slideshow sync: Audio + Script + Image Zip</p>
       </div>
-    </div>
-    <div class="header-actions">
-      <button class="btn btn-demo" onclick="loadScoutAndJemDemo()">
-        ✨ Load Scout &amp; Jem Sample Story
-      </button>
-      <span class="badge-pill">9:16 Vertical Story</span>
-    </div>
-  </header>
-
-  <!-- Main Workspace -->
-  <main>
-
-    <!-- Phase 1: Asset Ingestion Dropzones -->
-    <div class="ingestion-grid">
-      <!-- Slot 1: Script.txt -->
-      <div class="dropzone-card" id="drop-script" onclick="document.getElementById('input-script').click()">
-        <input type="file" id="input-script" accept=".txt" onchange="handleScriptFile(this.files[0])" />
-        <div class="drop-icon">📜</div>
-        <div class="drop-title">1. Scene Script (.txt)</div>
-        <div class="drop-sub">Single sentence beats per line</div>
-        <div class="drop-status" id="status-script">Click or drop script.txt</div>
+      <div class="flex items-center gap-2">
+        <button id="demoBtn" class="py-1.5 px-3 bg-gray-800 hover:bg-gray-700 border border-gray-700 text-amber-400 rounded-lg text-xs font-medium transition flex items-center gap-1.5 shadow-sm">
+          <span>✨</span> Load Demo Story
+        </button>
       </div>
+    </header>
 
-      <!-- Slot 2: Narration.mp3 -->
-      <div class="dropzone-card" id="drop-audio" onclick="document.getElementById('input-audio').click()">
-        <input type="file" id="input-audio" accept="audio/*,.mp3,.wav" onchange="handleAudioFile(this.files[0])" />
-        <div class="drop-icon">🎙️</div>
-        <div class="drop-title">2. Voice-Over (.mp3 / .wav)</div>
-        <div class="drop-sub">Natural speech with 0.3s-0.5s pauses</div>
-        <div class="drop-status" id="status-audio">Click or drop narration.mp3</div>
-      </div>
-
-      <!-- Slot 3: Visual Assets (.zip or multiple images) -->
-      <div class="dropzone-card" id="drop-visuals" onclick="document.getElementById('input-visuals').click()">
-        <input type="file" id="input-visuals" accept=".zip,image/*" multiple onchange="handleVisualsFiles(this.files)" />
-        <div class="drop-icon">🖼️</div>
-        <div class="drop-title">3. Visuals (.zip or .png images)</div>
-        <div class="drop-sub">01_intro.png, 02_journey.png, etc.</div>
-        <div class="drop-status" id="status-visuals">Click or drop scenes.zip</div>
-      </div>
-    </div>
-
-    <!-- Phase 2: Interactive Audio Waveform & Silence Cut Detector -->
-    <div class="waveform-panel">
-      <div class="section-header">
-        <div class="section-title">
-          <span>🌊</span>
-          <span>Audio Waveform &amp; Silence Cut Snapper</span>
-        </div>
-        <div style="display: flex; gap: 8px; align-items: center;">
-          <span class="badge-pill" id="silence-badge">Gaps &lt; -35dB (0.3s)</span>
-          <span class="badge-pill" id="duration-badge">Duration: 0.0s</span>
-        </div>
-      </div>
-
-      <div class="waveform-container" id="waveform-wrap">
-        <canvas id="waveform-canvas" height="120"></canvas>
-        <div class="markers-layer" id="markers-layer"></div>
-        <div class="playhead-marker" id="playhead"></div>
-      </div>
-
-      <div class="waveform-toolbar">
-        <div class="playback-group">
-          <button class="btn btn-secondary" id="btn-play" onclick="togglePlay()">
-            ▶️ Play
-          </button>
-          <button class="btn btn-secondary" onclick="seekTo(0)">
-            ⏮️ Rewind
-          </button>
-          <div class="timecode-display" id="timecode">00:00.0 / 00:00.0</div>
-        </div>
-        <p style="font-size: 0.76rem; color: var(--text-muted);">
-          💡 <strong>Tip:</strong> Drag the orange cut markers to adjust scene boundary cuts in real-time.
-        </p>
-      </div>
-    </div>
-
-    <!-- Phase 3 & 4: Scene Matrix & 9:16 Canvas Preview -->
-    <div class="studio-split">
+    <!-- Main 3-Column Studio Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
       
-      <!-- Scene Mapping Matrix Table -->
-      <div class="matrix-panel">
-        <div class="section-header">
-          <div class="section-title">
-            <span>📊</span>
-            <span>Scene Mapping Matrix</span>
+      <!-- Panel 1: Input & Ingestion -->
+      <div class="space-y-4 bg-gray-900 p-5 rounded-xl border border-gray-800 flex flex-col justify-between shadow-lg">
+        <div class="space-y-4">
+          <div class="flex items-center justify-between">
+            <h2 class="text-sm font-semibold text-white uppercase tracking-wider flex items-center gap-1.5">
+              <span class="text-blue-500 font-bold">1.</span> Assets & Ingestion
+            </h2>
+            <span id="assetBadge" class="text-[11px] px-2 py-0.5 rounded bg-gray-800 text-gray-400 font-mono">0/3 Ready</span>
           </div>
-          <span class="badge-pill" id="matrix-count">0 Scenes</span>
+
+          <!-- Audio Voice-Over Input -->
+          <div>
+            <label class="block text-xs font-medium text-gray-300 mb-1 flex justify-between">
+              <span>Voice-Over (MP3/WAV)</span>
+              <span id="audioDurLabel" class="text-[11px] text-gray-500 font-mono">None</span>
+            </label>
+            <input type="file" id="audioInput" accept="audio/*" class="w-full text-xs text-gray-400 file:mr-2 file:py-1.5 file:px-3 file:rounded file:border-0 file:bg-blue-600 file:text-white hover:file:bg-blue-700 cursor-pointer bg-gray-950 border border-gray-800 rounded p-1" />
+          </div>
+
+          <!-- Visuals (Zip or Images) Input -->
+          <div>
+            <label class="block text-xs font-medium text-gray-300 mb-1 flex justify-between">
+              <span>Images (.zip or multiple images)</span>
+              <span id="imagesCountLabel" class="text-[11px] text-gray-500 font-mono">None</span>
+            </label>
+            <input type="file" id="zipInput" accept=".zip,image/png,image/jpeg,image/webp" multiple class="w-full text-xs text-gray-400 file:mr-2 file:py-1.5 file:px-3 file:rounded file:border-0 file:bg-blue-600 file:text-white hover:file:bg-blue-700 cursor-pointer bg-gray-950 border border-gray-800 rounded p-1" />
+          </div>
+
+          <!-- Narration Script Textarea -->
+          <div>
+            <label class="block text-xs font-medium text-gray-300 mb-1 flex justify-between">
+              <span>Narration Script (1 line per scene)</span>
+              <span id="scriptCountLabel" class="text-[11px] text-gray-500 font-mono">0 lines</span>
+            </label>
+            <textarea id="scriptInput" rows="6" placeholder="Line 1 corresponds to Image 1&#10;Line 2 corresponds to Image 2&#10;Line 3 corresponds to Image 3..." class="w-full bg-gray-950 border border-gray-800 rounded p-2.5 text-xs text-gray-200 focus:outline-none focus:border-blue-500 font-mono leading-relaxed transition"></textarea>
+          </div>
         </div>
 
-        <table class="matrix-table">
-          <thead>
-            <tr>
-              <th>Scene</th>
-              <th>Artwork</th>
-              <th>Narration Script (Beat A &rarr; Beat B)</th>
-              <th>Timing</th>
-              <th>Choreography</th>
-            </tr>
-          </thead>
-          <tbody id="matrix-tbody">
-            <tr>
-              <td colspan="5" style="text-align: center; color: var(--text-dim); padding: 36px;">
-                Drop assets above or click "Load Scout &amp; Jem Sample Story" to build the matrix.
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        <div class="space-y-2 pt-2">
+          <button id="buildBtn" class="w-full py-2.5 px-4 bg-blue-600 hover:bg-blue-500 text-white rounded-lg font-medium text-xs sm:text-sm transition flex items-center justify-center gap-2 shadow-md hover:shadow-blue-600/20 active:scale-[0.99]">
+            <span>⚡</span> Align & Build Timeline
+          </button>
+          <div id="status" class="text-xs text-gray-400 bg-gray-950 px-3 py-2 rounded border border-gray-800 flex items-center gap-2">
+            <span class="inline-block w-2 h-2 rounded-full bg-gray-600"></span>
+            <span>Ready for files or click "Load Demo Story".</span>
+          </div>
+        </div>
       </div>
 
-      <!-- Right 9:16 Live Canvas Theater -->
-      <div class="preview-stage">
-        <div class="section-header" style="width: 100%;">
-          <div class="section-title">
-            <span>📱</span>
-            <span>Live 9:16 Story Preview</span>
+      <!-- Panel 2: Canvas Preview (9:16) -->
+      <div class="flex flex-col items-center justify-between bg-gray-900 p-5 rounded-xl border border-gray-800 shadow-lg">
+        <div class="w-full flex items-center justify-between mb-3">
+          <h2 class="text-sm font-semibold text-white uppercase tracking-wider flex items-center gap-1.5">
+            <span class="text-blue-500 font-bold">2.</span> Canvas Preview (9:16)
+          </h2>
+          <span class="text-[11px] px-2 py-0.5 rounded bg-blue-950 text-blue-400 border border-blue-800/60 font-mono">Full-Bleed Cover</span>
+        </div>
+
+        <!-- 9:16 Vertical Screen -->
+        <div class="relative w-full max-w-[280px] aspect-short bg-black rounded-lg overflow-hidden shadow-2xl border border-gray-800 group">
+          <canvas id="previewCanvas" width="720" height="1280" class="w-full h-full object-contain"></canvas>
+          
+          <!-- Hover Overlay Info -->
+          <div id="canvasOverlay" class="absolute top-2 left-2 right-2 flex justify-between items-center text-[10px] text-white/80 bg-black/60 backdrop-blur-sm px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition">
+            <span id="overlayScene">Scene 1</span>
+            <span id="overlayTime" class="font-mono">0.0s</span>
           </div>
-          <span class="badge-pill">30 FPS</span>
         </div>
+        
+        <!-- Playback & Export Controls -->
+        <div class="w-full max-w-[280px] mt-4 space-y-2">
+          <div class="flex items-center gap-2">
+            <button id="playBtn" disabled class="flex-1 py-2 bg-gray-800 hover:bg-gray-700 disabled:opacity-40 text-xs rounded-lg font-medium text-white transition flex items-center justify-center gap-1.5 border border-gray-700">
+              <span id="playIcon">▶</span> <span id="playText">Play</span>
+            </button>
+            <button id="exportBtn" disabled class="flex-1 py-2 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 text-xs rounded-lg font-medium text-white transition flex items-center justify-center gap-1.5 shadow-md hover:shadow-emerald-600/20">
+              <span>🚀</span> Export Video
+            </button>
+          </div>
 
-        <div class="canvas-frame-wrap">
-          <canvas id="preview-canvas" width="1080" height="1920"></canvas>
+          <!-- Export Progress Bar -->
+          <div id="exportProgressContainer" class="hidden space-y-1 bg-gray-950 p-2 rounded border border-gray-800">
+            <div class="flex justify-between text-[10px] text-gray-400">
+              <span id="exportLabel">Rendering video...</span>
+              <span id="exportPercent" class="font-mono text-emerald-400 font-bold">0%</span>
+            </div>
+            <div class="w-full h-1.5 bg-gray-800 rounded-full overflow-hidden">
+              <div id="exportBar" class="h-full bg-emerald-500 transition-all duration-75" style="width: 0%;"></div>
+            </div>
+          </div>
         </div>
+      </div>
 
-        <!-- Export Action Card -->
-        <div class="export-card">
-          <button class="btn btn-primary" id="btn-export" onclick="exportMasterVideo()" style="width: 100%;">
-            🚀 Export Master Video (1080&times;1920)
-          </button>
-
-          <div class="export-progress" id="export-progress">
-            <div style="display: flex; justify-content: space-between; font-size: 0.76rem;">
-              <span id="export-status-label">Recording canvas stream...</span>
-              <span id="export-percent">0%</span>
-            </div>
-            <div class="progress-bar">
-              <div class="progress-bar-fill" id="export-fill"></div>
-            </div>
+      <!-- Panel 3: Scene Inspector -->
+      <div class="bg-gray-900 p-5 rounded-xl border border-gray-800 flex flex-col h-[580px] shadow-lg">
+        <div class="flex items-center justify-between mb-3">
+          <h2 class="text-sm font-semibold text-white uppercase tracking-wider flex items-center gap-1.5">
+            <span class="text-blue-500 font-bold">3.</span> Synced Scenes
+          </h2>
+          <span id="sceneBadge" class="text-[11px] px-2 py-0.5 rounded bg-gray-800 text-gray-400 font-mono">0 Scenes</span>
+        </div>
+        <p class="text-[11px] text-gray-500 mb-2">Click any scene to seek. Edit script text directly in the card.</p>
+        
+        <div id="sceneList" class="flex-1 overflow-y-auto space-y-2 pr-1 text-xs text-gray-400">
+          <div class="flex flex-col items-center justify-center h-48 text-gray-500 italic text-center space-y-2">
+            <span>📭</span>
+            <span>Scenes will appear here after building or loading demo story.</span>
           </div>
         </div>
       </div>
 
     </div>
 
-  </main>
+    <!-- Bottom Full-Width Horizontal Timeline: Interactive Waveform ("The Wave Thing") -->
+    <div class="bg-gray-900 p-5 rounded-xl border border-gray-800 shadow-lg space-y-3">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+        <div class="flex items-center gap-3">
+          <h2 class="text-sm font-semibold text-white uppercase tracking-wider flex items-center gap-1.5">
+            <span class="text-amber-500 font-bold">4.</span> Audio Waveform & Silence Timeline
+          </h2>
+          <span class="text-[11px] px-2 py-0.5 rounded bg-amber-950 text-amber-400 border border-amber-800/60 font-mono flex items-center gap-1">
+            <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
+            -35dB Gap Snapping
+          </span>
+        </div>
+        <div class="flex items-center gap-4 text-xs font-mono text-gray-400">
+          <div class="flex items-center gap-1.5">
+            <span class="text-gray-500">Position:</span>
+            <span id="timeDisplay" class="text-white font-bold">00:00.0 / 00:00.0</span>
+          </div>
+        </div>
+      </div>
 
-  <footer>
-    FB-2minutes Storymaker &bull; Picture-Book Motion Architecture &bull; Pure Client-Side Web Application
-  </footer>
+      <!-- Waveform Canvas Container -->
+      <div id="waveformContainer" class="relative w-full h-28 bg-gray-950 rounded-lg border border-gray-800 overflow-hidden cursor-crosshair select-none">
+        <canvas id="waveformCanvas" class="w-full h-full block"></canvas>
+        <div id="waveformEmptyPrompt" class="absolute inset-0 flex items-center justify-center text-xs text-gray-600 italic pointer-events-none">
+          Upload narration audio or load demo to view waveform & draggable cut markers
+        </div>
+      </div>
+
+      <div class="flex items-center justify-between text-[11px] text-gray-500">
+        <div class="flex items-center gap-3">
+          <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-sm bg-blue-500 inline-block"></span> Speech RMS</span>
+          <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-sm bg-amber-500 inline-block"></span> Draggable Cut Markers</span>
+          <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-sm bg-white inline-block"></span> Playhead</span>
+        </div>
+        <div>Drag orange handles to adjust scene cuts. Click timeline to scrub playhead.</div>
+      </div>
+    </div>
+
+  </div>
 
   <script>
-    // =========================================================================
-    // Core Data Structures & State
-    // =========================================================================
-    let audioContext = null;
+    // State
     let audioBuffer = null;
-    let audioSourceNode = null;
-    let audioStartTime = 0;
-    let audioPauseOffset = 0;
+    let audioContext = null;
+    let audioElement = new Audio();
+    let scenes = [];
+    let detectedPauses = [];
+    let sceneCuts = [0]; // Timestamps of scene boundaries
+    let activeDraggingMarkerIndex = null;
     let isPlaying = false;
-    let animationFrameId = null;
+    let animFrameId = null;
 
-    let sceneScriptLines = [];
-    let sceneImages = [];      // Array of HTMLImageElement or data URLs
-    let sceneTimings = [];     // Array of cut timestamp numbers: [0, t1, t2, ..., totalDuration]
-    let sceneChoreography = []; // Array of { entrance: string, motion: string }
+    // DOM Elements
+    const canvas = document.getElementById('previewCanvas');
+    const ctx = canvas.getContext('2d');
+    const waveCanvas = document.getElementById('waveformCanvas');
+    const waveCtx = waveCanvas.getContext('2d');
+    const waveContainer = document.getElementById('waveformContainer');
+    const statusEl = document.getElementById('status');
+    const buildBtn = document.getElementById('buildBtn');
+    const playBtn = document.getElementById('playBtn');
+    const playIcon = document.getElementById('playIcon');
+    const playText = document.getElementById('playText');
+    const exportBtn = document.getElementById('exportBtn');
+    const sceneList = document.getElementById('sceneList');
+    const demoBtn = document.getElementById('demoBtn');
+    const timeDisplay = document.getElementById('timeDisplay');
+    const audioDurLabel = document.getElementById('audioDurLabel');
+    const imagesCountLabel = document.getElementById('imagesCountLabel');
+    const scriptCountLabel = document.getElementById('scriptCountLabel');
+    const assetBadge = document.getElementById('assetBadge');
+    const sceneBadge = document.getElementById('sceneBadge');
+    const exportProgressContainer = document.getElementById('exportProgressContainer');
+    const exportBar = document.getElementById('exportBar');
+    const exportPercent = document.getElementById('exportPercent');
+    const exportLabel = document.getElementById('exportLabel');
 
-    let activeMarkerDrag = null;
+    // Store raw uploaded images
+    let uploadedImageObjects = [];
 
-    // =========================================================================
-    // Web Audio Initialization & Playback
-    // =========================================================================
+    // Helper: Initialize audio context
     function getAudioContext() {
       if (!audioContext) {
-        const AudioCtx = window.AudioContext || window.webkitAudioContext;
-        audioContext = new AudioCtx();
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
       }
-      if (audioContext.state === "suspended") {
+      if (audioContext.state === 'suspended') {
         audioContext.resume();
       }
       return audioContext;
     }
 
-    function getCurrentAudioTime() {
-      if (!isPlaying) return audioPauseOffset;
+    // Format mm:ss.s
+    function formatTime(sec) {
+      const s = Math.max(0, sec || 0);
+      const m = Math.floor(s / 60);
+      const remS = (s % 60).toFixed(1);
+      return `${String(m).padStart(2, '0')}:${String(remS).padStart(4, '0')}`;
+    }
+
+    // Update Ingestion Badges
+    function updateAssetBadges() {
+      let count = 0;
+      if (audioBuffer) count++;
+      if (uploadedImageObjects.length > 0) count++;
+      const lines = document.getElementById('scriptInput').value.trim().split('\n').filter(l => l.trim().length > 0);
+      if (lines.length > 0) count++;
+      assetBadge.textContent = `${count}/3 Ready`;
+      assetBadge.className = count === 3 
+        ? "text-[11px] px-2 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-800 font-mono"
+        : "text-[11px] px-2 py-0.5 rounded bg-gray-800 text-gray-400 font-mono";
+    }
+
+    // Script Input Change
+    document.getElementById('scriptInput').addEventListener('input', (e) => {
+      const lines = e.target.value.trim().split('\n').filter(l => l.trim().length > 0);
+      scriptCountLabel.textContent = `${lines.length} line(s)`;
+      updateAssetBadges();
+    });
+
+    // 1. Audio Ingestion
+    document.getElementById('audioInput').addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      await loadAudioFromFile(file);
+    });
+
+    async function loadAudioFromFile(file) {
+      audioElement.src = URL.createObjectURL(file);
+      statusEl.innerHTML = `<span class="inline-block w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span> Decoding voice-over audio...`;
       const ctx = getAudioContext();
-      return Math.min(audioBuffer.duration, ctx.currentTime - audioStartTime);
+      const arrayBuffer = await file.arrayBuffer();
+      audioBuffer = await ctx.decodeAudioData(arrayBuffer);
+      audioDurLabel.textContent = `${audioBuffer.duration.toFixed(1)}s`;
+      statusEl.innerHTML = `<span class="inline-block w-2 h-2 rounded-full bg-emerald-400"></span> Audio loaded: ${audioBuffer.duration.toFixed(1)}s`;
+      document.getElementById('waveformEmptyPrompt').style.display = 'none';
+      detectedPauses = findPauses(audioBuffer);
+      drawWaveform();
+      updateAssetBadges();
     }
 
-    function togglePlay() {
-      if (!audioBuffer) return;
-      if (isPlaying) {
-        pause();
-      } else {
-        play();
-      }
-    }
+    // 2. Images Ingestion (ZIP or multiple image files)
+    document.getElementById('zipInput').addEventListener('change', async (e) => {
+      const files = Array.from(e.target.files);
+      if (files.length === 0) return;
 
-    function play() {
-      if (!audioBuffer || isPlaying) return;
-      const ctx = getAudioContext();
+      uploadedImageObjects = [];
+      const zipFile = files.find(f => f.name.toLowerCase().endsWith('.zip'));
 
-      if (audioPauseOffset >= audioBuffer.duration) {
-        audioPauseOffset = 0;
-      }
-
-      audioSourceNode = ctx.createBufferSource();
-      audioSourceNode.buffer = audioBuffer;
-      audioSourceNode.connect(ctx.destination);
-      audioSourceNode.start(0, audioPauseOffset);
-
-      audioStartTime = ctx.currentTime - audioPauseOffset;
-      isPlaying = true;
-      document.getElementById("btn-play").textContent = "⏸️ Pause";
-
-      audioSourceNode.onended = () => {
-        if (isPlaying && getCurrentAudioTime() >= audioBuffer.duration - 0.1) {
-          pause();
-          audioPauseOffset = 0;
-          updatePlayheadUI(0);
-        }
-      };
-
-      startRenderLoop();
-    }
-
-    function pause() {
-      if (!isPlaying) return;
-      audioPauseOffset = getCurrentAudioTime();
-      if (audioSourceNode) {
-        audioSourceNode.onended = null;
-        try { audioSourceNode.stop(); } catch(e) {}
-        audioSourceNode = null;
-      }
-      isPlaying = false;
-      document.getElementById("btn-play").textContent = "▶️ Play";
-      if (animationFrameId) {
-        cancelAnimationFrame(animationFrameId);
-        animationFrameId = null;
-      }
-      renderPreviewFrame(audioPauseOffset);
-    }
-
-    function seekTo(targetTime) {
-      if (!audioBuffer) return;
-      const wasPlaying = isPlaying;
-      if (isPlaying) pause();
-      audioPauseOffset = Math.max(0, Math.min(audioBuffer.duration, targetTime));
-      updatePlayheadUI(audioPauseOffset);
-      renderPreviewFrame(audioPauseOffset);
-      if (wasPlaying) play();
-    }
-
-    // =========================================================================
-    // Phase 2: Real Silence Detection (-35 dB Breathing Gaps)
-    // =========================================================================
-    function detectSilenceCutPoints(buffer, targetCutCount) {
-      const sampleRate = buffer.sampleRate;
-      const channelData = buffer.getChannelData(0);
-      const duration = buffer.duration;
-
-      // Window: 40ms blocks
-      const windowSize = Math.floor(sampleRate * 0.04);
-      const numWindows = Math.floor(channelData.length / windowSize);
-
-      const silenceGaps = []; // list of { start, end, mid }
-      let inSilence = false;
-      let silenceStart = 0;
-
-      for (let w = 0; w < numWindows; w++) {
-        let sumSq = 0;
-        const startIdx = w * windowSize;
-        for (let i = 0; i < windowSize; i++) {
-          const val = channelData[startIdx + i];
-          sumSq += val * val;
-        }
-        const rms = Math.sqrt(sumSq / windowSize);
-        const dB = 20 * Math.log10(rms + 1e-7);
-        const timeSec = (startIdx + windowSize / 2) / sampleRate;
-
-        // Threshold: -35 dB
-        if (dB < -35.0) {
-          if (!inSilence) {
-            inSilence = true;
-            silenceStart = timeSec;
-          }
-        } else {
-          if (inSilence) {
-            inSilence = false;
-            const gapDuration = timeSec - silenceStart;
-            // Only consider gaps >= 0.25s as natural breathing pauses
-            if (gapDuration >= 0.22 && silenceStart > 1.5 && timeSec < duration - 1.5) {
-              silenceGaps.push({
-                start: silenceStart,
-                end: timeSec,
-                mid: (silenceStart + timeSec) / 2,
-                duration: gapDuration
-              });
+      if (zipFile) {
+        statusEl.innerHTML = `<span class="inline-block w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span> Extracting ZIP images...`;
+        const zip = await JSZip.loadAsync(zipFile);
+        const imageFilenames = [];
+        for (const filename of Object.keys(zip.files)) {
+          if (!zip.files[filename].dir && !filename.startsWith('__MACOSX') && !filename.startsWith('.')) {
+            if (filename.match(/\.(png|jpe?g|webp)$/i)) {
+              imageFilenames.push(filename);
             }
           }
         }
-      }
+        imageFilenames.sort();
 
-      console.log(`[Silence Detector] Found ${silenceGaps.length} natural silence gaps (< -35dB)`);
-
-      // If we need N-1 cut markers for N scenes:
-      const neededCuts = Math.max(1, targetCutCount - 1);
-      const cuts = [0.0];
-
-      if (silenceGaps.length >= neededCuts) {
-        // Distribute gaps evenly across the needed cuts
-        const step = silenceGaps.length / neededCuts;
-        for (let i = 0; i < neededCuts; i++) {
-          const gapIndex = Math.min(silenceGaps.length - 1, Math.floor(i * step + step / 2));
-          cuts.push(Number(silenceGaps[gapIndex].mid.toFixed(2)));
+        for (const fname of imageFilenames) {
+          const blob = await zip.files[fname].async('blob');
+          const img = new Image();
+          img.src = URL.createObjectURL(blob);
+          await img.decode();
+          uploadedImageObjects.push(img);
         }
       } else {
-        // Proportional fallback based on duration
-        const sceneDuration = duration / targetCutCount;
-        for (let i = 1; i < targetCutCount; i++) {
-          cuts.push(Number((i * sceneDuration).toFixed(2)));
+        // Loose image files
+        const imageFiles = files.filter(f => f.type.startsWith('image/')).sort((a, b) => a.name.localeCompare(b.name));
+        for (const file of imageFiles) {
+          const img = new Image();
+          img.src = URL.createObjectURL(file);
+          await img.decode();
+          uploadedImageObjects.push(img);
         }
       }
 
-      cuts.push(Number(duration.toFixed(2)));
-      return cuts;
+      imagesCountLabel.textContent = `${uploadedImageObjects.length} image(s)`;
+      statusEl.innerHTML = `<span class="inline-block w-2 h-2 rounded-full bg-emerald-400"></span> Loaded ${uploadedImageObjects.length} image(s).`;
+      updateAssetBadges();
+    });
+
+    // Detect speech pause timestamps using RMS energy below -35dB
+    function findPauses(buffer, minPauseSec = 0.25, thresholdDb = -35) {
+      const data = buffer.getChannelData(0);
+      const sampleRate = buffer.sampleRate;
+      const step = Math.floor(sampleRate * 0.05); // 50ms window
+      const threshold = Math.pow(10, thresholdDb / 20);
+      let pauses = [];
+      let silenceStart = null;
+
+      for (let i = 0; i < data.length; i += step) {
+        let sum = 0;
+        let end = Math.min(i + step, data.length);
+        for (let j = i; j < end; j++) sum += data[j] * data[j];
+        let rms = Math.sqrt(sum / (end - i));
+        let t = i / sampleRate;
+
+        if (rms < threshold) {
+          if (silenceStart === null) silenceStart = t;
+        } else {
+          if (silenceStart !== null) {
+            let dur = t - silenceStart;
+            if (dur >= minPauseSec) {
+              pauses.push(silenceStart + dur / 2);
+            }
+            silenceStart = null;
+          }
+        }
+      }
+      return pauses;
     }
 
-    // =========================================================================
-    // Waveform Rendering & Interactive Marker Dragging
-    // =========================================================================
-    function drawWaveform() {
-      const canvas = document.getElementById("waveform-canvas");
-      const ctx = canvas.getContext("2d");
-      const w = canvas.offsetWidth;
-      const h = canvas.offsetHeight;
-      canvas.width = w * window.devicePixelRatio;
-      canvas.height = h * window.devicePixelRatio;
-      ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+    // Build timeline matching images to script lines and audio pauses
+    buildBtn.addEventListener('click', async () => {
+      const scriptText = document.getElementById('scriptInput').value.trim();
 
-      ctx.clearRect(0, 0, w, h);
-
-      if (!audioBuffer) {
-        ctx.fillStyle = "#60687e";
-        ctx.font = "12px sans-serif";
-        ctx.textAlign = "center";
-        ctx.fillText("Audio waveform will render here after loading narration.mp3", w / 2, h / 2);
+      if (!audioBuffer || uploadedImageObjects.length === 0 || !scriptText) {
+        alert("Please provide the Voice-over Audio, Images (Zip or files), and Script lines (or click 'Load Demo Story').");
         return;
       }
 
-      const channelData = audioBuffer.getChannelData(0);
-      const duration = audioBuffer.duration;
-      const step = Math.ceil(channelData.length / w);
-      const amp = h / 2;
+      const scriptLines = scriptText.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+      const count = Math.min(uploadedImageObjects.length, scriptLines.length);
 
-      // Draw background scene bands
-      for (let i = 0; i < sceneTimings.length - 1; i++) {
-        const startX = (sceneTimings[i] / duration) * w;
-        const endX = (sceneTimings[i + 1] / duration) * w;
-        ctx.fillStyle = i % 2 === 0 ? "rgba(255, 255, 255, 0.02)" : "rgba(235, 140, 60, 0.04)";
-        ctx.fillRect(startX, 0, endX - startX, h);
+      if (count === 0) {
+        alert("No matching images and script lines found.");
+        return;
       }
 
-      // Draw waveform peaks
-      ctx.fillStyle = "#eb8c3c";
-      ctx.beginPath();
-      for (let x = 0; x < w; x++) {
+      statusEl.innerHTML = `<span class="inline-block w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span> Aligning speech silence boundaries (-35dB)...`;
+      const totalDur = audioBuffer.duration;
+      
+      // Calculate scene cuts with snapping to nearest detected silence pause
+      sceneCuts = [0];
+      for (let i = 1; i < count; i++) {
+        const targetTime = (totalDur / count) * i;
+        const nearPause = detectedPauses.find(p => Math.abs(p - targetTime) < 1.4);
+        sceneCuts.push(nearPause !== undefined ? nearPause : targetTime);
+      }
+      sceneCuts.push(totalDur);
+
+      rebuildScenesFromCuts(scriptLines);
+      statusEl.innerHTML = `<span class="inline-block w-2 h-2 rounded-full bg-emerald-400"></span> Built ${count} scenes successfully!`;
+      playBtn.disabled = false;
+      exportBtn.disabled = false;
+      drawWaveform();
+      drawFrame(0);
+    });
+
+    // Rebuild scenes object array and UI inspector from sceneCuts
+    function rebuildScenesFromCuts(scriptLines) {
+      if (!scriptLines) {
+        scriptLines = scenes.map(s => s.text);
+      }
+      const count = sceneCuts.length - 1;
+      scenes = [];
+      sceneList.innerHTML = '';
+      sceneBadge.textContent = `${count} Scenes`;
+
+      for (let i = 0; i < count; i++) {
+        const scene = {
+          id: i + 1,
+          start: sceneCuts[i],
+          end: sceneCuts[i + 1],
+          text: scriptLines[i] || `Scene ${i + 1}`,
+          img: uploadedImageObjects[i] || uploadedImageObjects[0]
+        };
+        scenes.push(scene);
+
+        // Populate side inspector with click-to-seek and inline script editing
+        const div = document.createElement('div');
+        div.className = "p-3 bg-gray-950 border border-gray-800 hover:border-gray-700 rounded-lg text-xs space-y-1.5 transition cursor-pointer group";
+        div.dataset.index = i;
+
+        div.innerHTML = `
+          <div class="flex justify-between items-center font-semibold text-gray-300">
+            <span class="flex items-center gap-1.5 text-white">
+              <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+              Scene ${scene.id}
+            </span>
+            <span class="text-[11px] font-mono text-gray-400 bg-gray-900 px-1.5 py-0.5 rounded border border-gray-800">
+              ${scene.start.toFixed(1)}s - ${scene.end.toFixed(1)}s
+            </span>
+          </div>
+          <div class="mt-1">
+            <input type="text" class="scene-inline-script w-full bg-gray-900 border border-gray-800 focus:border-blue-500 rounded px-2 py-1 text-xs text-gray-200 outline-none transition" value="${escapeHtml(scene.text)}" />
+          </div>
+        `;
+
+        // Click on card body (not input) to seek to scene
+        div.addEventListener('click', (e) => {
+          if (e.target.tagName.toLowerCase() === 'input') return;
+          seekTo(scene.start);
+        });
+
+        // Inline script edit listener
+        const input = div.querySelector('.scene-inline-script');
+        input.addEventListener('input', (e) => {
+          scene.text = e.target.value;
+          drawFrame(audioElement.currentTime);
+        });
+
+        sceneList.appendChild(div);
+      }
+    }
+
+    function escapeHtml(str) {
+      return (str || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    // Seek helper
+    function seekTo(sec) {
+      const dur = (audioBuffer && audioBuffer.duration) ? audioBuffer.duration : 1;
+      const target = Math.max(0, Math.min(sec, dur));
+      audioElement.currentTime = target;
+      timeDisplay.textContent = `${formatTime(target)} / ${formatTime(dur)}`;
+      drawFrame(target);
+      drawWaveform();
+    }
+
+    // =========================================================================
+    // Waveform & Draggable Cut Markers ("The Wave Thing")
+    // =========================================================================
+    function resizeWaveform() {
+      const dpr = window.devicePixelRatio || 1;
+      const rect = waveContainer.getBoundingClientRect();
+      waveCanvas.width = rect.width * dpr;
+      waveCanvas.height = rect.height * dpr;
+      waveCtx.scale(dpr, dpr);
+      drawWaveform();
+    }
+    window.addEventListener('resize', resizeWaveform);
+
+    function drawWaveform() {
+      const dpr = window.devicePixelRatio || 1;
+      const W = waveCanvas.width / dpr;
+      const H = waveCanvas.height / dpr;
+
+      waveCtx.clearRect(0, 0, W, H);
+
+      // Background grid line
+      waveCtx.strokeStyle = '#1c2128';
+      waveCtx.lineWidth = 1;
+      waveCtx.beginPath();
+      waveCtx.moveTo(0, H / 2);
+      waveCtx.lineTo(W, H / 2);
+      waveCtx.stroke();
+
+      if (!audioBuffer) return;
+
+      const duration = audioBuffer.duration;
+      const data = audioBuffer.getChannelData(0);
+      const step = Math.ceil(data.length / W);
+      const amp = H * 0.42;
+
+      // 1. Draw RMS Waveform Peaks
+      waveCtx.fillStyle = '#388bfd';
+      for (let x = 0; x < W; x++) {
         let min = 1.0;
         let max = -1.0;
-        for (let j = 0; j < step; j++) {
-          const datum = channelData[x * step + j] || 0;
+        const start = x * step;
+        const end = Math.min(start + step, data.length);
+        for (let j = start; j < end; j++) {
+          const datum = data[j];
           if (datum < min) min = datum;
           if (datum > max) max = datum;
         }
-        ctx.fillRect(x, (1 + min) * amp, 1, Math.max(1, (max - min) * amp));
+        const barH = Math.max(2, (max - min) * amp);
+        waveCtx.fillRect(x, (H - barH) / 2, 1, barH);
       }
 
-      renderMarkerHandles();
+      // 2. Draw Detected -35dB Silence Indicators (subtle dots)
+      waveCtx.fillStyle = 'rgba(251, 146, 60, 0.35)';
+      for (const p of detectedPauses) {
+        const px = (p / duration) * W;
+        waveCtx.fillRect(px - 1, 0, 2, H);
+      }
+
+      // 3. Draw Scene Cut Markers with Top Handles (Draggable)
+      for (let i = 1; i < sceneCuts.length - 1; i++) {
+        const cutTime = sceneCuts[i];
+        const cx = (cutTime / duration) * W;
+
+        // Cut Line
+        waveCtx.strokeStyle = '#f97316';
+        waveCtx.lineWidth = 2;
+        waveCtx.setLineDash([4, 3]);
+        waveCtx.beginPath();
+        waveCtx.moveTo(cx, 0);
+        waveCtx.lineTo(cx, H);
+        waveCtx.stroke();
+        waveCtx.setLineDash([]);
+
+        // Handle Badge at Top
+        waveCtx.fillStyle = '#f97316';
+        waveCtx.beginPath();
+        waveCtx.roundRect(cx - 24, 4, 48, 18, 9);
+        waveCtx.fill();
+
+        waveCtx.fillStyle = '#ffffff';
+        waveCtx.font = 'bold 9px ui-monospace, monospace';
+        waveCtx.textAlign = 'center';
+        waveCtx.textBaseline = 'middle';
+        waveCtx.fillText(`${cutTime.toFixed(1)}s`, cx, 13);
+      }
+
+      // 4. Draw White Playhead
+      const curTime = audioElement.currentTime || 0;
+      const playX = (curTime / duration) * W;
+
+      waveCtx.strokeStyle = '#ffffff';
+      waveCtx.lineWidth = 2;
+      waveCtx.beginPath();
+      waveCtx.moveTo(playX, 0);
+      waveCtx.lineTo(playX, H);
+      waveCtx.stroke();
+
+      // Playhead Top Pointer
+      waveCtx.fillStyle = '#ffffff';
+      waveCtx.beginPath();
+      waveCtx.moveTo(playX - 6, 0);
+      waveCtx.lineTo(playX + 6, 0);
+      waveCtx.lineTo(playX, 8);
+      waveCtx.closePath();
+      waveCtx.fill();
     }
 
-    function renderMarkerHandles() {
-      const layer = document.getElementById("markers-layer");
-      layer.innerHTML = "";
-      if (!audioBuffer || sceneTimings.length <= 2) return;
-
+    // Hit test cut marker handles
+    function getMarkerUnderPointer(clientX) {
+      if (!audioBuffer || sceneCuts.length < 3) return -1;
+      const rect = waveContainer.getBoundingClientRect();
+      const clickX = clientX - rect.left;
+      const W = rect.width;
       const duration = audioBuffer.duration;
 
-      // Render draggable cuts (skip first 0.0 and last totalDuration)
-      for (let i = 1; i < sceneTimings.length - 1; i++) {
-        const t = sceneTimings[i];
-        const pct = (t / duration) * 100;
-
-        const markerEl = document.createElement("div");
-        markerEl.className = "cut-marker";
-        markerEl.style.left = `${pct}%`;
-        markerEl.dataset.index = i;
-
-        const handle = document.createElement("div");
-        handle.className = "cut-marker-handle";
-        handle.textContent = `Cut ${i}: ${t.toFixed(1)}s`;
-        markerEl.appendChild(handle);
-
-        markerEl.addEventListener("mousedown", (e) => {
-          e.stopPropagation();
-          activeMarkerDrag = i;
-        });
-
-        layer.appendChild(markerEl);
-      }
-    }
-
-    // Global drag listener for cut markers
-    window.addEventListener("mousemove", (e) => {
-      if (activeMarkerDrag === null || !audioBuffer) return;
-      const wrap = document.getElementById("waveform-wrap");
-      const rect = wrap.getBoundingClientRect();
-      const clickX = e.clientX - rect.left;
-      const pct = Math.max(0, Math.min(1, clickX / rect.width));
-      const targetTime = pct * audioBuffer.duration;
-
-      const prevTime = sceneTimings[activeMarkerDrag - 1] + 1.0;
-      const nextTime = sceneTimings[activeMarkerDrag + 1] - 1.0;
-
-      if (targetTime >= prevTime && targetTime <= nextTime) {
-        sceneTimings[activeMarkerDrag] = Number(targetTime.toFixed(2));
-        renderMarkerHandles();
-        updateMatrixTable();
-      }
-    });
-
-    window.addEventListener("mouseup", () => {
-      activeMarkerDrag = null;
-    });
-
-    // Waveform Click to Seek
-    document.getElementById("waveform-wrap").addEventListener("click", (e) => {
-      if (!audioBuffer || activeMarkerDrag !== null) return;
-      const wrap = document.getElementById("waveform-wrap");
-      const rect = wrap.getBoundingClientRect();
-      const clickX = e.clientX - rect.left;
-      const pct = Math.max(0, Math.min(1, clickX / rect.width));
-      seekTo(pct * audioBuffer.duration);
-    });
-
-    function updatePlayheadUI(currentTime) {
-      if (!audioBuffer) return;
-      const duration = audioBuffer.duration;
-      const pct = (currentTime / duration) * 100;
-      const playhead = document.getElementById("playhead");
-      playhead.style.display = "block";
-      playhead.style.left = `${pct}%`;
-
-      const curM = Math.floor(currentTime / 60);
-      const curS = (currentTime % 60).toFixed(1).padStart(4, "0");
-      const durM = Math.floor(duration / 60);
-      const durS = (duration % 60).toFixed(1).padStart(4, "0");
-      document.getElementById("timecode").textContent = `${curM}:${curS} / ${durM}:${durS}`;
-    }
-
-    // =========================================================================
-    // Phase 3: Scene Mapping Matrix Builder
-    // =========================================================================
-    function updateMatrixTable() {
-      const tbody = document.getElementById("matrix-tbody");
-      tbody.innerHTML = "";
-
-      const count = Math.max(1, sceneTimings.length - 1);
-      document.getElementById("matrix-count").textContent = `${count} Scenes`;
-
-      for (let i = 0; i < count; i++) {
-        const start = sceneTimings[i] || 0.0;
-        const end = sceneTimings[i + 1] || start + 3.0;
-        const duration = (end - start).toFixed(1);
-
-        const line = sceneScriptLines[i] || `Scene ${i + 1} narrative text beat.`;
-        const words = line.split(" ");
-        const midWord = Math.ceil(words.length / 2);
-        const beatA = words.slice(0, midWord).join(" ");
-        const beatB = words.slice(midWord).join(" ");
-
-        const imgSrc = (sceneImages[i] && sceneImages[i].src) ? sceneImages[i].src : "";
-
-        if (!sceneChoreography[i]) {
-          sceneChoreography[i] = {
-            entrance: i === 0 ? "pop-in" : (i === 1 ? "dissolve" : "zoom-pop"),
-            motion: i === 0 ? "push-in" : (i === 1 ? "pan" : "float")
-          };
+      for (let i = 1; i < sceneCuts.length - 1; i++) {
+        const mx = (sceneCuts[i] / duration) * W;
+        if (Math.abs(clickX - mx) <= 24) {
+          return i;
         }
+      }
+      return -1;
+    }
 
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td><span class="badge-scene-num">Scene ${String(i + 1).padStart(2, "0")}</span></td>
-          <td>
-            <img src="${imgSrc}" class="thumb-preview" alt="Scene ${i + 1}" />
-          </td>
-          <td>
-            <div style="font-weight:600; color:var(--text); font-size:0.86rem;">Beat A: "${beatA}"</div>
-            <div style="color:var(--text-muted); font-size:0.78rem; margin-top:2px;">Beat B: "${beatB}"</div>
-          </td>
-          <td>
-            <div style="font-family:var(--font-mono); font-weight:700;">${start.toFixed(1)}s &rarr; ${end.toFixed(1)}s</div>
-            <div style="color:var(--text-dim); font-size:0.72rem;">${duration}s duration</div>
-          </td>
-          <td>
-            <div style="display:flex; flex-direction:column; gap:4px;">
-              <select class="select-choreography" onchange="sceneChoreography[${i}].entrance = this.value">
-                <option value="pop-in" ${sceneChoreography[i].entrance === "pop-in" ? "selected" : ""}>✨ Gentle Pop-in</option>
-                <option value="dissolve" ${sceneChoreography[i].entrance === "dissolve" ? "selected" : ""}>🌫️ Soft Dissolve</option>
-                <option value="zoom-pop" ${sceneChoreography[i].entrance === "zoom-pop" ? "selected" : ""}>🔍 Zoom Pop-in</option>
-              </select>
-              <select class="select-choreography" onchange="sceneChoreography[${i}].motion = this.value">
-                <option value="push-in" ${sceneChoreography[i].motion === "push-in" ? "selected" : ""}>🎥 Push-in (+4% Zoom)</option>
-                <option value="pan" ${sceneChoreography[i].motion === "pan" ? "selected" : ""}>↔️ Horizontal Pan (+30px)</option>
-                <option value="float" ${sceneChoreography[i].motion === "float" ? "selected" : ""}>🌬️ Handheld Breathing Float</option>
-              </select>
-            </div>
-          </td>
-        `;
-        tbody.appendChild(tr);
+    // Pointer Events for Dragging Cut Markers & Scrubbing (Mouse + Touch)
+    function onPointerDown(e) {
+      if (!audioBuffer) return;
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const markerIdx = getMarkerUnderPointer(clientX);
+
+      if (markerIdx !== -1) {
+        activeDraggingMarkerIndex = markerIdx;
+        window.addEventListener('mousemove', onPointerMove);
+        window.addEventListener('touchmove', onPointerMove);
+        window.addEventListener('mouseup', onPointerUp);
+        window.addEventListener('touchend', onPointerUp);
+      } else {
+        // Scrub
+        const rect = waveContainer.getBoundingClientRect();
+        const ratio = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+        seekTo(ratio * audioBuffer.duration);
       }
     }
 
-    // =========================================================================
-    // Phase 4: Picture-Book Motion Canvas Rendering Engine
-    // =========================================================================
-    function startRenderLoop() {
-      function loop() {
-        if (!isPlaying) return;
-        const currentTime = getCurrentAudioTime();
-        updatePlayheadUI(currentTime);
-        renderPreviewFrame(currentTime);
-        animationFrameId = requestAnimationFrame(loop);
+    function onPointerMove(e) {
+      if (activeDraggingMarkerIndex === null || !audioBuffer) return;
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const rect = waveContainer.getBoundingClientRect();
+      const ratio = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+      let newTime = ratio * audioBuffer.duration;
+
+      // Auto-snap to detected silences within 0.4s
+      const nearPause = detectedPauses.find(p => Math.abs(p - newTime) < 0.4);
+      if (nearPause !== undefined) {
+        newTime = nearPause;
       }
-      animationFrameId = requestAnimationFrame(loop);
+
+      // Constraints with neighbors (minimum 0.5s scene length)
+      const prevCut = sceneCuts[activeDraggingMarkerIndex - 1] + 0.5;
+      const nextCut = sceneCuts[activeDraggingMarkerIndex + 1] - 0.5;
+      newTime = Math.max(prevCut, Math.min(newTime, nextCut));
+
+      sceneCuts[activeDraggingMarkerIndex] = newTime;
+      rebuildScenesFromCuts();
+      drawWaveform();
+      drawFrame(audioElement.currentTime);
     }
 
-    // Word-wrap caption text onto bottom third (Shorts/TikTok style)
+    function onPointerUp() {
+      activeDraggingMarkerIndex = null;
+      window.removeEventListener('mousemove', onPointerMove);
+      window.removeEventListener('touchmove', onPointerMove);
+      window.removeEventListener('mouseup', onPointerUp);
+      window.removeEventListener('touchend', onPointerUp);
+    }
+
+    waveContainer.addEventListener('mousedown', onPointerDown);
+    waveContainer.addEventListener('touchstart', onPointerDown, { passive: true });
+
+    // Cursor update on hover over markers
+    waveContainer.addEventListener('mousemove', (e) => {
+      const idx = getMarkerUnderPointer(e.clientX);
+      waveContainer.style.cursor = idx !== -1 ? 'ew-resize' : 'crosshair';
+    });
+
+    // =========================================================================
+    // Canvas Preview & Full-Bleed Ken Burns Motion & Stroked Subtitles
+    // =========================================================================
+    function drawFrame(currentTime) {
+      ctx.fillStyle = '#000000';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      if (scenes.length === 0) {
+        ctx.fillStyle = '#555555';
+        ctx.font = 'bold 28px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('Load assets or demo to preview', canvas.width / 2, canvas.height / 2);
+        return;
+      }
+
+      // Find active scene
+      let activeScene = scenes.find(s => currentTime >= s.start && currentTime <= s.end);
+      if (!activeScene) activeScene = scenes[scenes.length - 1];
+
+      // Update overlay
+      document.getElementById('overlayScene').textContent = `Scene ${activeScene.id} of ${scenes.length}`;
+      document.getElementById('overlayTime').textContent = `${currentTime.toFixed(1)}s`;
+
+      // Ken Burns Calculation (1.0 -> 1.1 continuous push zoom)
+      const sceneDur = Math.max(0.1, activeScene.end - activeScene.start);
+      const progress = Math.min(1.0, Math.max(0, (currentTime - activeScene.start) / sceneDur));
+      const scale = 1.0 + 0.10 * progress;
+
+      // Draw Scaled Image (Full-Bleed Cover Fit)
+      const img = activeScene.img;
+      if (img && img.complete) {
+        const hRatio = canvas.width / img.width;
+        const vRatio = canvas.height / img.height;
+        const ratio = Math.max(hRatio, vRatio) * scale;
+        const centerShiftX = (canvas.width - img.width * ratio) / 2;
+        const centerShiftY = (canvas.height - img.height * ratio) / 2;
+
+        ctx.save();
+        ctx.drawImage(img, 0, 0, img.width, img.height, centerShiftX, centerShiftY, img.width * ratio, img.height * ratio);
+        ctx.restore();
+      }
+
+      // Draw Subtitles (Full sentence bold white with heavy black stroke on lower third)
+      if (activeScene.text) {
+        ctx.save();
+        const fontSize = Math.round(canvas.width * 0.048); // ~35px on 720x1280
+        const lineHeight = Math.round(fontSize * 1.34);
+        const strokeW = Math.max(4, Math.round(fontSize * 0.13));
+
+        ctx.font = `bold ${fontSize}px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`;
+        ctx.textAlign = 'center';
+        ctx.fillStyle = '#FFFFFF';
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.95)';
+        ctx.shadowBlur = 12;
+        ctx.lineWidth = strokeW;
+        ctx.strokeStyle = '#000000';
+        ctx.lineJoin = 'round';
+
+        // Word-wrap onto bottom third
+        wrapText(ctx, activeScene.text, canvas.width / 2, canvas.height - 180, canvas.width - 100, lineHeight);
+        ctx.restore();
+      }
+
+      // Subtle Bottom Progress Bar
+      const totalDur = (audioBuffer && audioBuffer.duration) ? audioBuffer.duration : 1;
+      const totalProg = Math.min(1.0, currentTime / totalDur);
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
+      ctx.fillRect(0, canvas.height - 8, canvas.width, 8);
+      ctx.fillStyle = '#3b82f6';
+      ctx.fillRect(0, canvas.height - 8, canvas.width * totalProg, 8);
+    }
+
+    // Word-wrap caption text onto bottom third, centered vertically around y
     function wrapText(context, text, x, y, maxWidth, lineHeight) {
       const words = text.split(' ');
       let line = '';
@@ -1087,440 +759,286 @@
       }
     }
 
-    function renderPreviewFrame(currentTime) {
-      const canvas = document.getElementById("preview-canvas");
-      const ctx = canvas.getContext("2d");
-      const W = canvas.width;  // 1080
-      const H = canvas.height; // 1920
-
-      // 1. Black background
-      ctx.fillStyle = "#000000";
-      ctx.fillRect(0, 0, W, H);
-
-      if (!sceneImages || sceneImages.length === 0 || sceneTimings.length < 2) {
-        ctx.fillStyle = "#888888";
-        ctx.font = "bold 36px sans-serif";
-        ctx.textAlign = "center";
-        ctx.fillText("Load audio, script, and images to preview", W / 2, H / 2);
-        return;
-      }
-
-      // 2. Find active scene index
-      let sceneIdx = 0;
-      for (let i = 0; i < sceneTimings.length - 1; i++) {
-        if (currentTime >= sceneTimings[i] && currentTime < sceneTimings[i + 1]) {
-          sceneIdx = i;
-          break;
-        }
-        if (i === sceneTimings.length - 2) {
-          sceneIdx = i;
-        }
-      }
-
-      const sceneStart = sceneTimings[sceneIdx] || 0;
-      const sceneEnd = sceneTimings[sceneIdx + 1] || (sceneStart + 3);
-      const sceneDuration = Math.max(0.1, sceneEnd - sceneStart);
-      const sceneT = Math.max(0, currentTime - sceneStart);
-      const progress = Math.min(1.0, Math.max(0, sceneT / sceneDuration));
-
-      // 3. Ken Burns Calculation (1.0 -> 1.1 continuous zoom-in)
-      const scale = 1.0 + 0.10 * progress;
-
-      // 4. Draw Scaled Image (Cover full 9:16 vertical canvas)
-      const img = sceneImages[sceneIdx];
-      if (img && img.complete) {
-        const hRatio = W / img.width;
-        const vRatio = H / img.height;
-        const ratio = Math.max(hRatio, vRatio) * scale;
-        const centerShiftX = (W - img.width * ratio) / 2;
-        const centerShiftY = (H - img.height * ratio) / 2;
-
-        ctx.save();
-        ctx.drawImage(img, 0, 0, img.width, img.height, centerShiftX, centerShiftY, img.width * ratio, img.height * ratio);
-        ctx.restore();
-      }
-
-      // 5. Draw Subtitles (Full sentence bold white with heavy black stroke on bottom third)
-      const scriptText = sceneScriptLines[sceneIdx] || "";
-      if (scriptText) {
-        ctx.save();
-        const fontSize = Math.round(W * 0.048); // ~52px on 1080x1920
-        const lineHeight = Math.round(fontSize * 1.34);
-        const strokeW = Math.max(4, Math.round(fontSize * 0.14));
-
-        ctx.font = `bold ${fontSize}px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`;
-        ctx.textAlign = "center";
-        ctx.fillStyle = "#FFFFFF";
-        ctx.shadowColor = "rgba(0, 0, 0, 0.95)";
-        ctx.shadowBlur = 14;
-        ctx.lineWidth = strokeW;
-        ctx.strokeStyle = "#000000";
-        ctx.lineJoin = "round";
-
-        // Word-wrap caption text onto bottom third
-        wrapText(ctx, scriptText, W / 2, H - 280, W - 140, lineHeight);
-        ctx.restore();
-      }
-
-      // 6. Subtle Master Story Progress Indicator at very bottom
-      const totalDuration = (audioBuffer && audioBuffer.duration) ? audioBuffer.duration : 1;
-      const totalProgress = Math.min(1.0, currentTime / totalDuration);
-      ctx.fillStyle = "rgba(255, 255, 255, 0.2)";
-      ctx.fillRect(0, H - 8, W, 8);
-      ctx.fillStyle = "#3b82f6";
-      ctx.fillRect(0, H - 8, W * totalProgress, 8);
-    }
-
-    // =========================================================================
-    // Phase 1 Handlers: Ingestion of User Files
-    // =========================================================================
-    async function handleScriptFile(file) {
-      if (!file) return;
-      const text = await file.text();
-      parseScriptText(text);
-      document.getElementById("drop-script").classList.add("loaded");
-      document.getElementById("status-script").textContent = `✓ Loaded (${sceneScriptLines.length} lines)`;
-      document.getElementById("status-script").className = "drop-status ok";
-    }
-
-    function parseScriptText(text) {
-      const lines = text.split("\n")
-        .map(l => l.trim())
-        .filter(l => l.length > 0 && !l.startsWith("#"));
-
-      sceneScriptLines = lines.map(l => {
-        // Strip Line 1: prefix if present
-        return l.replace(/^Line\s*\d+:\s*/i, "");
-      });
-
-      if (audioBuffer && sceneScriptLines.length > 0) {
-        sceneTimings = detectSilenceCutPoints(audioBuffer, sceneScriptLines.length);
+    // Playback loop
+    function updateLoop() {
+      if (!audioElement.paused && !audioElement.ended) {
+        const t = audioElement.currentTime;
+        timeDisplay.textContent = `${formatTime(t)} / ${formatTime(audioBuffer.duration)}`;
+        drawFrame(t);
         drawWaveform();
-      }
-      updateMatrixTable();
-      renderPreviewFrame(getCurrentAudioTime());
-    }
-
-    async function handleAudioFile(file) {
-      if (!file) return;
-      const ctx = getAudioContext();
-      const arrayBuf = await file.arrayBuffer();
-      audioBuffer = await ctx.decodeAudioData(arrayBuf);
-
-      document.getElementById("drop-audio").classList.add("loaded");
-      document.getElementById("status-audio").textContent = `✓ Decoded (${audioBuffer.duration.toFixed(1)}s)`;
-      document.getElementById("status-audio").className = "drop-status ok";
-      document.getElementById("duration-badge").textContent = `Duration: ${audioBuffer.duration.toFixed(1)}s`;
-
-      const targetCount = sceneScriptLines.length > 0 ? sceneScriptLines.length : 4;
-      sceneTimings = detectSilenceCutPoints(audioBuffer, targetCount);
-
-      drawWaveform();
-      updateMatrixTable();
-      renderPreviewFrame(0);
-    }
-
-    async function handleVisualsFiles(files) {
-      if (!files || files.length === 0) return;
-
-      sceneImages = [];
-      const fileList = Array.from(files);
-
-      // Check if .zip file
-      const zipFile = fileList.find(f => f.name.toLowerCase().endsWith(".zip"));
-      if (zipFile) {
-        await unpackZipInBrowser(zipFile);
+        animFrameId = requestAnimationFrame(updateLoop);
       } else {
-        // Multi-image selection
-        const imageFiles = fileList.filter(f => f.type.startsWith("image/") || /\.(png|jpe?g|webp)$/i.test(f.name));
-        imageFiles.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
-
-        for (const f of imageFiles) {
-          const img = await loadImageFromFile(f);
-          sceneImages.push(img);
-        }
+        isPlaying = false;
+        playIcon.textContent = '▶';
+        playText.textContent = 'Play';
       }
-
-      document.getElementById("drop-visuals").classList.add("loaded");
-      document.getElementById("status-visuals").textContent = `✓ ${sceneImages.length} image(s) loaded`;
-      document.getElementById("status-visuals").className = "drop-status ok";
-
-      updateMatrixTable();
-      renderPreviewFrame(getCurrentAudioTime());
     }
 
-    function loadImageFromFile(file) {
-      return new Promise((resolve) => {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          const img = new Image();
-          img.onload = () => resolve(img);
-          img.src = e.target.result;
-        };
-        reader.readAsDataURL(file);
-      });
-    }
-
-    // Pure Client-Side ZIP Unpacker using DecompressionStream
-    async function unpackZipInBrowser(zipBlob) {
-      const buffer = await zipBlob.arrayBuffer();
-      const view = new DataView(buffer);
-      let offset = 0;
-      const extractedImages = [];
-
-      while (offset < buffer.byteLength - 4) {
-        const sig = view.getUint32(offset, true);
-        if (sig !== 0x04034b50) break; // End of local files
-
-        const compMethod = view.getUint16(offset + 8, true);
-        const compSize = view.getUint32(offset + 18, true);
-        const nameLen = view.getUint16(offset + 26, true);
-        const extraLen = view.getUint16(offset + 28, true);
-
-        const nameBytes = new Uint8Array(buffer, offset + 30, nameLen);
-        const fileName = new TextDecoder().decode(nameBytes);
-        const dataOffset = offset + 30 + nameLen + extraLen;
-
-        if (!fileName.endsWith("/") && /\.(png|jpe?g|webp)$/i.test(fileName)) {
-          const compressedData = new Uint8Array(buffer, dataOffset, compSize);
-          let rawData = compressedData;
-
-          if (compMethod === 8 && typeof DecompressionStream !== "undefined") {
-            try {
-              const ds = new DecompressionStream("deflate-raw");
-              const writer = ds.writable.getWriter();
-              writer.write(compressedData);
-              writer.close();
-              const response = new Response(ds.readable);
-              const decompressedBuffer = await response.arrayBuffer();
-              rawData = new Uint8Array(decompressedBuffer);
-            } catch(e) {
-              console.warn("Decompression fallback:", e);
-            }
-          }
-
-          const blob = new Blob([rawData], { type: "image/png" });
-          const img = await new Promise(r => {
-            const el = new Image();
-            el.onload = () => r(el);
-            el.src = URL.createObjectURL(blob);
-          });
-          extractedImages.push({ name: fileName, img });
-        }
-
-        offset = dataOffset + compSize;
+    playBtn.addEventListener('click', () => {
+      getAudioContext();
+      if (audioElement.paused) {
+        audioElement.play();
+        isPlaying = true;
+        playIcon.textContent = '⏸';
+        playText.textContent = 'Pause';
+        updateLoop();
+      } else {
+        audioElement.pause();
+        isPlaying = false;
+        playIcon.textContent = '▶';
+        playText.textContent = 'Play';
+        cancelAnimationFrame(animFrameId);
       }
+    });
 
-      extractedImages.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
-      sceneImages = extractedImages.map(item => item.img);
-    }
+    audioElement.addEventListener('ended', () => {
+      isPlaying = false;
+      playIcon.textContent = '▶';
+      playText.textContent = 'Play';
+    });
 
     // =========================================================================
-    // Built-In "Scout & Jem" Demo Generator
+    // In-Browser MediaRecorder Export with Live Progress Bar
     // =========================================================================
-    async function loadScoutAndJemDemo() {
-      const ctx = getAudioContext();
+    exportBtn.addEventListener('click', async () => {
+      if (!audioBuffer) return;
+      audioElement.pause();
+      audioElement.currentTime = 0;
+      isPlaying = false;
+      playIcon.textContent = '▶';
+      playText.textContent = 'Play';
 
-      // 1. Script Lines (Exact user specification)
-      sceneScriptLines = [
-        "A young girl named Scout grows up in a quiet southern town.",
-        "She spends her days exploring with her older brother Jem.",
-        "But the town hides a dark secret behind closed doors.",
-        "An innocent man is accused of a crime he did not commit."
-      ];
+      exportBtn.disabled = true;
+      playBtn.disabled = true;
+      exportProgressContainer.classList.remove('hidden');
 
-      // 2. Synthesize 24.0s Narration Audio with -35dB silence gaps at exactly 5.4s, 11.8s, 17.2s
-      const sampleRate = 44100;
-      const totalDuration = 24.0;
-      const totalSamples = sampleRate * totalDuration;
-      const audioBuf = ctx.createBuffer(1, totalSamples, sampleRate);
-      const data = audioBuf.getChannelData(0);
+      const videoStream = canvas.captureStream(30);
+      const actx = getAudioContext();
+      const sourceNode = actx.createBufferSource();
+      sourceNode.buffer = audioBuffer;
 
-      // Cuts specified by user: 0.0s, 5.4s, 11.8s, 17.2s, 24.0s
-      const cuts = [0.0, 5.4, 11.8, 17.2, 24.0];
-      const freqs = [220, 261.63, 196, 174.61]; // warm acoustic chords
+      const dest = actx.createMediaStreamDestination();
+      sourceNode.connect(dest);
 
-      for (let s = 0; s < 4; s++) {
-        const startSamp = Math.floor(cuts[s] * sampleRate);
-        const endSamp = Math.floor((cuts[s + 1] - 0.45) * sampleRate); // 0.45s breathing gap
-        const chordF = freqs[s];
-
-        for (let i = startSamp; i < endSamp; i++) {
-          const t = (i - startSamp) / sampleRate;
-          const tone = 0.3 * Math.sin(2 * Math.PI * chordF * t)
-                     + 0.15 * Math.sin(2 * Math.PI * (chordF * 1.5) * t)
-                     + 0.1 * Math.sin(2 * Math.PI * (chordF * 2.0) * t);
-          // Cadence modulation
-          const voiceCadence = 0.85 + 0.15 * Math.sin(2 * Math.PI * 1.8 * t);
-          data[i] = tone * voiceCadence * Math.min(1.0, t / 0.1);
-        }
-      }
-
-      audioBuffer = audioBuf;
-
-      // 3. Generate 4 Stylized Scout & Jem Scene Illustrations
-      const demoScenes = [
-        { title: "Scout Intro", symbol: "👒", bg: "#F8EBD8", accent: "#C87D45" },
-        { title: "Scout & Jem", symbol: "🌳", bg: "#E5EDDB", accent: "#4E8752" },
-        { title: "Shadowy House", symbol: "🏚️", bg: "#E2E5ED", accent: "#4A6185" },
-        { title: "Courtroom", symbol: "⚖️", bg: "#EFE0DD", accent: "#A84C38" }
-      ];
-
-      sceneImages = [];
-      for (let i = 0; i < demoScenes.length; i++) {
-        const c = document.createElement("canvas");
-        c.width = 1080;
-        c.height = 1920;
-        const g = c.getContext("2d");
-
-        // Vertical gradient background
-        const grad = g.createLinearGradient(0, 0, 0, 1920);
-        grad.addColorStop(0, demoScenes[i].bg);
-        grad.addColorStop(1, demoScenes[i].accent + "55");
-        g.fillStyle = grad;
-        g.fillRect(0, 0, 1080, 1920);
-
-        // Decorative background aura circle
-        g.fillStyle = "rgba(255, 255, 255, 0.45)";
-        g.beginPath();
-        g.arc(540, 800, 320, 0, Math.PI * 2);
-        g.fill();
-
-        // Symbol Artwork
-        g.font = "240px sans-serif";
-        g.textAlign = "center";
-        g.textBaseline = "middle";
-        g.fillText(demoScenes[i].symbol, 540, 780);
-
-        // Scene Title Badge
-        g.fillStyle = demoScenes[i].accent;
-        g.font = "bold 44px -apple-system, sans-serif";
-        g.fillText(`SCENE 0${i + 1}: ${demoScenes[i].title.toUpperCase()}`, 540, 1040);
-
-        const img = new Image();
-        img.src = c.toDataURL("image/png");
-        await new Promise(r => img.onload = r);
-        sceneImages.push(img);
-      }
-
-      // Update Timings with exact silence gaps
-      sceneTimings = cuts;
-
-      // Update UI
-      document.getElementById("drop-script").classList.add("loaded");
-      document.getElementById("status-script").textContent = "✓ Scout & Jem (4 Lines)";
-      document.getElementById("status-script").className = "drop-status ok";
-
-      document.getElementById("drop-audio").classList.add("loaded");
-      document.getElementById("status-audio").textContent = "✓ Narration (24.0s)";
-      document.getElementById("status-audio").className = "drop-status ok";
-
-      document.getElementById("drop-visuals").classList.add("loaded");
-      document.getElementById("status-visuals").textContent = "✓ 4 Illustrations";
-      document.getElementById("status-visuals").className = "drop-status ok";
-
-      document.getElementById("duration-badge").textContent = "Duration: 24.0s";
-
-      drawWaveform();
-      updateMatrixTable();
-      seekTo(0);
-    }
-
-    // =========================================================================
-    // Phase 5: One-Click Master Video Export & Download (MediaRecorder)
-    // =========================================================================
-    async function exportMasterVideo() {
-      if (!audioBuffer) {
-        alert("Please load or generate an audio track first.");
-        return;
-      }
-
-      const btn = document.getElementById("btn-export");
-      const progressBox = document.getElementById("export-progress");
-      const fill = document.getElementById("export-fill");
-      const label = document.getElementById("export-status-label");
-      const percentEl = document.getElementById("export-percent");
-
-      btn.disabled = true;
-      progressBox.style.display = "flex";
-      pause();
-
-      const canvas = document.getElementById("preview-canvas");
-      const stream = canvas.captureStream(30);
-
-      // Mix audio track into stream
-      const ctx = getAudioContext();
-      const dest = ctx.createMediaStreamDestination();
-      const source = ctx.createBufferSource();
-      source.buffer = audioBuffer;
-      source.connect(dest);
-
-      // Combine video track and audio track
-      const combinedTracks = [
-        ...stream.getVideoTracks(),
+      const combined = new MediaStream([
+        ...videoStream.getVideoTracks(),
         ...dest.stream.getAudioTracks()
-      ];
-      const combinedStream = new MediaStream(combinedTracks);
+      ]);
 
-      const mimeType = MediaRecorder.isTypeSupported("video/mp4;codecs=avc1")
-        ? "video/mp4;codecs=avc1"
-        : (MediaRecorder.isTypeSupported("video/webm;codecs=vp9") ? "video/webm;codecs=vp9" : "video/webm");
+      const mimeType = MediaRecorder.isTypeSupported('video/mp4;codecs=avc1')
+        ? 'video/mp4;codecs=avc1'
+        : (MediaRecorder.isTypeSupported('video/webm;codecs=vp9') ? 'video/webm;codecs=vp9' : 'video/webm');
 
-      const recorder = new MediaRecorder(combinedStream, {
+      const recorder = new MediaRecorder(combined, {
         mimeType: mimeType,
-        videoBitsPerSecond: 6000000 // 6 Mbps for crisp 1080x1920
+        videoBitsPerSecond: 5000000
       });
-
       const chunks = [];
-      recorder.ondataavailable = (e) => {
+
+      recorder.ondataavailable = e => {
         if (e.data && e.data.size > 0) chunks.push(e.data);
       };
 
       recorder.onstop = () => {
+        const ext = mimeType.includes('mp4') ? 'mp4' : 'webm';
         const blob = new Blob(chunks, { type: mimeType });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        const ext = mimeType.includes("mp4") ? "mp4" : "webm";
-        a.download = `scout_and_jem_story.${ext}`;
-        document.body.appendChild(a);
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `story_short.${ext}`;
         a.click();
-        document.body.removeChild(a);
 
-        btn.disabled = false;
-        label.textContent = "Export Complete! Download initiated.";
-        percentEl.textContent = "100%";
-        fill.style.width = "100%";
+        exportBtn.disabled = false;
+        playBtn.disabled = false;
+        exportLabel.textContent = 'Export completed! Downloading...';
+        exportPercent.textContent = '100%';
+        exportBar.style.width = '100%';
+        statusEl.innerHTML = `<span class="inline-block w-2 h-2 rounded-full bg-emerald-400"></span> Video exported successfully!`;
       };
 
       recorder.start();
-      source.start();
+      sourceNode.start(0);
 
-      const duration = audioBuffer.duration;
       const startTime = performance.now();
+      const duration = audioBuffer.duration;
 
       function exportLoop() {
         const elapsed = (performance.now() - startTime) / 1000;
-        const progress = Math.min(1.0, elapsed / duration);
-
-        renderPreviewFrame(elapsed);
-        fill.style.width = `${Math.round(progress * 100)}%`;
-        percentEl.textContent = `${Math.round(progress * 100)}%`;
+        const prog = Math.min(1.0, elapsed / duration);
+        exportBar.style.width = `${Math.round(prog * 100)}%`;
+        exportPercent.textContent = `${Math.round(prog * 100)}%`;
 
         if (elapsed < duration) {
+          drawFrame(elapsed);
           requestAnimationFrame(exportLoop);
         } else {
-          source.stop();
           recorder.stop();
+          sourceNode.stop();
+        }
+      }
+      exportLoop();
+    });
+
+    // =========================================================================
+    // 1-Click Load Demo Story (Instant Testing)
+    // =========================================================================
+    demoBtn.addEventListener('click', async () => {
+      await loadDemoStory();
+    });
+
+    async function loadDemoStory() {
+      statusEl.innerHTML = `<span class="inline-block w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span> Synthesizing demo audio & artwork...`;
+      
+      const actx = getAudioContext();
+      const sampleRate = actx.sampleRate;
+      const totalSec = 22.0;
+      const cuts = [0, 5.2, 10.8, 16.5, 22.0];
+      const audioBuf = actx.createBuffer(1, Math.floor(sampleRate * totalSec), sampleRate);
+      const data = audioBuf.getChannelData(0);
+
+      const demoLines = [
+        "In a quiet village nestled between rolling hills, a young baker named Elsa begins her day before sunrise.",
+        "But today, the magical yeast that makes her bread rise has gone missing from her pantry.",
+        "Elsa must venture into the Enchanted Forest to find the legendary Golden Yeast.",
+        "With the Golden Yeast restored, Elsa bakes the most magnificent bread the village has ever seen."
+      ];
+
+      // Synthesize 4 melodic chords with 0.4s breathing gaps
+      const freqs = [220, 261.6, 293.7, 329.6];
+      for (let s = 0; s < demoLines.length; s++) {
+        const startSamp = Math.floor(cuts[s] * sampleRate);
+        const endSamp = Math.floor((cuts[s + 1] - 0.45) * sampleRate);
+        const chordF = freqs[s];
+
+        for (let i = startSamp; i < endSamp; i++) {
+          const t = (i - startSamp) / sampleRate;
+          const tone = 0.28 * Math.sin(2 * Math.PI * chordF * t)
+                     + 0.14 * Math.sin(2 * Math.PI * (chordF * 1.5) * t)
+                     + 0.08 * Math.sin(2 * Math.PI * (chordF * 2.0) * t);
+          const cadence = 0.85 + 0.15 * Math.sin(2 * Math.PI * 1.8 * t);
+          data[i] = tone * cadence * Math.min(1.0, t / 0.08);
         }
       }
 
-      requestAnimationFrame(exportLoop);
+      audioBuffer = audioBuf;
+      audioDurLabel.textContent = `${totalSec.toFixed(1)}s`;
+
+      // Synthesize WAV blob for audioElement
+      const wavBlob = audioBufferToWavBlob(audioBuf);
+      audioElement.src = URL.createObjectURL(wavBlob);
+
+      // Generate 4 vertical 1080x1920 artwork cards
+      const demoArtSpecs = [
+        { title: "Dawn at the Bakery", symbol: "🥐", bg: "#d97706", accent: "#f59e0b" },
+        { title: "The Empty Pantry", symbol: "✨", bg: "#2563eb", accent: "#38bdf8" },
+        { title: "The Enchanted Forest", symbol: "🌲", bg: "#059669", accent: "#34d399" },
+        { title: "The Golden Loaf", symbol: "🍞", bg: "#b45309", accent: "#fbbf24" }
+      ];
+
+      uploadedImageObjects = [];
+      for (let i = 0; i < demoArtSpecs.length; i++) {
+        const spec = demoArtSpecs[i];
+        const c = document.createElement('canvas');
+        c.width = 1080;
+        c.height = 1920;
+        const g = c.getContext('2d');
+
+        // Vertical gradient
+        const grad = g.createLinearGradient(0, 0, 0, 1920);
+        grad.addColorStop(0, '#0f172a');
+        grad.addColorStop(0.5, spec.bg);
+        grad.addColorStop(1, '#090d16');
+        g.fillStyle = grad;
+        g.fillRect(0, 0, 1080, 1920);
+
+        // Center artistic aura
+        g.fillStyle = 'rgba(255, 255, 255, 0.15)';
+        g.beginPath();
+        g.arc(540, 780, 320, 0, Math.PI * 2);
+        g.fill();
+
+        // Symbol
+        g.font = '240px sans-serif';
+        g.textAlign = 'center';
+        g.textBaseline = 'middle';
+        g.fillText(spec.symbol, 540, 760);
+
+        // Tag
+        g.fillStyle = spec.accent;
+        g.font = 'bold 44px -apple-system, sans-serif';
+        g.fillText(spec.title.toUpperCase(), 540, 1060);
+
+        const img = new Image();
+        img.src = c.toDataURL('image/png');
+        await img.decode();
+        uploadedImageObjects.push(img);
+      }
+
+      // Populate script textarea
+      document.getElementById('scriptInput').value = demoLines.join('\n');
+      scriptCountLabel.textContent = `${demoLines.length} line(s)`;
+      imagesCountLabel.textContent = `${uploadedImageObjects.length} image(s)`;
+
+      // Set detected pauses & cuts
+      detectedPauses = [5.0, 10.6, 16.3];
+      sceneCuts = cuts.slice();
+
+      rebuildScenesFromCuts(demoLines);
+      document.getElementById('waveformEmptyPrompt').style.display = 'none';
+      drawWaveform();
+      seekTo(0);
+      playBtn.disabled = false;
+      exportBtn.disabled = false;
+      updateAssetBadges();
+      statusEl.innerHTML = `<span class="inline-block w-2 h-2 rounded-full bg-emerald-400"></span> Demo loaded: 4 scenes, 22.0s audio ready!`;
     }
 
-    // Auto-initialize demo on page load
-    window.addEventListener("DOMContentLoaded", () => {
-      loadScoutAndJemDemo();
+    // Helper: Convert AudioBuffer to WAV Blob
+    function audioBufferToWavBlob(buffer) {
+      const numOfChan = buffer.numberOfChannels;
+      const length = buffer.length * numOfChan * 2 + 44;
+      const out = new DataView(new ArrayBuffer(length));
+      const channels = [];
+      let sample = 0;
+      let offset = 0;
+      let pos = 0;
+
+      function setUint16(data) { out.setUint16(pos, data, true); pos += 2; }
+      function setUint32(data) { out.setUint32(pos, data, true); pos += 4; }
+
+      setUint32(0x46464952); // "RIFF"
+      setUint32(length - 8);
+      setUint32(0x45564157); // "WAVE"
+      setUint32(0x20746d66); // "fmt " chunk
+      setUint32(16);
+      setUint16(1);          // PCM
+      setUint16(numOfChan);
+      setUint32(buffer.sampleRate);
+      setUint32(buffer.sampleRate * 2 * numOfChan);
+      setUint16(numOfChan * 2);
+      setUint16(16);         // 16-bit
+      setUint32(0x61746164); // "data" chunk
+      setUint32(length - pos - 4);
+
+      for (let i = 0; i < buffer.numberOfChannels; i++) {
+        channels.push(buffer.getChannelData(i));
+      }
+
+      while (offset < buffer.length) {
+        for (let i = 0; i < numOfChan; i++) {
+          sample = Math.max(-1, Math.min(1, channels[i][offset]));
+          sample = (0.5 + sample < 0 ? sample * 32768 : sample * 32767) | 0;
+          out.setInt16(pos, sample, true);
+          pos += 2;
+        }
+        offset++;
+      }
+      return new Blob([out.buffer], { type: 'audio/wav' });
+    }
+
+    // Initialize layout and load demo on start
+    window.addEventListener('DOMContentLoaded', () => {
+      resizeWaveform();
+      loadDemoStory();
     });
   </script>
 </body>
