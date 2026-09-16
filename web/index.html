@@ -1057,43 +1057,55 @@
       animationFrameId = requestAnimationFrame(loop);
     }
 
+    // Word-wrap caption text onto bottom third (Shorts/TikTok style)
+    function wrapText(context, text, x, y, maxWidth, lineHeight) {
+      const words = text.split(' ');
+      let line = '';
+      let lines = [];
+
+      for (let n = 0; n < words.length; n++) {
+        const testLine = line + words[n] + ' ';
+        const metrics = context.measureText(testLine);
+        if (metrics.width > maxWidth && n > 0) {
+          lines.push(line.trim());
+          line = words[n] + ' ';
+        } else {
+          line = testLine;
+        }
+      }
+      if (line.trim().length > 0) {
+        lines.push(line.trim());
+      }
+
+      const displayLines = lines.slice(0, 3);
+      const totalH = displayLines.length * lineHeight;
+      const startY = y - (totalH / 2) + (lineHeight / 2);
+
+      for (let k = 0; k < displayLines.length; k++) {
+        context.strokeText(displayLines[k], x, startY + k * lineHeight);
+        context.fillText(displayLines[k], x, startY + k * lineHeight);
+      }
+    }
+
     function renderPreviewFrame(currentTime) {
       const canvas = document.getElementById("preview-canvas");
       const ctx = canvas.getContext("2d");
       const W = canvas.width;  // 1080
       const H = canvas.height; // 1920
 
-      // 1. Warm Editorial Background Page
-      ctx.fillStyle = "#F8F5EE";
+      // 1. Black background
+      ctx.fillStyle = "#000000";
       ctx.fillRect(0, 0, W, H);
 
-      // Subtle top/bottom atmospheric vignette
-      const grad = ctx.createLinearGradient(0, 0, 0, H);
-      grad.addColorStop(0, "rgba(235, 228, 218, 0.4)");
-      grad.addColorStop(0.3, "rgba(248, 245, 238, 0)");
-      grad.addColorStop(0.7, "rgba(248, 245, 238, 0)");
-      grad.addColorStop(1, "rgba(230, 222, 210, 0.45)");
-      ctx.fillStyle = grad;
-      ctx.fillRect(0, 0, W, H);
+      if (!sceneImages || sceneImages.length === 0 || sceneTimings.length < 2) {
+        ctx.fillStyle = "#888888";
+        ctx.font = "bold 36px sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillText("Load audio, script, and images to preview", W / 2, H / 2);
+        return;
+      }
 
-      // Top Editorial Brand Badge
-      ctx.save();
-      ctx.fillStyle = "#EAE4D8";
-      ctx.beginPath();
-      ctx.roundRect(W / 2 - 180, 75, 360, 48, 24);
-      ctx.fill();
-      ctx.strokeStyle = "#D4CBBD";
-      ctx.lineWidth = 2;
-      ctx.stroke();
-
-      ctx.fillStyle = "#706B62";
-      ctx.font = "bold 20px -apple-system, sans-serif";
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.fillText("PICTURE-BOOK MOTION", W / 2, 99);
-      ctx.restore();
-
-      // Find active scene index
+      // 2. Find active scene index
       let sceneIdx = 0;
       for (let i = 0; i < sceneTimings.length - 1; i++) {
         if (currentTime >= sceneTimings[i] && currentTime < sceneTimings[i + 1]) {
@@ -1109,159 +1121,54 @@
       const sceneEnd = sceneTimings[sceneIdx + 1] || (sceneStart + 3);
       const sceneDuration = Math.max(0.1, sceneEnd - sceneStart);
       const sceneT = Math.max(0, currentTime - sceneStart);
-      const progress = Math.min(1.0, sceneT / sceneDuration);
+      const progress = Math.min(1.0, Math.max(0, sceneT / sceneDuration));
 
-      const ch = sceneChoreography[sceneIdx] || { entrance: "pop-in", motion: "push-in" };
+      // 3. Ken Burns Calculation (1.0 -> 1.1 continuous zoom-in)
+      const scale = 1.0 + 0.10 * progress;
 
-      // 2. Compute Picture-Book Motion Transforms
-      let scale = 1.0;
-      let panX = 0;
-      let panY = 0;
-      let opacity = 1.0;
-
-      // Entrance calculation
-      if (ch.entrance === "pop-in") {
-        if (sceneT < 0.35) {
-          const normT = sceneT / 0.35;
-          scale = 0.94 + 0.06 * Math.sin(normT * Math.PI * 0.5);
-        }
-      } else if (ch.entrance === "dissolve") {
-        if (sceneT < 0.20) {
-          opacity = sceneT / 0.20;
-        }
-      } else if (ch.entrance === "zoom-pop") {
-        if (sceneT < 0.35) {
-          const normT = sceneT / 0.35;
-          scale = 1.06 - 0.06 * Math.sin(normT * Math.PI * 0.5);
-        }
-      }
-
-      // Continuous Motion calculation
-      if (ch.motion === "push-in") {
-        // Slow intentional push: +4% zoom over the scene
-        scale *= (1.0 + 0.04 * progress);
-      } else if (ch.motion === "pan") {
-        // Gentle horizontal pan (+30px slide)
-        panX = (progress - 0.5) * 40;
-      } else if (ch.motion === "float") {
-        // Handheld subtle float (harmonic breathing sway)
-        panY = Math.sin(sceneT * Math.PI * 1.5) * 5;
-        scale *= (1.0 + 0.015 * Math.sin(sceneT * Math.PI * 1.2));
-      }
-
-      // 3. Render Center Artwork Card
-      const baseArtworkSize = 860;
-      const centerX = W / 2 + panX;
-      const centerY = 660 + panY;
-      const currentSize = baseArtworkSize * scale;
-
-      ctx.save();
-      ctx.globalAlpha = opacity;
-
-      // Card Drop Shadow
-      ctx.fillStyle = "rgba(0, 0, 0, 0.08)";
-      ctx.beginPath();
-      ctx.roundRect(W / 2 - baseArtworkSize / 2 + 8, 660 - baseArtworkSize / 2 + 16, baseArtworkSize, baseArtworkSize, 36);
-      ctx.fill();
-
-      // Card Base
-      ctx.fillStyle = "#FFFFFF";
-      ctx.beginPath();
-      ctx.roundRect(centerX - currentSize / 2, centerY - currentSize / 2, currentSize, currentSize, 36);
-      ctx.fill();
-      ctx.clip();
-
+      // 4. Draw Scaled Image (Cover full 9:16 vertical canvas)
       const img = sceneImages[sceneIdx];
       if (img && img.complete) {
-        ctx.drawImage(img, centerX - currentSize / 2, centerY - currentSize / 2, currentSize, currentSize);
+        const hRatio = W / img.width;
+        const vRatio = H / img.height;
+        const ratio = Math.max(hRatio, vRatio) * scale;
+        const centerShiftX = (W - img.width * ratio) / 2;
+        const centerShiftY = (H - img.height * ratio) / 2;
+
+        ctx.save();
+        ctx.drawImage(img, 0, 0, img.width, img.height, centerShiftX, centerShiftY, img.width * ratio, img.height * ratio);
+        ctx.restore();
       }
 
-      ctx.restore();
+      // 5. Draw Subtitles (Full sentence bold white with heavy black stroke on bottom third)
+      const scriptText = sceneScriptLines[sceneIdx] || "";
+      if (scriptText) {
+        ctx.save();
+        const fontSize = Math.round(W * 0.048); // ~52px on 1080x1920
+        const lineHeight = Math.round(fontSize * 1.34);
+        const strokeW = Math.max(4, Math.round(fontSize * 0.14));
 
-      // Outer Decorative Card Border
-      ctx.strokeStyle = "#DDD5C7";
-      ctx.lineWidth = 4;
-      ctx.beginPath();
-      ctx.roundRect(W / 2 - baseArtworkSize / 2 - 2, 660 - baseArtworkSize / 2 - 2, baseArtworkSize + 4, baseArtworkSize + 4, 38);
-      ctx.stroke();
-
-      // 4. Lower-Third Dynamic Caption Card
-      const cardMargin = 80;
-      const cardTop = 1180;
-      const cardBottom = 1750;
-      const cardW = W - cardMargin * 2;
-      const cardH = cardBottom - cardTop;
-
-      // Dark Charcoal Contrast Container
-      ctx.fillStyle = "#20222A";
-      ctx.beginPath();
-      ctx.roundRect(cardMargin, cardTop, cardW, cardH, 40);
-      ctx.fill();
-
-      ctx.strokeStyle = "#353948";
-      ctx.lineWidth = 3;
-      ctx.stroke();
-
-      // Scene Badge
-      ctx.fillStyle = "#EB8C3C";
-      ctx.beginPath();
-      ctx.roundRect(W / 2 - 120, cardTop + 45, 240, 48, 24);
-      ctx.fill();
-
-      ctx.fillStyle = "#FFFFFF";
-      ctx.font = "bold 20px -apple-system, sans-serif";
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.fillText(`SCENE ${sceneIdx + 1} OF ${sceneTimings.length - 1}`, W / 2, cardTop + 69);
-
-      // Two-Beat Dynamic Subtitles
-      const fullLine = sceneScriptLines[sceneIdx] || "";
-      const words = fullLine.split(" ");
-      const midWord = Math.ceil(words.length / 2);
-      const beatA = words.slice(0, midWord).join(" ");
-      const beatB = words.slice(midWord).join(" ");
-
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-
-      // Display active phrase with highlight
-      if (progress < 0.5) {
-        ctx.font = "bold 44px -apple-system, sans-serif";
+        ctx.font = `bold ${fontSize}px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`;
+        ctx.textAlign = "center";
         ctx.fillStyle = "#FFFFFF";
-        ctx.fillText(`"${beatA}"`, W / 2, cardTop + 200);
+        ctx.shadowColor = "rgba(0, 0, 0, 0.95)";
+        ctx.shadowBlur = 14;
+        ctx.lineWidth = strokeW;
+        ctx.strokeStyle = "#000000";
+        ctx.lineJoin = "round";
 
-        ctx.font = "34px -apple-system, sans-serif";
-        ctx.fillStyle = "#888F9F";
-        ctx.fillText(beatB, W / 2, cardTop + 280);
-      } else {
-        ctx.font = "34px -apple-system, sans-serif";
-        ctx.fillStyle = "#888F9F";
-        ctx.fillText(`"${beatA}"`, W / 2, cardTop + 190);
-
-        ctx.font = "bold 44px -apple-system, sans-serif";
-        ctx.fillStyle = "#FFFFFF";
-        ctx.fillText(`${beatB}"`, W / 2, cardTop + 270);
+        // Word-wrap caption text onto bottom third
+        wrapText(ctx, scriptText, W / 2, H - 280, W - 140, lineHeight);
+        ctx.restore();
       }
 
-      // Scene Progress Bar
-      const barW = cardW - 140;
-      const barX = (W - barW) / 2;
-      const barY = cardBottom - 65;
-      ctx.fillStyle = "#383C4A";
-      ctx.beginPath();
-      ctx.roundRect(barX, barY, barW, 8, 4);
-      ctx.fill();
-
-      ctx.fillStyle = "#EB8C3C";
-      ctx.beginPath();
-      ctx.roundRect(barX, barY, Math.max(4, barW * progress), 8, 4);
-      ctx.fill();
-
-      // Master Story Progress Indicator at very bottom
+      // 6. Subtle Master Story Progress Indicator at very bottom
       const totalDuration = (audioBuffer && audioBuffer.duration) ? audioBuffer.duration : 1;
       const totalProgress = Math.min(1.0, currentTime / totalDuration);
-      ctx.fillStyle = "#EB8C3C";
-      ctx.fillRect(0, H - 10, W * totalProgress, 10);
+      ctx.fillStyle = "rgba(255, 255, 255, 0.2)";
+      ctx.fillRect(0, H - 8, W, 8);
+      ctx.fillStyle = "#3b82f6";
+      ctx.fillRect(0, H - 8, W * totalProgress, 8);
     }
 
     // =========================================================================
@@ -1463,34 +1370,32 @@
       for (let i = 0; i < demoScenes.length; i++) {
         const c = document.createElement("canvas");
         c.width = 1080;
-        c.height = 1080;
+        c.height = 1920;
         const g = c.getContext("2d");
 
-        // Background
-        g.fillStyle = demoScenes[i].bg;
-        g.fillRect(0, 0, 1080, 1080);
+        // Vertical gradient background
+        const grad = g.createLinearGradient(0, 0, 0, 1920);
+        grad.addColorStop(0, demoScenes[i].bg);
+        grad.addColorStop(1, demoScenes[i].accent + "55");
+        g.fillStyle = grad;
+        g.fillRect(0, 0, 1080, 1920);
 
-        // Framed border
-        g.strokeStyle = demoScenes[i].accent;
-        g.lineWidth = 14;
-        g.strokeRect(60, 60, 960, 960);
-
-        // Inner Card
-        g.fillStyle = "#FFFFFF";
+        // Decorative background aura circle
+        g.fillStyle = "rgba(255, 255, 255, 0.45)";
         g.beginPath();
-        g.roundRect(100, 100, 880, 880, 40);
+        g.arc(540, 800, 320, 0, Math.PI * 2);
         g.fill();
 
         // Symbol Artwork
-        g.font = "180px sans-serif";
+        g.font = "240px sans-serif";
         g.textAlign = "center";
         g.textBaseline = "middle";
-        g.fillText(demoScenes[i].symbol, 540, 480);
+        g.fillText(demoScenes[i].symbol, 540, 780);
 
-        // Scene Title
+        // Scene Title Badge
         g.fillStyle = demoScenes[i].accent;
-        g.font = "bold 44px sans-serif";
-        g.fillText(`SCENE 0${i + 1}: ${demoScenes[i].title.toUpperCase()}`, 540, 720);
+        g.font = "bold 44px -apple-system, sans-serif";
+        g.fillText(`SCENE 0${i + 1}: ${demoScenes[i].title.toUpperCase()}`, 540, 1040);
 
         const img = new Image();
         img.src = c.toDataURL("image/png");

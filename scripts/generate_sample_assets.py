@@ -151,25 +151,7 @@ def generate_scene_image(scene_info: dict, out_path: Path):
     draw.text((width // 2, center_y), scene_info["symbol"], fill=accent, anchor="mm")
 
     # Scene Title
-    draw.text((width // 2, height - margin - 220), scene_info["title"], fill=accent, anchor="mm")
-
-    # Script excerpt snippet on card
-    script_text = scene_info["script"]
-    words = script_text.split()
-    lines = []
-    cur = []
-    for w in words:
-        cur.append(w)
-        if len(" ".join(cur)) > 42:
-            lines.append(" ".join(cur[:-1]))
-            cur = [w]
-    if cur:
-        lines.append(" ".join(cur))
-
-    text_y = height - margin - 150
-    for line in lines[:3]:
-        draw.text((width // 2, text_y), line, fill=(60, 60, 65), anchor="mm")
-        text_y += 36
+    draw.text((width // 2, height - margin - 120), scene_info["title"], fill=accent, anchor="mm")
 
     img.save(out_path, format="PNG", quality=95)
 

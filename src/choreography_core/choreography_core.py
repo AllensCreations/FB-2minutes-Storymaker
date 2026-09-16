@@ -39,6 +39,27 @@ class VisualChoreographer:
             self._image_cache[path_str] = img
         return self._image_cache[path_str]
 
+    def _get_font(self, size: int = 50) -> ImageFont.ImageFont:
+        """Loads a suitable bold TrueType font for subtitles, with fallbacks."""
+        candidates = [
+            "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
+            "/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf",
+            "/system/fonts/Roboto-Bold.ttf",
+            "/data/data/com.termux/files/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
+            "DejaVuSans-Bold.ttf",
+            "Roboto-Bold.ttf",
+            "Arial.ttf"
+        ]
+        for path in candidates:
+            try:
+                return ImageFont.truetype(path, size)
+            except Exception:
+                continue
+        try:
+            return ImageFont.load_default()
+        except Exception:
+            return None
+
     def _draw_text_wrapped(
         self,
         draw: ImageDraw.ImageDraw,
@@ -46,28 +67,50 @@ class VisualChoreographer:
         x: int,
         y: int,
         max_width: int,
-        font_color: Tuple[int, int, int],
-        line_height: int = 42
+        font_color: Tuple[int, int, int] = (255, 255, 255),
+        stroke_color: Tuple[int, int, int] = (0, 0, 0),
+        stroke_width: int = 5,
+        font_size: int = 50,
+        line_height: int = 68
     ) -> int:
-        """Draws word-wrapped text, centered at x, and returns total height."""
+        """Draws word-wrapped stroked subtitles, centered at x."""
+        font = self._get_font(font_size)
         words = text.split()
         lines: List[str] = []
         current: List[str] = []
 
-        # Approximate character width based on average font spacing
-        char_limit = max_width // 13
-
         for word in words:
             current.append(word)
-            if len(" ".join(current)) > char_limit:
+            test_line = " ".join(current)
+            if font and hasattr(draw, "textlength"):
+                w = draw.textlength(test_line, font=font)
+            elif font and hasattr(font, "getlength"):
+                w = font.getlength(test_line)
+            else:
+                w = len(test_line) * (font_size * 0.55)
+
+            if w > max_width and len(current) > 1:
                 lines.append(" ".join(current[:-1]))
                 current = [word]
+
         if current:
             lines.append(" ".join(current))
 
-        cur_y = y
-        for line in lines[:4]:  # Limit to 4 lines for clean lower-third layout
-            draw.text((x, cur_y), line, fill=font_color, anchor="mm")
+        display_lines = lines[:3]
+        total_h = len(display_lines) * line_height
+        start_y = y - (total_h // 2) + (line_height // 2)
+
+        cur_y = start_y
+        for line in display_lines:
+            draw.text(
+                (x, cur_y),
+                line,
+                font=font,
+                fill=font_color,
+                stroke_width=stroke_width,
+                stroke_fill=stroke_color,
+                anchor="mm"
+            )
             cur_y += line_height
 
         return cur_y - y
@@ -78,29 +121,12 @@ class VisualChoreographer:
         scene_t: float
     ) -> Tuple[float, float, float]:
         """
-        Computes (scale, offset_x, offset_y) for Picture-Book Motion.
-        Includes Spring Pop entrance and Slow Intentional Push micro-drift.
+        Computes (scale, offset_x, offset_y) for continuous Ken Burns zoom-in (1.0 -> 1.1).
         """
         duration = max(scene.duration, 0.1)
-        t_clamped = max(0.0, min(scene_t, duration))
-
-        # 1. Entrance Pop: first 0.35s
-        entrance_scale = 1.0
-        if scene.transition_in == "spring_pop" and t_clamped < 0.4:
-            norm_t = t_clamped / 0.4
-            # Damped spring equation: starts at 0.90, peaks at ~1.02, settles to 1.0
-            entrance_scale = 1.0 - 0.10 * math.exp(-5.0 * norm_t) * math.cos(math.pi * 3.5 * norm_t)
-
-        # 2. Slow Intentional Push (3-4% zoom over the full scene)
-        push_progress = t_clamped / duration
-        push_scale = 1.0 + (0.04 * push_progress)
-
-        final_scale = entrance_scale * push_scale
-
-        # 3. Breathing Drift (1-2px vertical harmonic oscillation at 0.75 Hz)
-        oscillation_y = 2.5 * math.sin(2.0 * math.pi * 0.75 * t_clamped)
-
-        return final_scale, 0.0, oscillation_y
+        progress = max(0.0, min(scene_t / duration, 1.0))
+        scale = 1.0 + (0.10 * progress)
+        return scale, 0.0, 0.0
 
     def render_frame(
         self,
@@ -110,120 +136,51 @@ class VisualChoreographer:
         total_duration: float = 21.0
     ) -> Image.Image:
         """
-        Renders a single 1080x1920 video frame for the given scene and timestamp.
+        Renders a single 1080x1920 video frame with full-bleed Ken Burns cover and stroked subtitles.
         """
-        # Canvas initialization: Editorial warm parchment page
-        frame = Image.new("RGB", (self.width, self.height), (248, 245, 238))
-        draw = ImageDraw.Draw(frame)
+        # 1. Black full-bleed frame
+        frame = Image.new("RGB", (self.width, self.height), (0, 0, 0))
 
-        # 1. Subtle top and bottom page vignette
-        for y_step in range(0, 160, 4):
-            alpha = int(25 * (1.0 - (y_step / 160)))
-            draw.line([(0, y_step), (self.width, y_step)], fill=(240 - alpha // 3, 236 - alpha // 3, 228 - alpha // 3))
-
-        # 2. Top Header Brand Pill & Divider
-        badge_y = 90
-        draw.rounded_rectangle(
-            [self.width // 2 - 170, badge_y - 24, self.width // 2 + 170, badge_y + 24],
-            radius=18,
-            fill=(235, 230, 220),
-            outline=(210, 202, 190),
-            width=2
-        )
-        draw.text(
-            (self.width // 2, badge_y),
-            "PICTURE-BOOK MOTION",
-            fill=(100, 95, 90),
-            anchor="mm"
-        )
-
-        # 3. Center Artwork Card with Motion
+        # 2. Source image with Cover scaling and Ken Burns zoom (1.0 -> 1.1)
         src_img = self.get_source_image(scene.image_path)
-        base_size = 860
-        scale, offset_x, offset_y = self.compute_motion_transform(scene, scene_t)
+        scale, _, _ = self.compute_motion_transform(scene, scene_t)
 
-        current_size = int(base_size * scale)
-        # Resize artwork
-        scaled_img = src_img.resize((current_size, current_size), Image.Resampling.BICUBIC)
+        h_ratio = self.width / src_img.width
+        v_ratio = self.height / src_img.height
+        cover_ratio = max(h_ratio, v_ratio) * scale
 
-        # Calculate placement (Upper Center region: centered horizontally, y ~ 620)
-        center_target_x = self.width // 2 + int(offset_x)
-        center_target_y = 660 + int(offset_y)
+        scaled_w = int(src_img.width * cover_ratio)
+        scaled_h = int(src_img.height * cover_ratio)
 
-        box_left = center_target_x - current_size // 2
-        box_top = center_target_y - current_size // 2
+        scaled_img = src_img.resize((scaled_w, scaled_h), Image.Resampling.BICUBIC)
 
-        # Soft shadow behind artwork card
-        shadow_margin = 16
-        shadow_box = [
-            self.width // 2 - base_size // 2 + 6,
-            660 - base_size // 2 + 12,
-            self.width // 2 + base_size // 2 + 6,
-            660 + base_size // 2 + 12
-        ]
-        draw.rounded_rectangle(shadow_box, radius=32, fill=(215, 210, 200))
+        center_shift_x = (self.width - scaled_w) // 2
+        center_shift_y = (self.height - scaled_h) // 2
 
-        # Paste artwork onto canvas with alpha composite
-        frame.paste(scaled_img, (box_left, box_top), scaled_img if scaled_img.mode == "RGBA" else None)
+        if scaled_img.mode == "RGBA":
+            frame.paste(scaled_img, (center_shift_x, center_shift_y), scaled_img)
+        else:
+            frame.paste(scaled_img, (center_shift_x, center_shift_y))
 
-        # Outer decorative frame border around base artwork
-        frame_box = [
-            self.width // 2 - base_size // 2 - 4,
-            660 - base_size // 2 - 4,
-            self.width // 2 + base_size // 2 + 4,
-            660 + base_size // 2 + 4
-        ]
-        draw.rounded_rectangle(frame_box, radius=32, outline=(220, 212, 198), width=4)
-
-        # 4. Lower-Third Caption Card (y = 1200 to 1750)
-        card_margin = 80
-        card_top = 1180
-        card_bottom = 1760
-        card_rect = [card_margin, card_top, self.width - card_margin, card_bottom]
-
-        # Dark aesthetic slate card
-        draw.rounded_rectangle(card_rect, radius=40, fill=(32, 34, 42), outline=(50, 54, 66), width=3)
-
-        # Inner decorative highlight line
-        draw.line([card_margin + 40, card_top + 3, self.width - card_margin - 40, card_top + 3], fill=(70, 75, 90), width=2)
-
-        # Scene index badge
-        badge_rect = [self.width // 2 - 130, card_top + 50, self.width // 2 + 130, card_top + 96]
-        draw.rounded_rectangle(badge_rect, radius=20, fill=(235, 140, 60))
-        scene_badge_text = f"SCENE {scene.scene_index + 1}"
-        draw.text((self.width // 2, card_top + 73), scene_badge_text, fill=(255, 255, 255), anchor="mm")
-
-        # Scene title
-        draw.text((self.width // 2, card_top + 145), scene.title, fill=(245, 245, 250), anchor="mm")
-
-        # Subtitle / narration script text
+        # 3. Draw subtitles on the bottom third (Shorts/TikTok style)
+        draw = ImageDraw.Draw(frame)
         self._draw_text_wrapped(
             draw=draw,
             text=scene.text,
             x=self.width // 2,
-            y=card_top + 230,
-            max_width=self.width - (card_margin * 2) - 80,
-            font_color=(220, 222, 230),
-            line_height=46
+            y=self.height - 280,
+            max_width=self.width - 160,
+            font_color=(255, 255, 255),
+            stroke_color=(0, 0, 0),
+            stroke_width=6,
+            line_height=64
         )
 
-        # Scene progress indicator bar inside caption card
-        bar_w = self.width - (card_margin * 2) - 160
-        bar_left = (self.width - bar_w) // 2
-        bar_y = card_bottom - 70
-        bar_h = 8
-        draw.rounded_rectangle([bar_left, bar_y, bar_left + bar_w, bar_y + bar_h], radius=4, fill=(60, 64, 76))
-
-        scene_progress = max(0.0, min(1.0, scene_t / max(scene.duration, 0.1)))
-        progress_fill_w = int(bar_w * scene_progress)
-        if progress_fill_w > 4:
-            draw.rounded_rectangle([bar_left, bar_y, bar_left + progress_fill_w, bar_y + bar_h], radius=4, fill=(235, 140, 60))
-
-        # Overall Story Progress at very bottom of screen
+        # 4. Subtle overall story progress bar at very bottom
         overall_progress = max(0.0, min(1.0, total_t / max(total_duration, 0.1)))
         overall_fill_w = int(self.width * overall_progress)
         if overall_fill_w > 0:
-            draw.rectangle([0, self.height - 10, overall_fill_w, self.height], fill=(212, 107, 60))
+            draw.rectangle([0, self.height - 8, overall_fill_w, self.height], fill=(59, 130, 246))
 
         return frame
 
