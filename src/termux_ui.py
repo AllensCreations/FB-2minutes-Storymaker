@@ -255,25 +255,17 @@ def reset_or_switch_sample_story():
 
     choice = input(f"\n{C_AMBER}Select story [1/2]: {C_RESET}").strip()
     if choice == "1":
-        # Generate Scout & Jem
-        print(f"\n{C_BLUE}Generating Scout & Jem demo assets...{C_RESET}")
+        print(f"\n{C_BLUE}Generating Scout & Jem preloaded assets (Southern Town, 4 scenes)...{C_RESET}")
         from scripts.generate_sample_assets import generate_all_sample_assets
-        # Update script.txt to Scout & Jem
-        story_path = SCRIPTS_DIR / "story.txt"
-        with open(story_path, "w", encoding="utf-8") as f:
-            f.write("[Scene 1: Scout Intro]\nA young girl named Scout grows up in a quiet southern town.\n\n")
-            f.write("[Scene 2: Scout & Jem]\nShe spends her days exploring with her older brother Jem.\n\n")
-            f.write("[Scene 3: Shadowy House]\nBut the town hides a dark secret behind closed doors.\n\n")
-            f.write("[Scene 4: Courtroom]\nAn innocent man is accused of a crime he did not commit.\n\n")
-        generate_all_sample_assets()
-        print(f"{C_GREEN}✓ Scout & Jem story activated!{C_RESET}")
-        time.sleep(1)
+        generate_all_sample_assets(theme="scout")
+        print(f"{C_GREEN}✓ Scout & Jem story activated! (Syncs with Web Studio & CLI){C_RESET}")
+        time.sleep(1.2)
     elif choice == "2":
-        print(f"\n{C_BLUE}Generating Elsa the Baker fairytale assets...{C_RESET}")
+        print(f"\n{C_BLUE}Generating Elsa the Baker preloaded assets (Fairytale Bakery, 6 scenes)...{C_RESET}")
         from scripts.generate_sample_assets import generate_all_sample_assets
-        generate_all_sample_assets()
-        print(f"{C_GREEN}✓ Elsa the Baker story activated!{C_RESET}")
-        time.sleep(1)
+        generate_all_sample_assets(theme="elsa")
+        print(f"{C_GREEN}✓ Elsa the Baker story activated! (Syncs with Web Studio & CLI){C_RESET}")
+        time.sleep(1.2)
 
 
 def run_termux_health_check():

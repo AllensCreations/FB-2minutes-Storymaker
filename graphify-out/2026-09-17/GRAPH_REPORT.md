@@ -1,17 +1,17 @@
-# Graph Report - FB-2minutes-Storymaker  (2026-09-16)
+# Graph Report - FB-2minutes-Storymaker  (2026-09-17)
 
 ## Corpus Check
-- 25 files · ~28,593 words
+- 25 files · ~25,190 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 3 file(s) not represented in the graph (top: (none) 2, .zip 1)
 
 ## Summary
-- 247 nodes · 440 edges · 15 communities (9 shown, 6 thin omitted)
-- Extraction: 92% EXTRACTED · 8% INFERRED · 0% AMBIGUOUS · INFERRED: 37 edges (avg confidence: 0.9)
+- 248 nodes · 442 edges · 15 communities (9 shown, 6 thin omitted)
+- Extraction: 91% EXTRACTED · 9% INFERRED · 0% AMBIGUOUS · INFERRED: 40 edges (avg confidence: 0.9)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `31955e78`
+- Built from commit: `c1c0db9e`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -71,7 +71,7 @@ Nodes (22): Image, ImageDraw, ImageFont, pathlib, skipUnless, main(), Visual Cho
 
 ### Community 2 - "SpeechCueAlignEngine"
 Cohesion: 0.11
-Nodes (20): dataclasses, json, re, AlignmentResult, main(), Path, Speech-Cue Align Engine for FB 2minutes Storymaker Implements audio analysis…, Align speech segments from audio with script scenes based on narrative cadence.… (+12 more)
+Nodes (19): dataclasses, json, re, AlignmentResult, main(), Path, Speech-Cue Align Engine for FB 2minutes Storymaker Implements audio analysis…, Align speech segments from audio with script scenes based on narrative cadence.… (+11 more)
 
 ### Community 3 - "FB-2minutes Storymaker"
 Cohesion: 0.10
@@ -83,11 +83,11 @@ Nodes (14): math, pil, create_gradient(), generate_audio_voiceover(), generate_s
 
 ### Community 7 - "SceneDurationDirector"
 Cohesion: 0.11
-Nodes (15): MasterTimeline, Path, Builds the MasterTimeline combining speech alignment segments with visual…, Export timeline manifest to JSON for visual choreographer and exporter., Complete master timeline manifest., Directs scene duration allocation and pairs visual assets with aligned speech…, Locate and order image files from a zip archive or directory. Orders by numeric…, SceneDurationDirector (+7 more)
+Nodes (16): main(), MasterTimeline, Path, Builds the MasterTimeline combining speech alignment segments with visual…, Export timeline manifest to JSON for visual choreographer and exporter., Complete master timeline manifest., Directs scene duration allocation and pairs visual assets with aligned speech…, Locate and order image files from a zip archive or directory. Orders by numeric… (+8 more)
 
 ### Community 8 - "termux_ui.py"
 Cohesion: 0.08
-Nodes (46): check_assets(), generate_sample_assets(), main(), FB 2minutes Storymaker - Automated Storytelling Engine Based on the…, Check if required assets are present in assets/ directory., Invoke the sample asset generator., Executes the full Picture-Book Motion storytelling pipeline., Starts the local web studio interface. (+38 more)
+Nodes (47): check_assets(), generate_sample_assets(), main(), FB 2minutes Storymaker - Automated Storytelling Engine Based on the…, Check if required assets are present in assets/ directory., Invoke the sample asset generator., Executes the full Picture-Book Motion storytelling pipeline., Starts the local web studio interface. (+39 more)
 
 ### Community 9 - "Speech-Cue Align Engine"
 Cohesion: 0.12
@@ -108,7 +108,7 @@ _Questions this graph is uniquely positioned to answer:_
 - **Why does `SpeechCueAlignEngine` connect `SpeechCueAlignEngine` to `server.py`, `video_exporter.py`, `SceneDurationDirector`, `termux_ui.py`, `Speech-Cue Align Engine`?**
   _High betweenness centrality (0.171) - this node is a cross-community bridge._
 - **Why does `Core Classes` connect `Speech-Cue Align Engine` to `SpeechCueAlignEngine`?**
-  _High betweenness centrality (0.082) - this node is a cross-community bridge._
+  _High betweenness centrality (0.081) - this node is a cross-community bridge._
 - **Why does `VisualChoreographer` connect `video_exporter.py` to `SceneDurationDirector`?**
   _High betweenness centrality (0.081) - this node is a cross-community bridge._
 - **Are the 7 inferred relationships involving `SpeechCueAlignEngine` (e.g. with `run_pipeline()` and ``SpeechCueAlignEngine``) actually correct?**

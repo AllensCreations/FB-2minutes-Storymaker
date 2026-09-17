@@ -112,6 +112,7 @@ def main():
     parser.add_argument("--port", type=int, default=8000, help="Port for the Web UI (default: 8000)")
     parser.add_argument("--open", action="store_true", help="Automatically open Web UI in browser")
     parser.add_argument("--generate-assets", action="store_true", help="Generate or reset demo sample assets")
+    parser.add_argument("--preload", choices=["elsa", "scout"], nargs="?", const="elsa", help="Update and regenerate preloaded story assets")
     parser.add_argument("--fps", type=int, default=24, help="Frames per second for output video (default: 24)")
     parser.add_argument("--check", action="store_true", help="Check asset status and exit")
 
@@ -121,6 +122,12 @@ def main():
     if args.tui or (len(sys.argv) == 1 and sys.stdin.isatty()):
         from termux_ui import run_tui_main
         run_tui_main()
+        return
+
+    # Route: Preload / Reset Assets
+    if args.preload:
+        from scripts.generate_sample_assets import generate_all_sample_assets
+        generate_all_sample_assets(theme=args.preload)
         return
 
     # Route: Web UI

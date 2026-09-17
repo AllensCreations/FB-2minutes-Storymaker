@@ -103,6 +103,41 @@ def get_story_scenes():
     return scenes
 
 
+def get_project_assets_info():
+    """Returns full metadata and content for preloading local Termux assets into Web Studio."""
+    has_voice = any(VOICE_DIR.glob("*.mp3")) or any(VOICE_DIR.glob("*.wav"))
+    has_script = any(SCRIPTS_DIR.glob("*.txt"))
+    zip_path = VISUALS_DIR / "story_visuals.zip"
+    has_visuals = zip_path.exists() or any((VISUALS_DIR / "raw_frames").glob("*.png"))
+
+    script_file = SCRIPTS_DIR / "story.txt"
+    script_text = ""
+    script_lines = []
+    if script_file.exists():
+        try:
+            with open(script_file, "r", encoding="utf-8") as f:
+                script_text = f.read()
+        except Exception:
+            pass
+
+    scenes = get_story_scenes()
+    if scenes:
+        script_lines = [s["text"] for s in scenes]
+    elif script_text:
+        script_lines = [l.strip() for l in script_text.splitlines() if l.strip() and not l.strip().startswith("#")]
+
+    return {
+        "has_assets": has_voice and has_script and has_visuals,
+        "audio_url": "/media/audio" if has_voice else None,
+        "script_url": "/media/script" if has_script else None,
+        "script_text": "\n".join(script_lines) if script_lines else script_text,
+        "script_raw": script_text,
+        "visuals_url": "/media/visuals" if zip_path.exists() else None,
+        "scene_count": len(scenes) if scenes else len(script_lines),
+        "scenes": scenes
+    }
+
+
 def run_pipeline_thread():
     """Background thread function that executes the full rendering pipeline."""
     global RENDER_STATE
@@ -185,6 +220,8 @@ class StorymakerRequestHandler(SimpleHTTPRequestHandler):
             self.serve_file(WEB_DIR / "index.html", "text/html")
         elif path == "/api/status":
             self.send_json(get_assets_status())
+        elif path == "/api/project-assets":
+            self.send_json(get_project_assets_info())
         elif path == "/api/scenes":
             self.send_json({"scenes": get_story_scenes()})
         elif path == "/api/render-status":
@@ -200,10 +237,25 @@ class StorymakerRequestHandler(SimpleHTTPRequestHandler):
                 self.send_error(404, "Thumbnail not found")
         elif path == "/media/audio":
             audio_file = VOICE_DIR / "narration.mp3"
+            if not audio_file.exists():
+                audio_file = VOICE_DIR / "narration.wav"
             if audio_file.exists():
-                self.serve_file(audio_file, "audio/mpeg")
+                content_type = "audio/mpeg" if audio_file.suffix == ".mp3" else "audio/wav"
+                self.serve_file(audio_file, content_type)
             else:
                 self.send_error(404, "Audio file not found")
+        elif path == "/media/script":
+            script_file = SCRIPTS_DIR / "story.txt"
+            if script_file.exists():
+                self.serve_file(script_file, "text/plain; charset=utf-8")
+            else:
+                self.send_error(404, "Script file not found")
+        elif path == "/media/visuals":
+            zip_file = VISUALS_DIR / "story_visuals.zip"
+            if zip_file.exists():
+                self.serve_file(zip_file, "application/zip")
+            else:
+                self.send_error(404, "Visuals zip not found")
         elif path == "/media/video":
             video_file = OUTPUT_DIR / "final_story.mp4"
             if video_file.exists():

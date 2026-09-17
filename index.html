@@ -17,14 +17,19 @@
 <body class="p-4 sm:p-6 font-sans">
   <div class="max-w-6xl mx-auto space-y-6">
     <!-- Header -->
-    <header class="border-b border-gray-800 pb-4 flex items-center justify-between">
+    <header class="border-b border-gray-800 pb-4 flex flex-wrap items-center justify-between gap-3">
       <div>
         <h1 class="text-2xl font-bold text-white tracking-tight">StoryShorts Studio</h1>
         <p class="text-xs sm:text-sm text-gray-400">Zero-server auto slideshow sync: Audio + Script + Image Zip</p>
       </div>
-      <button id="demoBtn" class="py-1.5 px-3 bg-gray-800 hover:bg-gray-700 border border-gray-700 text-amber-400 rounded text-xs font-medium transition flex items-center gap-1.5">
-        <span>✨</span> Load Demo
-      </button>
+      <div class="flex items-center gap-2">
+        <button id="syncTermuxBtn" class="py-1.5 px-3 bg-blue-600 hover:bg-blue-500 text-white rounded text-xs font-medium transition flex items-center gap-1.5 shadow">
+          <span>⚡</span> Sync Local Termux
+        </button>
+        <button id="demoBtn" class="py-1.5 px-3 bg-gray-800 hover:bg-gray-700 border border-gray-700 text-amber-400 rounded text-xs font-medium transition flex items-center gap-1.5">
+          <span>✨</span> Load Demo
+        </button>
+      </div>
     </header>
 
     <!-- 3-Column Studio Grid -->
@@ -236,10 +241,19 @@
       statusEl.textContent = `Loaded ${loadedImages.length} image(s).`;
     });
 
+    function parseScriptLines(text) {
+      if (!text) return [];
+      let lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+      if (lines.some(l => l.startsWith('[') && l.endsWith(']'))) {
+        lines = lines.filter(l => !l.startsWith('[') && !l.startsWith('#'));
+      }
+      return lines;
+    }
+
     // Script Line Counter
     document.getElementById('scriptInput').addEventListener('input', (e) => {
-      const lines = e.target.value.trim().split('\n').filter(l => l.trim().length > 0);
-      scriptCountLabel.textContent = `${lines.length} line(s)`;
+      const lines = parseScriptLines(e.target.value);
+      scriptCountLabel.textContent = `${lines.length} scene line(s)`;
     });
 
     // Detect speech pause timestamps using RMS energy
@@ -282,7 +296,7 @@
         return;
       }
 
-      const scriptLines = scriptText.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+      const scriptLines = parseScriptLines(scriptText);
       const count = Math.min(loadedImages.length, scriptLines.length);
 
       if (count === 0) {
@@ -877,8 +891,130 @@
       return new Blob([out.buffer], { type: 'audio/wav' });
     }
 
+    // =========================================================================
+    // Local Termux Preload & Live Sync
+    // =========================================================================
+    const syncTermuxBtn = document.getElementById('syncTermuxBtn');
+
+    async function syncWithLocalTermux(manual = false) {
+      if (syncTermuxBtn) {
+        syncTermuxBtn.disabled = true;
+        syncTermuxBtn.classList.add('opacity-50');
+      }
+      statusEl.textContent = "Checking local Termux story assets...";
+
+      let apiBase = '';
+      let data = null;
+
+      // Try current origin first (e.g. port 8000), fallback to port 8000 if running on TrebEdit (port 8080)
+      const endpoints = ['/api/project-assets', 'http://localhost:8000/api/project-assets', 'http://127.0.0.1:8000/api/project-assets'];
+
+      for (const ep of endpoints) {
+        try {
+          const resp = await fetch(ep);
+          if (resp.ok) {
+            data = await resp.json();
+            if (ep.startsWith('http://')) {
+              apiBase = ep.replace('/api/project-assets', '');
+            }
+            break;
+          }
+        } catch (e) {}
+      }
+
+      if (!data || !data.has_assets) {
+        if (syncTermuxBtn) {
+          syncTermuxBtn.disabled = false;
+          syncTermuxBtn.classList.remove('opacity-50');
+        }
+        if (manual) {
+          alert("Could not find active local Termux assets.\nMake sure 'make web' is running in Termux.");
+        } else {
+          statusEl.textContent = 'Ready for files (or click "Load Demo" / "Sync Local Termux").';
+        }
+        return;
+      }
+
+      try {
+        statusEl.textContent = "⚡ Preloading local Termux assets (Audio, Script, Visuals)...";
+
+        // 1. Script
+        if (data.script_text) {
+          document.getElementById('scriptInput').value = data.script_text;
+          const lines = parseScriptLines(data.script_text);
+          scriptCountLabel.textContent = `${lines.length} scene line(s)`;
+        }
+
+        // 2. Audio
+        if (data.audio_url) {
+          const audioUrl = apiBase + data.audio_url;
+          const audioRes = await fetch(audioUrl);
+          const arrayBuffer = await audioRes.arrayBuffer();
+          const actx = getAudioContext();
+          audioBuffer = await actx.decodeAudioData(arrayBuffer.slice(0));
+          audioDurLabel.textContent = `${audioBuffer.duration.toFixed(1)}s`;
+          audioElement.src = audioUrl;
+          detectedPauses = findPauses(audioBuffer);
+        }
+
+        // 3. Visuals
+        loadedImages = [];
+        if (data.visuals_url) {
+          const zipUrl = apiBase + data.visuals_url;
+          const zipRes = await fetch(zipUrl);
+          const zipBlob = await zipRes.blob();
+          const zip = await JSZip.loadAsync(zipBlob);
+          const imageFiles = [];
+          for (const filename of Object.keys(zip.files)) {
+            if (!zip.files[filename].dir && !filename.startsWith('__MACOSX') && !filename.startsWith('.')) {
+              if (filename.match(/\.(png|jpe?g|webp)$/i)) {
+                imageFiles.push(filename);
+              }
+            }
+          }
+          imageFiles.sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }));
+          for (const fname of imageFiles) {
+            const blob = await zip.files[fname].async('blob');
+            const img = new Image();
+            img.src = URL.createObjectURL(blob);
+            await img.decode();
+            loadedImages.push(img);
+          }
+        } else if (data.scenes && data.scenes.length > 0) {
+          for (const sc of data.scenes) {
+            const img = new Image();
+            img.src = apiBase + sc.thumbnail_url;
+            await img.decode();
+            loadedImages.push(img);
+          }
+        }
+
+        imgCountLabel.textContent = `${loadedImages.length} image(s)`;
+
+        // 4. Build timeline
+        buildBtn.click();
+        statusEl.textContent = `✓ Synced with local Termux: ${scenes.length} scenes preloaded!`;
+      } catch (err) {
+        console.error("Error preloading Termux assets:", err);
+        if (manual) alert("Error syncing Termux assets: " + err.message);
+        statusEl.textContent = "Preload failed: " + err.message;
+      } finally {
+        if (syncTermuxBtn) {
+          syncTermuxBtn.disabled = false;
+          syncTermuxBtn.classList.remove('opacity-50');
+        }
+      }
+    }
+
+    if (syncTermuxBtn) {
+      syncTermuxBtn.addEventListener('click', () => syncWithLocalTermux(true));
+    }
+
     window.addEventListener('DOMContentLoaded', () => {
       resizeWaveform();
+      if (window.location.protocol.startsWith('http')) {
+        syncWithLocalTermux(false);
+      }
     });
   </script>
 </body>

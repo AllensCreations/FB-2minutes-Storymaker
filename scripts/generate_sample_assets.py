@@ -26,7 +26,54 @@ OUTPUT_DIR = ASSETS_DIR / "output"
 PROCESSED_DIR = ASSETS_DIR / "processed"
 
 
-SCENES = [
+SCOUT_SCENES = [
+    {
+        "num": 1,
+        "title": "Scene 1: Scout Intro",
+        "script": "A young girl named Scout grows up in a quiet southern town.",
+        "bg_top": (255, 238, 217),
+        "bg_bot": (245, 198, 165),
+        "card_color": (255, 252, 245),
+        "accent": (212, 107, 60),
+        "symbol": "👒",
+        "tag": "SOUTHERN TOWN",
+    },
+    {
+        "num": 2,
+        "title": "Scene 2: Scout & Jem",
+        "script": "She spends her days exploring with her older brother Jem.",
+        "bg_top": (215, 235, 220),
+        "bg_bot": (145, 190, 160),
+        "card_color": (248, 255, 250),
+        "accent": (45, 120, 80),
+        "symbol": "🌳",
+        "tag": "BROTHER & SISTER",
+    },
+    {
+        "num": 3,
+        "title": "Scene 3: Shadowy House",
+        "script": "But the town hides a dark secret behind closed doors.",
+        "bg_top": (230, 235, 245),
+        "bg_bot": (180, 195, 220),
+        "card_color": (250, 252, 255),
+        "accent": (70, 95, 150),
+        "symbol": "🏚️",
+        "tag": "CLOSED DOORS",
+    },
+    {
+        "num": 4,
+        "title": "Scene 4: Courtroom",
+        "script": "An innocent man is accused of a crime he did not commit.",
+        "bg_top": (255, 228, 225),
+        "bg_bot": (235, 160, 165),
+        "card_color": (255, 250, 250),
+        "accent": (195, 60, 80),
+        "symbol": "⚖️",
+        "tag": "COURT OF LAW",
+    },
+]
+
+ELSA_SCENES = [
     {
         "num": 1,
         "title": "Scene 1: Introduction",
@@ -95,6 +142,8 @@ SCENES = [
     },
 ]
 
+SCENES = ELSA_SCENES
+
 
 def create_gradient(draw, width, height, top_color, bot_color):
     """Draw vertical linear gradient."""
@@ -156,13 +205,11 @@ def generate_scene_image(scene_info: dict, out_path: Path):
     img.save(out_path, format="PNG", quality=95)
 
 
-def generate_audio_voiceover(out_mp3_path: Path, scene_duration_sec: float = 3.5):
+def generate_audio_voiceover(out_mp3_path: Path, scene_duration_sec: float = 3.5, total_scenes: int = 6):
     """
-    Synthesizes a pleasant multi-tone chime & narration track matching the 6 scenes.
+    Synthesizes a pleasant multi-tone chime & narration track matching the story scenes.
     Uses Python wave module and FFmpeg to output clean MP3 audio.
-    Total duration: ~21 seconds (3.5s per scene).
     """
-    total_scenes = len(SCENES)
     total_duration = total_scenes * scene_duration_sec
     sample_rate = 44100
     total_samples = int(total_duration * sample_rate)
@@ -231,33 +278,42 @@ def generate_audio_voiceover(out_mp3_path: Path, scene_duration_sec: float = 3.5
             wav_temp.replace(out_mp3_path.with_suffix(".wav"))
 
 
-def generate_all_sample_assets():
-    """Generates all sample assets in their respective directories."""
+def generate_all_sample_assets(theme: str = "elsa"):
+    """Generates all sample assets in their respective directories for the chosen theme."""
     SCRIPTS_DIR.mkdir(parents=True, exist_ok=True)
     VOICE_DIR.mkdir(parents=True, exist_ok=True)
     VISUALS_DIR.mkdir(parents=True, exist_ok=True)
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
 
+    active_scenes = SCOUT_SCENES if str(theme).lower().startswith("scout") else ELSA_SCENES
+    theme_label = "Scout & Jem (Southern Town, 4 Scenes)" if str(theme).lower().startswith("scout") else "Elsa the Baker (Fairytale Bakery, 6 Scenes)"
+
     print("==================================================")
-    print("🎨 Generating Sample Assets for FB-2minutes-Storymaker")
+    print(f"🎨 Generating Preloaded Story Assets: {theme_label}")
     print("==================================================")
 
     # 1. Generate story.txt
     story_path = SCRIPTS_DIR / "story.txt"
     with open(story_path, "w", encoding="utf-8") as f:
-        for s in SCENES:
+        for s in active_scenes:
             f.write(f"[{s['title']}]\n")
             f.write(f"{s['script']}\n\n")
-    print(f"✓ Story script created: {story_path}")
+    print(f"✓ Story script created: {story_path} ({len(active_scenes)} scenes)")
 
     # 2. Generate Scene Images & Visuals Zip
     temp_img_dir = VISUALS_DIR / "raw_frames"
     temp_img_dir.mkdir(exist_ok=True)
-    zip_path = VISUALS_DIR / "story_visuals.zip"
+    # Clean previous scene frames so obsolete scenes are removed
+    for old_file in temp_img_dir.glob("scene_*.png"):
+        try:
+            old_file.unlink()
+        except Exception:
+            pass
 
+    zip_path = VISUALS_DIR / "story_visuals.zip"
     with zipfile.ZipFile(zip_path, "w") as zf:
-        for s in SCENES:
+        for s in active_scenes:
             img_filename = f"scene_{s['num']}.png"
             img_path = temp_img_dir / img_filename
             generate_scene_image(s, img_path)
@@ -268,12 +324,17 @@ def generate_all_sample_assets():
 
     # 3. Generate Narration Audio
     mp3_path = VOICE_DIR / "narration.mp3"
-    print("✓ Generating melodic narration audio track (~21s)...")
-    generate_audio_voiceover(mp3_path, scene_duration_sec=3.5)
+    dur = round(len(active_scenes) * 3.5, 1)
+    print(f"✓ Generating melodic narration audio track ({len(active_scenes)} scenes, ~{dur}s)...")
+    generate_audio_voiceover(mp3_path, scene_duration_sec=3.5, total_scenes=len(active_scenes))
     print(f"✓ Narration audio saved: {mp3_path}")
 
-    print("\n🎉 Sample assets successfully generated and ready to run!\n")
+    print(f"\n🎉 Preloaded assets ({theme_label}) successfully updated and ready for Web Studio & CLI!\n")
 
 
 if __name__ == "__main__":
-    generate_all_sample_assets()
+    import argparse
+    parser = argparse.ArgumentParser(description="FB 2minutes Storymaker Sample Asset Generator")
+    parser.add_argument("--theme", type=str, default="elsa", choices=["elsa", "scout"], help="Story theme to generate")
+    args = parser.parse_args()
+    generate_all_sample_assets(theme=args.theme)

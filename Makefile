@@ -42,6 +42,15 @@ tui:
 sample-assets:
 	$(PYTHON) scripts/generate_sample_assets.py
 
+preload:
+	$(PYTHON) scripts/generate_sample_assets.py --theme elsa
+
+preload-scout:
+	$(PYTHON) scripts/generate_sample_assets.py --theme scout
+
+preload-elsa:
+	$(PYTHON) scripts/generate_sample_assets.py --theme elsa
+
 # Testing
 test:
 	$(PYTHON) -m unittest discover -s tests -p "test_*.py" -v
