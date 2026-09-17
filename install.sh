@@ -63,28 +63,32 @@ PYTHON_VER=$($PYTHON_BIN -c 'import sys; print(f"{sys.version_info.major}.{sys.v
 echo "✓ Python interpreter: $PYTHON_BIN (v$PYTHON_VER)"
 
 # 3. Create or Update Repository
-# Terminate any stale storymaker servers to prevent port 8000 lockup
+# Terminate any stale storymaker servers to prevent port lockups
 pkill -f "web/server.py" 2>/dev/null || true
-pkill -f "main.py --web" 2>/dev/null || true
+pkill -f "main.py" 2>/dev/null || true
+pkill -f "python.*server" 2>/dev/null || true
 fuser -k 8000/tcp 2>/dev/null || true
+fuser -k 8001/tcp 2>/dev/null || true
 
 if [ "$TARGET_DIR" = "." ]; then
     echo "📂 Operating in-place within current repository directory."
     if [ -d ".git" ] && command -v git >/dev/null 2>&1; then
         echo "Pulling latest updates via git..."
-        git pull origin main || true
+        git fetch origin main || true
+        git reset --hard origin/main || git pull origin main || true
     fi
     # If a nested clone exists inside this repo, update it as well
     if [ -d "FB-2minutes-Storymaker" ] && [ -f "FB-2minutes-Storymaker/main.py" ]; then
         echo "Notice: Found nested clone 'FB-2minutes-Storymaker'. Updating it as well..."
-        (cd FB-2minutes-Storymaker && git pull origin main 2>/dev/null || true)
+        (cd FB-2minutes-Storymaker && git fetch origin main 2>/dev/null && git reset --hard origin/main 2>/dev/null || git pull origin main 2>/dev/null || true)
     fi
 elif [ -d "$TARGET_DIR" ]; then
     echo "📂 Directory '$TARGET_DIR' already exists. Updating..."
     cd "$TARGET_DIR"
     if [ -d ".git" ] && command -v git >/dev/null 2>&1; then
         echo "Pulling latest updates via git..."
-        git pull origin main || true
+        git fetch origin main || true
+        git reset --hard origin/main || git pull origin main || true
     fi
 else
     echo "📥 Creating and cloning repository into '$TARGET_DIR'..."
@@ -112,9 +116,18 @@ if ! $PYTHON_BIN -c "import PIL" >/dev/null 2>&1; then
     fi
 fi
 
-# 5. Generate / Verify Sample Assets
-echo "🎨 Ensuring sample assets exist..."
-$PYTHON_BIN scripts/generate_sample_assets.py
+# 5. Generate / Verify Preloaded Story Assets
+echo "🎨 Ensuring preloaded story assets exist..."
+$PYTHON_BIN scripts/generate_sample_assets.py --theme elsa
+
+# 5b. Sync to TrebEdit if installed on Android
+for trebedit_dir in "/storage/emulated/0/TrebEdit" "/sdcard/TrebEdit" "$HOME/storage/shared/TrebEdit"; do
+    if [ -d "$trebedit_dir" ]; then
+        echo "📱 Syncing HTML assets to TrebEdit workspace ($trebedit_dir)..."
+        cp -f "$PROJECT_ABS_PATH/AR.html" "$trebedit_dir/" 2>/dev/null || true
+        cp -f "$PROJECT_ABS_PATH/index.html" "$trebedit_dir/" 2>/dev/null || true
+    fi
+done
 
 # 6. Create Global CLI Launcher Command (fb-storymaker)
 echo "⚡ Setting up global 'fb-storymaker' command..."
