@@ -235,15 +235,10 @@ def launch_web_studio_and_browser():
     print_banner()
     port = 8000
     print(f"\n{C_GREEN}{C_BOLD}🌐 Launching Creative Studio Web UI...{C_RESET}")
-    print(f"👉 Local URL: {C_BOLD}http://localhost:{port}{C_RESET}\n")
-
-    # Automatically trigger browser open on Android / desktop
-    open_url_in_browser(f"http://localhost:{port}")
-
-    print(f"\n{C_AMBER}Web Studio is running! Press [Ctrl + C] to stop and return to menu.{C_RESET}\n")
+    print(f"\n{C_AMBER}Web Studio is starting! Press [Ctrl + C] to stop and return to menu.{C_RESET}\n")
     from web.server import start_server
     try:
-        start_server(host="0.0.0.0", port=port)
+        start_server(host="0.0.0.0", port=port, open_browser=True)
     except KeyboardInterrupt:
         print(f"\n{C_GRAY}Web server stopped.{C_RESET}")
         time.sleep(0.5)

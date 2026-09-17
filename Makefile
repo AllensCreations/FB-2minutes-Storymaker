@@ -1,4 +1,4 @@
-.PHONY: setup termux-setup install dev test lint format type-check run web sample-assets clean help
+.PHONY: setup termux-setup install dev test lint format type-check run web kill-server update sample-assets clean help
 
 PYTHON ?= $(shell which python3 2>/dev/null || which python 2>/dev/null || echo python3)
 
@@ -20,11 +20,21 @@ dev:
 run:
 	$(PYTHON) main.py
 
+kill-server:
+	-pkill -f "python.*server" 2>/dev/null || true
+	-pkill -f "main.py --web" 2>/dev/null || true
+	-fuser -k 8000/tcp 2>/dev/null || true
+	-fuser -k 8001/tcp 2>/dev/null || true
+
 web:
+	-fuser -k 8000/tcp 2>/dev/null || true
 	$(PYTHON) main.py --web
 
 update:
 	git pull origin main
+	-pkill -f "python.*server" 2>/dev/null || true
+	-pkill -f "main.py" 2>/dev/null || true
+	-fuser -k 8000/tcp 2>/dev/null || true
 
 tui:
 	$(PYTHON) main.py --tui

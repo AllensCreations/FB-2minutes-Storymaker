@@ -63,11 +63,21 @@ PYTHON_VER=$($PYTHON_BIN -c 'import sys; print(f"{sys.version_info.major}.{sys.v
 echo "✓ Python interpreter: $PYTHON_BIN (v$PYTHON_VER)"
 
 # 3. Create or Update Repository
+# Terminate any stale storymaker servers to prevent port 8000 lockup
+pkill -f "web/server.py" 2>/dev/null || true
+pkill -f "main.py --web" 2>/dev/null || true
+fuser -k 8000/tcp 2>/dev/null || true
+
 if [ "$TARGET_DIR" = "." ]; then
     echo "📂 Operating in-place within current repository directory."
     if [ -d ".git" ] && command -v git >/dev/null 2>&1; then
         echo "Pulling latest updates via git..."
         git pull origin main || true
+    fi
+    # If a nested clone exists inside this repo, update it as well
+    if [ -d "FB-2minutes-Storymaker" ] && [ -f "FB-2minutes-Storymaker/main.py" ]; then
+        echo "Notice: Found nested clone 'FB-2minutes-Storymaker'. Updating it as well..."
+        (cd FB-2minutes-Storymaker && git pull origin main 2>/dev/null || true)
     fi
 elif [ -d "$TARGET_DIR" ]; then
     echo "📂 Directory '$TARGET_DIR' already exists. Updating..."

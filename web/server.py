@@ -180,7 +180,8 @@ class StorymakerRequestHandler(SimpleHTTPRequestHandler):
         parsed = urlparse(self.path)
         path = parsed.path
 
-        if path == "/" or path == "/index.html" or path == "/AR.html":
+        clean_path = path.strip().lower()
+        if clean_path in ("", "/", "/index.html", "/index.htm", "/ar.html", "/ar.htm", "/index", "/ar", "/web/index.html", "/web/ar.html"):
             self.serve_file(WEB_DIR / "index.html", "text/html")
         elif path == "/api/status":
             self.send_json(get_assets_status())
@@ -318,15 +319,46 @@ class StorymakerRequestHandler(SimpleHTTPRequestHandler):
             pass
 
 
-def start_server(host: str = "0.0.0.0", port: int = 8000):
-    server_address = (host, port)
+def start_server(host: str = "0.0.0.0", port: int = 8000, open_browser: bool = False, max_retries: int = 10):
     HTTPServer.allow_reuse_address = True
-    httpd = HTTPServer(server_address, StorymakerRequestHandler)
+    httpd = None
+    active_port = port
+
+    for p in range(port, port + max_retries):
+        try:
+            httpd = HTTPServer((host, p), StorymakerRequestHandler)
+            active_port = p
+            break
+        except OSError as e:
+            if e.errno in (98, 48) or "already in use" in str(e).lower():
+                print(f"⚠️ Port {p} is currently in use. Trying port {p + 1}...")
+                continue
+            raise
+
+    if httpd is None:
+        raise RuntimeError(f"Could not bind server to any port from {port} to {port + max_retries - 1}")
+
+    cache_buster = int(time.time())
+    url = f"http://localhost:{active_port}"
+    direct_url = f"http://localhost:{active_port}/?v={cache_buster}"
+
     print("==================================================")
     print(f"🎬 FB-2minutes Storymaker Web UI Server Running")
-    print(f"👉 Open in browser: http://localhost:{port}")
-    print(f"👉 Local network:   http://{host}:{port}")
+    print(f"👉 Direct URL (No Cache): {direct_url}")
+    print(f"👉 Standard URL:          {url}")
+    print(f"👉 Local Network:         http://{host}:{active_port}")
     print("==================================================")
+
+    if open_browser:
+        def _open():
+            time.sleep(0.3)
+            try:
+                from termux_ui import open_url_in_browser
+                open_url_in_browser(direct_url)
+            except Exception:
+                pass
+        threading.Thread(target=_open, daemon=True).start()
+
     try:
         httpd.serve_forever()
     except KeyboardInterrupt:
@@ -339,5 +371,6 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="FB 2minutes Storymaker Web UI Server")
     parser.add_argument("--host", type=str, default="0.0.0.0", help="Host address")
     parser.add_argument("--port", type=int, default=8000, help="Port number")
+    parser.add_argument("--open", action="store_true", help="Automatically open browser")
     args = parser.parse_args()
-    start_server(args.host, args.port)
+    start_server(args.host, args.port, open_browser=args.open)

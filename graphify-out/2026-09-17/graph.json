@@ -229,7 +229,7 @@
       "file_type": "code",
       "norm_label": ".do_post()",
       "source_file": "web/server.py",
-      "source_location": "L222"
+      "source_location": "L221"
     },
     {
       "id": "web_server_storymakerrequesthandler_send_json",
@@ -241,7 +241,7 @@
       "file_type": "code",
       "norm_label": ".send_json()",
       "source_file": "web/server.py",
-      "source_location": "L251"
+      "source_location": "L250"
     },
     {
       "id": "web_server_storymakerrequesthandler_serve_file",
@@ -253,7 +253,7 @@
       "file_type": "code",
       "norm_label": ".serve_file()",
       "source_file": "web/server.py",
-      "source_location": "L260"
+      "source_location": "L259"
     },
     {
       "id": "web_server_storymakerrequesthandler_serve_video_range",
@@ -265,7 +265,7 @@
       "file_type": "code",
       "norm_label": ".serve_video_range()",
       "source_file": "web/server.py",
-      "source_location": "L275"
+      "source_location": "L274"
     },
     {
       "id": "src_choreography_core_choreography_core_main",
@@ -460,6 +460,18 @@
       "source_location": "L69"
     },
     {
+      "id": "src_duration_director_duration_director_main",
+      "label": "main()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 2,
+      "community_name": "SpeechCueAlignEngine",
+      "file_type": "code",
+      "norm_label": "main()",
+      "source_file": "src/duration_director/duration_director.py",
+      "source_location": "L159"
+    },
+    {
       "id": "tests_test_align_engine_testalignengine_setup",
       "label": ".setUp()",
       "_callable": true,
@@ -542,18 +554,6 @@
       "norm_label": "generate_scene_image()",
       "source_file": "scripts/generate_sample_assets.py",
       "source_location": "L109"
-    },
-    {
-      "id": "src_duration_director_duration_director_main",
-      "label": "main()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 7,
-      "community_name": "SceneDurationDirector",
-      "file_type": "code",
-      "norm_label": "main()",
-      "source_file": "src/duration_director/duration_director.py",
-      "source_location": "L159"
     },
     {
       "id": "src_duration_director_duration_director_scenedurationdirector_build_timeline",
@@ -913,7 +913,7 @@
       "file_type": "code",
       "norm_label": "reset_or_switch_sample_story()",
       "source_file": "src/termux_ui.py",
-      "source_location": "L247"
+      "source_location": "L252"
     },
     {
       "id": "src_termux_ui_run_termux_health_check",
@@ -925,7 +925,7 @@
       "file_type": "code",
       "norm_label": "run_termux_health_check()",
       "source_file": "src/termux_ui.py",
-      "source_location": "L279"
+      "source_location": "L284"
     },
     {
       "id": "src_termux_ui_run_tui_main",
@@ -937,7 +937,7 @@
       "file_type": "code",
       "norm_label": "run_tui_main()",
       "source_file": "src/termux_ui.py",
-      "source_location": "L316"
+      "source_location": "L321"
     },
     {
       "id": "src_termux_ui_run_video_render",
@@ -985,19 +985,7 @@
       "file_type": "code",
       "norm_label": "start_server()",
       "source_file": "web/server.py",
-      "source_location": "L322"
-    },
-    {
-      "id": "web_server_start_server_open",
-      "label": "_open()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 8,
-      "community_name": "termux_ui.py",
-      "file_type": "code",
-      "norm_label": "_open()",
-      "source_file": "web/server.py",
-      "source_location": "L353"
+      "source_location": "L321"
     },
     {
       "id": "simplehttprequesthandler",
@@ -1066,7 +1054,7 @@
       "source_location": "L177"
     },
     {
-      "id": "web_server_rationale_276",
+      "id": "web_server_rationale_275",
       "label": "Supports HTTP 206 Partial Content for streaming/scrubbing in HTML5 video.",
       "_origin": "ast",
       "community": 0,
@@ -1074,7 +1062,7 @@
       "file_type": "rationale",
       "norm_label": "supports http 206 partial content for streaming/scrubbing in html5 video.",
       "source_file": "web/server.py",
-      "source_location": "L276"
+      "source_location": "L275"
     },
     {
       "id": "web_server_rationale_57",
@@ -2419,7 +2407,7 @@
       "source_location": "L233"
     },
     {
-      "id": "src_termux_ui_rationale_248",
+      "id": "src_termux_ui_rationale_253",
       "label": "Menu to switch demo story theme (Scout & Jem vs Elsa the Baker).",
       "_origin": "ast",
       "community": 8,
@@ -2427,10 +2415,10 @@
       "file_type": "rationale",
       "norm_label": "menu to switch demo story theme (scout & jem vs elsa the baker).",
       "source_file": "src/termux_ui.py",
-      "source_location": "L248"
+      "source_location": "L253"
     },
     {
-      "id": "src_termux_ui_rationale_280",
+      "id": "src_termux_ui_rationale_285",
       "label": "Validates packages and allows 1-click Termux package repair.",
       "_origin": "ast",
       "community": 8,
@@ -2438,10 +2426,10 @@
       "file_type": "rationale",
       "norm_label": "validates packages and allows 1-click termux package repair.",
       "source_file": "src/termux_ui.py",
-      "source_location": "L280"
+      "source_location": "L285"
     },
     {
-      "id": "src_termux_ui_rationale_317",
+      "id": "src_termux_ui_rationale_322",
       "label": "Main event loop for the Termux TUI.",
       "_origin": "ast",
       "community": 8,
@@ -2449,7 +2437,7 @@
       "file_type": "rationale",
       "norm_label": "main event loop for the termux tui.",
       "source_file": "src/termux_ui.py",
-      "source_location": "L317"
+      "source_location": "L322"
     },
     {
       "id": "src_align_engine_readme",
@@ -2942,7 +2930,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "main.py",
-      "source_location": "L130",
+      "source_location": "L127",
       "weight": 1.0
     },
     {
@@ -2954,7 +2942,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "main.py",
-      "source_location": "L135",
+      "source_location": "L132",
       "weight": 1.0
     },
     {
@@ -2966,7 +2954,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "main.py",
-      "source_location": "L143",
+      "source_location": "L140",
       "weight": 1.0
     },
     {
@@ -2978,7 +2966,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "main.py",
-      "source_location": "L158",
+      "source_location": "L155",
       "weight": 1.0
     },
     {
@@ -3367,7 +3355,7 @@
     },
     {
       "source": "src_termux_ui_launch_web_studio_and_browser",
-      "target": "web_server_start_server",
+      "target": "src_termux_ui_open_url_in_browser",
       "relation": "calls",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -3375,6 +3363,18 @@
       "context": "call",
       "source_file": "src/termux_ui.py",
       "source_location": "L241",
+      "weight": 1.0
+    },
+    {
+      "source": "src_termux_ui_launch_web_studio_and_browser",
+      "target": "web_server_start_server",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/termux_ui.py",
+      "source_location": "L246",
       "weight": 1.0
     },
     {
@@ -3386,7 +3386,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/termux_ui.py",
-      "source_location": "L249",
+      "source_location": "L254",
       "weight": 1.0
     },
     {
@@ -3398,7 +3398,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/termux_ui.py",
-      "source_location": "L250",
+      "source_location": "L255",
       "weight": 1.0
     },
     {
@@ -3410,7 +3410,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/termux_ui.py",
-      "source_location": "L268",
+      "source_location": "L273",
       "weight": 1.0
     },
     {
@@ -3422,7 +3422,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/termux_ui.py",
-      "source_location": "L281",
+      "source_location": "L286",
       "weight": 1.0
     },
     {
@@ -3434,7 +3434,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/termux_ui.py",
-      "source_location": "L282",
+      "source_location": "L287",
       "weight": 1.0
     },
     {
@@ -3446,7 +3446,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/termux_ui.py",
-      "source_location": "L299",
+      "source_location": "L304",
       "weight": 1.0
     },
     {
@@ -3458,7 +3458,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/termux_ui.py",
-      "source_location": "L319",
+      "source_location": "L324",
       "weight": 1.0
     },
     {
@@ -3470,7 +3470,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/termux_ui.py",
-      "source_location": "L320",
+      "source_location": "L325",
       "weight": 1.0
     },
     {
@@ -3482,7 +3482,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/termux_ui.py",
-      "source_location": "L321",
+      "source_location": "L326",
       "weight": 1.0
     },
     {
@@ -3494,7 +3494,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/termux_ui.py",
-      "source_location": "L322",
+      "source_location": "L327",
       "weight": 1.0
     },
     {
@@ -3506,7 +3506,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/termux_ui.py",
-      "source_location": "L336",
+      "source_location": "L341",
       "weight": 1.0
     },
     {
@@ -3518,7 +3518,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/termux_ui.py",
-      "source_location": "L338",
+      "source_location": "L343",
       "weight": 1.0
     },
     {
@@ -3530,7 +3530,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/termux_ui.py",
-      "source_location": "L340",
+      "source_location": "L345",
       "weight": 1.0
     },
     {
@@ -3542,7 +3542,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/termux_ui.py",
-      "source_location": "L342",
+      "source_location": "L347",
       "weight": 1.0
     },
     {
@@ -3554,7 +3554,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/termux_ui.py",
-      "source_location": "L345",
+      "source_location": "L350",
       "weight": 1.0
     },
     {
@@ -3566,7 +3566,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/termux_ui.py",
-      "source_location": "L347",
+      "source_location": "L352",
       "weight": 1.0
     },
     {
@@ -3734,7 +3734,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "web/server.py",
-      "source_location": "L185",
+      "source_location": "L184",
       "weight": 1.0
     },
     {
@@ -3746,7 +3746,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "web/server.py",
-      "source_location": "L187",
+      "source_location": "L186",
       "weight": 1.0
     },
     {
@@ -3758,7 +3758,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "web/server.py",
-      "source_location": "L187",
+      "source_location": "L186",
       "weight": 1.0
     },
     {
@@ -3770,7 +3770,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "web/server.py",
-      "source_location": "L189",
+      "source_location": "L188",
       "weight": 1.0
     },
     {
@@ -3782,7 +3782,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "web/server.py",
-      "source_location": "L210",
+      "source_location": "L209",
       "weight": 1.0
     },
     {
@@ -3794,7 +3794,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "web/server.py",
-      "source_location": "L230",
+      "source_location": "L229",
       "weight": 1.0
     },
     {
@@ -4526,7 +4526,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "src/termux_ui.py",
-      "source_location": "L239",
+      "source_location": "L244",
       "weight": 1.0
     },
     {
@@ -4586,7 +4586,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "src/termux_ui.py",
-      "source_location": "L260",
+      "source_location": "L265",
       "weight": 1.0
     },
     {
@@ -4766,7 +4766,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "web/server.py",
-      "source_location": "L370",
+      "source_location": "L338",
       "weight": 1.0
     },
     {
@@ -5450,7 +5450,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "web/server.py",
-      "source_location": "L260",
+      "source_location": "L259",
       "weight": 1.0
     },
     {
@@ -5462,7 +5462,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "web/server.py",
-      "source_location": "L275",
+      "source_location": "L274",
       "weight": 1.0
     },
     {
@@ -6424,7 +6424,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/termux_ui.py",
-      "source_location": "L247",
+      "source_location": "L252",
       "weight": 1.0
     },
     {
@@ -6435,7 +6435,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/termux_ui.py",
-      "source_location": "L279",
+      "source_location": "L284",
       "weight": 1.0
     },
     {
@@ -6446,7 +6446,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/termux_ui.py",
-      "source_location": "L316",
+      "source_location": "L321",
       "weight": 1.0
     },
     {
@@ -6556,7 +6556,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "web/server.py",
-      "source_location": "L322",
+      "source_location": "L321",
       "weight": 1.0
     },
     {
@@ -6908,7 +6908,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "web/server.py",
-      "source_location": "L222",
+      "source_location": "L221",
       "weight": 1.0
     },
     {
@@ -6919,7 +6919,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "web/server.py",
-      "source_location": "L251",
+      "source_location": "L250",
       "weight": 1.0
     },
     {
@@ -6930,7 +6930,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "web/server.py",
-      "source_location": "L260",
+      "source_location": "L259",
       "weight": 1.0
     },
     {
@@ -6941,7 +6941,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "web/server.py",
-      "source_location": "L275",
+      "source_location": "L274",
       "weight": 1.0
     },
     {
@@ -7462,36 +7462,36 @@
       "weight": 1.0
     },
     {
-      "source": "src_termux_ui_rationale_248",
+      "source": "src_termux_ui_rationale_253",
       "target": "src_termux_ui_reset_or_switch_sample_story",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/termux_ui.py",
-      "source_location": "L248",
+      "source_location": "L253",
       "weight": 1.0
     },
     {
-      "source": "src_termux_ui_rationale_280",
+      "source": "src_termux_ui_rationale_285",
       "target": "src_termux_ui_run_termux_health_check",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/termux_ui.py",
-      "source_location": "L280",
+      "source_location": "L285",
       "weight": 1.0
     },
     {
-      "source": "src_termux_ui_rationale_317",
+      "source": "src_termux_ui_rationale_322",
       "target": "src_termux_ui_run_tui_main",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/termux_ui.py",
-      "source_location": "L317",
+      "source_location": "L322",
       "weight": 1.0
     },
     {
@@ -7528,14 +7528,14 @@
       "weight": 1.0
     },
     {
-      "source": "web_server_rationale_276",
+      "source": "web_server_rationale_275",
       "target": "web_server_storymakerrequesthandler_serve_video_range",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "web/server.py",
-      "source_location": "L276",
+      "source_location": "L275",
       "weight": 1.0
     },
     {
@@ -7597,18 +7597,6 @@
       "weight": 1.0
     },
     {
-      "source": "web_server_start_server",
-      "target": "web_server_start_server_open",
-      "relation": "indirect_call",
-      "_origin": "ast",
-      "confidence": "INFERRED",
-      "confidence_score": 0.85,
-      "context": "argument",
-      "source_file": "web/server.py",
-      "source_location": "L360",
-      "weight": 1.0
-    },
-    {
       "source": "web_server_storymakerrequesthandler_do_post",
       "target": "web_server_run_pipeline_thread",
       "relation": "indirect_call",
@@ -7617,7 +7605,7 @@
       "confidence_score": 0.85,
       "context": "argument",
       "source_file": "web/server.py",
-      "source_location": "L232",
+      "source_location": "L231",
       "weight": 1.0
     },
     {
@@ -7641,19 +7629,7 @@
       "confidence_score": 0.85,
       "context": "call",
       "source_file": "main.py",
-      "source_location": "L123",
-      "weight": 1.0
-    },
-    {
-      "source": "main_main",
-      "target": "src_deps_helper_is_termux",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "INFERRED",
-      "confidence_score": 0.85,
-      "context": "call",
-      "source_file": "main.py",
-      "source_location": "L129",
+      "source_location": "L122",
       "weight": 1.0
     },
     {
@@ -7798,18 +7774,6 @@
       "context": "call",
       "source_file": "web/server.py",
       "source_location": "L154",
-      "weight": 1.0
-    },
-    {
-      "source": "web_server_start_server_open",
-      "target": "src_termux_ui_open_url_in_browser",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "INFERRED",
-      "confidence_score": 0.85,
-      "context": "call",
-      "source_file": "web/server.py",
-      "source_location": "L357",
       "weight": 1.0
     },
     {
@@ -8026,5 +7990,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "c1c0db9e2471219ca36cd7886faefbb6590a0dc9"
+  "built_at_commit": "31955e78254b2875b858d0b46839c1ed23856f9a"
 }
