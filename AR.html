@@ -928,10 +928,19 @@
       let activeScene = scenes.find(s => currentTime >= s.start && currentTime <= s.end);
       if (!activeScene) activeScene = scenes[scenes.length - 1];
 
-      // Subtle Ken Burns zoom calculation (1.0 -> 1.05)
-      const sceneDur = activeScene.end - activeScene.start;
-      const progress = sceneDur > 0 ? (currentTime - activeScene.start) / sceneDur : 0;
-      const scale = 1.0 + 0.05 * Math.min(Math.max(progress, 0), 1);
+      // Smooth cinematic push-in & drift calculation (1.00 -> 1.08 with +18px x, -28px y)
+      function getMotionTransform(scene, t) {
+        const dur = Math.max(scene.end - scene.start, 0.1);
+        const progress = Math.max((t - scene.start) / dur, 0);
+        const p = Math.min(progress, 1.15);
+        const eased = p <= 1.0 ? (p * p * (3.0 - 2.0 * p)) : (1.0 + (p - 1.0) * 0.2);
+        const scale = 1.0 + 0.08 * eased;
+        const offsetX = 18.0 * eased;
+        const offsetY = -28.0 * eased;
+        return { scale, offsetX, offsetY };
+      }
+
+      const { scale, offsetX, offsetY } = getMotionTransform(activeScene, currentTime);
 
       const img = activeScene.img;
       if (img && img.complete) {
@@ -939,8 +948,14 @@
         const hRatio = canvas.width / img.width;
         const vRatio = canvas.height / img.height;
         const ratio = Math.max(hRatio, vRatio) * scale;
-        const centerShiftX = (canvas.width - img.width * ratio) / 2;
-        const centerShiftY = (canvas.height - img.height * ratio) / 2;
+        const scaledW = img.width * ratio;
+        const scaledH = img.height * ratio;
+
+        // Position with smooth drift offset, clamped safely to never reveal black borders
+        const rawShiftX = (canvas.width - scaledW) / 2 + offsetX;
+        const rawShiftY = (canvas.height - scaledH) / 2 + offsetY;
+        const centerShiftX = Math.max(canvas.width - scaledW, Math.min(rawShiftX, 0));
+        const centerShiftY = Math.max(canvas.height - scaledH, Math.min(rawShiftY, 0));
 
         const transType = (transitionSelect ? transitionSelect.value : 'cross_dissolve');
         const transDur = 0.45;
@@ -952,25 +967,30 @@
           const prevImg = prevScene.img;
           if (prevImg && prevImg.complete) {
             const pProgress = Math.max(0, Math.min((currentTime - activeScene.start) / transDur, 1));
+            const prevMotion = getMotionTransform(prevScene, currentTime);
             const pH = canvas.height / prevImg.height;
             const pW = canvas.width / prevImg.width;
-            const pRatio = Math.max(pW, pH) * 1.05;
-            const pX = (canvas.width - prevImg.width * pRatio) / 2;
-            const pY = (canvas.height - prevImg.height * pRatio) / 2;
+            const pRatio = Math.max(pW, pH) * prevMotion.scale;
+            const pScaledW = prevImg.width * pRatio;
+            const pScaledH = prevImg.height * pRatio;
+            const pRawX = (canvas.width - pScaledW) / 2 + prevMotion.offsetX;
+            const pRawY = (canvas.height - pScaledH) / 2 + prevMotion.offsetY;
+            const pX = Math.max(canvas.width - pScaledW, Math.min(pRawX, 0));
+            const pY = Math.max(canvas.height - pScaledH, Math.min(pRawY, 0));
 
-            // 1. Draw previous scene frame
+            // 1. Draw previous scene frame with continuous motion
             ctx.save();
-            ctx.drawImage(prevImg, 0, 0, prevImg.width, prevImg.height, pX, pY, prevImg.width * pRatio, prevImg.height * pRatio);
-            // 2. Cross-fade incoming scene frame
+            ctx.drawImage(prevImg, 0, 0, prevImg.width, prevImg.height, pX, pY, pScaledW, pScaledH);
+            // 2. Cross-fade incoming scene frame with its own drift
             ctx.globalAlpha = pProgress;
-            ctx.drawImage(img, 0, 0, img.width, img.height, centerShiftX, centerShiftY, img.width * ratio, img.height * ratio);
+            ctx.drawImage(img, 0, 0, img.width, img.height, centerShiftX, centerShiftY, scaledW, scaledH);
             ctx.restore();
           } else {
-            ctx.drawImage(img, 0, 0, img.width, img.height, centerShiftX, centerShiftY, img.width * ratio, img.height * ratio);
+            ctx.drawImage(img, 0, 0, img.width, img.height, centerShiftX, centerShiftY, scaledW, scaledH);
           }
         } else {
-          // Regular full-bleed frame
-          ctx.drawImage(img, 0, 0, img.width, img.height, centerShiftX, centerShiftY, img.width * ratio, img.height * ratio);
+          // Regular full-bleed frame with push-in & drift
+          ctx.drawImage(img, 0, 0, img.width, img.height, centerShiftX, centerShiftY, scaledW, scaledH);
         }
       }
 

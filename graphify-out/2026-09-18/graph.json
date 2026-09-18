@@ -338,7 +338,7 @@
       "file_type": "code",
       "norm_label": "main()",
       "source_file": "src/choreography_core/choreography_core.py",
-      "source_location": "L272"
+      "source_location": "L249"
     },
     {
       "id": "src_choreography_core_choreography_core_visualchoreographer_compute_motion_transform",
@@ -422,7 +422,7 @@
       "file_type": "code",
       "norm_label": ".render_frame()",
       "source_file": "src/choreography_core/choreography_core.py",
-      "source_location": "L215"
+      "source_location": "L192"
     },
     {
       "id": "src_choreography_core_choreography_core_visualchoreographer_render_scene_image",
@@ -434,7 +434,7 @@
       "file_type": "code",
       "norm_label": "._render_scene_image()",
       "source_file": "src/choreography_core/choreography_core.py",
-      "source_location": "L180"
+      "source_location": "L171"
     },
     {
       "id": "tests_test_choreography_core_testchoreographycore_setup",
@@ -458,7 +458,7 @@
       "file_type": "code",
       "norm_label": ".test_cross_dissolve_transition()",
       "source_file": "tests/test_choreography_core.py",
-      "source_location": "L68"
+      "source_location": "L66"
     },
     {
       "id": "tests_test_choreography_core_testchoreographycore_test_motion_transform",
@@ -482,7 +482,7 @@
       "file_type": "code",
       "norm_label": ".test_render_frame_caption_toggle()",
       "source_file": "tests/test_choreography_core.py",
-      "source_location": "L52"
+      "source_location": "L50"
     },
     {
       "id": "tests_test_choreography_core_testchoreographycore_test_render_frame_dimensions",
@@ -494,7 +494,7 @@
       "file_type": "code",
       "norm_label": ".test_render_frame_dimensions()",
       "source_file": "tests/test_choreography_core.py",
-      "source_location": "L47"
+      "source_location": "L45"
     },
     {
       "id": "src_duration_director_duration_director_main",
@@ -1437,28 +1437,28 @@
     },
     {
       "id": "src_choreography_core_choreography_core_rationale_163",
-      "label": "Computes (scale, offset_x, offset_y) for smooth cinematic push-in & drift.\u2026",
+      "label": "Computes (scale, offset_x, offset_y) for subtle Ken Burns zoom-in (1.0 -> 1.05).",
       "_origin": "ast",
       "community": 1,
       "community_name": "VisualChoreographer",
       "file_type": "rationale",
-      "norm_label": "computes (scale, offset_x, offset_y) for smooth cinematic push-in & drift....",
+      "norm_label": "computes (scale, offset_x, offset_y) for subtle ken burns zoom-in (1.0 -> 1.05).",
       "source_file": "src/choreography_core/choreography_core.py",
       "source_location": "L163"
     },
     {
-      "id": "src_choreography_core_choreography_core_rationale_187",
-      "label": "Renders the scene artwork filling the 9:16 vertical frame edge-to-edge (cover)\u2026",
+      "id": "src_choreography_core_choreography_core_rationale_172",
+      "label": "Renders the scene artwork filling the 9:16 vertical frame edge-to-edge (cover).",
       "_origin": "ast",
       "community": 1,
       "community_name": "VisualChoreographer",
       "file_type": "rationale",
-      "norm_label": "renders the scene artwork filling the 9:16 vertical frame edge-to-edge (cover)...",
+      "norm_label": "renders the scene artwork filling the 9:16 vertical frame edge-to-edge (cover).",
       "source_file": "src/choreography_core/choreography_core.py",
-      "source_location": "L187"
+      "source_location": "L172"
     },
     {
-      "id": "src_choreography_core_choreography_core_rationale_225",
+      "id": "src_choreography_core_choreography_core_rationale_202",
       "label": "Renders a single 1080x1920 video frame with: - Full-bleed edge-to-edge image\u2026",
       "_origin": "ast",
       "community": 1,
@@ -1466,7 +1466,7 @@
       "file_type": "rationale",
       "norm_label": "renders a single 1080x1920 video frame with: - full-bleed edge-to-edge image...",
       "source_file": "src/choreography_core/choreography_core.py",
-      "source_location": "L225"
+      "source_location": "L202"
     },
     {
       "id": "src_choreography_core_choreography_core_rationale_26",
@@ -3777,7 +3777,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/choreography_core/choreography_core.py",
-      "source_location": "L275",
+      "source_location": "L252",
       "weight": 1.0
     },
     {
@@ -3789,7 +3789,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/choreography_core/choreography_core.py",
-      "source_location": "L285",
+      "source_location": "L262",
       "weight": 1.0
     },
     {
@@ -3825,7 +3825,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/choreography_core/choreography_core.py",
-      "source_location": "L233",
+      "source_location": "L210",
       "weight": 1.0
     },
     {
@@ -3837,7 +3837,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/choreography_core/choreography_core.py",
-      "source_location": "L234",
+      "source_location": "L211",
       "weight": 1.0
     },
     {
@@ -3849,7 +3849,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/choreography_core/choreography_core.py",
-      "source_location": "L249",
+      "source_location": "L226",
       "weight": 1.0
     },
     {
@@ -3861,7 +3861,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/choreography_core/choreography_core.py",
-      "source_location": "L188",
+      "source_location": "L173",
       "weight": 1.0
     },
     {
@@ -4617,7 +4617,7 @@
       "confidence_score": 1.0,
       "context": "generic_arg",
       "source_file": "src/choreography_core/choreography_core.py",
-      "source_location": "L215",
+      "source_location": "L192",
       "weight": 1.0
     },
     {
@@ -6309,7 +6309,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "src/choreography_core/choreography_core.py",
-      "source_location": "L180",
+      "source_location": "L171",
       "weight": 1.0
     },
     {
@@ -6465,7 +6465,7 @@
       "confidence_score": 1.0,
       "context": "return_type",
       "source_file": "src/choreography_core/choreography_core.py",
-      "source_location": "L215",
+      "source_location": "L192",
       "weight": 1.0
     },
     {
@@ -6477,7 +6477,7 @@
       "confidence_score": 1.0,
       "context": "return_type",
       "source_file": "src/choreography_core/choreography_core.py",
-      "source_location": "L180",
+      "source_location": "L171",
       "weight": 1.0
     },
     {
@@ -7386,6 +7386,17 @@
     },
     {
       "source": "src_choreography_core_choreography_core",
+      "target": "src_choreography_core_choreography_core_main",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/choreography_core/choreography_core.py",
+      "source_location": "L249",
+      "weight": 1.0
+    },
+    {
+      "source": "src_choreography_core_choreography_core",
       "target": "src_choreography_core_choreography_core_visualchoreographer",
       "relation": "contains",
       "_origin": "ast",
@@ -7393,17 +7404,6 @@
       "confidence_score": 1.0,
       "source_file": "src/choreography_core/choreography_core.py",
       "source_location": "L25",
-      "weight": 1.0
-    },
-    {
-      "source": "src_choreography_core_choreography_core",
-      "target": "src_choreography_core_choreography_core_main",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "src/choreography_core/choreography_core.py",
-      "source_location": "L272",
       "weight": 1.0
     },
     {
@@ -7953,7 +7953,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/choreography_core/choreography_core.py",
-      "source_location": "L180",
+      "source_location": "L171",
       "weight": 1.0
     },
     {
@@ -7964,7 +7964,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/choreography_core/choreography_core.py",
-      "source_location": "L215",
+      "source_location": "L192",
       "weight": 1.0
     },
     {
@@ -8195,7 +8195,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "tests/test_choreography_core.py",
-      "source_location": "L47",
+      "source_location": "L45",
       "weight": 1.0
     },
     {
@@ -8206,7 +8206,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "tests/test_choreography_core.py",
-      "source_location": "L52",
+      "source_location": "L50",
       "weight": 1.0
     },
     {
@@ -8217,7 +8217,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "tests/test_choreography_core.py",
-      "source_location": "L68",
+      "source_location": "L66",
       "weight": 1.0
     },
     {
@@ -8606,25 +8606,25 @@
       "weight": 1.0
     },
     {
-      "source": "src_choreography_core_choreography_core_rationale_187",
+      "source": "src_choreography_core_choreography_core_rationale_172",
       "target": "src_choreography_core_choreography_core_visualchoreographer_render_scene_image",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/choreography_core/choreography_core.py",
-      "source_location": "L187",
+      "source_location": "L172",
       "weight": 1.0
     },
     {
-      "source": "src_choreography_core_choreography_core_rationale_225",
+      "source": "src_choreography_core_choreography_core_rationale_202",
       "target": "src_choreography_core_choreography_core_visualchoreographer_render_frame",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/choreography_core/choreography_core.py",
-      "source_location": "L225",
+      "source_location": "L202",
       "weight": 1.0
     },
     {
@@ -9212,7 +9212,7 @@
       "confidence_score": 0.85,
       "context": "call",
       "source_file": "tests/test_choreography_core.py",
-      "source_location": "L70",
+      "source_location": "L68",
       "weight": 1.0
     },
     {
@@ -9501,5 +9501,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "9d00d8277da9d8f07205ac3bed1c3efb5af4ec8e"
+  "built_at_commit": "c1304a5e458f62448a31006923bdc889222ff521"
 }

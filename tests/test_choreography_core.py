@@ -35,12 +35,14 @@ class TestChoreographyCore(unittest.TestCase):
         )
 
     def test_motion_transform(self):
-        # Test entrance pop
-        scale_early, _, _ = self.choreographer.compute_motion_transform(self.scene, scene_t=0.05)
-        scale_mid, _, _ = self.choreographer.compute_motion_transform(self.scene, scene_t=1.5)
+        # Test smooth cinematic push-in and diagonal drift
+        scale_early, off_x_early, off_y_early = self.choreographer.compute_motion_transform(self.scene, scene_t=0.05)
+        scale_mid, off_x_mid, off_y_mid = self.choreographer.compute_motion_transform(self.scene, scene_t=1.5)
 
         self.assertGreater(scale_mid, 1.0)  # Slow intentional push zoom
-        self.assertNotEqual(scale_early, scale_mid)
+        self.assertGreater(scale_mid, scale_early)
+        self.assertGreater(off_x_mid, off_x_early)  # Drifts rightward
+        self.assertLess(off_y_mid, off_y_early)     # Drifts upward
 
     def test_render_frame_dimensions(self):
         frame = self.choreographer.render_frame(self.scene, scene_t=1.0, total_t=1.0, total_duration=21.0)

@@ -161,15 +161,30 @@ class VisualChoreographer:
         scene_t: float
     ) -> Tuple[float, float, float]:
         """
-        Computes (scale, offset_x, offset_y) for subtle Ken Burns zoom-in (1.0 -> 1.05).
+        Computes (scale, offset_x, offset_y) for smooth cinematic push-in & drift.
+        Scale: 1.00 -> 1.08 with smoothstep easing.
+        Drift: gentle upward diagonal drift (+18px x, -28px y) keeping subject safely framed.
         """
         duration = max(scene.duration, 0.1)
-        progress = max(0.0, min(scene_t / duration, 1.0))
-        scale = 1.0 + (0.05 * progress)
-        return scale, 0.0, 0.0
+        progress = max(0.0, scene_t / duration)
+        p = min(progress, 1.15)
+        if p <= 1.0:
+            eased = p * p * (3.0 - 2.0 * p)
+        else:
+            eased = 1.0 + (p - 1.0) * 0.2
+        scale = 1.0 + (0.08 * eased)
+        offset_x = 18.0 * eased
+        offset_y = -28.0 * eased
+        return scale, offset_x, offset_y
 
-    def _render_scene_image(self, scene: SceneTimeline, scale: float) -> Image.Image:
-        """Renders the scene artwork filling the 9:16 vertical frame edge-to-edge (cover)."""
+    def _render_scene_image(
+        self,
+        scene: SceneTimeline,
+        scale: float,
+        offset_x: float = 0.0,
+        offset_y: float = 0.0
+    ) -> Image.Image:
+        """Renders the scene artwork filling the 9:16 vertical frame edge-to-edge (cover) with drift offsets."""
         src_img = self.get_source_image(scene.image_path)
         h_ratio = self.width / src_img.width
         v_ratio = self.height / src_img.height
@@ -179,14 +194,22 @@ class VisualChoreographer:
         scaled_h = int(src_img.height * cover_ratio)
         scaled_img = src_img.resize((scaled_w, scaled_h), Image.Resampling.BICUBIC)
 
-        center_shift_x = (self.width - scaled_w) // 2
-        center_shift_y = (self.height - scaled_h) // 2
+        raw_shift_x = int((self.width - scaled_w) // 2 + offset_x)
+        raw_shift_y = int((self.height - scaled_h) // 2 + offset_y)
+
+        # Clamping to ensure no black borders ever show
+        min_x = self.width - scaled_w
+        max_x = 0
+        min_y = self.height - scaled_h
+        max_y = 0
+        final_x = max(min_x, min(raw_shift_x, max_x))
+        final_y = max(min_y, min(raw_shift_y, max_y))
 
         img_frame = Image.new("RGB", (self.width, self.height), (0, 0, 0))
         if scaled_img.mode == "RGBA":
-            img_frame.paste(scaled_img, (center_shift_x, center_shift_y), scaled_img)
+            img_frame.paste(scaled_img, (final_x, final_y), scaled_img)
         else:
-            img_frame.paste(scaled_img, (center_shift_x, center_shift_y))
+            img_frame.paste(scaled_img, (final_x, final_y))
         return img_frame
 
     def render_frame(
@@ -202,19 +225,19 @@ class VisualChoreographer:
         """
         Renders a single 1080x1920 video frame with:
         - Full-bleed edge-to-edge image framing (as seen in user screenshot)
-        - Smooth cinematic cross-dissolve transition between scenes
-        - Subtle Ken Burns drift
+        - Smooth cinematic cross-dissolve transition between scenes with continuous motion
+        - Subtle Ken Burns push-in & drift (1.00 -> 1.08 + diagonal drift)
         - Floating white caption directly on the video (matching user screenshot)
         """
-        # 1. Render current scene image with Ken Burns motion
-        scale_cur, _, _ = self.compute_motion_transform(scene, scene_t)
-        cur_frame = self._render_scene_image(scene, scale_cur)
+        # 1. Render current scene image with Ken Burns push-in & drift
+        scale_cur, off_x_cur, off_y_cur = self.compute_motion_transform(scene, scene_t)
+        cur_frame = self._render_scene_image(scene, scale_cur, off_x_cur, off_y_cur)
 
-        # 2. Cinematic Cross-Dissolve Transition from previous scene
+        # 2. Cinematic Cross-Dissolve Transition from previous scene (continuous motion)
         if prev_scene is not None and scene_t < transition_duration:
             prev_dur = max(prev_scene.duration, 0.1)
-            scale_prev, _, _ = self.compute_motion_transform(prev_scene, prev_dur)
-            prev_frame = self._render_scene_image(prev_scene, scale_prev)
+            scale_prev, off_x_prev, off_y_prev = self.compute_motion_transform(prev_scene, prev_dur + scene_t)
+            prev_frame = self._render_scene_image(prev_scene, scale_prev, off_x_prev, off_y_prev)
             blend_alpha = max(0.0, min(scene_t / transition_duration, 1.0))
             frame = Image.blend(prev_frame, cur_frame, blend_alpha)
         else:
