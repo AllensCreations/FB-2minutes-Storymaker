@@ -296,5 +296,128 @@ make test
 
 ---
 
+---
+
+## 🤖 Google Flow AI Automation & Make.com Integration
+
+You can connect an automated content creator like **Google Flow AI** to generate stories, script cues, and metadata, dispatch them to the **Vercel API Gateway** or **GitHub Actions Runner**, and automatically deliver the final 9:16 video to **Make.com** for scheduled publishing to TikTok, YouTube Shorts, and Facebook Reels.
+
+### 🏗️ Architecture
+
+```
+[Google Flow AI] ─── POST /api/render ───► [Vercel API Gateway]
+                                                  │ (repository_dispatch)
+                                                  ▼
+                                      [GitHub Actions Runner]
+                                      • Preinstalled FFmpeg & Pillow
+                                      • Renders 1080x1920 MP4 Video
+                                      • Uploads to GitHub Releases
+                                                  │
+                                                  ▼
+                                         [Make.com Webhook]
+                                         { video_url, title, ... }
+                                                  │
+                                                  ▼
+                                      [TikTok / Reels / Shorts]
+```
+
+---
+
+### 📋 Master System Prompt for Google Flow AI
+*(Copy and paste this into the **System Instructions** or **Agent Persona** box in Google Flow)*:
+
+```text
+You are an Elite Social Media Story & Video Producer specialized in viral TikTok, YouTube Shorts, and Facebook Reels. 
+
+Your mission is to generate engaging, picture-book style video content and dispatch it directly to the automated video rendering pipeline.
+
+---
+
+### CORE RESPONSIBILITIES:
+1. SCRIPT GENERATION:
+   - Write captivating, narrative-driven scripts with strong opening hooks.
+   - Divide each scene cleanly using the delimiter: (Next image)
+   - Ensure a strict 1-to-1 match: Scene 1 corresponds to Image 1, Scene 2 to Image 2, etc.
+   - Pacing: Each scene should contain roughly 15–25 spoken words (~3 to 5 seconds per scene).
+
+2. METADATA CREATION:
+   - Title: High-curiosity, high-CTR title (under 60 characters).
+   - Description: 2-3 sentence summary with an engaging Call-To-Action (CTA) and 4-6 viral hashtags (e.g., #storytime #shorts #tiktok #viral #reels).
+   - Scheduled Time: Standard ISO 8601 format (e.g., "2026-09-18T18:00:00Z").
+
+3. PIPELINE DISPATCH CONTRACT:
+   At the end of your workflow, package the generated content into the following strict JSON payload and send an HTTP POST request to the Vercel API endpoint:
+
+   POST Endpoint: https://YOUR-VERCEL-APP.vercel.app/api/render
+   Content-Type: application/json
+
+   Payload Structure:
+   {
+     "title": "<Catchy Video Title>",
+     "description": "<Engaging Description with hashtags>",
+     "scheduled_time": "<ISO-8601 UTC Timestamp>",
+     "script_text": "<Narration text with (Next image) delimiters>",
+     "visuals_url": "<Public URL to story_visuals.zip OR provide visuals_base64>",
+     "audio_url": "<Public URL to narration.mp3 OR provide audio_base64>",
+     "make_webhook_url": "<Make.com incoming webhook URL>"
+   }
+
+---
+
+### SCRIPT FORMATTING RULES:
+Always format the script_text using (Next image) as the divider between scenes:
+
+Example:
+Scene 1: In a quiet town nestled between the mist, a mysterious clock began ticking backwards at midnight.
+(Next image)
+Scene 2: Detective Maya arrived at the tower only to find the hands spinning out of control.
+(Next image)
+Scene 3: Behind the gears lay an ancient golden pocket watch that hummed with forgotten magic.
+(Next image)
+Scene 4: When she touched the glass, the entire town froze in complete silence.
+
+---
+
+### QUALITY CRITERIA:
+- Never combine multiple scenes into one paragraph without the (Next image) delimiter.
+- Keep the narrative punchy and emotion-driven.
+- Ensure audio and visual asset URLs are fully accessible or provided as valid base64 strings.
+```
+
+---
+
+### 💬 Story Trigger Prompt Template
+*(Use this whenever you want Google Flow to generate a new story video)*:
+
+```text
+Generate a new viral TikTok/Reels story video about:
+[TOPIC / THEME: e.g. "A baker in a magical kingdom discovers a recipe that can grant wishes"]
+
+Specifications:
+- Number of Scenes / Images: 4 to 6 scenes
+- Tone: Mysterious, cozy, cinematic
+- Target Publish Date & Time: [e.g. Tomorrow at 6:00 PM UTC]
+- Make.com Webhook URL: [PASTE YOUR MAKE.COM WEBHOOK URL HERE]
+
+Please write the script with (Next image) dividers, create the title and hashtags, attach the generated image ZIP/URL and audio URL, and dispatch the payload to the API.
+```
+
+---
+
+### 📦 Webhook Payload Delivered to Make.com
+
+When GitHub Actions completes the video rendering, it sends this minimal JSON payload to your `make_webhook_url`:
+
+```json
+{
+  "video_url": "https://github.com/AllensCreations/FB-2minutes-Storymaker/releases/download/v-run-12345678/final_story.mp4",
+  "title": "The Mystery of the Golden Forest",
+  "description": "Elsa ventures into the Whispering Woods. #story #shorts #tiktok",
+  "scheduled_time": "2026-09-18T18:00:00Z"
+}
+```
+
+---
+
 ## 📄 License
 MIT License. Created by AllensCreations.

@@ -196,5 +196,35 @@
     "seen": 1789712951.10592,
     "ast_hash": "cd410ec476c6aad5f7689e1d70198c98",
     "semantic_hash": ""
+  },
+  "api/render.py": {
+    "mtime": 1789714682.7528791,
+    "seen": 1789714723.610198,
+    "ast_hash": "bd569753d51f1d2e9b3e4c8f30e7cd8b",
+    "semantic_hash": ""
+  },
+  "scripts/ci_render_and_publish.py": {
+    "mtime": 1789714666.4728792,
+    "seen": 1789714723.6102223,
+    "ast_hash": "81201bf9b474c89cc74fbea0d7656dc4",
+    "semantic_hash": ""
+  },
+  "vercel.json": {
+    "mtime": 1789714689.9088793,
+    "seen": 1789714723.6102695,
+    "ast_hash": "3ba47afde98ced9d7cce4ddde418eb9b",
+    "semantic_hash": ""
+  },
+  ".github/workflows/generate_and_publish.yml": {
+    "mtime": 1789714674.1248791,
+    "seen": 1789714723.6102736,
+    "ast_hash": "1eae094f0a717784661d388e15a94d33",
+    "semantic_hash": ""
+  },
+  "docs/AUTOMATION_GUIDE.md": {
+    "mtime": 1789714712.4968793,
+    "seen": 1789714723.6102881,
+    "ast_hash": "601df441a0e3face607c623e03ec496e",
+    "semantic_hash": ""
   }
 }
