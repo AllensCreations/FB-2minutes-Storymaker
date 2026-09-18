@@ -78,6 +78,7 @@ export default async function handler(req, res) {
   const scheduledTime = body.scheduled_time || body.upload_time || body.upload_date || body.date_time || "";
   const audioUrl = body.audio_url || body.audio || "";
   const audioBase64 = body.audio_base64 || "";
+  const scenes = Array.isArray(body.scenes) ? body.scenes : [];
   const visualsUrl = body.visuals_url || body.visuals_zip_url || (Array.isArray(body.images) ? body.images[0] : (body.images || ""));
   const visualsBase64 = body.visuals_base64 || "";
   const scriptText = body.script_text || body.script || "";
@@ -85,7 +86,9 @@ export default async function handler(req, res) {
 
   // Calculate Scene Count for Detailed Response
   let sceneCount = 1;
-  if (scriptText) {
+  if (scenes.length > 0) {
+    sceneCount = scenes.length;
+  } else if (scriptText) {
     if (scriptText.includes("(Next image)")) {
       sceneCount = scriptText.split(/\(Next image\)/i).filter(s => s.trim().length > 0).length;
     } else {
@@ -119,6 +122,8 @@ export default async function handler(req, res) {
       title,
       description,
       scheduled_time: scheduledTime,
+      scenes: scenes,
+      images: Array.isArray(body.images) ? body.images : [],
       visuals_url: visualsUrl,
       visuals_base64: visualsBase64,
       audio_url: audioUrl,

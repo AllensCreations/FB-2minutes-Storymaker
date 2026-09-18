@@ -11,6 +11,7 @@ import os
 import sys
 import urllib.request
 import urllib.parse
+import zipfile
 from pathlib import Path
 
 # Add project root and src to sys.path
@@ -192,6 +193,63 @@ def main():
     print(f"Run ID:         {github_run_id}")
     print("=" * 65)
 
+    # 0. Check for scenes or direct images from Google Flow
+    scenes = data.get("scenes") or []
+    images = data.get("images") or []
+
+    if isinstance(scenes, list) and len(scenes) > 0:
+        print(f"[CI Ingestion] Detected {len(scenes)} scene(s) from Google Flow payload.")
+        raw_frames_dir = VISUALS_DIR / "raw_frames"
+        raw_frames_dir.mkdir(parents=True, exist_ok=True)
+        visuals_zip = VISUALS_DIR / "story_visuals.zip"
+
+        script_blocks = []
+        for idx, sc in enumerate(scenes, 1):
+            s_num = sc.get("scene", idx)
+            s_text = sc.get("text") or sc.get("narration") or sc.get("script") or ""
+            img_url = sc.get("image_url") or sc.get("url") or ""
+            img_b64 = sc.get("image_base64") or sc.get("base64") or ""
+
+            if s_text:
+                script_blocks.append(f"Scene {s_num}: {s_text.strip()}")
+
+            dest_img = raw_frames_dir / f"scene_{s_num}.png"
+            if img_url:
+                download_file(img_url, dest_img)
+            elif img_b64:
+                save_base64_file(img_b64, dest_img)
+
+        if script_blocks and not script_text:
+            script_text = "\n(Next image)\n".join(script_blocks)
+
+        with zipfile.ZipFile(visuals_zip, "w") as zf:
+            for sc in scenes:
+                s_num = sc.get("scene", 1)
+                img_path = raw_frames_dir / f"scene_{s_num}.png"
+                if img_path.exists():
+                    zf.write(img_path, arcname=f"scene_{s_num}.png")
+        print(f"[CI Ingestion] Successfully packaged {visuals_zip} from Google Flow scenes.")
+
+    elif isinstance(images, list) and len(images) > 0:
+        print(f"[CI Ingestion] Detected {len(images)} direct image URL(s).")
+        raw_frames_dir = VISUALS_DIR / "raw_frames"
+        raw_frames_dir.mkdir(parents=True, exist_ok=True)
+        visuals_zip = VISUALS_DIR / "story_visuals.zip"
+
+        for idx, img_item in enumerate(images, 1):
+            dest_img = raw_frames_dir / f"scene_{idx}.png"
+            if isinstance(img_item, str) and (img_item.startswith("http://") or img_item.startswith("https://")):
+                download_file(img_item, dest_img)
+            elif isinstance(img_item, str) and img_item:
+                save_base64_file(img_item, dest_img)
+
+        with zipfile.ZipFile(visuals_zip, "w") as zf:
+            for idx in range(1, len(images) + 1):
+                img_path = raw_frames_dir / f"scene_{idx}.png"
+                if img_path.exists():
+                    zf.write(img_path, arcname=f"scene_{idx}.png")
+        print(f"[CI Ingestion] Successfully packaged {visuals_zip} from images array.")
+
     # 1. Ingest Script
     if script_text:
         SCRIPTS_DIR.mkdir(parents=True, exist_ok=True)
@@ -200,12 +258,13 @@ def main():
             f.write(script_text)
         print(f"[CI Ingestion] Wrote script to: {script_file}")
 
-    # 2. Ingest Visuals
+    # 2. Ingest Visuals (if not already packaged from scenes/images)
     visuals_zip = VISUALS_DIR / "story_visuals.zip"
-    if visuals_url:
-        download_file(visuals_url, visuals_zip)
-    elif visuals_base64:
-        save_base64_file(visuals_base64, visuals_zip)
+    if not visuals_zip.exists() or (not scenes and not images):
+        if visuals_url:
+            download_file(visuals_url, visuals_zip)
+        elif visuals_base64:
+            save_base64_file(visuals_base64, visuals_zip)
 
     # 3. Ingest Audio
     audio_file = VOICE_DIR / "narration.mp3"

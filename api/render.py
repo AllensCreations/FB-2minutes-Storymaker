@@ -106,14 +106,18 @@ class handler(BaseHTTPRequestHandler):
         scheduled_time = payload.get("scheduled_time") or payload.get("upload_time") or payload.get("upload_date") or ""
         audio_url = payload.get("audio_url") or payload.get("audio", "")
         audio_base64 = payload.get("audio_base64", "")
-        visuals_url = payload.get("visuals_url") or payload.get("visuals_zip_url") or (payload.get("images")[0] if isinstance(payload.get("images"), list) and payload.get("images") else "")
+        scenes = payload.get("scenes") if isinstance(payload.get("scenes"), list) else []
+        images = payload.get("images") if isinstance(payload.get("images"), list) else []
+        visuals_url = payload.get("visuals_url") or payload.get("visuals_zip_url") or (images[0] if images else "")
         visuals_base64 = payload.get("visuals_base64", "")
         script_text = payload.get("script_text") or payload.get("script", "")
         make_webhook_url = payload.get("make_webhook_url") or payload.get("webhook_url", "")
 
         # Calculate scene count
         scene_count = 1
-        if script_text:
+        if scenes:
+            scene_count = len(scenes)
+        elif script_text:
             if "(Next image)" in script_text:
                 scene_count = len([s for s in script_text.split("(Next image)") if s.strip()])
             else:
@@ -123,8 +127,8 @@ class handler(BaseHTTPRequestHandler):
                         scene_count = len(parsed)
                 except Exception:
                     scene_count = len([l for l in script_text.splitlines() if l.strip()]) or 1
-        elif isinstance(payload.get("images"), list) and payload.get("images"):
-            scene_count = len(payload.get("images"))
+        elif images:
+            scene_count = len(images)
 
         # 4. Prepare repository_dispatch payload
         dispatch_url = f"https://api.github.com/repos/{github_repo}/dispatches"
@@ -134,6 +138,8 @@ class handler(BaseHTTPRequestHandler):
                 "title": title,
                 "description": description,
                 "scheduled_time": scheduled_time,
+                "scenes": scenes,
+                "images": images,
                 "visuals_url": visuals_url,
                 "visuals_base64": visuals_base64,
                 "audio_url": audio_url,

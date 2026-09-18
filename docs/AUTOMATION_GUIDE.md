@@ -39,18 +39,35 @@ Make an authenticated HTTP POST request from Google Flow / Google Apps Script:
 * **Headers:**
   * `Content-Type: application/json`
   * `x-api-key: YOUR_API_SECRET_KEY` (or `Authorization: Bearer YOUR_API_SECRET_KEY`)
-* **Body:**
+* **Body (Direct Scenes with Image URLs - Zero ZIP required):**
 ```json
 {
   "title": "The Mystery of the Golden Forest",
   "description": "Elsa embarks on a journey deep into the Whispering Woods. #story #shorts #tiktok",
   "upload_date": "2026-09-18T18:00:00Z",
-  "visuals_url": "https://example.com/assets/story_visuals.zip",
   "audio_url": "https://example.com/assets/narration.mp3",
-  "script_text": "Scene 1: In a quiet village, Elsa begins her day before sunrise.\n(Next image)\nScene 2: The magical yeast has gone missing from the pantry.\n(Next image)\nScene 3: Elsa ventures into the Enchanted Forest to find answers.",
-  "make_webhook_url": "https://hook.us1.make.com/your-make-webhook-id"
+  "make_webhook_url": "https://hook.us1.make.com/your-make-webhook-id",
+  "scenes": [
+    {
+      "scene": 1,
+      "text": "In a quiet village, Elsa begins her day before sunrise.",
+      "image_url": "https://storage.googleapis.com/.../scene_1.png"
+    },
+    {
+      "scene": 2,
+      "text": "The magical yeast has gone missing from the pantry.",
+      "image_url": "https://storage.googleapis.com/.../scene_2.png"
+    },
+    {
+      "scene": 3,
+      "text": "Elsa ventures into the Enchanted Forest to find answers.",
+      "image_url": "https://storage.googleapis.com/.../scene_3.png"
+    }
+  ]
 }
 ```
+
+> **ZIP / Base64 Alternative:** You can also pass `"visuals_url": "https://.../story_visuals.zip"` (or `"visuals_base64": "..."`) and `"script_text": "Scene 1...\n(Next image)\nScene 2..."`. Both formats are supported!
 
 #### Detailed Confirmation Response from Vercel (`202 Accepted`):
 ```json

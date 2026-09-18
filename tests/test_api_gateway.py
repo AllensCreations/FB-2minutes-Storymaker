@@ -99,6 +99,47 @@ class TestApiGateway(unittest.TestCase):
             self.assertEqual(resp["scenes_detected"], 2)
             self.assertEqual(resp["title"], "Story Title")
 
+    @patch("urllib.request.urlopen")
+    def test_post_scenes_array_dispatches_with_image_urls(self, mock_urlopen):
+        mock_resp = MagicMock()
+        mock_resp.getcode.return_value = 204
+        mock_urlopen.return_value.__enter__.return_value = mock_resp
+
+        payload = {
+            "title": "Google Flow Generated Story",
+            "description": "Episode 1 #shorts",
+            "upload_date": "2026-09-20T18:00:00Z",
+            "audio_url": "https://example.com/narration.mp3",
+            "scenes": [
+                {"scene": 1, "text": "Scene 1 intro", "image_url": "https://example.com/img1.png"},
+                {"scene": 2, "text": "Scene 2 problem", "image_url": "https://example.com/img2.png"},
+                {"scene": 3, "text": "Scene 3 resolution", "image_url": "https://example.com/img3.png"}
+            ],
+            "make_webhook_url": "https://hook.make.com/123"
+        }
+        body_bytes = json.dumps(payload).encode("utf-8")
+
+        with patch.dict(os.environ, {
+            "API_SECRET_KEY": "mysecret",
+            "GH_PAT": "ghp_mocktoken123",
+            "GITHUB_REPOSITORY": "AllensCreations/FB-2minutes-Storymaker"
+        }):
+            h = self.create_handler(
+                "POST", "/api/render",
+                headers={
+                    "Content-Length": str(len(body_bytes)),
+                    "x-api-key": "mysecret"
+                },
+                body=body_bytes
+            )
+            h.do_POST()
+            h.send_response.assert_called_with(202)
+            resp = h.wfile.get_json()
+            self.assertTrue(resp["ok"])
+            self.assertEqual(resp["status"], "queued")
+            self.assertEqual(resp["scenes_detected"], 3)
+            self.assertEqual(resp["title"], "Google Flow Generated Story")
+
 
 if __name__ == "__main__":
     unittest.main()
