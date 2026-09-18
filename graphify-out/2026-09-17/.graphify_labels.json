@@ -3,9 +3,10 @@
   "1": "VisualChoreographer",
   "2": "SpeechCueAlignEngine",
   "3": "FB-2minutes Storymaker",
+  "4": ".resolve_visual_assets",
   "5": "install.sh",
   "6": "generate_sample_assets.py",
-  "7": "SceneDurationDirector",
+  "7": "video_exporter.py",
   "8": "termux_ui.py",
   "9": "Speech-Cue Align Engine",
   "10": "End-to-End Workflow: FB 2minutes Storymaker",
@@ -13,5 +14,6 @@
   "12": "setup_local.sh",
   "13": "choreography_core/README.md",
   "14": "duration_director/README.md",
-  "15": "exporter/README.md"
+  "15": "exporter/README.md",
+  "16": "TestAlignEngine"
 }

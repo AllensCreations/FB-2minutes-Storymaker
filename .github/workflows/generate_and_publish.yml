@@ -1,0 +1,90 @@
+name: Generate & Publish Video
+
+on:
+  repository_dispatch:
+    types: [generate-video]
+  workflow_dispatch:
+    inputs:
+      title:
+        description: "Story Video Title"
+        required: false
+        default: "StoryShorts Video"
+      description:
+        description: "Video Description and Hashtags"
+        required: false
+        default: "Generated via StoryShorts Studio #shorts #tiktok"
+      scheduled_time:
+        description: "Scheduled Publish Time (ISO 8601, e.g. 2026-09-18T18:00:00Z)"
+        required: false
+        default: ""
+      visuals_url:
+        description: "Direct URL to story_visuals.zip or Base64"
+        required: false
+        default: ""
+      audio_url:
+        description: "Direct URL to narration audio (mp3/wav) or Base64"
+        required: false
+        default: ""
+      script_text:
+        description: "Story Script (JSON or text with (Next image) splits)"
+        required: false
+        default: ""
+      make_webhook_url:
+        description: "Make.com Incoming Webhook URL"
+        required: false
+        default: ""
+
+permissions:
+  contents: write
+
+jobs:
+  render_and_publish:
+    name: Ingest Assets, Render 9:16 Video, and Notify Make.com
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+          cache: "pip"
+
+      - name: Install FFmpeg & System Dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg
+
+      - name: Install Python Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install Pillow
+
+      - name: Run Video Generation & Webhook Notification
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
+          # Fallback between repository_dispatch client_payload and workflow_dispatch inputs
+          PAYLOAD_JSON: ${{ toJson(github.event.client_payload) }}
+          TITLE: ${{ github.event.inputs.title }}
+          DESCRIPTION: ${{ github.event.inputs.description }}
+          SCHEDULED_TIME: ${{ github.event.inputs.scheduled_time }}
+          VISUALS_URL: ${{ github.event.inputs.visuals_url }}
+          AUDIO_URL: ${{ github.event.inputs.audio_url }}
+          SCRIPT_TEXT: ${{ github.event.inputs.script_text }}
+          MAKE_WEBHOOK_URL: ${{ github.event.inputs.make_webhook_url }}
+        run: |
+          python scripts/ci_render_and_publish.py
+
+      - name: Upload Video Artifact (Backup)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: final_story_${{ github.run_id }}
+          path: assets/output/final_story.mp4
+          if-no-files-found: warn
+          retention-days: 14

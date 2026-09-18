@@ -1,12 +1,12 @@
 {
-  "0": "server.py",
+  "0": "run_pipeline_thread",
   "1": "VisualChoreographer",
   "2": "SpeechCueAlignEngine",
   "3": "FB-2minutes Storymaker",
-  "4": ".resolve_visual_assets",
+  "4": "server.py",
   "5": "install.sh",
   "6": "generate_sample_assets.py",
-  "7": "video_exporter.py",
+  "7": "SceneDurationDirector",
   "8": "termux_ui.py",
   "9": "Speech-Cue Align Engine",
   "10": "End-to-End Workflow: FB 2minutes Storymaker",
@@ -15,5 +15,7 @@
   "13": "choreography_core/README.md",
   "14": "duration_director/README.md",
   "15": "exporter/README.md",
-  "16": "TestAlignEngine"
+  "16": "🚀 Automated Publishing Pipeline: Google Flow -> Vercel / GitHub Actions -> Make.com",
+  "17": "handler",
+  "18": "vercel.json"
 }
