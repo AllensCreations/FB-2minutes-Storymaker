@@ -2080,6 +2080,20 @@
       "source_location": "L2"
     },
     {
+      "id": "pkg_fb_2minutes_storymaker",
+      "label": "fb-2minutes-storymaker",
+      "_origin": "ast",
+      "community": 2,
+      "community_name": "fb-2minutes-storymaker",
+      "ecosystem": "python",
+      "file_type": "code",
+      "norm_label": "fb-2minutes-storymaker",
+      "source_file": "pyproject.toml",
+      "source_location": "L1",
+      "type": "package",
+      "version": "2.0.0"
+    },
+    {
       "id": "api_trigger",
       "label": "trigger.js",
       "_origin": "ast",
@@ -9806,5 +9820,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "7c669e85c77f64ccb1c7ea9be3f95e9b67975bb9"
+  "built_at_commit": "704cfac83499c3d500e4b0bfc51d62579f24566f"
 }

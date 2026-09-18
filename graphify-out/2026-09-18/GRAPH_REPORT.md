@@ -1,23 +1,24 @@
 # Graph Report - FB-2minutes-Storymaker  (2026-09-18)
 
 ## Corpus Check
-- 33 files · ~40,557 words
+- 33 files · ~40,591 words
 - Verdict: corpus is large enough that graph structure adds value.
-- Unclassified: 4 file(s) not represented in the graph (top: (none) 3, .zip 1)
+- Unclassified: 5 file(s) not represented in the graph (top: (none) 3, .zip 1, .lock 1)
 
 ## Summary
-- 311 nodes · 533 edges · 24 communities (11 shown, 13 thin omitted)
+- 312 nodes · 533 edges · 25 communities (11 shown, 14 thin omitted)
 - Extraction: 92% EXTRACTED · 8% INFERRED · 0% AMBIGUOUS · INFERRED: 42 edges (avg confidence: 0.9)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `7c669e85`
+- Built from commit: `704cfac8`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
 ## Community Hubs (Navigation)
 - server.py
 - VisualChoreographer
+- fb-2minutes-storymaker
 - FB-2minutes Storymaker
 - ci_render_and_publish.py
 - install.sh
@@ -67,7 +68,7 @@
 ## Import Cycles
 - None detected.
 
-## Communities (24 total, 13 thin omitted)
+## Communities (25 total, 14 thin omitted)
 
 ### Community 0 - "server.py"
 Cohesion: 0.10
@@ -114,15 +115,15 @@ Cohesion: 0.11
 Nodes (16): MasterTimeline, Path, Builds the MasterTimeline combining speech alignment segments with visual…, Export timeline manifest to JSON for visual choreographer and exporter., Complete master timeline manifest., Directs scene duration allocation and pairs visual assets with aligned speech…, Locate and order image files from a zip archive or directory. Orders by numeric…, SceneDurationDirector (+8 more)
 
 ## Knowledge Gaps
-- **47 isolated node(s):** `install.sh script`, `setup_local.sh script`, `rewrites`, `headers`, `1. Script Preparation (`script.txt`)` (+42 more)
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 162 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **13 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **48 isolated node(s):** `install.sh script`, `fb-2minutes-storymaker`, `setup_local.sh script`, `rewrites`, `headers` (+43 more)
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 163 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **14 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `SpeechCueAlignEngine` connect `SpeechCueAlignEngine` to `server.py`, `ci_render_and_publish.py`, `termux_ui.py`, `Speech-Cue Align Engine`, `SceneDurationDirector`?**
-  _High betweenness centrality (0.145) - this node is a cross-community bridge._
+  _High betweenness centrality (0.144) - this node is a cross-community bridge._
 - **Why does `VisualChoreographer` connect `VisualChoreographer` to `SceneDurationDirector`?**
   _High betweenness centrality (0.074) - this node is a cross-community bridge._
 - **Why does `Core Classes` connect `Speech-Cue Align Engine` to `SpeechCueAlignEngine`?**

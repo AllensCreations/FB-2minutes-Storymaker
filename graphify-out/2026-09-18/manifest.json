@@ -250,5 +250,11 @@
     "seen": 1789736125.4122176,
     "ast_hash": "f75871c199991100beeb7067393c93f0",
     "semantic_hash": ""
+  },
+  "pyproject.toml": {
+    "mtime": 1789736349.6328802,
+    "seen": 1789736538.2807753,
+    "ast_hash": "b2d5d47c54b149da7526f4cff58d9d36",
+    "semantic_hash": ""
   }
 }

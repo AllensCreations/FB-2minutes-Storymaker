@@ -1,6 +1,7 @@
 """
-Vercel / WSGI entrypoint forwarding to main.app
+Vercel Serverless Entrypoint alias for app.py
 """
-from main import app, application, handler
+
+from app import app, application, handler
 
 __all__ = ["app", "application", "handler"]
