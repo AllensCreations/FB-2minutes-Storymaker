@@ -97,12 +97,18 @@ class VideoExporter:
                 scene = self.find_active_scene(timeline, total_t)
                 scene_t = total_t - scene.start_time
 
+                prev_scene = None
+                if scene.scene_index > 0 and scene_t < 0.45:
+                    prev_scene = timeline.scenes[scene.scene_index - 1]
+
                 frame_img = choreographer.render_frame(
                     scene=scene,
                     scene_t=scene_t,
                     total_t=total_t,
                     total_duration=total_duration,
-                    show_captions=show_captions
+                    show_captions=show_captions,
+                    prev_scene=prev_scene,
+                    transition_duration=0.45
                 )
 
                 # Write raw RGB bytes to ffmpeg stdin

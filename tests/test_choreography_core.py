@@ -58,10 +58,34 @@ class TestChoreographyCore(unittest.TestCase):
         self.assertEqual(frame_with_captions.size, (1080, 1920))
         self.assertEqual(frame_without_captions.size, (1080, 1920))
 
-        # Pixel data in caption area (around center, lower third y=1680) should differ
-        crop_with = frame_with_captions.crop((440, 1650, 640, 1720)).tobytes()
-        crop_without = frame_without_captions.crop((440, 1650, 640, 1720)).tobytes()
+        # Pixel data in caption area (around lower third y=1497) should differ
+        crop_with = frame_with_captions.crop((440, 1460, 640, 1540)).tobytes()
+        crop_without = frame_without_captions.crop((440, 1460, 640, 1540)).tobytes()
         self.assertNotEqual(crop_with, crop_without, "Frame with captions should differ from frame without captions in the caption area.")
+
+    def test_cross_dissolve_transition(self):
+        img_path2 = REPO_ROOT / "assets" / "visuals" / "raw_frames" / "scene_2.png"
+        prev_scene = SceneTimeline(
+            scene_index=0,
+            title="Scene 1",
+            text="Intro text",
+            image_path=str(img_path2),
+            start_time=0.0,
+            end_time=3.0,
+            duration=3.0
+        )
+        # Mid-transition frame (scene_t = 0.22s inside 0.45s window)
+        blend_frame = self.choreographer.render_frame(
+            self.scene, scene_t=0.22, total_t=3.22, total_duration=21.0,
+            prev_scene=prev_scene, transition_duration=0.45
+        )
+        pure_frame = self.choreographer.render_frame(
+            self.scene, scene_t=1.0, total_t=4.0, total_duration=21.0
+        )
+        self.assertEqual(blend_frame.size, (1080, 1920))
+        self.assertEqual(blend_frame.mode, "RGB")
+        # Blended frame should be a valid frame with pixels differing from a non-transition frame
+        self.assertNotEqual(blend_frame.tobytes(), pure_frame.tobytes())
 
 
 if __name__ == "__main__":

@@ -1,7 +1,6 @@
 {
   "0": "server.py",
   "1": "VisualChoreographer",
-  "2": "TestAlignEngine",
   "3": "FB-2minutes Storymaker",
   "4": "ci_render_and_publish.py",
   "5": "install.sh",
@@ -16,7 +15,6 @@
   "14": "duration_director/README.md",
   "15": "exporter/README.md",
   "16": "🚀 Automated Publishing Pipeline: Google Flow -> Vercel / GitHub Actions -> Make.com",
-  "17": "video_exporter.py",
-  "18": "vercel.json",
-  "19": "VideoExporter"
+  "17": "SceneDurationDirector",
+  "18": "vercel.json"
 }

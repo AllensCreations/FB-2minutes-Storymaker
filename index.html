@@ -97,9 +97,15 @@
       <div class="flex flex-col items-center justify-between bg-gray-900 p-5 rounded-xl border border-gray-800">
         <div class="w-full flex items-center justify-between mb-3">
           <h2 class="text-base font-semibold text-white">2. Canvas Preview (9:16)</h2>
-          <button id="captionToggleBtn" class="flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-medium border border-blue-500/50 bg-blue-500/20 text-blue-300 hover:bg-blue-500/30 transition select-none">
-            <span>💬</span> <span id="captionToggleText">Captions: ON</span>
-          </button>
+          <div class="flex items-center gap-1.5">
+            <select id="transitionSelect" class="bg-gray-800 border border-gray-700 text-gray-300 text-[11px] rounded px-1.5 py-1 focus:outline-none focus:border-blue-500 cursor-pointer" title="Scene Transition Style">
+              <option value="cross_dissolve">🎬 Cross-Dissolve</option>
+              <option value="cut">✂️ Hard Cut</option>
+            </select>
+            <button id="captionToggleBtn" class="flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-medium border border-blue-500/50 bg-blue-500/20 text-blue-300 hover:bg-blue-500/30 transition select-none">
+              <span>💬</span> <span id="captionToggleText">Captions: ON</span>
+            </button>
+          </div>
         </div>
         <div class="relative w-full max-w-[280px] aspect-short bg-black rounded-lg overflow-hidden shadow-2xl border border-gray-800">
           <canvas id="previewCanvas" width="720" height="1280" class="w-full h-full object-contain"></canvas>
@@ -196,8 +202,14 @@
     const transcribeBtn = document.getElementById('transcribeBtn');
     const convertFormatBtn = document.getElementById('convertFormatBtn');
     const insertSplitBtn = document.getElementById('insertSplitBtn');
-    const saveTermuxBtn = document.getElementById('saveTermuxBtn');
+    const transitionSelect = document.getElementById('transitionSelect');
     let showCaptions = true;
+
+    if (transitionSelect) {
+      transitionSelect.addEventListener('change', () => {
+        drawFrame(audioElement.currentTime || 0);
+      });
+    }
 
     if (captionToggleBtn) {
       captionToggleBtn.addEventListener('click', () => {
@@ -907,7 +919,7 @@
     // Canvas Preview: Full-Bleed Blurred Background, Full Contained Image & TikTok Captions
     // =========================================================================
     function drawFrame(currentTime) {
-      ctx.fillStyle = '#0a0d14';
+      ctx.fillStyle = '#000000';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       if (scenes.length === 0) return;
@@ -921,88 +933,65 @@
       const progress = sceneDur > 0 ? (currentTime - activeScene.start) / sceneDur : 0;
       const scale = 1.0 + 0.05 * Math.min(Math.max(progress, 0), 1);
 
-      // Draw Image with Blurred Background & Full Contained Foreground
       const img = activeScene.img;
       if (img && img.complete) {
-        // 1. Blurred full-bleed background (TikTok / Reels style)
-        ctx.save();
-        const bgScale = Math.max(canvas.width / img.width, canvas.height / img.height) * 1.08;
-        const bgW = img.width * bgScale;
-        const bgH = img.height * bgScale;
-        const bgX = (canvas.width - bgW) / 2;
-        const bgY = (canvas.height - bgH) / 2;
+        // Full-bleed cover calculations (edge-to-edge 9:16 vertical fill as in screenshot)
+        const hRatio = canvas.width / img.width;
+        const vRatio = canvas.height / img.height;
+        const ratio = Math.max(hRatio, vRatio) * scale;
+        const centerShiftX = (canvas.width - img.width * ratio) / 2;
+        const centerShiftY = (canvas.height - img.height * ratio) / 2;
 
-        if ('filter' in ctx) {
-          ctx.filter = 'blur(24px) brightness(0.65)';
+        const transType = (transitionSelect ? transitionSelect.value : 'cross_dissolve');
+        const transDur = 0.45;
+        const activeIdx = scenes.indexOf(activeScene);
+
+        // Smooth cinematic cross-dissolve transition from previous scene
+        if (transType === 'cross_dissolve' && activeIdx > 0 && (currentTime - activeScene.start) < transDur) {
+          const prevScene = scenes[activeIdx - 1];
+          const prevImg = prevScene.img;
+          if (prevImg && prevImg.complete) {
+            const pProgress = Math.max(0, Math.min((currentTime - activeScene.start) / transDur, 1));
+            const pH = canvas.height / prevImg.height;
+            const pW = canvas.width / prevImg.width;
+            const pRatio = Math.max(pW, pH) * 1.05;
+            const pX = (canvas.width - prevImg.width * pRatio) / 2;
+            const pY = (canvas.height - prevImg.height * pRatio) / 2;
+
+            // 1. Draw previous scene frame
+            ctx.save();
+            ctx.drawImage(prevImg, 0, 0, prevImg.width, prevImg.height, pX, pY, prevImg.width * pRatio, prevImg.height * pRatio);
+            // 2. Cross-fade incoming scene frame
+            ctx.globalAlpha = pProgress;
+            ctx.drawImage(img, 0, 0, img.width, img.height, centerShiftX, centerShiftY, img.width * ratio, img.height * ratio);
+            ctx.restore();
+          } else {
+            ctx.drawImage(img, 0, 0, img.width, img.height, centerShiftX, centerShiftY, img.width * ratio, img.height * ratio);
+          }
+        } else {
+          // Regular full-bleed frame
+          ctx.drawImage(img, 0, 0, img.width, img.height, centerShiftX, centerShiftY, img.width * ratio, img.height * ratio);
         }
-        ctx.drawImage(img, 0, 0, img.width, img.height, bgX, bgY, bgW, bgH);
-        if ('filter' in ctx) {
-          ctx.filter = 'none';
-        }
-        ctx.restore();
-
-        // Dark tint overlay for guaranteed contrast
-        ctx.fillStyle = 'rgba(8, 12, 22, 0.35)';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-        // 2. Foreground 100% full uncropped image (contain: 0% cropped)
-        const maxFgW = canvas.width * 0.94;
-        const maxFgH = canvas.height * 0.72;
-        const containRatio = Math.min(maxFgW / img.width, maxFgH / img.height) * scale;
-        const fgW = img.width * containRatio;
-        const fgH = img.height * containRatio;
-        const fgX = (canvas.width - fgW) / 2;
-        // Position slightly above center to leave room for lower-third caption badge
-        const fgY = (canvas.height - fgH) / 2 - 25;
-
-        // Soft drop shadow behind foreground image
-        ctx.save();
-        ctx.shadowColor = 'rgba(0, 0, 0, 0.75)';
-        ctx.shadowBlur = 24;
-        ctx.shadowOffsetY = 8;
-        ctx.drawImage(img, 0, 0, img.width, img.height, fgX, fgY, fgW, fgH);
-        ctx.restore();
       }
 
-      // 3. Optional TikTok Captions on lower third
+      // Clean floating white captions directly on video (matching user screenshot)
       if (showCaptions && activeScene.text) {
-        drawTikTokCaption(ctx, activeScene.text, canvas.width / 2, canvas.height - 200, canvas.width - 100, 48);
+        drawFloatingCaption(ctx, activeScene.text, canvas.width / 2, canvas.height * 0.78, canvas.width - 120, 44);
       }
 
-      // 4. Subtle overall story progress bar at very bottom
+      // Subtle story progress bar at very bottom
       if (audioBuffer && audioBuffer.duration > 0) {
         const overallProg = Math.min(Math.max(currentTime / audioBuffer.duration, 0), 1);
-        ctx.fillStyle = '#ff6b2b';
+        ctx.fillStyle = '#3b82f6';
         ctx.fillRect(0, canvas.height - 6, canvas.width * overallProg, 6);
       }
     }
 
-    function drawRoundedRect(context, x, y, width, height, radius) {
-      if (context.roundRect) {
-        context.beginPath();
-        context.roundRect(x, y, width, height, radius);
-        context.fill();
-        context.stroke();
-      } else {
-        context.beginPath();
-        context.moveTo(x + radius, y);
-        context.lineTo(x + width - radius, y);
-        context.quadraticCurveTo(x + width, y, x + width, y + radius);
-        context.lineTo(x + width, y + height - radius);
-        context.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
-        context.lineTo(x + radius, y + height);
-        context.quadraticCurveTo(x, y + height, x, y + height - radius);
-        context.lineTo(x, y + radius);
-        context.quadraticCurveTo(x, y, x + radius, y);
-        context.closePath();
-        context.fill();
-        context.stroke();
-      }
-    }
-
-    function drawTikTokCaption(context, text, centerX, centerY, maxWidth, lineHeight) {
+    function drawFloatingCaption(context, text, centerX, centerY, maxWidth, lineHeight) {
       context.save();
-      context.font = 'bold 32px sans-serif';
+      context.font = '600 34px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+      context.textAlign = 'center';
+      context.textBaseline = 'middle';
 
       const words = text.split(' ');
       let line = '';
@@ -1019,47 +1008,32 @@
         }
       }
       if (line.trim()) lines.push(line.trim());
-
-      // Limit to 3 lines max for clean TikTok look
       if (lines.length > 3) {
         lines = lines.slice(0, 3);
         lines[2] += '...';
       }
 
-      // Measure max line width for pill badge sizing
-      let maxLineWidth = 160;
-      for (const l of lines) {
-        const w = context.measureText(l).width;
-        if (w > maxLineWidth) maxLineWidth = w;
-      }
+      const totalH = lines.length * lineHeight;
+      const startY = centerY - (totalH / 2) + (lineHeight / 2);
 
-      const pillWidth = Math.min(maxWidth + 40, maxLineWidth + 48);
-      const totalTextH = lines.length * lineHeight;
-      const pillHeight = totalTextH + 28;
-      const pillX = centerX - pillWidth / 2;
-      const pillY = centerY - pillHeight / 2;
-
-      // Draw dark translucent pill badge
-      context.fillStyle = 'rgba(10, 15, 26, 0.86)';
-      context.strokeStyle = 'rgba(255, 255, 255, 0.16)';
-      context.lineWidth = 1.5;
-      context.shadowColor = 'rgba(0, 0, 0, 0.5)';
-      context.shadowBlur = 12;
-      context.shadowOffsetY = 4;
-      drawRoundedRect(context, pillX, pillY, pillWidth, pillHeight, 20);
-
-      // Draw text: bold white with thick black outline
-      context.textAlign = 'center';
-      context.textBaseline = 'middle';
-      context.lineWidth = 5;
-      context.strokeStyle = '#000000';
-      context.fillStyle = '#FFFFFF';
-      context.shadowColor = 'transparent';
-
-      const startY = centerY - (totalTextH / 2) + (lineHeight / 2);
+      // Clean floating white text directly over the video with soft drop shadow and subtle dark stroke
       for (let k = 0; k < lines.length; k++) {
-        const curY = startY + (k * lineHeight);
+        const curY = startY + k * lineHeight;
+
+        // 1. Soft drop shadow
+        context.shadowColor = 'rgba(0, 0, 0, 0.9)';
+        context.shadowBlur = 10;
+        context.shadowOffsetX = 1;
+        context.shadowOffsetY = 2;
+
+        // 2. Subtle dark outline
+        context.lineWidth = 3.5;
+        context.strokeStyle = 'rgba(0, 0, 0, 0.85)';
         context.strokeText(lines[k], centerX, curY);
+
+        // 3. Crisp white text
+        context.shadowColor = 'transparent';
+        context.fillStyle = '#FFFFFF';
         context.fillText(lines[k], centerX, curY);
       }
 

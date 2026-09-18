@@ -129,40 +129,19 @@ class VisualChoreographer:
         total_h = len(display_lines) * line_height
         start_y = y - (total_h // 2) + (line_height // 2)
 
-        # Draw translucent dark pill badge behind text
-        if frame is not None and display_lines:
-            line_widths = []
-            for line in display_lines:
-                if font and hasattr(draw, "textlength"):
-                    lw = draw.textlength(line, font=font)
-                elif font and hasattr(font, "getlength"):
-                    lw = font.getlength(line)
-                else:
-                    lw = len(line) * (font_size * 0.55)
-                line_widths.append(lw)
-
-            max_lw = max(line_widths) if line_widths else 200
-            pill_w = int(min(max_width + 48, max_lw + 64))
-            pill_h = total_h + 36
-            pill_left = x - pill_w // 2
-            pill_top = y - pill_h // 2
-            pill_right = pill_left + pill_w
-            pill_bottom = pill_top + pill_h
-
-            pill_overlay = Image.new("RGBA", (self.width, self.height), (0, 0, 0, 0))
-            p_draw = ImageDraw.Draw(pill_overlay)
-            p_draw.rounded_rectangle(
-                [pill_left, pill_top, pill_right, pill_bottom],
-                radius=24,
-                fill=(10, 15, 26, 215),
-                outline=(255, 255, 255, 40),
-                width=2
-            )
-            frame.paste(pill_overlay, (0, 0), pill_overlay)
-            draw = ImageDraw.Draw(frame)
-
         cur_y = start_y
         for line in display_lines:
+            # Draw subtle drop shadow
+            draw.text(
+                (x + 2, cur_y + 2),
+                line,
+                font=font,
+                fill=(0, 0, 0, 180),
+                stroke_width=stroke_width + 2,
+                stroke_fill=(0, 0, 0, 180),
+                anchor="mm"
+            )
+            # Draw main text with outline
             draw.text(
                 (x, cur_y),
                 line,
@@ -189,67 +168,72 @@ class VisualChoreographer:
         scale = 1.0 + (0.05 * progress)
         return scale, 0.0, 0.0
 
+    def _render_scene_image(self, scene: SceneTimeline, scale: float) -> Image.Image:
+        """Renders the scene artwork filling the 9:16 vertical frame edge-to-edge (cover)."""
+        src_img = self.get_source_image(scene.image_path)
+        h_ratio = self.width / src_img.width
+        v_ratio = self.height / src_img.height
+        cover_ratio = max(h_ratio, v_ratio) * scale
+
+        scaled_w = int(src_img.width * cover_ratio)
+        scaled_h = int(src_img.height * cover_ratio)
+        scaled_img = src_img.resize((scaled_w, scaled_h), Image.Resampling.BICUBIC)
+
+        center_shift_x = (self.width - scaled_w) // 2
+        center_shift_y = (self.height - scaled_h) // 2
+
+        img_frame = Image.new("RGB", (self.width, self.height), (0, 0, 0))
+        if scaled_img.mode == "RGBA":
+            img_frame.paste(scaled_img, (center_shift_x, center_shift_y), scaled_img)
+        else:
+            img_frame.paste(scaled_img, (center_shift_x, center_shift_y))
+        return img_frame
+
     def render_frame(
         self,
         scene: SceneTimeline,
         scene_t: float,
         total_t: float,
         total_duration: float = 21.0,
-        show_captions: bool = True
+        show_captions: bool = True,
+        prev_scene: Optional[SceneTimeline] = None,
+        transition_duration: float = 0.45
     ) -> Image.Image:
         """
         Renders a single 1080x1920 video frame with:
-        - Heavy blurred background of the artwork (TikTok / Reels style)
-        - 100% full uncropped image centered in the foreground (contain)
+        - Full-bleed edge-to-edge image framing (as seen in user screenshot)
+        - Smooth cinematic cross-dissolve transition between scenes
         - Subtle Ken Burns drift
-        - Optional TikTok dark pill stroked subtitles
+        - Floating white caption directly on the video (matching user screenshot)
         """
-        # 1. Start with blurred cover background
-        frame = self.get_blurred_background(scene.image_path).copy()
+        # 1. Render current scene image with Ken Burns motion
+        scale_cur, _, _ = self.compute_motion_transform(scene, scene_t)
+        cur_frame = self._render_scene_image(scene, scale_cur)
 
-        # 2. Source artwork with Contain scaling (0% cropped, 100% complete image)
-        src_img = self.get_source_image(scene.image_path)
-        scale, _, _ = self.compute_motion_transform(scene, scene_t)
-
-        max_fg_w = self.width * 0.94
-        max_fg_h = self.height * 0.72
-        contain_ratio = min(max_fg_w / src_img.width, max_fg_h / src_img.height) * scale
-
-        fg_w = int(src_img.width * contain_ratio)
-        fg_h = int(src_img.height * contain_ratio)
-
-        fg_img = src_img.resize((fg_w, fg_h), Image.Resampling.BICUBIC)
-
-        fg_x = (self.width - fg_w) // 2
-        # Position slightly above center to balance lower-third caption
-        fg_y = (self.height - fg_h) // 2 - 40
-
-        # Draw subtle soft drop shadow behind foreground image
-        shadow_overlay = Image.new("RGBA", (self.width, self.height), (0, 0, 0, 0))
-        s_draw = ImageDraw.Draw(shadow_overlay)
-        s_draw.rectangle([fg_x - 8, fg_y - 2, fg_x + fg_w + 8, fg_y + fg_h + 14], fill=(0, 0, 0, 110))
-        frame.paste(shadow_overlay, (0, 0), shadow_overlay)
-
-        # Paste full foreground image
-        if fg_img.mode == "RGBA":
-            frame.paste(fg_img, (fg_x, fg_y), fg_img)
+        # 2. Cinematic Cross-Dissolve Transition from previous scene
+        if prev_scene is not None and scene_t < transition_duration:
+            prev_dur = max(prev_scene.duration, 0.1)
+            scale_prev, _, _ = self.compute_motion_transform(prev_scene, prev_dur)
+            prev_frame = self._render_scene_image(prev_scene, scale_prev)
+            blend_alpha = max(0.0, min(scene_t / transition_duration, 1.0))
+            frame = Image.blend(prev_frame, cur_frame, blend_alpha)
         else:
-            frame.paste(fg_img, (fg_x, fg_y))
+            frame = cur_frame
 
-        # 3. Optional TikTok Captions on lower third
+        # 3. Clean floating white caption directly over the lower third (matching screenshot)
         if show_captions and scene.text:
             draw = ImageDraw.Draw(frame)
             self._draw_text_wrapped(
                 draw=draw,
                 text=scene.text,
                 x=self.width // 2,
-                y=self.height - 240,
-                max_width=self.width - 140,
+                y=int(self.height * 0.78),
+                max_width=self.width - 160,
                 font_color=(255, 255, 255),
                 stroke_color=(0, 0, 0),
-                stroke_width=6,
-                line_height=64,
-                frame=frame
+                stroke_width=4,
+                font_size=42,
+                line_height=56
             )
 
         # 4. Subtle overall story progress bar at very bottom
