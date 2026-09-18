@@ -1,7 +1,7 @@
 # Graph Report - FB-2minutes-Storymaker  (2026-09-18)
 
 ## Corpus Check
-- 30 files · ~40,411 words
+- 31 files · ~40,517 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 4 file(s) not represented in the graph (top: (none) 3, .zip 1)
 
@@ -11,7 +11,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `ddf02f16`
+- Built from commit: `908e3d44`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -92,7 +92,7 @@ Nodes (15): base64, json, create_github_release_and_upload(), download_file(), m
 
 ### Community 6 - "main.py"
 Cohesion: 0.09
-Nodes (30): argparse, check_assets(), generate_sample_assets(), handler(), main(), FB 2minutes Storymaker - Automated Storytelling Engine Based on the…, Starts the local web studio interface., Fallback handler so cloud scanners (Vercel, WSGI) recognize main.py safely. (+22 more)
+Nodes (30): argparse, check_assets(), generate_sample_assets(), handler(), main(), FB 2minutes Storymaker - Automated Storytelling Engine Based on the…, Starts the local web studio interface., WSGI entrypoint for Vercel deployment: serves index.html and web studio assets. (+22 more)
 
 ### Community 7 - "SpeechCueAlignEngine"
 Cohesion: 0.07
