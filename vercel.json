@@ -1,8 +1,12 @@
 {
   "rewrites": [
     {
-      "source": "/api/:match*",
-      "destination": "/api/:match*"
+      "source": "/api/render",
+      "destination": "/api/trigger"
+    },
+    {
+      "source": "/api/trigger",
+      "destination": "/api/trigger"
     }
   ],
   "headers": [

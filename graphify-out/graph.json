@@ -56,6 +56,19 @@
       "source_location": "L21"
     },
     {
+      "id": "src_duration_director_duration_director_mastertimeline",
+      "label": "MasterTimeline",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 17,
+      "community_name": "VideoExporter",
+      "file_type": "code",
+      "norm_label": "mastertimeline",
+      "source_file": "src/duration_director/duration_director.py",
+      "source_location": "L36"
+    },
+    {
       "id": "src_exporter_video_exporter_videoexporter",
       "label": "VideoExporter",
       "_callable": true,
@@ -69,56 +82,17 @@
       "source_location": "L23"
     },
     {
-      "id": "tests_test_align_engine_testalignengine",
-      "label": "TestAlignEngine",
+      "id": "tests_test_api_gateway_testapigatewaynode",
+      "label": "TestApiGatewayNode",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
       "community": 19,
-      "community_name": "TestAlignEngine",
+      "community_name": "TestApiGatewayNode",
       "file_type": "code",
-      "norm_label": "testalignengine",
-      "source_file": "tests/test_align_engine.py",
-      "source_location": "L14"
-    },
-    {
-      "id": "api_render_handler",
-      "label": "handler",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 2,
-      "community_name": "os",
-      "file_type": "code",
-      "norm_label": "handler",
-      "source_file": "api/render.py",
-      "source_location": "L16"
-    },
-    {
-      "id": "tests_test_api_gateway_dummyresponsestream",
-      "label": "DummyResponseStream",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 2,
-      "community_name": "os",
-      "file_type": "code",
-      "norm_label": "dummyresponsestream",
+      "norm_label": "testapigatewaynode",
       "source_file": "tests/test_api_gateway.py",
-      "source_location": "L15"
-    },
-    {
-      "id": "tests_test_api_gateway_testapigateway",
-      "label": "TestApiGateway",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 2,
-      "community_name": "os",
-      "file_type": "code",
-      "norm_label": "testapigateway",
-      "source_file": "tests/test_api_gateway.py",
-      "source_location": "L26"
+      "source_location": "L10"
     },
     {
       "id": "src_align_engine_align_engine_alignmentresult",
@@ -160,19 +134,6 @@
       "source_location": "L16"
     },
     {
-      "id": "src_duration_director_duration_director_mastertimeline",
-      "label": "MasterTimeline",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 7,
-      "community_name": "SpeechCueAlignEngine",
-      "file_type": "code",
-      "norm_label": "mastertimeline",
-      "source_file": "src/duration_director/duration_director.py",
-      "source_location": "L36"
-    },
-    {
       "id": "src_duration_director_duration_director_scenedurationdirector",
       "label": "SceneDurationDirector",
       "_callable": true,
@@ -184,6 +145,19 @@
       "norm_label": "scenedurationdirector",
       "source_file": "src/duration_director/duration_director.py",
       "source_location": "L45"
+    },
+    {
+      "id": "tests_test_align_engine_testalignengine",
+      "label": "TestAlignEngine",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 7,
+      "community_name": "SpeechCueAlignEngine",
+      "file_type": "code",
+      "norm_label": "testalignengine",
+      "source_file": "tests/test_align_engine.py",
+      "source_location": "L14"
     },
     {
       "id": "tests_test_duration_director_testdurationdirector",
@@ -463,6 +437,66 @@
       "source_location": "L47"
     },
     {
+      "id": "src_duration_director_duration_director_scenedurationdirector_build_timeline",
+      "label": ".build_timeline()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 17,
+      "community_name": "VideoExporter",
+      "file_type": "code",
+      "norm_label": ".build_timeline()",
+      "source_file": "src/duration_director/duration_director.py",
+      "source_location": "L93"
+    },
+    {
+      "id": "src_duration_director_duration_director_scenedurationdirector_export_timeline",
+      "label": ".export_timeline()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 17,
+      "community_name": "VideoExporter",
+      "file_type": "code",
+      "norm_label": ".export_timeline()",
+      "source_file": "src/duration_director/duration_director.py",
+      "source_location": "L141"
+    },
+    {
+      "id": "src_duration_director_duration_director_scenedurationdirector_init",
+      "label": ".__init__()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 17,
+      "community_name": "VideoExporter",
+      "file_type": "code",
+      "norm_label": ".__init__()",
+      "source_file": "src/duration_director/duration_director.py",
+      "source_location": "L50"
+    },
+    {
+      "id": "src_duration_director_duration_director_scenedurationdirector_resolve_visual_assets",
+      "label": ".resolve_visual_assets()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 17,
+      "community_name": "VideoExporter",
+      "file_type": "code",
+      "norm_label": ".resolve_visual_assets()",
+      "source_file": "src/duration_director/duration_director.py",
+      "source_location": "L53"
+    },
+    {
+      "id": "src_duration_director_duration_director_scenedurationdirector_resolve_visual_assets_sort_key",
+      "label": "sort_key()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 17,
+      "community_name": "VideoExporter",
+      "file_type": "code",
+      "norm_label": "sort_key()",
+      "source_file": "src/duration_director/duration_director.py",
+      "source_location": "L83"
+    },
+    {
       "id": "src_exporter_video_exporter_videoexporter_export_video",
       "label": ".export_video()",
       "_callable": true,
@@ -499,244 +533,64 @@
       "source_location": "L29"
     },
     {
-      "id": "web_server_run_pipeline_thread",
-      "label": "run_pipeline_thread()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 17,
-      "community_name": "VideoExporter",
-      "file_type": "code",
-      "norm_label": "run_pipeline_thread()",
-      "source_file": "web/server.py",
-      "source_location": "L141"
-    },
-    {
-      "id": "web_server_run_pipeline_thread_on_render_progress",
-      "label": "on_render_progress()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 17,
-      "community_name": "VideoExporter",
-      "file_type": "code",
-      "norm_label": "on_render_progress()",
-      "source_file": "web/server.py",
-      "source_location": "L183"
-    },
-    {
-      "id": "tests_test_align_engine_testalignengine_setup",
-      "label": ".setUp()",
+      "id": "tests_test_api_gateway_testapigatewaynode_run_node_eval",
+      "label": ".run_node_eval()",
       "_callable": true,
       "_origin": "ast",
       "community": 19,
-      "community_name": "TestAlignEngine",
+      "community_name": "TestApiGatewayNode",
       "file_type": "code",
-      "norm_label": ".setup()",
-      "source_file": "tests/test_align_engine.py",
-      "source_location": "L16"
-    },
-    {
-      "id": "tests_test_align_engine_testalignengine_test_align_speech_with_script",
-      "label": ".test_align_speech_with_script()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 19,
-      "community_name": "TestAlignEngine",
-      "file_type": "code",
-      "norm_label": ".test_align_speech_with_script()",
-      "source_file": "tests/test_align_engine.py",
-      "source_location": "L60"
-    },
-    {
-      "id": "tests_test_align_engine_testalignengine_test_audio_duration",
-      "label": ".test_audio_duration()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 19,
-      "community_name": "TestAlignEngine",
-      "file_type": "code",
-      "norm_label": ".test_audio_duration()",
-      "source_file": "tests/test_align_engine.py",
-      "source_location": "L55"
-    },
-    {
-      "id": "tests_test_align_engine_testalignengine_test_parse_json_script",
-      "label": ".test_parse_json_script()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 19,
-      "community_name": "TestAlignEngine",
-      "file_type": "code",
-      "norm_label": ".test_parse_json_script()",
-      "source_file": "tests/test_align_engine.py",
-      "source_location": "L27"
-    },
-    {
-      "id": "tests_test_align_engine_testalignengine_test_parse_next_image_script",
-      "label": ".test_parse_next_image_script()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 19,
-      "community_name": "TestAlignEngine",
-      "file_type": "code",
-      "norm_label": ".test_parse_next_image_script()",
-      "source_file": "tests/test_align_engine.py",
-      "source_location": "L41"
-    },
-    {
-      "id": "tests_test_align_engine_testalignengine_test_parse_script",
-      "label": ".test_parse_script()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 19,
-      "community_name": "TestAlignEngine",
-      "file_type": "code",
-      "norm_label": ".test_parse_script()",
-      "source_file": "tests/test_align_engine.py",
-      "source_location": "L21"
-    },
-    {
-      "id": "api_render_handler_do_get",
-      "label": ".do_GET()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 2,
-      "community_name": "os",
-      "file_type": "code",
-      "norm_label": ".do_get()",
-      "source_file": "api/render.py",
-      "source_location": "L25"
-    },
-    {
-      "id": "api_render_handler_do_options",
-      "label": ".do_OPTIONS()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 2,
-      "community_name": "os",
-      "file_type": "code",
-      "norm_label": ".do_options()",
-      "source_file": "api/render.py",
-      "source_location": "L18"
-    },
-    {
-      "id": "api_render_handler_do_post",
-      "label": ".do_POST()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 2,
-      "community_name": "os",
-      "file_type": "code",
-      "norm_label": ".do_post()",
-      "source_file": "api/render.py",
-      "source_location": "L58"
-    },
-    {
-      "id": "tests_test_api_gateway_dummyresponsestream_get_json",
-      "label": ".get_json()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 2,
-      "community_name": "os",
-      "file_type": "code",
-      "norm_label": ".get_json()",
+      "norm_label": ".run_node_eval()",
       "source_file": "tests/test_api_gateway.py",
-      "source_location": "L22"
+      "source_location": "L12"
     },
     {
-      "id": "tests_test_api_gateway_dummyresponsestream_init",
-      "label": ".__init__()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 2,
-      "community_name": "os",
-      "file_type": "code",
-      "norm_label": ".__init__()",
-      "source_file": "tests/test_api_gateway.py",
-      "source_location": "L16"
-    },
-    {
-      "id": "tests_test_api_gateway_dummyresponsestream_write",
-      "label": ".write()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 2,
-      "community_name": "os",
-      "file_type": "code",
-      "norm_label": ".write()",
-      "source_file": "tests/test_api_gateway.py",
-      "source_location": "L19"
-    },
-    {
-      "id": "tests_test_api_gateway_testapigateway_create_handler",
-      "label": ".create_handler()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 2,
-      "community_name": "os",
-      "file_type": "code",
-      "norm_label": ".create_handler()",
-      "source_file": "tests/test_api_gateway.py",
-      "source_location": "L32"
-    },
-    {
-      "id": "tests_test_api_gateway_testapigateway_setup",
-      "label": ".setUp()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 2,
-      "community_name": "os",
-      "file_type": "code",
-      "norm_label": ".setup()",
-      "source_file": "tests/test_api_gateway.py",
-      "source_location": "L28"
-    },
-    {
-      "id": "tests_test_api_gateway_testapigateway_test_get_documentation",
+      "id": "tests_test_api_gateway_testapigatewaynode_test_get_documentation",
       "label": ".test_get_documentation()",
       "_callable": true,
       "_origin": "ast",
-      "community": 2,
-      "community_name": "os",
+      "community": 19,
+      "community_name": "TestApiGatewayNode",
       "file_type": "code",
       "norm_label": ".test_get_documentation()",
       "source_file": "tests/test_api_gateway.py",
-      "source_location": "L45"
+      "source_location": "L51"
     },
     {
-      "id": "tests_test_api_gateway_testapigateway_test_post_authorized_dispatches_successfully",
+      "id": "tests_test_api_gateway_testapigatewaynode_test_post_authorized_dispatches_successfully",
       "label": ".test_post_authorized_dispatches_successfully()",
       "_callable": true,
       "_origin": "ast",
-      "community": 2,
-      "community_name": "os",
+      "community": 19,
+      "community_name": "TestApiGatewayNode",
       "file_type": "code",
       "norm_label": ".test_post_authorized_dispatches_successfully()",
       "source_file": "tests/test_api_gateway.py",
-      "source_location": "L67"
+      "source_location": "L77"
     },
     {
-      "id": "tests_test_api_gateway_testapigateway_test_post_scenes_array_dispatches_with_image_urls",
+      "id": "tests_test_api_gateway_testapigatewaynode_test_post_scenes_array_dispatches_with_image_urls",
       "label": ".test_post_scenes_array_dispatches_with_image_urls()",
       "_callable": true,
       "_origin": "ast",
-      "community": 2,
-      "community_name": "os",
+      "community": 19,
+      "community_name": "TestApiGatewayNode",
       "file_type": "code",
       "norm_label": ".test_post_scenes_array_dispatches_with_image_urls()",
       "source_file": "tests/test_api_gateway.py",
-      "source_location": "L103"
+      "source_location": "L102"
     },
     {
-      "id": "tests_test_api_gateway_testapigateway_test_post_unauthorized_when_secret_set",
+      "id": "tests_test_api_gateway_testapigatewaynode_test_post_unauthorized_when_secret_set",
       "label": ".test_post_unauthorized_when_secret_set()",
       "_callable": true,
       "_origin": "ast",
-      "community": 2,
-      "community_name": "os",
+      "community": 19,
+      "community_name": "TestApiGatewayNode",
       "file_type": "code",
       "norm_label": ".test_post_unauthorized_when_secret_set()",
       "source_file": "tests/test_api_gateway.py",
-      "source_location": "L53"
+      "source_location": "L61"
     },
     {
       "id": "api_trigger_handler",
@@ -744,7 +598,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 20,
-      "community_name": "render.js",
+      "community_name": "trigger.js",
       "file_type": "code",
       "norm_label": "handler()",
       "source_file": "api/trigger.js",
@@ -943,66 +797,6 @@
       "source_location": "L159"
     },
     {
-      "id": "src_duration_director_duration_director_scenedurationdirector_build_timeline",
-      "label": ".build_timeline()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 7,
-      "community_name": "SpeechCueAlignEngine",
-      "file_type": "code",
-      "norm_label": ".build_timeline()",
-      "source_file": "src/duration_director/duration_director.py",
-      "source_location": "L93"
-    },
-    {
-      "id": "src_duration_director_duration_director_scenedurationdirector_export_timeline",
-      "label": ".export_timeline()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 7,
-      "community_name": "SpeechCueAlignEngine",
-      "file_type": "code",
-      "norm_label": ".export_timeline()",
-      "source_file": "src/duration_director/duration_director.py",
-      "source_location": "L141"
-    },
-    {
-      "id": "src_duration_director_duration_director_scenedurationdirector_init",
-      "label": ".__init__()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 7,
-      "community_name": "SpeechCueAlignEngine",
-      "file_type": "code",
-      "norm_label": ".__init__()",
-      "source_file": "src/duration_director/duration_director.py",
-      "source_location": "L50"
-    },
-    {
-      "id": "src_duration_director_duration_director_scenedurationdirector_resolve_visual_assets",
-      "label": ".resolve_visual_assets()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 7,
-      "community_name": "SpeechCueAlignEngine",
-      "file_type": "code",
-      "norm_label": ".resolve_visual_assets()",
-      "source_file": "src/duration_director/duration_director.py",
-      "source_location": "L53"
-    },
-    {
-      "id": "src_duration_director_duration_director_scenedurationdirector_resolve_visual_assets_sort_key",
-      "label": "sort_key()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 7,
-      "community_name": "SpeechCueAlignEngine",
-      "file_type": "code",
-      "norm_label": "sort_key()",
-      "source_file": "src/duration_director/duration_director.py",
-      "source_location": "L83"
-    },
-    {
       "id": "src_exporter_video_exporter_main",
       "label": "main()",
       "_callable": true,
@@ -1013,6 +807,78 @@
       "norm_label": "main()",
       "source_file": "src/exporter/video_exporter.py",
       "source_location": "L148"
+    },
+    {
+      "id": "tests_test_align_engine_testalignengine_setup",
+      "label": ".setUp()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 7,
+      "community_name": "SpeechCueAlignEngine",
+      "file_type": "code",
+      "norm_label": ".setup()",
+      "source_file": "tests/test_align_engine.py",
+      "source_location": "L16"
+    },
+    {
+      "id": "tests_test_align_engine_testalignengine_test_align_speech_with_script",
+      "label": ".test_align_speech_with_script()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 7,
+      "community_name": "SpeechCueAlignEngine",
+      "file_type": "code",
+      "norm_label": ".test_align_speech_with_script()",
+      "source_file": "tests/test_align_engine.py",
+      "source_location": "L60"
+    },
+    {
+      "id": "tests_test_align_engine_testalignengine_test_audio_duration",
+      "label": ".test_audio_duration()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 7,
+      "community_name": "SpeechCueAlignEngine",
+      "file_type": "code",
+      "norm_label": ".test_audio_duration()",
+      "source_file": "tests/test_align_engine.py",
+      "source_location": "L55"
+    },
+    {
+      "id": "tests_test_align_engine_testalignengine_test_parse_json_script",
+      "label": ".test_parse_json_script()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 7,
+      "community_name": "SpeechCueAlignEngine",
+      "file_type": "code",
+      "norm_label": ".test_parse_json_script()",
+      "source_file": "tests/test_align_engine.py",
+      "source_location": "L27"
+    },
+    {
+      "id": "tests_test_align_engine_testalignengine_test_parse_next_image_script",
+      "label": ".test_parse_next_image_script()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 7,
+      "community_name": "SpeechCueAlignEngine",
+      "file_type": "code",
+      "norm_label": ".test_parse_next_image_script()",
+      "source_file": "tests/test_align_engine.py",
+      "source_location": "L41"
+    },
+    {
+      "id": "tests_test_align_engine_testalignengine_test_parse_script",
+      "label": ".test_parse_script()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 7,
+      "community_name": "SpeechCueAlignEngine",
+      "file_type": "code",
+      "norm_label": ".test_parse_script()",
+      "source_file": "tests/test_align_engine.py",
+      "source_location": "L21"
     },
     {
       "id": "tests_test_duration_director_testdurationdirector_setup",
@@ -1037,6 +903,30 @@
       "norm_label": ".test_build_timeline()",
       "source_file": "tests/test_duration_director.py",
       "source_location": "L24"
+    },
+    {
+      "id": "web_server_run_pipeline_thread",
+      "label": "run_pipeline_thread()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 7,
+      "community_name": "SpeechCueAlignEngine",
+      "file_type": "code",
+      "norm_label": "run_pipeline_thread()",
+      "source_file": "web/server.py",
+      "source_location": "L141"
+    },
+    {
+      "id": "web_server_run_pipeline_thread_on_render_progress",
+      "label": "on_render_progress()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 7,
+      "community_name": "SpeechCueAlignEngine",
+      "file_type": "code",
+      "norm_label": "on_render_progress()",
+      "source_file": "web/server.py",
+      "source_location": "L183"
     },
     {
       "id": "main_check_assets",
@@ -1516,61 +1406,6 @@
       "source_location": "L1"
     },
     {
-      "id": "src_duration_director_init",
-      "label": "duration_director/__init__.py",
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "VisualChoreographer",
-      "file_type": "code",
-      "norm_label": "duration_director/__init__.py",
-      "source_file": "src/duration_director/__init__.py",
-      "source_location": "L1"
-    },
-    {
-      "id": "src_exporter_video_exporter",
-      "label": "video_exporter.py",
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "VisualChoreographer",
-      "file_type": "code",
-      "norm_label": "video_exporter.py",
-      "source_file": "src/exporter/video_exporter.py",
-      "source_location": "L1"
-    },
-    {
-      "id": "tests_test_align_engine",
-      "label": "test_align_engine.py",
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "VisualChoreographer",
-      "file_type": "code",
-      "norm_label": "test_align_engine.py",
-      "source_file": "tests/test_align_engine.py",
-      "source_location": "L1"
-    },
-    {
-      "id": "tests_test_choreography_core",
-      "label": "test_choreography_core.py",
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "VisualChoreographer",
-      "file_type": "code",
-      "norm_label": "test_choreography_core.py",
-      "source_file": "tests/test_choreography_core.py",
-      "source_location": "L1"
-    },
-    {
-      "id": "tests_test_duration_director",
-      "label": "test_duration_director.py",
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "VisualChoreographer",
-      "file_type": "code",
-      "norm_label": "test_duration_director.py",
-      "source_file": "tests/test_duration_director.py",
-      "source_location": "L1"
-    },
-    {
       "id": "src_choreography_core_choreography_core_rationale_1",
       "label": "Visual Choreography Core for FB 2minutes Storymaker Implements \"Picture-Book\u2026",
       "_origin": "ast",
@@ -1679,17 +1514,6 @@
       "norm_label": "represents a scheduled scene in the master video timeline.",
       "source_file": "src/duration_director/duration_director.py",
       "source_location": "L23"
-    },
-    {
-      "id": "src_exporter_video_exporter_rationale_1",
-      "label": "Final Master Video Exporter for FB 2minutes Storymaker Pipes generated Picture-\u2026",
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "VisualChoreographer",
-      "file_type": "rationale",
-      "norm_label": "final master video exporter for fb 2minutes storymaker pipes generated picture-...",
-      "source_file": "src/exporter/video_exporter.py",
-      "source_location": "L1"
     },
     {
       "id": "example_workflow",
@@ -2057,6 +1881,17 @@
       "source_location": "L95"
     },
     {
+      "id": "src_duration_director_duration_director_py_path",
+      "label": "Path",
+      "_origin": "ast",
+      "community": 17,
+      "community_name": "VideoExporter",
+      "file_type": "code",
+      "norm_label": "path",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
       "id": "src_exporter_init",
       "label": "exporter/__init__.py",
       "_origin": "ast",
@@ -2077,6 +1912,50 @@
       "norm_label": "path",
       "source_file": "",
       "source_location": ""
+    },
+    {
+      "id": "src_duration_director_duration_director_rationale_101",
+      "label": "Builds the MasterTimeline combining speech alignment segments with visual\u2026",
+      "_origin": "ast",
+      "community": 17,
+      "community_name": "VideoExporter",
+      "file_type": "rationale",
+      "norm_label": "builds the mastertimeline combining speech alignment segments with visual...",
+      "source_file": "src/duration_director/duration_director.py",
+      "source_location": "L101"
+    },
+    {
+      "id": "src_duration_director_duration_director_rationale_142",
+      "label": "Export timeline manifest to JSON for visual choreographer and exporter.",
+      "_origin": "ast",
+      "community": 17,
+      "community_name": "VideoExporter",
+      "file_type": "rationale",
+      "norm_label": "export timeline manifest to json for visual choreographer and exporter.",
+      "source_file": "src/duration_director/duration_director.py",
+      "source_location": "L142"
+    },
+    {
+      "id": "src_duration_director_duration_director_rationale_37",
+      "label": "Complete master timeline manifest.",
+      "_origin": "ast",
+      "community": 17,
+      "community_name": "VideoExporter",
+      "file_type": "rationale",
+      "norm_label": "complete master timeline manifest.",
+      "source_file": "src/duration_director/duration_director.py",
+      "source_location": "L37"
+    },
+    {
+      "id": "src_duration_director_duration_director_rationale_54",
+      "label": "Locate and order image files from a zip archive or directory. Orders by numeric\u2026",
+      "_origin": "ast",
+      "community": 17,
+      "community_name": "VideoExporter",
+      "file_type": "rationale",
+      "norm_label": "locate and order image files from a zip archive or directory. orders by numeric...",
+      "source_file": "src/duration_director/duration_director.py",
+      "source_location": "L54"
     },
     {
       "id": "src_exporter_video_exporter_rationale_24",
@@ -2112,17 +1991,6 @@
       "source_location": "L47"
     },
     {
-      "id": "web_server_rationale_142",
-      "label": "Background thread function that executes the full rendering pipeline.",
-      "_origin": "ast",
-      "community": 17,
-      "community_name": "VideoExporter",
-      "file_type": "rationale",
-      "norm_label": "background thread function that executes the full rendering pipeline.",
-      "source_file": "web/server.py",
-      "source_location": "L142"
-    },
-    {
       "id": "vercel",
       "label": "vercel.json",
       "_origin": "ast",
@@ -2142,7 +2010,7 @@
       "file_type": "code",
       "norm_label": "headers",
       "source_file": "vercel.json",
-      "source_location": "L8"
+      "source_location": "L12"
     },
     {
       "id": "vercel_rewrites",
@@ -2156,69 +2024,80 @@
       "source_location": "L2"
     },
     {
-      "id": "api_render_py_api_render",
-      "label": "render.py",
+      "id": "src_duration_director_init",
+      "label": "duration_director/__init__.py",
       "_origin": "ast",
       "community": 2,
-      "community_name": "os",
+      "community_name": "video_exporter.py",
       "file_type": "code",
-      "norm_label": "render.py",
-      "source_file": "api/render.py",
+      "norm_label": "duration_director/__init__.py",
+      "source_file": "src/duration_director/__init__.py",
       "source_location": "L1"
     },
     {
-      "id": "basehttprequesthandler",
-      "label": "BaseHTTPRequestHandler",
+      "id": "src_exporter_video_exporter",
+      "label": "video_exporter.py",
       "_origin": "ast",
       "community": 2,
-      "community_name": "os",
+      "community_name": "video_exporter.py",
       "file_type": "code",
-      "norm_label": "basehttprequesthandler",
-      "source_file": "",
-      "source_location": ""
+      "norm_label": "video_exporter.py",
+      "source_file": "src/exporter/video_exporter.py",
+      "source_location": "L1"
     },
     {
-      "id": "patch",
-      "label": "patch",
+      "id": "tests_test_align_engine",
+      "label": "test_align_engine.py",
       "_origin": "ast",
       "community": 2,
-      "community_name": "os",
+      "community_name": "video_exporter.py",
       "file_type": "code",
-      "norm_label": "patch",
-      "source_file": "",
-      "source_location": ""
+      "norm_label": "test_align_engine.py",
+      "source_file": "tests/test_align_engine.py",
+      "source_location": "L1"
     },
     {
       "id": "tests_test_api_gateway",
       "label": "test_api_gateway.py",
       "_origin": "ast",
       "community": 2,
-      "community_name": "os",
+      "community_name": "video_exporter.py",
       "file_type": "code",
       "norm_label": "test_api_gateway.py",
       "source_file": "tests/test_api_gateway.py",
       "source_location": "L1"
     },
     {
-      "id": "api_render_rationale_1",
-      "label": "Vercel Serverless Function: API Gateway for Google Flow -> GitHub Actions\u2026",
+      "id": "tests_test_choreography_core",
+      "label": "test_choreography_core.py",
       "_origin": "ast",
       "community": 2,
-      "community_name": "os",
-      "file_type": "rationale",
-      "norm_label": "vercel serverless function: api gateway for google flow -> github actions...",
-      "source_file": "api/render.py",
+      "community_name": "video_exporter.py",
+      "file_type": "code",
+      "norm_label": "test_choreography_core.py",
+      "source_file": "tests/test_choreography_core.py",
       "source_location": "L1"
     },
     {
-      "id": "api_render_js_api_render",
-      "label": "render.js",
+      "id": "tests_test_duration_director",
+      "label": "test_duration_director.py",
       "_origin": "ast",
-      "community": 20,
-      "community_name": "render.js",
+      "community": 2,
+      "community_name": "video_exporter.py",
       "file_type": "code",
-      "norm_label": "render.js",
-      "source_file": "api/render.js",
+      "norm_label": "test_duration_director.py",
+      "source_file": "tests/test_duration_director.py",
+      "source_location": "L1"
+    },
+    {
+      "id": "src_exporter_video_exporter_rationale_1",
+      "label": "Final Master Video Exporter for FB 2minutes Storymaker Pipes generated Picture-\u2026",
+      "_origin": "ast",
+      "community": 2,
+      "community_name": "video_exporter.py",
+      "file_type": "rationale",
+      "norm_label": "final master video exporter for fb 2minutes storymaker pipes generated picture-...",
+      "source_file": "src/exporter/video_exporter.py",
       "source_location": "L1"
     },
     {
@@ -2226,7 +2105,7 @@
       "label": "trigger.js",
       "_origin": "ast",
       "community": 20,
-      "community_name": "render.js",
+      "community_name": "trigger.js",
       "file_type": "code",
       "norm_label": "trigger.js",
       "source_file": "api/trigger.js",
@@ -2762,17 +2641,6 @@
       "source_location": "L1"
     },
     {
-      "id": "src_duration_director_duration_director_py_path",
-      "label": "Path",
-      "_origin": "ast",
-      "community": 7,
-      "community_name": "SpeechCueAlignEngine",
-      "file_type": "code",
-      "norm_label": "path",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
       "id": "src_align_engine_readme_data_classes",
       "label": "Data Classes",
       "_origin": "ast",
@@ -2895,39 +2763,6 @@
       "source_location": "L1"
     },
     {
-      "id": "src_duration_director_duration_director_rationale_101",
-      "label": "Builds the MasterTimeline combining speech alignment segments with visual\u2026",
-      "_origin": "ast",
-      "community": 7,
-      "community_name": "SpeechCueAlignEngine",
-      "file_type": "rationale",
-      "norm_label": "builds the mastertimeline combining speech alignment segments with visual...",
-      "source_file": "src/duration_director/duration_director.py",
-      "source_location": "L101"
-    },
-    {
-      "id": "src_duration_director_duration_director_rationale_142",
-      "label": "Export timeline manifest to JSON for visual choreographer and exporter.",
-      "_origin": "ast",
-      "community": 7,
-      "community_name": "SpeechCueAlignEngine",
-      "file_type": "rationale",
-      "norm_label": "export timeline manifest to json for visual choreographer and exporter.",
-      "source_file": "src/duration_director/duration_director.py",
-      "source_location": "L142"
-    },
-    {
-      "id": "src_duration_director_duration_director_rationale_37",
-      "label": "Complete master timeline manifest.",
-      "_origin": "ast",
-      "community": 7,
-      "community_name": "SpeechCueAlignEngine",
-      "file_type": "rationale",
-      "norm_label": "complete master timeline manifest.",
-      "source_file": "src/duration_director/duration_director.py",
-      "source_location": "L37"
-    },
-    {
       "id": "src_duration_director_duration_director_rationale_46",
       "label": "Directs scene duration allocation and pairs visual assets with aligned speech\u2026",
       "_origin": "ast",
@@ -2939,15 +2774,15 @@
       "source_location": "L46"
     },
     {
-      "id": "src_duration_director_duration_director_rationale_54",
-      "label": "Locate and order image files from a zip archive or directory. Orders by numeric\u2026",
+      "id": "web_server_rationale_142",
+      "label": "Background thread function that executes the full rendering pipeline.",
       "_origin": "ast",
       "community": 7,
       "community_name": "SpeechCueAlignEngine",
       "file_type": "rationale",
-      "norm_label": "locate and order image files from a zip archive or directory. orders by numeric...",
-      "source_file": "src/duration_director/duration_director.py",
-      "source_location": "L54"
+      "norm_label": "background thread function that executes the full rendering pipeline.",
+      "source_file": "web/server.py",
+      "source_location": "L142"
     },
     {
       "id": "main",
@@ -3418,6 +3253,18 @@
       "type": "external"
     },
     {
+      "id": "http_server",
+      "label": "http_server",
+      "_origin": "semantic",
+      "community": 0,
+      "community_name": "server.py",
+      "external": true,
+      "file_type": "concept",
+      "norm_label": "http_server",
+      "source_file": "",
+      "type": "external"
+    },
+    {
       "id": "mimetypes",
       "label": "mimetypes",
       "_origin": "semantic",
@@ -3442,66 +3289,6 @@
       "type": "external"
     },
     {
-      "id": "pathlib",
-      "label": "pathlib",
-      "_origin": "semantic",
-      "community": 1,
-      "community_name": "VisualChoreographer",
-      "external": true,
-      "file_type": "concept",
-      "norm_label": "pathlib",
-      "source_file": "",
-      "type": "external"
-    },
-    {
-      "id": "sys",
-      "label": "sys",
-      "_origin": "semantic",
-      "community": 1,
-      "community_name": "VisualChoreographer",
-      "external": true,
-      "file_type": "concept",
-      "norm_label": "sys",
-      "source_file": "",
-      "type": "external"
-    },
-    {
-      "id": "time",
-      "label": "time",
-      "_origin": "semantic",
-      "community": 1,
-      "community_name": "VisualChoreographer",
-      "external": true,
-      "file_type": "concept",
-      "norm_label": "time",
-      "source_file": "",
-      "type": "external"
-    },
-    {
-      "id": "typing",
-      "label": "typing",
-      "_origin": "semantic",
-      "community": 1,
-      "community_name": "VisualChoreographer",
-      "external": true,
-      "file_type": "concept",
-      "norm_label": "typing",
-      "source_file": "",
-      "type": "external"
-    },
-    {
-      "id": "unittest",
-      "label": "unittest",
-      "_origin": "semantic",
-      "community": 1,
-      "community_name": "VisualChoreographer",
-      "external": true,
-      "file_type": "concept",
-      "norm_label": "unittest",
-      "source_file": "",
-      "type": "external"
-    },
-    {
       "id": "setuptools",
       "label": "setuptools",
       "_origin": "semantic",
@@ -3514,14 +3301,74 @@
       "type": "external"
     },
     {
-      "id": "http_server",
-      "label": "http_server",
+      "id": "pathlib",
+      "label": "pathlib",
       "_origin": "semantic",
       "community": 2,
-      "community_name": "os",
+      "community_name": "video_exporter.py",
       "external": true,
       "file_type": "concept",
-      "norm_label": "http_server",
+      "norm_label": "pathlib",
+      "source_file": "",
+      "type": "external"
+    },
+    {
+      "id": "subprocess",
+      "label": "subprocess",
+      "_origin": "semantic",
+      "community": 2,
+      "community_name": "video_exporter.py",
+      "external": true,
+      "file_type": "concept",
+      "norm_label": "subprocess",
+      "source_file": "",
+      "type": "external"
+    },
+    {
+      "id": "sys",
+      "label": "sys",
+      "_origin": "semantic",
+      "community": 2,
+      "community_name": "video_exporter.py",
+      "external": true,
+      "file_type": "concept",
+      "norm_label": "sys",
+      "source_file": "",
+      "type": "external"
+    },
+    {
+      "id": "time",
+      "label": "time",
+      "_origin": "semantic",
+      "community": 2,
+      "community_name": "video_exporter.py",
+      "external": true,
+      "file_type": "concept",
+      "norm_label": "time",
+      "source_file": "",
+      "type": "external"
+    },
+    {
+      "id": "typing",
+      "label": "typing",
+      "_origin": "semantic",
+      "community": 2,
+      "community_name": "video_exporter.py",
+      "external": true,
+      "file_type": "concept",
+      "norm_label": "typing",
+      "source_file": "",
+      "type": "external"
+    },
+    {
+      "id": "unittest",
+      "label": "unittest",
+      "_origin": "semantic",
+      "community": 2,
+      "community_name": "video_exporter.py",
+      "external": true,
+      "file_type": "concept",
+      "norm_label": "unittest",
       "source_file": "",
       "type": "external"
     },
@@ -3529,8 +3376,8 @@
       "id": "io",
       "label": "io",
       "_origin": "semantic",
-      "community": 2,
-      "community_name": "os",
+      "community": 21,
+      "community_name": "io",
       "external": true,
       "file_type": "concept",
       "norm_label": "io",
@@ -3538,35 +3385,11 @@
       "type": "external"
     },
     {
-      "id": "json",
-      "label": "json",
-      "_origin": "semantic",
-      "community": 2,
-      "community_name": "os",
-      "external": true,
-      "file_type": "concept",
-      "norm_label": "json",
-      "source_file": "",
-      "type": "external"
-    },
-    {
-      "id": "os",
-      "label": "os",
-      "_origin": "semantic",
-      "community": 2,
-      "community_name": "os",
-      "external": true,
-      "file_type": "concept",
-      "norm_label": "os",
-      "source_file": "",
-      "type": "external"
-    },
-    {
       "id": "render",
       "label": "render",
       "_origin": "semantic",
-      "community": 2,
-      "community_name": "os",
+      "community": 22,
+      "community_name": "render",
       "external": true,
       "file_type": "concept",
       "norm_label": "render",
@@ -3577,8 +3400,8 @@
       "id": "unittest_mock",
       "label": "unittest_mock",
       "_origin": "semantic",
-      "community": 2,
-      "community_name": "os",
+      "community": 23,
+      "community_name": "unittest_mock",
       "external": true,
       "file_type": "concept",
       "norm_label": "unittest_mock",
@@ -3589,23 +3412,11 @@
       "id": "urllib_error",
       "label": "urllib_error",
       "_origin": "semantic",
-      "community": 2,
-      "community_name": "os",
+      "community": 24,
+      "community_name": "urllib_error",
       "external": true,
       "file_type": "concept",
       "norm_label": "urllib_error",
-      "source_file": "",
-      "type": "external"
-    },
-    {
-      "id": "urllib_request",
-      "label": "urllib_request",
-      "_origin": "semantic",
-      "community": 2,
-      "community_name": "os",
-      "external": true,
-      "file_type": "concept",
-      "norm_label": "urllib_request",
       "source_file": "",
       "type": "external"
     },
@@ -3622,6 +3433,18 @@
       "type": "external"
     },
     {
+      "id": "os",
+      "label": "os",
+      "_origin": "semantic",
+      "community": 4,
+      "community_name": "ci_render_and_publish.py",
+      "external": true,
+      "file_type": "concept",
+      "norm_label": "os",
+      "source_file": "",
+      "type": "external"
+    },
+    {
       "id": "urllib_parse",
       "label": "urllib_parse",
       "_origin": "semantic",
@@ -3634,14 +3457,14 @@
       "type": "external"
     },
     {
-      "id": "zipfile",
-      "label": "zipfile",
+      "id": "urllib_request",
+      "label": "urllib_request",
       "_origin": "semantic",
       "community": 4,
       "community_name": "ci_render_and_publish.py",
       "external": true,
       "file_type": "concept",
-      "norm_label": "zipfile",
+      "norm_label": "urllib_request",
       "source_file": "",
       "type": "external"
     },
@@ -3706,6 +3529,18 @@
       "type": "external"
     },
     {
+      "id": "zipfile",
+      "label": "zipfile",
+      "_origin": "semantic",
+      "community": 6,
+      "community_name": "generate_sample_assets.py",
+      "external": true,
+      "file_type": "concept",
+      "norm_label": "zipfile",
+      "source_file": "",
+      "type": "external"
+    },
+    {
       "id": "dataclasses",
       "label": "dataclasses",
       "_origin": "semantic",
@@ -3714,6 +3549,18 @@
       "external": true,
       "file_type": "concept",
       "norm_label": "dataclasses",
+      "source_file": "",
+      "type": "external"
+    },
+    {
+      "id": "json",
+      "label": "json",
+      "_origin": "semantic",
+      "community": 7,
+      "community_name": "SpeechCueAlignEngine",
+      "external": true,
+      "file_type": "concept",
+      "norm_label": "json",
       "source_file": "",
       "type": "external"
     },
@@ -3738,18 +3585,6 @@
       "external": true,
       "file_type": "concept",
       "norm_label": "shutil",
-      "source_file": "",
-      "type": "external"
-    },
-    {
-      "id": "subprocess",
-      "label": "subprocess",
-      "_origin": "semantic",
-      "community": 8,
-      "community_name": "termux_ui.py",
-      "external": true,
-      "file_type": "concept",
-      "norm_label": "subprocess",
       "source_file": "",
       "type": "external"
     }
@@ -4668,75 +4503,51 @@
       "weight": 1.0
     },
     {
-      "source": "tests_test_api_gateway_testapigateway_create_handler",
-      "target": "tests_test_api_gateway_dummyresponsestream",
+      "source": "tests_test_api_gateway_testapigatewaynode_test_get_documentation",
+      "target": "tests_test_api_gateway_testapigatewaynode_run_node_eval",
       "relation": "calls",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "tests/test_api_gateway.py",
-      "source_location": "L36",
+      "source_location": "L57",
       "weight": 1.0
     },
     {
-      "source": "tests_test_api_gateway_testapigateway_setup",
-      "target": "tests_test_api_gateway_dummyresponsestream",
+      "source": "tests_test_api_gateway_testapigatewaynode_test_post_authorized_dispatches_successfully",
+      "target": "tests_test_api_gateway_testapigatewaynode_run_node_eval",
       "relation": "calls",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "tests/test_api_gateway.py",
-      "source_location": "L30",
+      "source_location": "L94",
       "weight": 1.0
     },
     {
-      "source": "tests_test_api_gateway_testapigateway_test_get_documentation",
-      "target": "tests_test_api_gateway_testapigateway_create_handler",
+      "source": "tests_test_api_gateway_testapigatewaynode_test_post_scenes_array_dispatches_with_image_urls",
+      "target": "tests_test_api_gateway_testapigatewaynode_run_node_eval",
       "relation": "calls",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "tests/test_api_gateway.py",
-      "source_location": "L46",
+      "source_location": "L124",
       "weight": 1.0
     },
     {
-      "source": "tests_test_api_gateway_testapigateway_test_post_authorized_dispatches_successfully",
-      "target": "tests_test_api_gateway_testapigateway_create_handler",
+      "source": "tests_test_api_gateway_testapigatewaynode_test_post_unauthorized_when_secret_set",
+      "target": "tests_test_api_gateway_testapigatewaynode_run_node_eval",
       "relation": "calls",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "tests/test_api_gateway.py",
-      "source_location": "L86",
-      "weight": 1.0
-    },
-    {
-      "source": "tests_test_api_gateway_testapigateway_test_post_scenes_array_dispatches_with_image_urls",
-      "target": "tests_test_api_gateway_testapigateway_create_handler",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "tests/test_api_gateway.py",
-      "source_location": "L127",
-      "weight": 1.0
-    },
-    {
-      "source": "tests_test_api_gateway_testapigateway_test_post_unauthorized_when_secret_set",
-      "target": "tests_test_api_gateway_testapigateway_create_handler",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "tests/test_api_gateway.py",
-      "source_location": "L55",
+      "source_location": "L72",
       "weight": 1.0
     },
     {
@@ -4848,30 +4659,6 @@
       "weight": 1.0
     },
     {
-      "source": "tests_test_api_gateway_testapigateway_test_post_authorized_dispatches_successfully",
-      "target": "patch",
-      "relation": "references",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "decorator",
-      "source_file": "tests/test_api_gateway.py",
-      "source_location": "L66",
-      "weight": 1.0
-    },
-    {
-      "source": "tests_test_api_gateway_testapigateway_test_post_scenes_array_dispatches_with_image_urls",
-      "target": "patch",
-      "relation": "references",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "decorator",
-      "source_file": "tests/test_api_gateway.py",
-      "source_location": "L102",
-      "weight": 1.0
-    },
-    {
       "source": "tests_test_choreography_core_testchoreographycore",
       "target": "skipunless",
       "relation": "references",
@@ -4881,18 +4668,6 @@
       "context": "decorator",
       "source_file": "tests/test_choreography_core.py",
       "source_location": "L20",
-      "weight": 1.0
-    },
-    {
-      "source": "api_render_js_api_render",
-      "target": "api_trigger",
-      "relation": "re_exports",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "export",
-      "source_file": "api/render.js",
-      "source_location": "L7",
       "weight": 1.0
     },
     {
@@ -4989,78 +4764,6 @@
       "context": "generic_arg",
       "source_file": "src/duration_director/duration_director.py",
       "source_location": "L53",
-      "weight": 1.0
-    },
-    {
-      "source": "api_render_js_api_render",
-      "target": "api_trigger_handler",
-      "relation": "imports",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "import",
-      "source_file": "api/render.js",
-      "source_location": "L5",
-      "weight": 1.0
-    },
-    {
-      "source": "api_render_py_api_render",
-      "target": "time",
-      "relation": "imports",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "import",
-      "source_file": "api/render.py",
-      "source_location": "L10",
-      "weight": 1.0
-    },
-    {
-      "source": "api_render_py_api_render",
-      "target": "urllib_error",
-      "relation": "imports",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "import",
-      "source_file": "api/render.py",
-      "source_location": "L11",
-      "weight": 1.0
-    },
-    {
-      "source": "api_render_py_api_render",
-      "target": "urllib_request",
-      "relation": "imports",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "import",
-      "source_file": "api/render.py",
-      "source_location": "L12",
-      "weight": 1.0
-    },
-    {
-      "source": "api_render_py_api_render",
-      "target": "json",
-      "relation": "imports",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "import",
-      "source_file": "api/render.py",
-      "source_location": "L8",
-      "weight": 1.0
-    },
-    {
-      "source": "api_render_py_api_render",
-      "target": "os",
-      "relation": "imports",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "import",
-      "source_file": "api/render.py",
-      "source_location": "L9",
       "weight": 1.0
     },
     {
@@ -5917,7 +5620,7 @@
     },
     {
       "source": "tests_test_api_gateway",
-      "target": "os",
+      "target": "subprocess",
       "relation": "imports",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -5937,18 +5640,6 @@
       "context": "import",
       "source_file": "tests/test_api_gateway.py",
       "source_location": "L3",
-      "weight": 1.0
-    },
-    {
-      "source": "tests_test_api_gateway",
-      "target": "sys",
-      "relation": "imports",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "import",
-      "source_file": "tests/test_api_gateway.py",
-      "source_location": "L6",
       "weight": 1.0
     },
     {
@@ -6093,18 +5784,6 @@
       "context": "import",
       "source_file": "web/server.py",
       "source_location": "L466",
-      "weight": 1.0
-    },
-    {
-      "source": "api_render_py_api_render",
-      "target": "http_server",
-      "relation": "imports_from",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "import",
-      "source_file": "api/render.py",
-      "source_location": "L13",
       "weight": 1.0
     },
     {
@@ -6445,42 +6124,6 @@
     },
     {
       "source": "tests_test_api_gateway",
-      "target": "render",
-      "relation": "imports_from",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "import",
-      "source_file": "tests/test_api_gateway.py",
-      "source_location": "L12",
-      "weight": 1.0
-    },
-    {
-      "source": "tests_test_api_gateway",
-      "target": "unittest_mock",
-      "relation": "imports_from",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "import",
-      "source_file": "tests/test_api_gateway.py",
-      "source_location": "L4",
-      "weight": 1.0
-    },
-    {
-      "source": "tests_test_api_gateway",
-      "target": "io",
-      "relation": "imports_from",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "import",
-      "source_file": "tests/test_api_gateway.py",
-      "source_location": "L5",
-      "weight": 1.0
-    },
-    {
-      "source": "tests_test_api_gateway",
       "target": "pathlib",
       "relation": "imports_from",
       "_origin": "ast",
@@ -6488,7 +6131,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "tests/test_api_gateway.py",
-      "source_location": "L7",
+      "source_location": "L4",
       "weight": 1.0
     },
     {
@@ -6993,17 +6636,6 @@
       "context": "return_type",
       "source_file": "src/exporter/video_exporter.py",
       "source_location": "L32",
-      "weight": 1.0
-    },
-    {
-      "source": "api_render_py_api_render",
-      "target": "api_render_handler",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "api/render.py",
-      "source_location": "L16",
       "weight": 1.0
     },
     {
@@ -8207,24 +7839,13 @@
     },
     {
       "source": "tests_test_api_gateway",
-      "target": "tests_test_api_gateway_dummyresponsestream",
+      "target": "tests_test_api_gateway_testapigatewaynode",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "tests/test_api_gateway.py",
-      "source_location": "L15",
-      "weight": 1.0
-    },
-    {
-      "source": "tests_test_api_gateway",
-      "target": "tests_test_api_gateway_testapigateway",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "tests/test_api_gateway.py",
-      "source_location": "L26",
+      "source_location": "L10",
       "weight": 1.0
     },
     {
@@ -8251,6 +7872,17 @@
     },
     {
       "source": "vercel",
+      "target": "vercel_headers",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "vercel.json",
+      "source_location": "L12",
+      "weight": 1.0
+    },
+    {
+      "source": "vercel",
       "target": "vercel_rewrites",
       "relation": "contains",
       "_origin": "ast",
@@ -8258,17 +7890,6 @@
       "confidence_score": 1.0,
       "source_file": "vercel.json",
       "source_location": "L2",
-      "weight": 1.0
-    },
-    {
-      "source": "vercel",
-      "target": "vercel_headers",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "vercel.json",
-      "source_location": "L8",
       "weight": 1.0
     },
     {
@@ -8338,17 +7959,6 @@
       "weight": 1.0
     },
     {
-      "source": "api_render_handler",
-      "target": "basehttprequesthandler",
-      "relation": "inherits",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "api/render.py",
-      "source_location": "L16",
-      "weight": 1.0
-    },
-    {
       "source": "web_server_storymakerrequesthandler",
       "target": "simplehttprequesthandler",
       "relation": "inherits",
@@ -8357,39 +7967,6 @@
       "confidence_score": 1.0,
       "source_file": "web/server.py",
       "source_location": "L213",
-      "weight": 1.0
-    },
-    {
-      "source": "api_render_handler",
-      "target": "api_render_handler_do_options",
-      "relation": "method",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "api/render.py",
-      "source_location": "L18",
-      "weight": 1.0
-    },
-    {
-      "source": "api_render_handler",
-      "target": "api_render_handler_do_get",
-      "relation": "method",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "api/render.py",
-      "source_location": "L25",
-      "weight": 1.0
-    },
-    {
-      "source": "api_render_handler",
-      "target": "api_render_handler_do_post",
-      "relation": "method",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "api/render.py",
-      "source_location": "L58",
       "weight": 1.0
     },
     {
@@ -8690,102 +8267,58 @@
       "weight": 1.0
     },
     {
-      "source": "tests_test_api_gateway_dummyresponsestream",
-      "target": "tests_test_api_gateway_dummyresponsestream_init",
+      "source": "tests_test_api_gateway_testapigatewaynode",
+      "target": "tests_test_api_gateway_testapigatewaynode_test_post_scenes_array_dispatches_with_image_urls",
       "relation": "method",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "tests/test_api_gateway.py",
-      "source_location": "L16",
+      "source_location": "L102",
       "weight": 1.0
     },
     {
-      "source": "tests_test_api_gateway_dummyresponsestream",
-      "target": "tests_test_api_gateway_dummyresponsestream_write",
+      "source": "tests_test_api_gateway_testapigatewaynode",
+      "target": "tests_test_api_gateway_testapigatewaynode_run_node_eval",
       "relation": "method",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "tests/test_api_gateway.py",
-      "source_location": "L19",
+      "source_location": "L12",
       "weight": 1.0
     },
     {
-      "source": "tests_test_api_gateway_dummyresponsestream",
-      "target": "tests_test_api_gateway_dummyresponsestream_get_json",
+      "source": "tests_test_api_gateway_testapigatewaynode",
+      "target": "tests_test_api_gateway_testapigatewaynode_test_get_documentation",
       "relation": "method",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "tests/test_api_gateway.py",
-      "source_location": "L22",
+      "source_location": "L51",
       "weight": 1.0
     },
     {
-      "source": "tests_test_api_gateway_testapigateway",
-      "target": "tests_test_api_gateway_testapigateway_test_post_scenes_array_dispatches_with_image_urls",
+      "source": "tests_test_api_gateway_testapigatewaynode",
+      "target": "tests_test_api_gateway_testapigatewaynode_test_post_unauthorized_when_secret_set",
       "relation": "method",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "tests/test_api_gateway.py",
-      "source_location": "L103",
+      "source_location": "L61",
       "weight": 1.0
     },
     {
-      "source": "tests_test_api_gateway_testapigateway",
-      "target": "tests_test_api_gateway_testapigateway_setup",
+      "source": "tests_test_api_gateway_testapigatewaynode",
+      "target": "tests_test_api_gateway_testapigatewaynode_test_post_authorized_dispatches_successfully",
       "relation": "method",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "tests/test_api_gateway.py",
-      "source_location": "L28",
-      "weight": 1.0
-    },
-    {
-      "source": "tests_test_api_gateway_testapigateway",
-      "target": "tests_test_api_gateway_testapigateway_create_handler",
-      "relation": "method",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "tests/test_api_gateway.py",
-      "source_location": "L32",
-      "weight": 1.0
-    },
-    {
-      "source": "tests_test_api_gateway_testapigateway",
-      "target": "tests_test_api_gateway_testapigateway_test_get_documentation",
-      "relation": "method",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "tests/test_api_gateway.py",
-      "source_location": "L45",
-      "weight": 1.0
-    },
-    {
-      "source": "tests_test_api_gateway_testapigateway",
-      "target": "tests_test_api_gateway_testapigateway_test_post_unauthorized_when_secret_set",
-      "relation": "method",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "tests/test_api_gateway.py",
-      "source_location": "L53",
-      "weight": 1.0
-    },
-    {
-      "source": "tests_test_api_gateway_testapigateway",
-      "target": "tests_test_api_gateway_testapigateway_test_post_authorized_dispatches_successfully",
-      "relation": "method",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "tests/test_api_gateway.py",
-      "source_location": "L67",
+      "source_location": "L77",
       "weight": 1.0
     },
     {
@@ -8918,17 +8451,6 @@
       "confidence_score": 1.0,
       "source_file": "web/server.py",
       "source_location": "L371",
-      "weight": 1.0
-    },
-    {
-      "source": "api_render_rationale_1",
-      "target": "api_render_py_api_render",
-      "relation": "rationale_for",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "api/render.py",
-      "source_location": "L1",
       "weight": 1.0
     },
     {
@@ -10046,17 +9568,6 @@
       "weight": 0.8
     },
     {
-      "source": "tests_test_api_gateway_testapigateway",
-      "target": "api_render_handler",
-      "relation": "uses",
-      "_origin": "ast",
-      "confidence": "INFERRED",
-      "confidence_score": 0.95,
-      "source_file": "tests/test_api_gateway.py",
-      "source_location": "L34",
-      "weight": 0.8
-    },
-    {
       "source": "tests_test_choreography_core_testchoreographycore",
       "target": "src_choreography_core_choreography_core_visualchoreographer",
       "relation": "uses",
@@ -10135,5 +9646,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "a2f33ebce07794be1a689c9bf4c9be24a779dbcf"
+  "built_at_commit": "2ff495df21bbf732a98348b2f7e1c11e165e6027"
 }

@@ -1,144 +1,133 @@
 import json
-import os
+import subprocess
 import unittest
-from unittest.mock import patch, MagicMock
-from io import BytesIO
-import sys
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(REPO_ROOT / "api"))
-
-from render import handler
+API_TRIGGER_JS = REPO_ROOT / "api" / "trigger.js"
 
 
-class DummyResponseStream:
-    def __init__(self):
-        self.data = bytearray()
+class TestApiGatewayNode(unittest.TestCase):
 
-    def write(self, b):
-        self.data.extend(b)
+    def run_node_eval(self, script: str) -> dict:
+        full_code = f"""
+        process.env.API_SECRET_KEY = process.env.API_SECRET_KEY || '';
+        process.env.GH_PAT = process.env.GH_PAT || 'mock_gh_token';
+        process.env.GITHUB_REPOSITORY = process.env.GITHUB_REPOSITORY || 'AllensCreations/FB-2minutes-Storymaker';
 
-    def get_json(self):
-        return json.loads(self.data.decode("utf-8"))
+        global.fetch = async (url, opts) => ({{
+            status: 204,
+            ok: true,
+            text: async () => ''
+        }});
 
+        import('{API_TRIGGER_JS.as_uri()}').then(async (mod) => {{
+            const handler = mod.default;
+            const res = {{
+                statusCode: 200,
+                headers: {{}},
+                setHeader(k, v) {{ this.headers[k] = v; }},
+                status(c) {{ this.statusCode = c; return this; }},
+                json(data) {{ this.body = data; return this; }},
+                end() {{ return this; }}
+            }};
 
-class TestApiGateway(unittest.TestCase):
-
-    def setUp(self):
-        self.mock_rfile = BytesIO()
-        self.mock_wfile = DummyResponseStream()
-
-    def create_handler(self, method, path, headers=None, body=b""):
-        req = MagicMock()
-        h = handler.__new__(handler)
-        h.rfile = BytesIO(body)
-        h.wfile = DummyResponseStream()
-        h.headers = headers or {}
-        h.command = method
-        h.path = path
-        h.send_response = MagicMock()
-        h.send_header = MagicMock()
-        h.end_headers = MagicMock()
-        return h
+            {script}
+        }}).catch(err => {{
+            console.error(err);
+            process.exit(1);
+        }});
+        """
+        proc = subprocess.run(
+            ["node", "--input-type=module", "-e", full_code],
+            capture_output=True,
+            text=True,
+            cwd=str(REPO_ROOT)
+        )
+        if proc.returncode != 0:
+            raise RuntimeError(f"Node execution failed:\n{proc.stderr}\n{proc.stdout}")
+        return json.loads(proc.stdout.strip())
 
     def test_get_documentation(self):
-        h = self.create_handler("GET", "/api/render")
-        h.do_GET()
-        h.send_response.assert_called_with(200)
-        resp = h.wfile.get_json()
-        self.assertEqual(resp["status"], "online")
-        self.assertIn("endpoints", resp)
+        script = """
+        const req = { method: 'GET', headers: {} };
+        await handler(req, res);
+        console.log(JSON.stringify(res.body));
+        """
+        body = self.run_node_eval(script)
+        self.assertEqual(body.get("status"), "online")
+        self.assertIn("endpoints", body)
 
     def test_post_unauthorized_when_secret_set(self):
-        with patch.dict(os.environ, {"API_SECRET_KEY": "supersecret123"}):
-            h = self.create_handler(
-                "POST", "/api/render",
-                headers={"Content-Length": "2", "x-api-key": "wrong_key"},
-                body=b"{}"
-            )
-            h.do_POST()
-            h.send_response.assert_called_with(401)
-            resp = h.wfile.get_json()
-            self.assertFalse(resp["ok"])
-            self.assertIn("Unauthorized", resp["error"])
+        script = """
+        process.env.API_SECRET_KEY = 'supersecret123';
+        const req = {
+            method: 'POST',
+            headers: { 'x-api-key': 'wrong_key' },
+            body: {}
+        };
+        await handler(req, res);
+        console.log(JSON.stringify({ statusCode: res.statusCode, body: res.body }));
+        """
+        result = self.run_node_eval(script)
+        self.assertEqual(result.get("statusCode"), 401)
+        self.assertFalse(result.get("body", {}).get("ok"))
+        self.assertIn("Unauthorized", result.get("body", {}).get("error", ""))
 
-    @patch("urllib.request.urlopen")
-    def test_post_authorized_dispatches_successfully(self, mock_urlopen):
-        mock_resp = MagicMock()
-        mock_resp.getcode.return_value = 204
-        mock_urlopen.return_value.__enter__.return_value = mock_resp
+    def test_post_authorized_dispatches_successfully(self):
+        script = """
+        process.env.API_SECRET_KEY = 'mysecret';
+        const req = {
+            method: 'POST',
+            headers: { 'x-api-key': 'mysecret' },
+            body: {
+                title: 'Story Title',
+                description: 'Story Description',
+                upload_date: '2026-09-20T18:00:00Z',
+                script_text: 'Scene 1: Hi\\n(Next image)\\nScene 2: Bye',
+                make_webhook_url: 'https://hook.make.com/123'
+            }
+        };
+        await handler(req, res);
+        console.log(JSON.stringify({ statusCode: res.statusCode, body: res.body }));
+        """
+        result = self.run_node_eval(script)
+        self.assertEqual(result.get("statusCode"), 202)
+        body = result.get("body", {})
+        self.assertTrue(body.get("ok"))
+        self.assertEqual(body.get("status"), "queued")
+        self.assertEqual(body.get("scenes_detected"), 2)
+        self.assertEqual(body.get("title"), "Story Title")
 
-        payload = {
-            "title": "Story Title",
-            "description": "Story Description",
-            "scheduled_time": "2026-09-20T18:00:00Z",
-            "script": "Scene 1: Hi\n(Next image)\nScene 2: Bye",
-            "make_webhook_url": "https://hook.make.com/123"
-        }
-        body_bytes = json.dumps(payload).encode("utf-8")
-
-        with patch.dict(os.environ, {
-            "API_SECRET_KEY": "mysecret",
-            "GH_PAT": "ghp_mocktoken123",
-            "GITHUB_REPOSITORY": "AllensCreations/FB-2minutes-Storymaker"
-        }):
-            h = self.create_handler(
-                "POST", "/api/render",
-                headers={
-                    "Content-Length": str(len(body_bytes)),
-                    "x-api-key": "mysecret"
-                },
-                body=body_bytes
-            )
-            h.do_POST()
-            h.send_response.assert_called_with(202)
-            resp = h.wfile.get_json()
-            self.assertTrue(resp["ok"])
-            self.assertEqual(resp["status"], "queued")
-            self.assertEqual(resp["scenes_detected"], 2)
-            self.assertEqual(resp["title"], "Story Title")
-
-    @patch("urllib.request.urlopen")
-    def test_post_scenes_array_dispatches_with_image_urls(self, mock_urlopen):
-        mock_resp = MagicMock()
-        mock_resp.getcode.return_value = 204
-        mock_urlopen.return_value.__enter__.return_value = mock_resp
-
-        payload = {
-            "title": "Google Flow Generated Story",
-            "description": "Episode 1 #shorts",
-            "upload_date": "2026-09-20T18:00:00Z",
-            "audio_url": "https://example.com/narration.mp3",
-            "scenes": [
-                {"scene": 1, "text": "Scene 1 intro", "image_url": "https://example.com/img1.png"},
-                {"scene": 2, "text": "Scene 2 problem", "image_url": "https://example.com/img2.png"},
-                {"scene": 3, "text": "Scene 3 resolution", "image_url": "https://example.com/img3.png"}
-            ],
-            "make_webhook_url": "https://hook.make.com/123"
-        }
-        body_bytes = json.dumps(payload).encode("utf-8")
-
-        with patch.dict(os.environ, {
-            "API_SECRET_KEY": "mysecret",
-            "GH_PAT": "ghp_mocktoken123",
-            "GITHUB_REPOSITORY": "AllensCreations/FB-2minutes-Storymaker"
-        }):
-            h = self.create_handler(
-                "POST", "/api/render",
-                headers={
-                    "Content-Length": str(len(body_bytes)),
-                    "x-api-key": "mysecret"
-                },
-                body=body_bytes
-            )
-            h.do_POST()
-            h.send_response.assert_called_with(202)
-            resp = h.wfile.get_json()
-            self.assertTrue(resp["ok"])
-            self.assertEqual(resp["status"], "queued")
-            self.assertEqual(resp["scenes_detected"], 3)
-            self.assertEqual(resp["title"], "Google Flow Generated Story")
+    def test_post_scenes_array_dispatches_with_image_urls(self):
+        script = """
+        process.env.API_SECRET_KEY = 'mysecret';
+        const req = {
+            method: 'POST',
+            headers: { 'x-api-key': 'mysecret' },
+            body: {
+                title: 'Google Flow Story',
+                description: 'Episode 1 #shorts',
+                upload_date: '2026-09-20T18:00:00Z',
+                audio_url: 'https://example.com/narration.mp3',
+                scenes: [
+                    { scene: 1, text: 'Intro', image_url: 'https://example.com/1.png' },
+                    { scene: 2, text: 'Middle', image_url: 'https://example.com/2.png' },
+                    { scene: 3, text: 'Outro', image_url: 'https://example.com/3.png' }
+                ],
+                make_webhook_url: 'https://hook.make.com/123'
+            }
+        };
+        await handler(req, res);
+        console.log(JSON.stringify({ statusCode: res.statusCode, body: res.body }));
+        """
+        result = self.run_node_eval(script)
+        self.assertEqual(result.get("statusCode"), 202)
+        body = result.get("body", {})
+        self.assertTrue(body.get("ok"))
+        self.assertEqual(body.get("status"), "queued")
+        self.assertEqual(body.get("scenes_detected"), 3)
+        self.assertEqual(body.get("title"), "Google Flow Story")
 
 
 if __name__ == "__main__":
