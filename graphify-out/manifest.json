@@ -102,9 +102,9 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1789715014.7168791,
-    "seen": 1789715024.9784074,
-    "ast_hash": "65546eb11cc1db1e8e2b6cd19aad3b01",
+    "mtime": 1789719449.8008785,
+    "seen": 1789719496.1263604,
+    "ast_hash": "97c882ea5b647856a11135d73c15d52e",
     "semantic_hash": ""
   },
   "assets/processed/alignment.txt": {
@@ -198,9 +198,9 @@
     "semantic_hash": ""
   },
   "api/render.py": {
-    "mtime": 1789714682.7528791,
-    "seen": 1789714723.610198,
-    "ast_hash": "bd569753d51f1d2e9b3e4c8f30e7cd8b",
+    "mtime": 1789719231.8568785,
+    "seen": 1789719496.1262014,
+    "ast_hash": "d61027c89033023fee218879d8fac79f",
     "semantic_hash": ""
   },
   "scripts/ci_render_and_publish.py": {
@@ -210,9 +210,9 @@
     "semantic_hash": ""
   },
   "vercel.json": {
-    "mtime": 1789714689.9088793,
-    "seen": 1789714723.6102695,
-    "ast_hash": "3ba47afde98ced9d7cce4ddde418eb9b",
+    "mtime": 1789719195.2528784,
+    "seen": 1789719496.1263359,
+    "ast_hash": "85ceafb37774aabbd32616cd877f6db3",
     "semantic_hash": ""
   },
   ".github/workflows/generate_and_publish.yml": {
@@ -222,9 +222,27 @@
     "semantic_hash": ""
   },
   "docs/AUTOMATION_GUIDE.md": {
-    "mtime": 1789714712.4968793,
-    "seen": 1789714723.6102881,
-    "ast_hash": "601df441a0e3face607c623e03ec496e",
+    "mtime": 1789719385.5408785,
+    "seen": 1789719496.126375,
+    "ast_hash": "81bb89ad97b8d4ae197d730874a9fbcf",
+    "semantic_hash": ""
+  },
+  "api/render.js": {
+    "mtime": 1789719155.3328786,
+    "seen": 1789719496.126177,
+    "ast_hash": "3f665eecb4c8233c3f5eff9f141891a6",
+    "semantic_hash": ""
+  },
+  "api/trigger.js": {
+    "mtime": 1789719138.9008784,
+    "seen": 1789719496.1262124,
+    "ast_hash": "d333f51720f4dbc2b3eb2d6e35c20f69",
+    "semantic_hash": ""
+  },
+  "tests/test_api_gateway.py": {
+    "mtime": 1789719266.1688786,
+    "seen": 1789719496.1263206,
+    "ast_hash": "671f48f78729bb56b406cf520e790fc1",
     "semantic_hash": ""
   }
 }

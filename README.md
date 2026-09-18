@@ -348,18 +348,31 @@ Your mission is to generate engaging, picture-book style video content and dispa
 3. PIPELINE DISPATCH CONTRACT:
    At the end of your workflow, package the generated content into the following strict JSON payload and send an HTTP POST request to the Vercel API endpoint:
 
-   POST Endpoint: https://YOUR-VERCEL-APP.vercel.app/api/render
-   Content-Type: application/json
+   POST Endpoint: https://YOUR-VERCEL-APP.vercel.app/api/trigger
+   Headers:
+     Content-Type: application/json
+     x-api-key: <YOUR_API_SECRET_KEY>
 
    Payload Structure:
    {
      "title": "<Catchy Video Title>",
      "description": "<Engaging Description with hashtags>",
-     "scheduled_time": "<ISO-8601 UTC Timestamp>",
+     "upload_date": "<ISO-8601 UTC Timestamp, e.g. 2026-09-20T18:00:00Z>",
      "script_text": "<Narration text with (Next image) delimiters>",
      "visuals_url": "<Public URL to story_visuals.zip OR provide visuals_base64>",
      "audio_url": "<Public URL to narration.mp3 OR provide audio_base64>",
      "make_webhook_url": "<Make.com incoming webhook URL>"
+   }
+
+   Expected Response (202 Accepted):
+   {
+     "ok": true,
+     "status": "queued",
+     "job_id": "job_1726645800000_3x8a9",
+     "title": "...",
+     "scenes_detected": 4,
+     "actions_url": "https://github.com/...",
+     "message": "Story video generation successfully queued in GitHub Actions..."
    }
 
 ---
