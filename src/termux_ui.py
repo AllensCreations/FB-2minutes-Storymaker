@@ -170,7 +170,9 @@ def run_video_render():
         timeline = director.build_timeline(alignment, visuals_path, fps=24)
 
         # Step 3: Exporter with Progress Bar
-        print(f"\n{C_BLUE}[3/3] Picture-Book Motion Video Exporter (FFmpeg)...{C_RESET}")
+        ans_cap = input(f"\n{C_AMBER}💬 Include TikTok subtitle captions? [Y/n]: {C_RESET}").strip().lower()
+        show_captions = (ans_cap != "n")
+        print(f"\n{C_BLUE}[3/3] Picture-Book Motion Video Exporter (FFmpeg, captions: {'ON' if show_captions else 'OFF'})...{C_RESET}")
         exporter = VideoExporter(fps=24)
 
         def on_progress(percent: float, msg: str):
@@ -180,7 +182,7 @@ def run_video_render():
             sys.stdout.write(f"\r  {C_ORANGE}[{bar}]{C_RESET} {percent:5.1f}% | {msg[:35]:<35}")
             sys.stdout.flush()
 
-        exporter.export_video(timeline, voice_path, output_path, progress_callback=on_progress)
+        exporter.export_video(timeline, voice_path, output_path, progress_callback=on_progress, show_captions=show_captions)
         print("\n\n" + f"{C_GREEN}{C_BOLD}🎉 Render completed successfully!{C_RESET}")
         print(f"📁 Video Location: {C_BOLD}{output_path}{C_RESET}")
 

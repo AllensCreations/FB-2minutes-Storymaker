@@ -24,6 +24,34 @@ class TestAlignEngine(unittest.TestCase):
         self.assertTrue(scenes[0][0].startswith("Scene 1"))
         self.assertIn("Elsa", scenes[0][1])
 
+    def test_parse_json_script(self):
+        # JSON Array format
+        json_array = '[{"scene": 1, "text": "First scene narration."}, {"scene": 2, "text": "Second scene narration."}]'
+        scenes = self.engine.parse_script_content(json_array)
+        self.assertEqual(len(scenes), 2)
+        self.assertEqual(scenes[0][1], "First scene narration.")
+        self.assertEqual(scenes[1][1], "Second scene narration.")
+
+        # Key-Value format
+        json_obj = '{"Scene 1": "Opening beat", "Scene 2": "Rising action"}'
+        scenes2 = self.engine.parse_script_content(json_obj)
+        self.assertEqual(len(scenes2), 2)
+        self.assertEqual(scenes2[0][1], "Opening beat")
+
+    def test_parse_next_image_script(self):
+        content = (
+            "In a sunny grove, little Leo found a golden map.\n"
+            "(Next image)\n"
+            "The map pointed toward the Crystal Cave.\n"
+            "(Next image)\n"
+            "Inside the cave, thousands of emerald crystals sparkled."
+        )
+        scenes = self.engine.parse_script_content(content)
+        self.assertEqual(len(scenes), 3)
+        self.assertEqual(scenes[0][1], "In a sunny grove, little Leo found a golden map.")
+        self.assertEqual(scenes[1][1], "The map pointed toward the Crystal Cave.")
+        self.assertEqual(scenes[2][1], "Inside the cave, thousands of emerald crystals sparkled.")
+
     def test_audio_duration(self):
         duration = self.engine.get_audio_duration(self.audio_path)
         self.assertGreater(duration, 0)

@@ -66,36 +66,106 @@ class SpeechCueAlignEngine:
         except Exception:
             return 21.0
 
+    def parse_script_content(self, content: str) -> List[Tuple[str, str]]:
+        """
+        Parses script content string into structured [(scene_title, scene_text)] entries.
+        Supports:
+        - Universal JSON formats (arrays of scene objects, key-value objects, nested lists)
+        - (Next image) or [Next image] split tags
+        - [Scene N: Title] blocks
+        - Standard paragraph blocks
+        """
+        content = content.strip()
+        if not content:
+            return []
+
+        # 1. Try parsing as JSON
+        if (content.startswith("[") and content.endswith("]")) or (content.startswith("{") and content.endswith("}")):
+            try:
+                data = json.loads(content)
+                scenes = []
+                if isinstance(data, list):
+                    for idx, item in enumerate(data, 1):
+                        if isinstance(item, str) and item.strip():
+                            scenes.append((f"Scene {idx}", item.strip()))
+                        elif isinstance(item, dict):
+                            title = item.get("title") or item.get("scene_title") or f"Scene {item.get('scene', idx)}"
+                            text = item.get("text") or item.get("narration") or item.get("script") or item.get("caption") or ""
+                            if text:
+                                scenes.append((str(title), str(text).strip()))
+                    if scenes:
+                        return scenes
+                elif isinstance(data, dict):
+                    nested = data.get("scenes") or data.get("story") or data.get("script")
+                    if isinstance(nested, list):
+                        for idx, item in enumerate(nested, 1):
+                            if isinstance(item, str) and item.strip():
+                                scenes.append((f"Scene {idx}", item.strip()))
+                            elif isinstance(item, dict):
+                                title = item.get("title") or item.get("scene_title") or f"Scene {item.get('scene', idx)}"
+                                text = item.get("text") or item.get("narration") or item.get("script") or item.get("caption") or ""
+                                if text:
+                                    scenes.append((str(title), str(text).strip()))
+                        if scenes:
+                            return scenes
+                    else:
+                        for idx, (k, v) in enumerate(data.items(), 1):
+                            if isinstance(v, str) and v.strip():
+                                scenes.append((str(k), v.strip()))
+                            elif isinstance(v, dict):
+                                txt = v.get("text") or v.get("narration") or str(v)
+                                scenes.append((str(k), str(txt).strip()))
+                        if scenes:
+                            return scenes
+            except Exception:
+                pass
+
+        # 2. Try splitting by (Next image) / [Next image] / (next scene)
+        next_img_pattern = re.compile(r"(?:\(|\[)\s*next\s*(?:image|scene|frame)?\s*(?:\)|\])", re.IGNORECASE)
+        if next_img_pattern.search(content):
+            parts = next_img_pattern.split(content)
+            scenes = []
+            for idx, part in enumerate(parts, 1):
+                clean = " ".join(part.strip().split())
+                if clean:
+                    scenes.append((f"Scene {idx}", clean))
+            if scenes:
+                return scenes
+
+        # 3. Try [Scene ...: ...] blocks
+        pattern = re.compile(r"\[(Scene\s*[^\]]+)\]\s*\n([^\[]+)", re.MULTILINE)
+        matches = pattern.findall(content)
+        if matches:
+            scenes = []
+            for title, text in matches:
+                clean_text = " ".join(text.strip().split())
+                if clean_text:
+                    scenes.append((title.strip(), clean_text))
+            if scenes:
+                return scenes
+
+        # 4. Fallback: split by double newlines or non-empty lines
+        paragraphs = [p.strip() for p in content.split("\n\n") if p.strip()]
+        scenes = []
+        for idx, p in enumerate(paragraphs, 1):
+            clean_text = " ".join(p.split())
+            if clean_text:
+                scenes.append((f"Scene {idx}", clean_text))
+
+        return scenes
+
     def parse_script(self, script_path: Path) -> List[Tuple[str, str]]:
         """
         Parse script file into structured [(scene_title, scene_text)] entries.
-        Supports [Scene N: Title] blocks as well as standard paragraphs.
         """
         print(f"[Speech-Cue Align Engine] Parsing script: {script_path}")
         if not script_path.exists():
             raise FileNotFoundError(f"Script file not found: {script_path}")
 
         with open(script_path, "r", encoding="utf-8") as f:
-            content = f.read().strip()
+            content = f.read()
 
-        scenes = []
-        # Pattern to find [Scene ...: ...]
-        pattern = re.compile(r"\[(Scene\s*[^\]]+)\]\s*\n([^\[]+)", re.MULTILINE)
-        matches = pattern.findall(content)
-
-        if matches:
-            for title, text in matches:
-                clean_text = " ".join(text.strip().split())
-                if clean_text:
-                    scenes.append((title.strip(), clean_text))
-        else:
-            # Fallback: split by double newlines or non-empty lines
-            paragraphs = [p.strip() for p in content.split("\n\n") if p.strip()]
-            for idx, p in enumerate(paragraphs, 1):
-                clean_text = " ".join(p.split())
-                scenes.append((f"Scene {idx}", clean_text))
-
-        return scenes
+        return self.parse_script_content(content)
 
     def align_speech_with_script(self, audio_path: Path, script_path: Path) -> AlignmentResult:
         """

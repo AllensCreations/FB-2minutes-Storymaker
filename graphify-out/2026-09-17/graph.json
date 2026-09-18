@@ -14,7 +14,7 @@
       "file_type": "code",
       "norm_label": "storymakerrequesthandler",
       "source_file": "web/server.py",
-      "source_location": "L176"
+      "source_location": "L211"
     },
     {
       "id": "src_choreography_core_choreography_core_visualchoreographer",
@@ -23,7 +23,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 1,
-      "community_name": "video_exporter.py",
+      "community_name": "VisualChoreographer",
       "file_type": "code",
       "norm_label": "visualchoreographer",
       "source_file": "src/choreography_core/choreography_core.py",
@@ -36,7 +36,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 1,
-      "community_name": "video_exporter.py",
+      "community_name": "VisualChoreographer",
       "file_type": "code",
       "norm_label": "scenetimeline",
       "source_file": "src/duration_director/duration_director.py",
@@ -49,7 +49,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 1,
-      "community_name": "video_exporter.py",
+      "community_name": "VisualChoreographer",
       "file_type": "code",
       "norm_label": "testchoreographycore",
       "source_file": "tests/test_choreography_core.py",
@@ -172,6 +172,18 @@
       "source_location": "L56"
     },
     {
+      "id": "web_server_get_project_assets_info",
+      "label": "get_project_assets_info()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "server.py",
+      "file_type": "code",
+      "norm_label": "get_project_assets_info()",
+      "source_file": "web/server.py",
+      "source_location": "L106"
+    },
+    {
       "id": "web_server_get_story_scenes",
       "label": "get_story_scenes()",
       "_callable": true,
@@ -193,7 +205,7 @@
       "file_type": "code",
       "norm_label": "run_pipeline_thread()",
       "source_file": "web/server.py",
-      "source_location": "L106"
+      "source_location": "L141"
     },
     {
       "id": "web_server_run_pipeline_thread_on_render_progress",
@@ -205,7 +217,7 @@
       "file_type": "code",
       "norm_label": "on_render_progress()",
       "source_file": "web/server.py",
-      "source_location": "L147"
+      "source_location": "L182"
     },
     {
       "id": "web_server_storymakerrequesthandler_do_get",
@@ -217,7 +229,7 @@
       "file_type": "code",
       "norm_label": ".do_get()",
       "source_file": "web/server.py",
-      "source_location": "L179"
+      "source_location": "L214"
     },
     {
       "id": "web_server_storymakerrequesthandler_do_post",
@@ -229,7 +241,7 @@
       "file_type": "code",
       "norm_label": ".do_post()",
       "source_file": "web/server.py",
-      "source_location": "L222"
+      "source_location": "L274"
     },
     {
       "id": "web_server_storymakerrequesthandler_send_json",
@@ -241,7 +253,7 @@
       "file_type": "code",
       "norm_label": ".send_json()",
       "source_file": "web/server.py",
-      "source_location": "L251"
+      "source_location": "L303"
     },
     {
       "id": "web_server_storymakerrequesthandler_serve_file",
@@ -253,7 +265,7 @@
       "file_type": "code",
       "norm_label": ".serve_file()",
       "source_file": "web/server.py",
-      "source_location": "L260"
+      "source_location": "L312"
     },
     {
       "id": "web_server_storymakerrequesthandler_serve_video_range",
@@ -265,7 +277,7 @@
       "file_type": "code",
       "norm_label": ".serve_video_range()",
       "source_file": "web/server.py",
-      "source_location": "L275"
+      "source_location": "L327"
     },
     {
       "id": "src_choreography_core_choreography_core_main",
@@ -273,7 +285,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 1,
-      "community_name": "video_exporter.py",
+      "community_name": "VisualChoreographer",
       "file_type": "code",
       "norm_label": "main()",
       "source_file": "src/choreography_core/choreography_core.py",
@@ -285,7 +297,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 1,
-      "community_name": "video_exporter.py",
+      "community_name": "VisualChoreographer",
       "file_type": "code",
       "norm_label": ".compute_motion_transform()",
       "source_file": "src/choreography_core/choreography_core.py",
@@ -297,7 +309,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 1,
-      "community_name": "video_exporter.py",
+      "community_name": "VisualChoreographer",
       "file_type": "code",
       "norm_label": "._draw_text_wrapped()",
       "source_file": "src/choreography_core/choreography_core.py",
@@ -309,7 +321,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 1,
-      "community_name": "video_exporter.py",
+      "community_name": "VisualChoreographer",
       "file_type": "code",
       "norm_label": "._get_font()",
       "source_file": "src/choreography_core/choreography_core.py",
@@ -321,7 +333,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 1,
-      "community_name": "video_exporter.py",
+      "community_name": "VisualChoreographer",
       "file_type": "code",
       "norm_label": ".get_source_image()",
       "source_file": "src/choreography_core/choreography_core.py",
@@ -333,7 +345,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 1,
-      "community_name": "video_exporter.py",
+      "community_name": "VisualChoreographer",
       "file_type": "code",
       "norm_label": ".__init__()",
       "source_file": "src/choreography_core/choreography_core.py",
@@ -345,7 +357,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 1,
-      "community_name": "video_exporter.py",
+      "community_name": "VisualChoreographer",
       "file_type": "code",
       "norm_label": ".render_frame()",
       "source_file": "src/choreography_core/choreography_core.py",
@@ -357,7 +369,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 1,
-      "community_name": "video_exporter.py",
+      "community_name": "VisualChoreographer",
       "file_type": "code",
       "norm_label": ".setup()",
       "source_file": "tests/test_choreography_core.py",
@@ -369,7 +381,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 1,
-      "community_name": "video_exporter.py",
+      "community_name": "VisualChoreographer",
       "file_type": "code",
       "norm_label": ".test_motion_transform()",
       "source_file": "tests/test_choreography_core.py",
@@ -381,7 +393,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 1,
-      "community_name": "video_exporter.py",
+      "community_name": "VisualChoreographer",
       "file_type": "code",
       "norm_label": ".test_render_frame_dimensions()",
       "source_file": "tests/test_choreography_core.py",
@@ -460,6 +472,18 @@
       "source_location": "L69"
     },
     {
+      "id": "src_duration_director_duration_director_main",
+      "label": "main()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 2,
+      "community_name": "SpeechCueAlignEngine",
+      "file_type": "code",
+      "norm_label": "main()",
+      "source_file": "src/duration_director/duration_director.py",
+      "source_location": "L159"
+    },
+    {
       "id": "tests_test_align_engine_testalignengine_setup",
       "label": ".setUp()",
       "_callable": true,
@@ -517,7 +541,7 @@
       "file_type": "code",
       "norm_label": "create_gradient()",
       "source_file": "scripts/generate_sample_assets.py",
-      "source_location": "L99"
+      "source_location": "L148"
     },
     {
       "id": "scripts_generate_sample_assets_generate_audio_voiceover",
@@ -529,7 +553,7 @@
       "file_type": "code",
       "norm_label": "generate_audio_voiceover()",
       "source_file": "scripts/generate_sample_assets.py",
-      "source_location": "L159"
+      "source_location": "L208"
     },
     {
       "id": "scripts_generate_sample_assets_generate_scene_image",
@@ -541,19 +565,7 @@
       "file_type": "code",
       "norm_label": "generate_scene_image()",
       "source_file": "scripts/generate_sample_assets.py",
-      "source_location": "L109"
-    },
-    {
-      "id": "src_duration_director_duration_director_main",
-      "label": "main()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 7,
-      "community_name": "SceneDurationDirector",
-      "file_type": "code",
-      "norm_label": "main()",
-      "source_file": "src/duration_director/duration_director.py",
-      "source_location": "L159"
+      "source_location": "L158"
     },
     {
       "id": "src_duration_director_duration_director_scenedurationdirector_build_timeline",
@@ -757,7 +769,7 @@
       "file_type": "code",
       "norm_label": "generate_all_sample_assets()",
       "source_file": "scripts/generate_sample_assets.py",
-      "source_location": "L234"
+      "source_location": "L281"
     },
     {
       "id": "src_deps_helper_ensure_ffmpeg",
@@ -925,7 +937,7 @@
       "file_type": "code",
       "norm_label": "run_termux_health_check()",
       "source_file": "src/termux_ui.py",
-      "source_location": "L279"
+      "source_location": "L271"
     },
     {
       "id": "src_termux_ui_run_tui_main",
@@ -937,7 +949,7 @@
       "file_type": "code",
       "norm_label": "run_tui_main()",
       "source_file": "src/termux_ui.py",
-      "source_location": "L316"
+      "source_location": "L308"
     },
     {
       "id": "src_termux_ui_run_video_render",
@@ -985,7 +997,7 @@
       "file_type": "code",
       "norm_label": "start_server()",
       "source_file": "web/server.py",
-      "source_location": "L322"
+      "source_location": "L374"
     },
     {
       "id": "web_server_start_server_open",
@@ -997,7 +1009,7 @@
       "file_type": "code",
       "norm_label": "_open()",
       "source_file": "web/server.py",
-      "source_location": "L353"
+      "source_location": "L405"
     },
     {
       "id": "simplehttprequesthandler",
@@ -1045,6 +1057,17 @@
     },
     {
       "id": "web_server_rationale_107",
+      "label": "Returns full metadata and content for preloading local Termux assets into Web\u2026",
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "server.py",
+      "file_type": "rationale",
+      "norm_label": "returns full metadata and content for preloading local termux assets into web...",
+      "source_file": "web/server.py",
+      "source_location": "L107"
+    },
+    {
+      "id": "web_server_rationale_142",
       "label": "Background thread function that executes the full rendering pipeline.",
       "_origin": "ast",
       "community": 0,
@@ -1052,10 +1075,10 @@
       "file_type": "rationale",
       "norm_label": "background thread function that executes the full rendering pipeline.",
       "source_file": "web/server.py",
-      "source_location": "L107"
+      "source_location": "L142"
     },
     {
-      "id": "web_server_rationale_177",
+      "id": "web_server_rationale_212",
       "label": "Custom HTTP request handler serving Web UI and storymaker APIs.",
       "_origin": "ast",
       "community": 0,
@@ -1063,10 +1086,10 @@
       "file_type": "rationale",
       "norm_label": "custom http request handler serving web ui and storymaker apis.",
       "source_file": "web/server.py",
-      "source_location": "L177"
+      "source_location": "L212"
     },
     {
-      "id": "web_server_rationale_276",
+      "id": "web_server_rationale_328",
       "label": "Supports HTTP 206 Partial Content for streaming/scrubbing in HTML5 video.",
       "_origin": "ast",
       "community": 0,
@@ -1074,7 +1097,7 @@
       "file_type": "rationale",
       "norm_label": "supports http 206 partial content for streaming/scrubbing in html5 video.",
       "source_file": "web/server.py",
-      "source_location": "L276"
+      "source_location": "L328"
     },
     {
       "id": "web_server_rationale_57",
@@ -1103,7 +1126,7 @@
       "label": "Image",
       "_origin": "ast",
       "community": 1,
-      "community_name": "video_exporter.py",
+      "community_name": "VisualChoreographer",
       "file_type": "code",
       "norm_label": "image",
       "source_file": "",
@@ -1114,7 +1137,7 @@
       "label": "ImageDraw",
       "_origin": "ast",
       "community": 1,
-      "community_name": "video_exporter.py",
+      "community_name": "VisualChoreographer",
       "file_type": "code",
       "norm_label": "imagedraw",
       "source_file": "",
@@ -1125,7 +1148,7 @@
       "label": "ImageFont",
       "_origin": "ast",
       "community": 1,
-      "community_name": "video_exporter.py",
+      "community_name": "VisualChoreographer",
       "file_type": "code",
       "norm_label": "imagefont",
       "source_file": "",
@@ -1136,7 +1159,7 @@
       "label": "skipUnless",
       "_origin": "ast",
       "community": 1,
-      "community_name": "video_exporter.py",
+      "community_name": "VisualChoreographer",
       "file_type": "code",
       "norm_label": "skipunless",
       "source_file": "",
@@ -1147,7 +1170,7 @@
       "label": "choreography_core.py",
       "_origin": "ast",
       "community": 1,
-      "community_name": "video_exporter.py",
+      "community_name": "VisualChoreographer",
       "file_type": "code",
       "norm_label": "choreography_core.py",
       "source_file": "src/choreography_core/choreography_core.py",
@@ -1158,65 +1181,10 @@
       "label": "choreography_core/__init__.py",
       "_origin": "ast",
       "community": 1,
-      "community_name": "video_exporter.py",
+      "community_name": "VisualChoreographer",
       "file_type": "code",
       "norm_label": "choreography_core/__init__.py",
       "source_file": "src/choreography_core/__init__.py",
-      "source_location": "L1"
-    },
-    {
-      "id": "src_duration_director_init",
-      "label": "duration_director/__init__.py",
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "video_exporter.py",
-      "file_type": "code",
-      "norm_label": "duration_director/__init__.py",
-      "source_file": "src/duration_director/__init__.py",
-      "source_location": "L1"
-    },
-    {
-      "id": "src_exporter_video_exporter",
-      "label": "video_exporter.py",
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "video_exporter.py",
-      "file_type": "code",
-      "norm_label": "video_exporter.py",
-      "source_file": "src/exporter/video_exporter.py",
-      "source_location": "L1"
-    },
-    {
-      "id": "tests_test_align_engine",
-      "label": "test_align_engine.py",
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "video_exporter.py",
-      "file_type": "code",
-      "norm_label": "test_align_engine.py",
-      "source_file": "tests/test_align_engine.py",
-      "source_location": "L1"
-    },
-    {
-      "id": "tests_test_choreography_core",
-      "label": "test_choreography_core.py",
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "video_exporter.py",
-      "file_type": "code",
-      "norm_label": "test_choreography_core.py",
-      "source_file": "tests/test_choreography_core.py",
-      "source_location": "L1"
-    },
-    {
-      "id": "tests_test_duration_director",
-      "label": "test_duration_director.py",
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "video_exporter.py",
-      "file_type": "code",
-      "norm_label": "test_duration_director.py",
-      "source_file": "tests/test_duration_director.py",
       "source_location": "L1"
     },
     {
@@ -1224,7 +1192,7 @@
       "label": "Visual Choreography Core for FB 2minutes Storymaker Implements \"Picture-Book\u2026",
       "_origin": "ast",
       "community": 1,
-      "community_name": "video_exporter.py",
+      "community_name": "VisualChoreographer",
       "file_type": "rationale",
       "norm_label": "visual choreography core for fb 2minutes storymaker implements \"picture-book...",
       "source_file": "src/choreography_core/choreography_core.py",
@@ -1235,7 +1203,7 @@
       "label": "Computes (scale, offset_x, offset_y) for continuous Ken Burns zoom-in (1.0 ->\u2026",
       "_origin": "ast",
       "community": 1,
-      "community_name": "video_exporter.py",
+      "community_name": "VisualChoreographer",
       "file_type": "rationale",
       "norm_label": "computes (scale, offset_x, offset_y) for continuous ken burns zoom-in (1.0 ->...",
       "source_file": "src/choreography_core/choreography_core.py",
@@ -1246,7 +1214,7 @@
       "label": "Renders a single 1080x1920 video frame with full-bleed Ken Burns cover and\u2026",
       "_origin": "ast",
       "community": 1,
-      "community_name": "video_exporter.py",
+      "community_name": "VisualChoreographer",
       "file_type": "rationale",
       "norm_label": "renders a single 1080x1920 video frame with full-bleed ken burns cover and...",
       "source_file": "src/choreography_core/choreography_core.py",
@@ -1257,7 +1225,7 @@
       "label": "Renders video frames applying Picture-Book Motion choreographic rules.",
       "_origin": "ast",
       "community": 1,
-      "community_name": "video_exporter.py",
+      "community_name": "VisualChoreographer",
       "file_type": "rationale",
       "norm_label": "renders video frames applying picture-book motion choreographic rules.",
       "source_file": "src/choreography_core/choreography_core.py",
@@ -1268,7 +1236,7 @@
       "label": "Loads and caches source artwork in RGBA format.",
       "_origin": "ast",
       "community": 1,
-      "community_name": "video_exporter.py",
+      "community_name": "VisualChoreographer",
       "file_type": "rationale",
       "norm_label": "loads and caches source artwork in rgba format.",
       "source_file": "src/choreography_core/choreography_core.py",
@@ -1279,7 +1247,7 @@
       "label": "Loads a suitable bold TrueType font for subtitles, with fallbacks.",
       "_origin": "ast",
       "community": 1,
-      "community_name": "video_exporter.py",
+      "community_name": "VisualChoreographer",
       "file_type": "rationale",
       "norm_label": "loads a suitable bold truetype font for subtitles, with fallbacks.",
       "source_file": "src/choreography_core/choreography_core.py",
@@ -1290,7 +1258,7 @@
       "label": "Draws word-wrapped stroked subtitles, centered at x.",
       "_origin": "ast",
       "community": 1,
-      "community_name": "video_exporter.py",
+      "community_name": "VisualChoreographer",
       "file_type": "rationale",
       "norm_label": "draws word-wrapped stroked subtitles, centered at x.",
       "source_file": "src/choreography_core/choreography_core.py",
@@ -1301,22 +1269,11 @@
       "label": "Represents a scheduled scene in the master video timeline.",
       "_origin": "ast",
       "community": 1,
-      "community_name": "video_exporter.py",
+      "community_name": "VisualChoreographer",
       "file_type": "rationale",
       "norm_label": "represents a scheduled scene in the master video timeline.",
       "source_file": "src/duration_director/duration_director.py",
       "source_location": "L23"
-    },
-    {
-      "id": "src_exporter_video_exporter_rationale_1",
-      "label": "Final Master Video Exporter for FB 2minutes Storymaker Pipes generated Picture-\u2026",
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "video_exporter.py",
-      "file_type": "rationale",
-      "norm_label": "final master video exporter for fb 2minutes storymaker pipes generated picture-...",
-      "source_file": "src/exporter/video_exporter.py",
-      "source_location": "L1"
     },
     {
       "id": "example_workflow",
@@ -1605,6 +1562,50 @@
       "file_type": "code",
       "norm_label": "duration_director.py",
       "source_file": "src/duration_director/duration_director.py",
+      "source_location": "L1"
+    },
+    {
+      "id": "src_duration_director_init",
+      "label": "duration_director/__init__.py",
+      "_origin": "ast",
+      "community": 2,
+      "community_name": "SpeechCueAlignEngine",
+      "file_type": "code",
+      "norm_label": "duration_director/__init__.py",
+      "source_file": "src/duration_director/__init__.py",
+      "source_location": "L1"
+    },
+    {
+      "id": "tests_test_align_engine",
+      "label": "test_align_engine.py",
+      "_origin": "ast",
+      "community": 2,
+      "community_name": "SpeechCueAlignEngine",
+      "file_type": "code",
+      "norm_label": "test_align_engine.py",
+      "source_file": "tests/test_align_engine.py",
+      "source_location": "L1"
+    },
+    {
+      "id": "tests_test_choreography_core",
+      "label": "test_choreography_core.py",
+      "_origin": "ast",
+      "community": 2,
+      "community_name": "SpeechCueAlignEngine",
+      "file_type": "code",
+      "norm_label": "test_choreography_core.py",
+      "source_file": "tests/test_choreography_core.py",
+      "source_location": "L1"
+    },
+    {
+      "id": "tests_test_duration_director",
+      "label": "test_duration_director.py",
+      "_origin": "ast",
+      "community": 2,
+      "community_name": "SpeechCueAlignEngine",
+      "file_type": "code",
+      "norm_label": "test_duration_director.py",
+      "source_file": "tests/test_duration_director.py",
       "source_location": "L1"
     },
     {
@@ -2023,7 +2024,7 @@
       "source_location": ""
     },
     {
-      "id": "scripts_generate_sample_assets_rationale_100",
+      "id": "scripts_generate_sample_assets_rationale_149",
       "label": "Draw vertical linear gradient.",
       "_origin": "ast",
       "community": 6,
@@ -2031,10 +2032,10 @@
       "file_type": "rationale",
       "norm_label": "draw vertical linear gradient.",
       "source_file": "scripts/generate_sample_assets.py",
-      "source_location": "L100"
+      "source_location": "L149"
     },
     {
-      "id": "scripts_generate_sample_assets_rationale_110",
+      "id": "scripts_generate_sample_assets_rationale_159",
       "label": "Generate a high-resolution 1080x1080 scene illustration card.",
       "_origin": "ast",
       "community": 6,
@@ -2042,18 +2043,7 @@
       "file_type": "rationale",
       "norm_label": "generate a high-resolution 1080x1080 scene illustration card.",
       "source_file": "scripts/generate_sample_assets.py",
-      "source_location": "L110"
-    },
-    {
-      "id": "scripts_generate_sample_assets_rationale_160",
-      "label": "Synthesizes a pleasant multi-tone chime & narration track matching the 6\u2026",
-      "_origin": "ast",
-      "community": 6,
-      "community_name": "generate_sample_assets.py",
-      "file_type": "rationale",
-      "norm_label": "synthesizes a pleasant multi-tone chime & narration track matching the 6...",
-      "source_file": "scripts/generate_sample_assets.py",
-      "source_location": "L160"
+      "source_location": "L159"
     },
     {
       "id": "scripts_generate_sample_assets_rationale_2",
@@ -2065,6 +2055,17 @@
       "norm_label": "sample asset generator for fb 2minutes storymaker creates complete, realistic...",
       "source_file": "scripts/generate_sample_assets.py",
       "source_location": "L2"
+    },
+    {
+      "id": "scripts_generate_sample_assets_rationale_209",
+      "label": "Synthesizes a pleasant multi-tone chime & narration track matching the story\u2026",
+      "_origin": "ast",
+      "community": 6,
+      "community_name": "generate_sample_assets.py",
+      "file_type": "rationale",
+      "norm_label": "synthesizes a pleasant multi-tone chime & narration track matching the story...",
+      "source_file": "scripts/generate_sample_assets.py",
+      "source_location": "L209"
     },
     {
       "id": "src_duration_director_duration_director_py_path",
@@ -2086,6 +2087,17 @@
       "file_type": "code",
       "norm_label": "exporter/__init__.py",
       "source_file": "src/exporter/__init__.py",
+      "source_location": "L1"
+    },
+    {
+      "id": "src_exporter_video_exporter",
+      "label": "video_exporter.py",
+      "_origin": "ast",
+      "community": 7,
+      "community_name": "SceneDurationDirector",
+      "file_type": "code",
+      "norm_label": "video_exporter.py",
+      "source_file": "src/exporter/video_exporter.py",
       "source_location": "L1"
     },
     {
@@ -2153,6 +2165,17 @@
       "norm_label": "locate and order image files from a zip archive or directory. orders by numeric...",
       "source_file": "src/duration_director/duration_director.py",
       "source_location": "L54"
+    },
+    {
+      "id": "src_exporter_video_exporter_rationale_1",
+      "label": "Final Master Video Exporter for FB 2minutes Storymaker Pipes generated Picture-\u2026",
+      "_origin": "ast",
+      "community": 7,
+      "community_name": "SceneDurationDirector",
+      "file_type": "rationale",
+      "norm_label": "final master video exporter for fb 2minutes storymaker pipes generated picture-...",
+      "source_file": "src/exporter/video_exporter.py",
+      "source_location": "L1"
     },
     {
       "id": "src_exporter_video_exporter_rationale_24",
@@ -2287,15 +2310,15 @@
       "source_location": "L99"
     },
     {
-      "id": "scripts_generate_sample_assets_rationale_235",
-      "label": "Generates all sample assets in their respective directories.",
+      "id": "scripts_generate_sample_assets_rationale_282",
+      "label": "Generates all sample assets in their respective directories for the chosen\u2026",
       "_origin": "ast",
       "community": 8,
       "community_name": "termux_ui.py",
       "file_type": "rationale",
-      "norm_label": "generates all sample assets in their respective directories.",
+      "norm_label": "generates all sample assets in their respective directories for the chosen...",
       "source_file": "scripts/generate_sample_assets.py",
-      "source_location": "L235"
+      "source_location": "L282"
     },
     {
       "id": "src_deps_helper_rationale_1",
@@ -2430,7 +2453,7 @@
       "source_location": "L248"
     },
     {
-      "id": "src_termux_ui_rationale_280",
+      "id": "src_termux_ui_rationale_272",
       "label": "Validates packages and allows 1-click Termux package repair.",
       "_origin": "ast",
       "community": 8,
@@ -2438,10 +2461,10 @@
       "file_type": "rationale",
       "norm_label": "validates packages and allows 1-click termux package repair.",
       "source_file": "src/termux_ui.py",
-      "source_location": "L280"
+      "source_location": "L272"
     },
     {
-      "id": "src_termux_ui_rationale_317",
+      "id": "src_termux_ui_rationale_309",
       "label": "Main event loop for the Termux TUI.",
       "_origin": "ast",
       "community": 8,
@@ -2449,7 +2472,7 @@
       "file_type": "rationale",
       "norm_label": "main event loop for the termux tui.",
       "source_file": "src/termux_ui.py",
-      "source_location": "L317"
+      "source_location": "L309"
     },
     {
       "id": "src_align_engine_readme",
@@ -2644,18 +2667,6 @@
       "source_location": "L45"
     },
     {
-      "id": "argparse",
-      "label": "argparse",
-      "_origin": "semantic",
-      "community": 0,
-      "community_name": "server.py",
-      "external": true,
-      "file_type": "concept",
-      "norm_label": "argparse",
-      "source_file": "",
-      "type": "external"
-    },
-    {
       "id": "http",
       "label": "http",
       "_origin": "semantic",
@@ -2704,6 +2715,18 @@
       "type": "external"
     },
     {
+      "id": "time",
+      "label": "time",
+      "_origin": "semantic",
+      "community": 0,
+      "community_name": "server.py",
+      "external": true,
+      "file_type": "concept",
+      "norm_label": "time",
+      "source_file": "",
+      "type": "external"
+    },
+    {
       "id": "urllib_parse",
       "label": "urllib_parse",
       "_origin": "semantic",
@@ -2712,66 +2735,6 @@
       "external": true,
       "file_type": "concept",
       "norm_label": "urllib_parse",
-      "source_file": "",
-      "type": "external"
-    },
-    {
-      "id": "pathlib",
-      "label": "pathlib",
-      "_origin": "semantic",
-      "community": 1,
-      "community_name": "video_exporter.py",
-      "external": true,
-      "file_type": "concept",
-      "norm_label": "pathlib",
-      "source_file": "",
-      "type": "external"
-    },
-    {
-      "id": "sys",
-      "label": "sys",
-      "_origin": "semantic",
-      "community": 1,
-      "community_name": "video_exporter.py",
-      "external": true,
-      "file_type": "concept",
-      "norm_label": "sys",
-      "source_file": "",
-      "type": "external"
-    },
-    {
-      "id": "time",
-      "label": "time",
-      "_origin": "semantic",
-      "community": 1,
-      "community_name": "video_exporter.py",
-      "external": true,
-      "file_type": "concept",
-      "norm_label": "time",
-      "source_file": "",
-      "type": "external"
-    },
-    {
-      "id": "typing",
-      "label": "typing",
-      "_origin": "semantic",
-      "community": 1,
-      "community_name": "video_exporter.py",
-      "external": true,
-      "file_type": "concept",
-      "norm_label": "typing",
-      "source_file": "",
-      "type": "external"
-    },
-    {
-      "id": "unittest",
-      "label": "unittest",
-      "_origin": "semantic",
-      "community": 1,
-      "community_name": "video_exporter.py",
-      "external": true,
-      "file_type": "concept",
-      "norm_label": "unittest",
       "source_file": "",
       "type": "external"
     },
@@ -2812,6 +2775,18 @@
       "type": "external"
     },
     {
+      "id": "pathlib",
+      "label": "pathlib",
+      "_origin": "semantic",
+      "community": 2,
+      "community_name": "SpeechCueAlignEngine",
+      "external": true,
+      "file_type": "concept",
+      "norm_label": "pathlib",
+      "source_file": "",
+      "type": "external"
+    },
+    {
       "id": "re",
       "label": "re",
       "_origin": "semantic",
@@ -2820,6 +2795,54 @@
       "external": true,
       "file_type": "concept",
       "norm_label": "re",
+      "source_file": "",
+      "type": "external"
+    },
+    {
+      "id": "sys",
+      "label": "sys",
+      "_origin": "semantic",
+      "community": 2,
+      "community_name": "SpeechCueAlignEngine",
+      "external": true,
+      "file_type": "concept",
+      "norm_label": "sys",
+      "source_file": "",
+      "type": "external"
+    },
+    {
+      "id": "typing",
+      "label": "typing",
+      "_origin": "semantic",
+      "community": 2,
+      "community_name": "SpeechCueAlignEngine",
+      "external": true,
+      "file_type": "concept",
+      "norm_label": "typing",
+      "source_file": "",
+      "type": "external"
+    },
+    {
+      "id": "unittest",
+      "label": "unittest",
+      "_origin": "semantic",
+      "community": 2,
+      "community_name": "SpeechCueAlignEngine",
+      "external": true,
+      "file_type": "concept",
+      "norm_label": "unittest",
+      "source_file": "",
+      "type": "external"
+    },
+    {
+      "id": "argparse",
+      "label": "argparse",
+      "_origin": "semantic",
+      "community": 6,
+      "community_name": "generate_sample_assets.py",
+      "external": true,
+      "file_type": "concept",
+      "norm_label": "argparse",
       "source_file": "",
       "type": "external"
     },
@@ -2935,7 +2958,7 @@
     },
     {
       "source": "main_main",
-      "target": "main_start_web_server",
+      "target": "scripts_generate_sample_assets_generate_all_sample_assets",
       "relation": "calls",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -2947,6 +2970,18 @@
     },
     {
       "source": "main_main",
+      "target": "main_start_web_server",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "main.py",
+      "source_location": "L137",
+      "weight": 1.0
+    },
+    {
+      "source": "main_main",
       "target": "main_generate_sample_assets",
       "relation": "calls",
       "_origin": "ast",
@@ -2954,7 +2989,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "main.py",
-      "source_location": "L135",
+      "source_location": "L142",
       "weight": 1.0
     },
     {
@@ -2966,7 +3001,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "main.py",
-      "source_location": "L143",
+      "source_location": "L150",
       "weight": 1.0
     },
     {
@@ -2978,7 +3013,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "main.py",
-      "source_location": "L158",
+      "source_location": "L165",
       "weight": 1.0
     },
     {
@@ -3002,7 +3037,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "scripts/generate_sample_assets.py",
-      "source_location": "L263",
+      "source_location": "L319",
       "weight": 1.0
     },
     {
@@ -3014,7 +3049,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "scripts/generate_sample_assets.py",
-      "source_location": "L272",
+      "source_location": "L329",
       "weight": 1.0
     },
     {
@@ -3026,7 +3061,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "scripts/generate_sample_assets.py",
-      "source_location": "L116",
+      "source_location": "L165",
       "weight": 1.0
     },
     {
@@ -3410,7 +3445,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/termux_ui.py",
-      "source_location": "L268",
+      "source_location": "L260",
       "weight": 1.0
     },
     {
@@ -3422,7 +3457,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/termux_ui.py",
-      "source_location": "L281",
+      "source_location": "L273",
       "weight": 1.0
     },
     {
@@ -3434,7 +3469,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/termux_ui.py",
-      "source_location": "L282",
+      "source_location": "L274",
       "weight": 1.0
     },
     {
@@ -3446,7 +3481,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/termux_ui.py",
-      "source_location": "L299",
+      "source_location": "L291",
       "weight": 1.0
     },
     {
@@ -3458,7 +3493,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/termux_ui.py",
-      "source_location": "L319",
+      "source_location": "L311",
       "weight": 1.0
     },
     {
@@ -3470,7 +3505,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/termux_ui.py",
-      "source_location": "L320",
+      "source_location": "L312",
       "weight": 1.0
     },
     {
@@ -3482,7 +3517,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/termux_ui.py",
-      "source_location": "L321",
+      "source_location": "L313",
       "weight": 1.0
     },
     {
@@ -3494,7 +3529,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/termux_ui.py",
-      "source_location": "L322",
+      "source_location": "L314",
       "weight": 1.0
     },
     {
@@ -3506,7 +3541,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/termux_ui.py",
-      "source_location": "L336",
+      "source_location": "L328",
       "weight": 1.0
     },
     {
@@ -3518,7 +3553,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/termux_ui.py",
-      "source_location": "L338",
+      "source_location": "L330",
       "weight": 1.0
     },
     {
@@ -3530,7 +3565,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/termux_ui.py",
-      "source_location": "L340",
+      "source_location": "L332",
       "weight": 1.0
     },
     {
@@ -3542,7 +3577,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/termux_ui.py",
-      "source_location": "L342",
+      "source_location": "L334",
       "weight": 1.0
     },
     {
@@ -3554,7 +3589,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/termux_ui.py",
-      "source_location": "L345",
+      "source_location": "L337",
       "weight": 1.0
     },
     {
@@ -3566,7 +3601,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/termux_ui.py",
-      "source_location": "L347",
+      "source_location": "L339",
       "weight": 1.0
     },
     {
@@ -3726,6 +3761,18 @@
       "weight": 1.0
     },
     {
+      "source": "web_server_get_project_assets_info",
+      "target": "web_server_get_story_scenes",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "web/server.py",
+      "source_location": "L123",
+      "weight": 1.0
+    },
+    {
       "source": "web_server_storymakerrequesthandler_do_get",
       "target": "web_server_storymakerrequesthandler_serve_file",
       "relation": "calls",
@@ -3734,7 +3781,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "web/server.py",
-      "source_location": "L185",
+      "source_location": "L220",
       "weight": 1.0
     },
     {
@@ -3746,7 +3793,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "web/server.py",
-      "source_location": "L187",
+      "source_location": "L222",
       "weight": 1.0
     },
     {
@@ -3758,7 +3805,19 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "web/server.py",
-      "source_location": "L187",
+      "source_location": "L222",
+      "weight": 1.0
+    },
+    {
+      "source": "web_server_storymakerrequesthandler_do_get",
+      "target": "web_server_get_project_assets_info",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "web/server.py",
+      "source_location": "L224",
       "weight": 1.0
     },
     {
@@ -3770,7 +3829,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "web/server.py",
-      "source_location": "L189",
+      "source_location": "L226",
       "weight": 1.0
     },
     {
@@ -3782,7 +3841,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "web/server.py",
-      "source_location": "L210",
+      "source_location": "L262",
       "weight": 1.0
     },
     {
@@ -3794,7 +3853,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "web/server.py",
-      "source_location": "L230",
+      "source_location": "L282",
       "weight": 1.0
     },
     {
@@ -4023,6 +4082,18 @@
       "context": "import",
       "source_file": "scripts/generate_sample_assets.py",
       "source_location": "L16",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_generate_sample_assets",
+      "target": "argparse",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "scripts/generate_sample_assets.py",
+      "source_location": "L336",
       "weight": 1.0
     },
     {
@@ -4543,6 +4614,18 @@
     },
     {
       "source": "src_termux_ui",
+      "target": "scripts_generate_sample_assets_generate_all_sample_assets",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/termux_ui.py",
+      "source_location": "L259",
+      "weight": 1.0
+    },
+    {
+      "source": "src_termux_ui",
       "target": "src_deps_helper_ensure_ffmpeg",
       "relation": "imports",
       "_origin": "ast",
@@ -4575,18 +4658,6 @@
       "context": "import",
       "source_file": "src/termux_ui.py",
       "source_location": "L26",
-      "weight": 1.0
-    },
-    {
-      "source": "src_termux_ui",
-      "target": "scripts_generate_sample_assets_generate_all_sample_assets",
-      "relation": "imports",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "import",
-      "source_file": "src/termux_ui.py",
-      "source_location": "L260",
       "weight": 1.0
     },
     {
@@ -4766,7 +4837,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "web/server.py",
-      "source_location": "L370",
+      "source_location": "L422",
       "weight": 1.0
     },
     {
@@ -5246,7 +5317,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "scripts/generate_sample_assets.py",
-      "source_location": "L159",
+      "source_location": "L208",
       "weight": 1.0
     },
     {
@@ -5258,7 +5329,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "scripts/generate_sample_assets.py",
-      "source_location": "L109",
+      "source_location": "L158",
       "weight": 1.0
     },
     {
@@ -5450,7 +5521,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "web/server.py",
-      "source_location": "L260",
+      "source_location": "L312",
       "weight": 1.0
     },
     {
@@ -5462,7 +5533,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "web/server.py",
-      "source_location": "L275",
+      "source_location": "L327",
       "weight": 1.0
     },
     {
@@ -5923,13 +5994,24 @@
     },
     {
       "source": "scripts_generate_sample_assets",
+      "target": "scripts_generate_sample_assets_create_gradient",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "scripts/generate_sample_assets.py",
+      "source_location": "L148",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_generate_sample_assets",
       "target": "scripts_generate_sample_assets_generate_scene_image",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "scripts/generate_sample_assets.py",
-      "source_location": "L109",
+      "source_location": "L158",
       "weight": 1.0
     },
     {
@@ -5940,7 +6022,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "scripts/generate_sample_assets.py",
-      "source_location": "L159",
+      "source_location": "L208",
       "weight": 1.0
     },
     {
@@ -5951,18 +6033,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "scripts/generate_sample_assets.py",
-      "source_location": "L234",
-      "weight": 1.0
-    },
-    {
-      "source": "scripts_generate_sample_assets",
-      "target": "scripts_generate_sample_assets_create_gradient",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "scripts/generate_sample_assets.py",
-      "source_location": "L99",
+      "source_location": "L281",
       "weight": 1.0
     },
     {
@@ -6435,7 +6506,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/termux_ui.py",
-      "source_location": "L279",
+      "source_location": "L271",
       "weight": 1.0
     },
     {
@@ -6446,7 +6517,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/termux_ui.py",
-      "source_location": "L316",
+      "source_location": "L308",
       "weight": 1.0
     },
     {
@@ -6528,7 +6599,7 @@
     },
     {
       "source": "web_server",
-      "target": "web_server_run_pipeline_thread",
+      "target": "web_server_get_project_assets_info",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -6539,13 +6610,24 @@
     },
     {
       "source": "web_server",
+      "target": "web_server_run_pipeline_thread",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "web/server.py",
+      "source_location": "L141",
+      "weight": 1.0
+    },
+    {
+      "source": "web_server",
       "target": "web_server_storymakerrequesthandler",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "web/server.py",
-      "source_location": "L176",
+      "source_location": "L211",
       "weight": 1.0
     },
     {
@@ -6556,7 +6638,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "web/server.py",
-      "source_location": "L322",
+      "source_location": "L374",
       "weight": 1.0
     },
     {
@@ -6589,7 +6671,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "web/server.py",
-      "source_location": "L176",
+      "source_location": "L211",
       "weight": 1.0
     },
     {
@@ -6897,7 +6979,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "web/server.py",
-      "source_location": "L179",
+      "source_location": "L214",
       "weight": 1.0
     },
     {
@@ -6908,7 +6990,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "web/server.py",
-      "source_location": "L222",
+      "source_location": "L274",
       "weight": 1.0
     },
     {
@@ -6919,7 +7001,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "web/server.py",
-      "source_location": "L251",
+      "source_location": "L303",
       "weight": 1.0
     },
     {
@@ -6930,7 +7012,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "web/server.py",
-      "source_location": "L260",
+      "source_location": "L312",
       "weight": 1.0
     },
     {
@@ -6941,7 +7023,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "web/server.py",
-      "source_location": "L275",
+      "source_location": "L327",
       "weight": 1.0
     },
     {
@@ -7000,36 +7082,25 @@
       "weight": 1.0
     },
     {
-      "source": "scripts_generate_sample_assets_rationale_100",
+      "source": "scripts_generate_sample_assets_rationale_149",
       "target": "scripts_generate_sample_assets_create_gradient",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "scripts/generate_sample_assets.py",
-      "source_location": "L100",
+      "source_location": "L149",
       "weight": 1.0
     },
     {
-      "source": "scripts_generate_sample_assets_rationale_110",
+      "source": "scripts_generate_sample_assets_rationale_159",
       "target": "scripts_generate_sample_assets_generate_scene_image",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "scripts/generate_sample_assets.py",
-      "source_location": "L110",
-      "weight": 1.0
-    },
-    {
-      "source": "scripts_generate_sample_assets_rationale_160",
-      "target": "scripts_generate_sample_assets_generate_audio_voiceover",
-      "relation": "rationale_for",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "scripts/generate_sample_assets.py",
-      "source_location": "L160",
+      "source_location": "L159",
       "weight": 1.0
     },
     {
@@ -7044,14 +7115,25 @@
       "weight": 1.0
     },
     {
-      "source": "scripts_generate_sample_assets_rationale_235",
+      "source": "scripts_generate_sample_assets_rationale_209",
+      "target": "scripts_generate_sample_assets_generate_audio_voiceover",
+      "relation": "rationale_for",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "scripts/generate_sample_assets.py",
+      "source_location": "L209",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_generate_sample_assets_rationale_282",
       "target": "scripts_generate_sample_assets_generate_all_sample_assets",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "scripts/generate_sample_assets.py",
-      "source_location": "L235",
+      "source_location": "L282",
       "weight": 1.0
     },
     {
@@ -7473,25 +7555,25 @@
       "weight": 1.0
     },
     {
-      "source": "src_termux_ui_rationale_280",
+      "source": "src_termux_ui_rationale_272",
       "target": "src_termux_ui_run_termux_health_check",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/termux_ui.py",
-      "source_location": "L280",
+      "source_location": "L272",
       "weight": 1.0
     },
     {
-      "source": "src_termux_ui_rationale_317",
+      "source": "src_termux_ui_rationale_309",
       "target": "src_termux_ui_run_tui_main",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/termux_ui.py",
-      "source_location": "L317",
+      "source_location": "L309",
       "weight": 1.0
     },
     {
@@ -7507,7 +7589,7 @@
     },
     {
       "source": "web_server_rationale_107",
-      "target": "web_server_run_pipeline_thread",
+      "target": "web_server_get_project_assets_info",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -7517,25 +7599,36 @@
       "weight": 1.0
     },
     {
-      "source": "web_server_rationale_177",
+      "source": "web_server_rationale_142",
+      "target": "web_server_run_pipeline_thread",
+      "relation": "rationale_for",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "web/server.py",
+      "source_location": "L142",
+      "weight": 1.0
+    },
+    {
+      "source": "web_server_rationale_212",
       "target": "web_server_storymakerrequesthandler",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "web/server.py",
-      "source_location": "L177",
+      "source_location": "L212",
       "weight": 1.0
     },
     {
-      "source": "web_server_rationale_276",
+      "source": "web_server_rationale_328",
       "target": "web_server_storymakerrequesthandler_serve_video_range",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "web/server.py",
-      "source_location": "L276",
+      "source_location": "L328",
       "weight": 1.0
     },
     {
@@ -7593,7 +7686,7 @@
       "confidence_score": 0.85,
       "context": "argument",
       "source_file": "web/server.py",
-      "source_location": "L159",
+      "source_location": "L194",
       "weight": 1.0
     },
     {
@@ -7605,7 +7698,7 @@
       "confidence_score": 0.85,
       "context": "argument",
       "source_file": "web/server.py",
-      "source_location": "L360",
+      "source_location": "L412",
       "weight": 1.0
     },
     {
@@ -7617,7 +7710,7 @@
       "confidence_score": 0.85,
       "context": "argument",
       "source_file": "web/server.py",
-      "source_location": "L232",
+      "source_location": "L284",
       "weight": 1.0
     },
     {
@@ -7641,7 +7734,7 @@
       "confidence_score": 0.85,
       "context": "call",
       "source_file": "main.py",
-      "source_location": "L123",
+      "source_location": "L124",
       "weight": 1.0
     },
     {
@@ -7653,7 +7746,7 @@
       "confidence_score": 0.85,
       "context": "call",
       "source_file": "main.py",
-      "source_location": "L129",
+      "source_location": "L136",
       "weight": 1.0
     },
     {
@@ -7773,7 +7866,7 @@
       "confidence_score": 0.85,
       "context": "call",
       "source_file": "web/server.py",
-      "source_location": "L142",
+      "source_location": "L177",
       "weight": 1.0
     },
     {
@@ -7785,7 +7878,7 @@
       "confidence_score": 0.85,
       "context": "call",
       "source_file": "web/server.py",
-      "source_location": "L142",
+      "source_location": "L177",
       "weight": 1.0
     },
     {
@@ -7797,7 +7890,7 @@
       "confidence_score": 0.85,
       "context": "call",
       "source_file": "web/server.py",
-      "source_location": "L154",
+      "source_location": "L189",
       "weight": 1.0
     },
     {
@@ -7809,7 +7902,7 @@
       "confidence_score": 0.85,
       "context": "call",
       "source_file": "web/server.py",
-      "source_location": "L357",
+      "source_location": "L409",
       "weight": 1.0
     },
     {
@@ -8010,7 +8103,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.95,
       "source_file": "web/server.py",
-      "source_location": "L128",
+      "source_location": "L163",
       "weight": 0.8
     },
     {
@@ -8021,10 +8114,10 @@
       "confidence": "INFERRED",
       "confidence_score": 0.95,
       "source_file": "web/server.py",
-      "source_location": "L137",
+      "source_location": "L172",
       "weight": 0.8
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "c1c0db9e2471219ca36cd7886faefbb6590a0dc9"
+  "built_at_commit": "15c6df7060064e2a1f7ad042198d8cfacc1c5900"
 }

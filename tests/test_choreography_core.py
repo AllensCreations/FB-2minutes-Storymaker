@@ -47,6 +47,22 @@ class TestChoreographyCore(unittest.TestCase):
         self.assertEqual(frame.size, (1080, 1920))
         self.assertEqual(frame.mode, "RGB")
 
+    def test_render_frame_caption_toggle(self):
+        frame_with_captions = self.choreographer.render_frame(
+            self.scene, scene_t=1.0, total_t=1.0, total_duration=21.0, show_captions=True
+        )
+        frame_without_captions = self.choreographer.render_frame(
+            self.scene, scene_t=1.0, total_t=1.0, total_duration=21.0, show_captions=False
+        )
+
+        self.assertEqual(frame_with_captions.size, (1080, 1920))
+        self.assertEqual(frame_without_captions.size, (1080, 1920))
+
+        # Pixel data in caption area (around center, lower third y=1680) should differ
+        crop_with = frame_with_captions.crop((440, 1650, 640, 1720)).tobytes()
+        crop_without = frame_without_captions.crop((440, 1650, 640, 1720)).tobytes()
+        self.assertNotEqual(crop_with, crop_without, "Frame with captions should differ from frame without captions in the caption area.")
+
 
 if __name__ == "__main__":
     unittest.main()

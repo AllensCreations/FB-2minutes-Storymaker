@@ -138,7 +138,7 @@ def get_project_assets_info():
     }
 
 
-def run_pipeline_thread():
+def run_pipeline_thread(show_captions: bool = True):
     """Background thread function that executes the full rendering pipeline."""
     global RENDER_STATE
     with RENDER_LOCK:
@@ -148,6 +148,7 @@ def run_pipeline_thread():
         RENDER_STATE["error"] = None
         RENDER_STATE["video_ready"] = False
         RENDER_STATE["started_at"] = time.time()
+        RENDER_STATE["show_captions"] = show_captions
 
     try:
         audio_path = VOICE_DIR / "narration.mp3"
@@ -191,7 +192,8 @@ def run_pipeline_thread():
             timeline=timeline,
             audio_path=audio_path,
             output_path=output_path,
-            progress_callback=on_render_progress
+            progress_callback=on_render_progress,
+            show_captions=show_captions
         )
 
         with RENDER_LOCK:
@@ -277,13 +279,23 @@ class StorymakerRequestHandler(SimpleHTTPRequestHandler):
 
         if path == "/api/render":
             global RENDER_STATE
+            content_length = int(self.headers.get("Content-Length", 0))
+            show_captions = True
+            if content_length > 0:
+                try:
+                    payload = json.loads(self.rfile.read(content_length).decode("utf-8"))
+                    if "show_captions" in payload:
+                        show_captions = bool(payload["show_captions"])
+                except Exception:
+                    pass
+
             with RENDER_LOCK:
                 if RENDER_STATE["status"] == "running":
                     self.send_json({"ok": False, "message": "A render is already in progress."}, status=409)
                     return
-            thread = threading.Thread(target=run_pipeline_thread, daemon=True)
+            thread = threading.Thread(target=run_pipeline_thread, args=(show_captions,), daemon=True)
             thread.start()
-            self.send_json({"ok": True, "message": "Render job started."})
+            self.send_json({"ok": True, "message": f"Render job started (captions: {'ON' if show_captions else 'OFF'})."})
 
         elif path == "/api/generate-assets":
             try:
@@ -295,6 +307,38 @@ class StorymakerRequestHandler(SimpleHTTPRequestHandler):
                     spec.loader.exec_module(mod)
                     mod.generate_all_sample_assets()
                 self.send_json({"ok": True, "message": "Sample assets refreshed."})
+            except Exception as e:
+                self.send_json({"ok": False, "error": str(e)}, status=500)
+
+        elif path == "/api/save-script":
+            try:
+                content_length = int(self.headers.get("Content-Length", 0))
+                body = self.rfile.read(content_length).decode("utf-8")
+                payload = json.loads(body)
+                script_text = payload.get("script_text", "").strip()
+                if script_text:
+                    SCRIPTS_DIR.mkdir(parents=True, exist_ok=True)
+                    with open(SCRIPTS_DIR / "story.txt", "w", encoding="utf-8") as f:
+                        f.write(script_text)
+                    self.send_json({"ok": True, "message": "Script saved to assets/scripts/story.txt"})
+                else:
+                    self.send_json({"ok": False, "message": "No script text provided"}, status=400)
+            except Exception as e:
+                self.send_json({"ok": False, "error": str(e)}, status=500)
+
+        elif path == "/api/save-timeline":
+            try:
+                content_length = int(self.headers.get("Content-Length", 0))
+                body = self.rfile.read(content_length).decode("utf-8")
+                payload = json.loads(body)
+                timeline_data = payload.get("timeline")
+                if timeline_data:
+                    PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
+                    with open(PROCESSED_DIR / "timeline.json", "w", encoding="utf-8") as f:
+                        json.dump(timeline_data, f, indent=2)
+                    self.send_json({"ok": True, "message": "Timeline saved to assets/processed/timeline.json"})
+                else:
+                    self.send_json({"ok": False, "message": "No timeline data provided"}, status=400)
             except Exception as e:
                 self.send_json({"ok": False, "error": str(e)}, status=500)
         else:

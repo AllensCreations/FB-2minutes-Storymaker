@@ -6,6 +6,7 @@
   <title>StoryShorts Studio</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2/dist/transformers.min.js"></script>
   <style>
     body { background-color: #0d1117; color: #e6edf3; }
     .aspect-short { aspect-ratio: 9 / 16; }
@@ -41,10 +42,15 @@
           <h2 class="text-base font-semibold text-white">1. Assets & Ingestion</h2>
 
           <div>
-            <label class="block text-xs font-medium text-gray-300 mb-1 flex justify-between">
-              <span>Voice-Over (MP3/WAV)</span>
-              <span id="audioDurLabel" class="text-[11px] text-gray-500 font-mono"></span>
-            </label>
+            <div class="flex items-center justify-between mb-1">
+              <label class="text-xs font-medium text-gray-300">Voice-Over (MP3/WAV)</label>
+              <div class="flex items-center gap-2">
+                <button id="transcribeBtn" class="text-[10px] px-2 py-0.5 rounded bg-purple-600/30 text-purple-300 hover:bg-purple-600/50 border border-purple-500/40 transition flex items-center gap-1 font-medium" title="Auto-transcribe speech into script with (Next image) scene splits">
+                  <span>🎙️</span> Auto-Transcribe
+                </button>
+                <span id="audioDurLabel" class="text-[11px] text-gray-500 font-mono"></span>
+              </div>
+            </div>
             <input type="file" id="audioInput" accept="audio/*" class="w-full text-xs text-gray-400 file:mr-2 file:py-1 file:px-3 file:rounded file:border-0 file:bg-blue-600 file:text-white hover:file:bg-blue-700 cursor-pointer" />
           </div>
 
@@ -57,11 +63,25 @@
           </div>
 
           <div>
-            <label class="block text-xs font-medium text-gray-300 mb-1 flex justify-between">
-              <span>Narration Script (1 line per scene)</span>
-              <span id="scriptCountLabel" class="text-[11px] text-gray-500 font-mono"></span>
-            </label>
-            <textarea id="scriptInput" rows="6" placeholder="Line 1 corresponds to Image 1&#10;Line 2 corresponds to Image 2&#10;Line 3 corresponds to Image 3..." class="w-full bg-gray-950 border border-gray-800 rounded p-2 text-xs text-gray-200 focus:outline-none focus:border-blue-500 font-mono"></textarea>
+            <div class="flex items-center justify-between mb-1">
+              <label class="text-xs font-medium text-gray-300">Scene Script / JSON</label>
+              <div class="flex items-center gap-1.5">
+                <button id="convertFormatBtn" type="button" class="text-[10px] px-1.5 py-0.5 rounded bg-gray-800 text-gray-300 hover:bg-gray-700 border border-gray-700 transition" title="Toggle between JSON and (Next image) format">
+                  JSON ↔ (Next image)
+                </button>
+                <button id="insertSplitBtn" type="button" class="text-[10px] px-1.5 py-0.5 rounded bg-gray-800 text-blue-300 hover:bg-gray-700 border border-gray-700 transition" title="Insert (Next image) split at cursor">
+                  + (Next image)
+                </button>
+                <span id="scriptCountLabel" class="text-[11px] text-gray-500 font-mono"></span>
+              </div>
+            </div>
+            <textarea id="scriptInput" rows="6" placeholder="Paste JSON code, or text with (Next image) splits:&#10;&#10;Scene 1: In a quiet village, Elsa starts her day...&#10;(Next image)&#10;Scene 2: The magical yeast has gone missing...&#10;(Next image)&#10;Scene 3: Elsa ventures into the Enchanted Forest..." class="w-full bg-gray-950 border border-gray-800 rounded p-2 text-xs text-gray-200 focus:outline-none focus:border-blue-500 font-mono"></textarea>
+            <div class="flex items-center justify-between mt-1 text-[10px] text-gray-500">
+              <span>Supports raw JSON, (Next image) splits, or Scene 1:</span>
+              <button id="saveTermuxBtn" type="button" class="text-emerald-400 hover:underline flex items-center gap-1" title="Save script to assets/scripts/story.txt on Termux">
+                <span>💾</span> Save to Termux
+              </button>
+            </div>
           </div>
         </div>
 
@@ -75,7 +95,12 @@
 
       <!-- 2. Preview Canvas -->
       <div class="flex flex-col items-center justify-between bg-gray-900 p-5 rounded-xl border border-gray-800">
-        <h2 class="text-base font-semibold text-white mb-3 self-start">2. Canvas Preview (9:16)</h2>
+        <div class="w-full flex items-center justify-between mb-3">
+          <h2 class="text-base font-semibold text-white">2. Canvas Preview (9:16)</h2>
+          <button id="captionToggleBtn" class="flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-medium border border-blue-500/50 bg-blue-500/20 text-blue-300 hover:bg-blue-500/30 transition select-none">
+            <span>💬</span> <span id="captionToggleText">Captions: ON</span>
+          </button>
+        </div>
         <div class="relative w-full max-w-[280px] aspect-short bg-black rounded-lg overflow-hidden shadow-2xl border border-gray-800">
           <canvas id="previewCanvas" width="720" height="1280" class="w-full h-full object-contain"></canvas>
         </div>
@@ -166,6 +191,27 @@
     const exportBar = document.getElementById('exportBar');
     const exportPct = document.getElementById('exportPct');
     const exportText = document.getElementById('exportText');
+    const captionToggleBtn = document.getElementById('captionToggleBtn');
+    const captionToggleText = document.getElementById('captionToggleText');
+    const transcribeBtn = document.getElementById('transcribeBtn');
+    const convertFormatBtn = document.getElementById('convertFormatBtn');
+    const insertSplitBtn = document.getElementById('insertSplitBtn');
+    const saveTermuxBtn = document.getElementById('saveTermuxBtn');
+    let showCaptions = true;
+
+    if (captionToggleBtn) {
+      captionToggleBtn.addEventListener('click', () => {
+        showCaptions = !showCaptions;
+        if (showCaptions) {
+          captionToggleBtn.className = 'flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-medium border border-blue-500/50 bg-blue-500/20 text-blue-300 hover:bg-blue-500/30 transition select-none';
+          captionToggleText.textContent = 'Captions: ON';
+        } else {
+          captionToggleBtn.className = 'flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-medium border border-gray-700 bg-gray-800 text-gray-400 hover:bg-gray-700 transition select-none';
+          captionToggleText.textContent = 'Captions: OFF';
+        }
+        drawFrame(audioElement.currentTime || 0);
+      });
+    }
 
     function getAudioContext() {
       if (!audioContext) {
@@ -241,23 +287,295 @@
       statusEl.textContent = `Loaded ${loadedImages.length} image(s).`;
     });
 
-    function parseScriptLines(text) {
+    // =========================================================================
+    // Universal Script Parser: JSON, (Next image) splits, Scene N: blocks
+    // =========================================================================
+    function parseScriptScenes(text) {
       if (!text) return [];
-      let lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
-      if (lines.some(l => l.startsWith('[') && l.endsWith(']'))) {
-        lines = lines.filter(l => !l.startsWith('[') && !l.startsWith('#'));
+      const trimmed = text.trim();
+      if (!trimmed) return [];
+
+      // 1. JSON Array or Object
+      if ((trimmed.startsWith('[') && trimmed.endsWith(']')) || (trimmed.startsWith('{') && trimmed.endsWith('}'))) {
+        try {
+          const data = JSON.parse(trimmed);
+          let scenes = [];
+          if (Array.isArray(data)) {
+            data.forEach((item, idx) => {
+              if (typeof item === 'string' && item.trim()) {
+                scenes.push({ title: `Scene ${idx + 1}`, text: item.trim() });
+              } else if (item && typeof item === 'object') {
+                const title = item.title || item.scene_title || `Scene ${item.scene || idx + 1}`;
+                const txt = item.text || item.narration || item.script || item.caption || '';
+                if (txt) scenes.push({ title: String(title), text: String(txt).trim() });
+              }
+            });
+            if (scenes.length > 0) return scenes;
+          } else if (data && typeof data === 'object') {
+            const nested = data.scenes || data.story || data.script;
+            if (Array.isArray(nested)) {
+              nested.forEach((item, idx) => {
+                if (typeof item === 'string' && item.trim()) {
+                  scenes.push({ title: `Scene ${idx + 1}`, text: item.trim() });
+                } else if (item && typeof item === 'object') {
+                  const title = item.title || item.scene_title || `Scene ${item.scene || idx + 1}`;
+                  const txt = item.text || item.narration || item.script || item.caption || '';
+                  if (txt) scenes.push({ title: String(title), text: String(txt).trim() });
+                }
+              });
+              if (scenes.length > 0) return scenes;
+            } else {
+              for (const [k, v] of Object.entries(data)) {
+                if (typeof v === 'string' && v.trim()) {
+                  scenes.push({ title: String(k), text: v.trim() });
+                } else if (v && typeof v === 'object') {
+                  const txt = v.text || v.narration || JSON.stringify(v);
+                  scenes.push({ title: String(k), text: String(txt).trim() });
+                }
+              }
+              if (scenes.length > 0) return scenes;
+            }
+          }
+        } catch (e) {}
       }
-      return lines;
+
+      // 2. (Next image) / [Next image] / (next scene) delimiters
+      const nextImgPattern = /(?:\(|\[)\s*next\s*(?:image|scene|frame)?\s*(?:\)|\])/i;
+      if (nextImgPattern.test(trimmed)) {
+        const parts = trimmed.split(nextImgPattern);
+        const scenes = [];
+        parts.forEach((p) => {
+          const clean = p.replace(/\s+/g, ' ').trim();
+          if (clean) {
+            scenes.push({ title: `Scene ${scenes.length + 1}`, text: clean });
+          }
+        });
+        if (scenes.length > 0) return scenes;
+      }
+
+      // 3. [Scene ...: ...] blocks
+      const sceneBlockPattern = /\[(Scene\s*[^\]]+)\]\s*\n([^\[]+)/gi;
+      let match;
+      const blockScenes = [];
+      while ((match = sceneBlockPattern.exec(trimmed)) !== null) {
+        const title = match[1].trim();
+        const txt = match[2].replace(/\s+/g, ' ').trim();
+        if (txt) blockScenes.push({ title, text: txt });
+      }
+      if (blockScenes.length > 0) return blockScenes;
+
+      // 4. Line by line fallback (ignoring headers or comments)
+      const lines = trimmed.split('\n').map(l => l.trim()).filter(l => l.length > 0 && !l.startsWith('#'));
+      return lines.map((l, idx) => ({ title: `Scene ${idx + 1}`, text: l }));
     }
 
-    // Script Line Counter
-    document.getElementById('scriptInput').addEventListener('input', (e) => {
-      const lines = parseScriptLines(e.target.value);
-      scriptCountLabel.textContent = `${lines.length} scene line(s)`;
-    });
+    // Update scene counter label
+    function updateScriptCounter() {
+      const text = document.getElementById('scriptInput').value;
+      const parsed = parseScriptScenes(text);
+      scriptCountLabel.textContent = `${parsed.length} scene(s)`;
+    }
 
-    // Detect speech pause timestamps using RMS energy
-    function findPauses(buffer, minPauseSec = 0.25, thresholdDb = -36) {
+    document.getElementById('scriptInput').addEventListener('input', updateScriptCounter);
+
+    // =========================================================================
+    // Format Converter: Toggle JSON <-> (Next image)
+    // =========================================================================
+    if (convertFormatBtn) {
+      convertFormatBtn.addEventListener('click', () => {
+        const textarea = document.getElementById('scriptInput');
+        const val = textarea.value.trim();
+        if (!val) return;
+
+        const scenes = parseScriptScenes(val);
+        if (scenes.length === 0) return;
+
+        const isJson = (val.startsWith('[') && val.endsWith(']')) || (val.startsWith('{') && val.endsWith('}'));
+
+        if (isJson) {
+          // Convert to (Next image) plain text
+          textarea.value = scenes.map(s => `${s.title}: ${s.text}`).join('\n(Next image)\n');
+        } else {
+          // Convert to JSON array
+          const jsonArr = scenes.map((s, idx) => ({
+            scene: idx + 1,
+            title: s.title,
+            text: s.text
+          }));
+          textarea.value = JSON.stringify(jsonArr, null, 2);
+        }
+        updateScriptCounter();
+      });
+    }
+
+    // =========================================================================
+    // Quick Insert: + (Next image)
+    // =========================================================================
+    if (insertSplitBtn) {
+      insertSplitBtn.addEventListener('click', () => {
+        const textarea = document.getElementById('scriptInput');
+        const start = textarea.selectionStart || textarea.value.length;
+        const end = textarea.selectionEnd || textarea.value.length;
+        const val = textarea.value;
+        const insertText = (start > 0 && val[start - 1] !== '\n' ? '\n' : '') + '(Next image)\n';
+        textarea.value = val.substring(0, start) + insertText + val.substring(end);
+        textarea.focus();
+        textarea.selectionStart = textarea.selectionEnd = start + insertText.length;
+        updateScriptCounter();
+      });
+    }
+
+    // =========================================================================
+    // Save to Termux
+    // =========================================================================
+    if (saveTermuxBtn) {
+      saveTermuxBtn.addEventListener('click', () => saveScriptToTermux(false));
+    }
+
+    async function saveScriptToTermux(silent = false) {
+      const scriptText = document.getElementById('scriptInput').value.trim();
+      if (!scriptText) return;
+      try {
+        const endpoints = ['/api/save-script', 'http://localhost:8000/api/save-script', 'http://127.0.0.1:8000/api/save-script'];
+        let ok = false;
+        for (const ep of endpoints) {
+          try {
+            const res = await fetch(ep, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ script_text: scriptText })
+            });
+            if (res.ok) { ok = true; break; }
+          } catch (e) {}
+        }
+        if (ok && !silent) {
+          statusEl.textContent = "✓ Script saved to Termux (assets/scripts/story.txt)";
+        }
+      } catch (err) {
+        console.warn("Could not save to Termux:", err);
+      }
+    }
+
+    // =========================================================================
+    // Whisper-Web Client-Side Audio Auto-Transcription
+    // =========================================================================
+    let whisperPipeline = null;
+
+    async function getAudioBufferAs16kMono(buffer) {
+      const sampleRate = 16000;
+      const duration = buffer.duration;
+      const offlineCtx = new (window.OfflineAudioContext || window.webkitOfflineAudioContext)(
+        1,
+        Math.max(1, Math.round(duration * sampleRate)),
+        sampleRate
+      );
+      const source = offlineCtx.createBufferSource();
+      source.buffer = buffer;
+      source.connect(offlineCtx.destination);
+      source.start(0);
+      const rendered = await offlineCtx.startRendering();
+      return rendered.getChannelData(0);
+    }
+
+    if (transcribeBtn) {
+      transcribeBtn.addEventListener('click', async () => {
+        if (!audioBuffer) {
+          alert("Please load or upload an audio file first.");
+          return;
+        }
+
+        transcribeBtn.disabled = true;
+        transcribeBtn.classList.add('opacity-50');
+        statusEl.textContent = "🎙️ Analyzing speech & loading Whisper model...";
+
+        try {
+          let transcriptText = "";
+          let chunks = [];
+
+          const hasTransformers = typeof window !== 'undefined' && (window.transformers || window.pipeline);
+
+          if (hasTransformers) {
+            statusEl.textContent = "🎙️ Loading Whisper Tiny in browser (zero server)...";
+            const pipelineFn = window.pipeline || (window.transformers && window.transformers.pipeline);
+            if (!whisperPipeline) {
+              whisperPipeline = await pipelineFn('automatic-speech-recognition', 'Xenova/whisper-tiny.en', {
+                chunk_length_s: 30,
+                stride_length_s: 5
+              });
+            }
+
+            statusEl.textContent = "🎙️ Transcribing speech audio...";
+            const monoData = await getAudioBufferAs16kMono(audioBuffer);
+            const output = await whisperPipeline(monoData, {
+              return_timestamps: true,
+              chunk_length_s: 30
+            });
+
+            if (output && output.text) {
+              transcriptText = output.text.trim();
+              chunks = output.chunks || [];
+            }
+          }
+
+          if (transcriptText) {
+            statusEl.textContent = "🎙️ Formatting transcript into scenes with (Next image)...";
+            const numImages = Math.max(1, loadedImages.length);
+
+            if (chunks.length > 0 && numImages > 1) {
+              const perScene = Math.max(1, Math.ceil(chunks.length / numImages));
+              const sceneTexts = [];
+              for (let i = 0; i < chunks.length; i += perScene) {
+                const slice = chunks.slice(i, i + perScene);
+                const txt = slice.map(c => c.text).join(' ').replace(/\s+/g, ' ').trim();
+                if (txt) sceneTexts.push(txt);
+              }
+              document.getElementById('scriptInput').value = sceneTexts.join('\n(Next image)\n');
+            } else {
+              const sentences = transcriptText.match(/[^.!?]+[.!?]+|\s*[^.!?]+$/g) || [transcriptText];
+              const cleanSentences = sentences.map(s => s.trim()).filter(s => s.length > 0);
+
+              if (numImages > 1 && cleanSentences.length >= numImages) {
+                const perScene = Math.ceil(cleanSentences.length / numImages);
+                const sceneTexts = [];
+                for (let i = 0; i < cleanSentences.length; i += perScene) {
+                  sceneTexts.push(cleanSentences.slice(i, i + perScene).join(' '));
+                }
+                document.getElementById('scriptInput').value = sceneTexts.join('\n(Next image)\n');
+              } else if (cleanSentences.length > 1) {
+                document.getElementById('scriptInput').value = cleanSentences.join('\n(Next image)\n');
+              } else {
+                document.getElementById('scriptInput').value = transcriptText;
+              }
+            }
+
+            updateScriptCounter();
+            saveScriptToTermux(true);
+            statusEl.textContent = "✓ Audio transcribed! Scenes separated by (Next image). Click 'Align & Build' to view.";
+          } else {
+            // Fallback to acoustic speech pause segmentation if offline
+            statusEl.textContent = "⚡ Using acoustic speech pause segmentation...";
+            if (detectedPauses.length === 0) detectedPauses = findPauses(audioBuffer);
+            const numScenes = Math.max(2, loadedImages.length || 4);
+            const demoLines = [];
+            for (let s = 1; s <= numScenes; s++) {
+              demoLines.push(`Scene ${s}: [Audio speech beat ${s} auto-aligned]`);
+            }
+            document.getElementById('scriptInput').value = demoLines.join('\n(Next image)\n');
+            updateScriptCounter();
+            statusEl.textContent = `Acoustic speech pauses mapped into ${numScenes} scenes with (Next image). You can paste your JSON or edit text!`;
+          }
+        } catch (err) {
+          console.error("Transcription error:", err);
+          statusEl.textContent = `Speech transcription note: ${err.message || err}. You can paste JSON or text with (Next image).`;
+        } finally {
+          transcribeBtn.disabled = false;
+          transcribeBtn.classList.remove('opacity-50');
+        }
+      });
+    }
+
+    // Detect speech pause timestamps using RMS energy (-35dB silence)
+    function findPauses(buffer, minPauseSec = 0.25, thresholdDb = -35) {
       const data = buffer.getChannelData(0);
       const sampleRate = buffer.sampleRate;
       const step = Math.floor(sampleRate * 0.05); // 50ms window
@@ -292,40 +610,48 @@
       const scriptText = document.getElementById('scriptInput').value.trim();
 
       if (!audioBuffer || loadedImages.length === 0 || !scriptText) {
-        alert("Please provide the Audio file, Images (ZIP or files), and Script lines (or click 'Load Demo').");
+        alert("Please provide the Audio file, Images (ZIP or files), and Script lines / JSON (or click 'Load Demo').");
         return;
       }
 
-      const scriptLines = parseScriptLines(scriptText);
-      const count = Math.min(loadedImages.length, scriptLines.length);
+      const scriptScenes = parseScriptScenes(scriptText);
+      const count = Math.min(loadedImages.length, scriptScenes.length);
 
       if (count === 0) {
-        alert("No valid images or script lines found.");
+        alert("No valid images or scenes found in the script.");
         return;
       }
 
-      statusEl.textContent = "Aligning audio silence boundaries...";
+      statusEl.textContent = "Aligning audio pauses to scenes...";
       if (detectedPauses.length === 0) {
         detectedPauses = findPauses(audioBuffer);
       }
       const totalDur = audioBuffer.duration;
-      
-      // Calculate scene cuts
+
+      // Distribute duration proportionally by word count, snapping to nearest silence gap (-35dB)
+      const wordCounts = scriptScenes.slice(0, count).map(s => Math.max(1, s.text.split(/\s+/).length));
+      const totalWords = wordCounts.reduce((a, b) => a + b, 0);
+
       sceneCuts = [0];
-      for (let i = 1; i < count; i++) {
-        const targetTime = (totalDur / count) * i;
-        // Snap to nearest detected speech pause if within 1.2s window
-        const nearPause = detectedPauses.find(p => Math.abs(p - targetTime) < 1.2);
+      let runningWords = 0;
+      for (let i = 0; i < count - 1; i++) {
+        runningWords += wordCounts[i];
+        const targetTime = (runningWords / totalWords) * totalDur;
+        // Snap to nearest detected speech pause if within 1.6s window
+        const nearPause = detectedPauses.find(p => Math.abs(p - targetTime) < 1.6);
         sceneCuts.push(nearPause !== undefined ? nearPause : targetTime);
       }
       sceneCuts.push(totalDur);
 
-      rebuildScenes(scriptLines);
-      statusEl.textContent = `Built ${count} scenes successfully.`;
+      rebuildScenes(scriptScenes.map(s => s.text));
+      statusEl.textContent = `Built ${count} scenes successfully (1-to-1 sync).`;
       playBtn.disabled = false;
       exportBtn.disabled = false;
       drawWaveform();
       drawFrame(0);
+
+      // Auto-sync script to Termux disk
+      saveScriptToTermux(true);
     });
 
     // Assemble scenes & populate side inspector
@@ -578,10 +904,10 @@
     });
 
     // =========================================================================
-    // Canvas Preview: Full-Bleed Cover & Ken Burns Zoom & Subtitles
+    // Canvas Preview: Full-Bleed Blurred Background, Full Contained Image & TikTok Captions
     // =========================================================================
     function drawFrame(currentTime) {
-      ctx.fillStyle = '#000';
+      ctx.fillStyle = '#0a0d14';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       if (scenes.length === 0) return;
@@ -590,43 +916,94 @@
       let activeScene = scenes.find(s => currentTime >= s.start && currentTime <= s.end);
       if (!activeScene) activeScene = scenes[scenes.length - 1];
 
-      // Ken Burns Calculation (1.0 -> 1.1 scale)
+      // Subtle Ken Burns zoom calculation (1.0 -> 1.05)
       const sceneDur = activeScene.end - activeScene.start;
       const progress = sceneDur > 0 ? (currentTime - activeScene.start) / sceneDur : 0;
-      const scale = 1.0 + 0.1 * Math.min(Math.max(progress, 0), 1);
+      const scale = 1.0 + 0.05 * Math.min(Math.max(progress, 0), 1);
 
-      // Draw Scaled Image (Cover)
+      // Draw Image with Blurred Background & Full Contained Foreground
       const img = activeScene.img;
       if (img && img.complete) {
-        const hRatio = canvas.width / img.width;
-        const vRatio = canvas.height / img.height;
-        const ratio = Math.max(hRatio, vRatio) * scale;
-        const centerShiftX = (canvas.width - img.width * ratio) / 2;
-        const centerShiftY = (canvas.height - img.height * ratio) / 2;
-
+        // 1. Blurred full-bleed background (TikTok / Reels style)
         ctx.save();
-        ctx.drawImage(img, 0, 0, img.width, img.height, centerShiftX, centerShiftY, img.width * ratio, img.height * ratio);
+        const bgScale = Math.max(canvas.width / img.width, canvas.height / img.height) * 1.08;
+        const bgW = img.width * bgScale;
+        const bgH = img.height * bgScale;
+        const bgX = (canvas.width - bgW) / 2;
+        const bgY = (canvas.height - bgH) / 2;
+
+        if ('filter' in ctx) {
+          ctx.filter = 'blur(24px) brightness(0.65)';
+        }
+        ctx.drawImage(img, 0, 0, img.width, img.height, bgX, bgY, bgW, bgH);
+        if ('filter' in ctx) {
+          ctx.filter = 'none';
+        }
+        ctx.restore();
+
+        // Dark tint overlay for guaranteed contrast
+        ctx.fillStyle = 'rgba(8, 12, 22, 0.35)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // 2. Foreground 100% full uncropped image (contain: 0% cropped)
+        const maxFgW = canvas.width * 0.94;
+        const maxFgH = canvas.height * 0.72;
+        const containRatio = Math.min(maxFgW / img.width, maxFgH / img.height) * scale;
+        const fgW = img.width * containRatio;
+        const fgH = img.height * containRatio;
+        const fgX = (canvas.width - fgW) / 2;
+        // Position slightly above center to leave room for lower-third caption badge
+        const fgY = (canvas.height - fgH) / 2 - 25;
+
+        // Soft drop shadow behind foreground image
+        ctx.save();
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.75)';
+        ctx.shadowBlur = 24;
+        ctx.shadowOffsetY = 8;
+        ctx.drawImage(img, 0, 0, img.width, img.height, fgX, fgY, fgW, fgH);
         ctx.restore();
       }
 
-      // Draw Subtitles
-      if (activeScene.text) {
-        ctx.save();
-        ctx.font = 'bold 36px sans-serif';
-        ctx.textAlign = 'center';
-        ctx.fillStyle = '#FFFFFF';
-        ctx.shadowColor = 'rgba(0, 0, 0, 0.9)';
-        ctx.shadowBlur = 8;
-        ctx.lineWidth = 4;
-        ctx.strokeStyle = '#000000';
+      // 3. Optional TikTok Captions on lower third
+      if (showCaptions && activeScene.text) {
+        drawTikTokCaption(ctx, activeScene.text, canvas.width / 2, canvas.height - 200, canvas.width - 100, 48);
+      }
 
-        // Word-wrap caption text onto bottom third
-        wrapText(ctx, activeScene.text, canvas.width / 2, canvas.height - 180, canvas.width - 80, 46);
-        ctx.restore();
+      // 4. Subtle overall story progress bar at very bottom
+      if (audioBuffer && audioBuffer.duration > 0) {
+        const overallProg = Math.min(Math.max(currentTime / audioBuffer.duration, 0), 1);
+        ctx.fillStyle = '#ff6b2b';
+        ctx.fillRect(0, canvas.height - 6, canvas.width * overallProg, 6);
       }
     }
 
-    function wrapText(context, text, x, y, maxWidth, lineHeight) {
+    function drawRoundedRect(context, x, y, width, height, radius) {
+      if (context.roundRect) {
+        context.beginPath();
+        context.roundRect(x, y, width, height, radius);
+        context.fill();
+        context.stroke();
+      } else {
+        context.beginPath();
+        context.moveTo(x + radius, y);
+        context.lineTo(x + width - radius, y);
+        context.quadraticCurveTo(x + width, y, x + width, y + radius);
+        context.lineTo(x + width, y + height - radius);
+        context.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+        context.lineTo(x + radius, y + height);
+        context.quadraticCurveTo(x, y + height, x, y + height - radius);
+        context.lineTo(x, y + radius);
+        context.quadraticCurveTo(x, y, x + radius, y);
+        context.closePath();
+        context.fill();
+        context.stroke();
+      }
+    }
+
+    function drawTikTokCaption(context, text, centerX, centerY, maxWidth, lineHeight) {
+      context.save();
+      context.font = 'bold 32px sans-serif';
+
       const words = text.split(' ');
       let line = '';
       let lines = [];
@@ -635,18 +1012,58 @@
         const testLine = line + words[n] + ' ';
         const metrics = context.measureText(testLine);
         if (metrics.width > maxWidth && n > 0) {
-          lines.push(line);
+          lines.push(line.trim());
           line = words[n] + ' ';
         } else {
           line = testLine;
         }
       }
-      lines.push(line);
+      if (line.trim()) lines.push(line.trim());
 
-      for (let k = 0; k < lines.length; k++) {
-        context.strokeText(lines[k], x, y + k * lineHeight);
-        context.fillText(lines[k], x, y + k * lineHeight);
+      // Limit to 3 lines max for clean TikTok look
+      if (lines.length > 3) {
+        lines = lines.slice(0, 3);
+        lines[2] += '...';
       }
+
+      // Measure max line width for pill badge sizing
+      let maxLineWidth = 160;
+      for (const l of lines) {
+        const w = context.measureText(l).width;
+        if (w > maxLineWidth) maxLineWidth = w;
+      }
+
+      const pillWidth = Math.min(maxWidth + 40, maxLineWidth + 48);
+      const totalTextH = lines.length * lineHeight;
+      const pillHeight = totalTextH + 28;
+      const pillX = centerX - pillWidth / 2;
+      const pillY = centerY - pillHeight / 2;
+
+      // Draw dark translucent pill badge
+      context.fillStyle = 'rgba(10, 15, 26, 0.86)';
+      context.strokeStyle = 'rgba(255, 255, 255, 0.16)';
+      context.lineWidth = 1.5;
+      context.shadowColor = 'rgba(0, 0, 0, 0.5)';
+      context.shadowBlur = 12;
+      context.shadowOffsetY = 4;
+      drawRoundedRect(context, pillX, pillY, pillWidth, pillHeight, 20);
+
+      // Draw text: bold white with thick black outline
+      context.textAlign = 'center';
+      context.textBaseline = 'middle';
+      context.lineWidth = 5;
+      context.strokeStyle = '#000000';
+      context.fillStyle = '#FFFFFF';
+      context.shadowColor = 'transparent';
+
+      const startY = centerY - (totalTextH / 2) + (lineHeight / 2);
+      for (let k = 0; k < lines.length; k++) {
+        const curY = startY + (k * lineHeight);
+        context.strokeText(lines[k], centerX, curY);
+        context.fillText(lines[k], centerX, curY);
+      }
+
+      context.restore();
     }
 
     // Playback loop
@@ -941,8 +1358,8 @@
         // 1. Script
         if (data.script_text) {
           document.getElementById('scriptInput').value = data.script_text;
-          const lines = parseScriptLines(data.script_text);
-          scriptCountLabel.textContent = `${lines.length} scene line(s)`;
+          const scenes = parseScriptScenes(data.script_text);
+          scriptCountLabel.textContent = `${scenes.length} scene(s)`;
         }
 
         // 2. Audio

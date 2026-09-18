@@ -42,7 +42,7 @@ def generate_sample_assets():
     generate_all_sample_assets()
 
 
-def run_pipeline(fps: int = 24):
+def run_pipeline(fps: int = 24, show_captions: bool = True):
     """Executes the full Picture-Book Motion storytelling pipeline."""
     # Ensure dependencies before running
     if not ensure_pillow() or not ensure_ffmpeg():
@@ -56,6 +56,7 @@ def run_pipeline(fps: int = 24):
 
     print("\n=======================================================")
     print("🎬 FB 2minutes Storymaker - Video Generation Pipeline")
+    print(f"   Mode: 9:16 Full Image TikTok Video (Captions: {'ON' if show_captions else 'OFF'})")
     print("=======================================================")
 
     voice_path = BASE_DIR / "assets" / "voice-over" / "narration.mp3"
@@ -85,7 +86,7 @@ def run_pipeline(fps: int = 24):
     # Step 3: Visual Choreography & Exporter
     print("\n[Step 3/3] Visual Choreography & FFmpeg Master Video Exporter...")
     exporter = VideoExporter(fps=fps)
-    final_video = exporter.export_video(timeline, voice_path, output_path)
+    final_video = exporter.export_video(timeline, voice_path, output_path, show_captions=show_captions)
 
     print("\n" + "=" * 55)
     print("🎉 Master Story Video Successfully Generated!")
@@ -114,6 +115,7 @@ def main():
     parser.add_argument("--generate-assets", action="store_true", help="Generate or reset demo sample assets")
     parser.add_argument("--preload", choices=["elsa", "scout"], nargs="?", const="elsa", help="Update and regenerate preloaded story assets")
     parser.add_argument("--fps", type=int, default=24, help="Frames per second for output video (default: 24)")
+    parser.add_argument("--no-captions", action="store_true", help="Disable on-screen subtitle captions in output video")
     parser.add_argument("--check", action="store_true", help="Check asset status and exit")
 
     args = parser.parse_args()
@@ -144,7 +146,7 @@ def main():
 
     print("FB 2minutes Storymaker - Automated Storytelling Engine")
     print("=" * 55)
-    print("Architecture: Picture-Book Motion")
+    print("Architecture: Picture-Book Motion (9:16 Full Image TikTok Video)")
     print()
 
     has_voice, has_scripts, has_visuals = check_assets()
@@ -162,7 +164,7 @@ def main():
         generate_sample_assets()
 
     # Run the storytelling pipeline
-    run_pipeline(fps=args.fps)
+    run_pipeline(fps=args.fps, show_captions=not args.no_captions)
 
 
 if __name__ == "__main__":
