@@ -1,2 +1,16 @@
+[project]
+name = "fb-2minutes-storymaker"
+version = "2.0.0"
+description = "FB 2minutes Storymaker - Automated Storytelling Engine"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "Pillow>=10.0.0"
+]
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
 [tool.vercel]
 entrypoint = "main:app"
