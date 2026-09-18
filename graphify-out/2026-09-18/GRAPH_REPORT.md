@@ -1,24 +1,24 @@
 # Graph Report - FB-2minutes-Storymaker  (2026-09-18)
 
 ## Corpus Check
-- 32 files · ~40,967 words
+- 30 files · ~40,359 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 3 file(s) not represented in the graph (top: (none) 2, .zip 1)
 
 ## Summary
-- 319 nodes · 553 edges · 21 communities (12 shown, 9 thin omitted)
-- Extraction: 92% EXTRACTED · 8% INFERRED · 0% AMBIGUOUS · INFERRED: 42 edges (avg confidence: 0.9)
+- 305 nodes · 525 edges · 25 communities (12 shown, 13 thin omitted)
+- Extraction: 92% EXTRACTED · 8% INFERRED · 0% AMBIGUOUS · INFERRED: 41 edges (avg confidence: 0.9)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `a2f33ebc`
+- Built from commit: `2ff495df`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
 ## Community Hubs (Navigation)
 - server.py
 - VisualChoreographer
-- os
+- video_exporter.py
 - FB-2minutes Storymaker
 - ci_render_and_publish.py
 - install.sh
@@ -35,8 +35,11 @@
 - 🚀 Automated Publishing Pipeline: Google Flow -> Vercel / GitHub Actions -> Make.com
 - VideoExporter
 - vercel.json
-- TestAlignEngine
-- render.js
+- TestApiGatewayNode
+- io
+- render
+- unittest_mock
+- urllib_error
 
 ## God Nodes (most connected - your core abstractions)
 1. `SpeechCueAlignEngine` - 25 edges
@@ -57,47 +60,47 @@
   main.py → src/duration_director/duration_director.py
 - `run_pipeline()` --calls--> `VideoExporter`  [INFERRED]
   main.py → src/exporter/video_exporter.py
-- `TestAlignEngine` --uses--> `AlignmentResult`  [INFERRED]
-  tests/test_align_engine.py → src/align_engine/align_engine.py
 - ``SpeechCueAlignEngine`` --references--> `SpeechCueAlignEngine`  [INFERRED]
   src/align_engine/README.md → src/align_engine/align_engine.py
+- `run_pipeline_thread()` --calls--> `ensure_pillow()`  [INFERRED]
+  web/server.py → src/deps_helper.py
 
 ## Import Cycles
 - None detected.
 
-## Communities (21 total, 9 thin omitted)
+## Communities (25 total, 13 thin omitted)
 
 ### Community 0 - "server.py"
-Cohesion: 0.14
-Nodes (15): http, mimetypes, SimpleHTTPRequestHandler, threading, get_assets_status(), get_project_assets_info(), get_story_scenes(), Path (+7 more)
+Cohesion: 0.13
+Nodes (16): http, http_server, mimetypes, SimpleHTTPRequestHandler, threading, get_assets_status(), get_project_assets_info(), get_story_scenes() (+8 more)
 
 ### Community 1 - "VisualChoreographer"
-Cohesion: 0.08
-Nodes (24): Image, ImageDraw, ImageFont, pathlib, skipUnless, main(), Visual Choreography Core for FB 2minutes Storymaker Implements "Picture-Book…, Draws word-wrapped stroked subtitles inside a TikTok dark pill badge. (+16 more)
-
-### Community 2 - "os"
 Cohesion: 0.10
-Nodes (14): handler, Vercel Serverless Function: API Gateway for Google Flow -> GitHub Actions…, BaseHTTPRequestHandler, http_server, io, json, os, patch (+6 more)
+Nodes (18): Image, ImageDraw, ImageFont, skipUnless, main(), Visual Choreography Core for FB 2minutes Storymaker Implements "Picture-Book…, Draws word-wrapped stroked subtitles inside a TikTok dark pill badge., Computes (scale, offset_x, offset_y) for smooth cinematic push-in & drift.… (+10 more)
+
+### Community 2 - "video_exporter.py"
+Cohesion: 0.27
+Nodes (7): pathlib, Final Master Video Exporter for FB 2minutes Storymaker Pipes generated Picture-…, subprocess, sys, time, typing, unittest
 
 ### Community 3 - "FB-2minutes Storymaker"
 Cohesion: 0.08
 Nodes (25): 1. Voice-Over Audio (`assets/voice-over/narration.mp3` or `.wav`), 2. Scene Script (`assets/scripts/story.txt`), 3. Visual Assets (`assets/visuals/story_visuals.zip`), Alternative: Clone & Run via Makefile, 🏗️ Architecture, ⚙️ CLI Reference, Core Philosophy: "Picture-Book Motion", 🌐 Creative Studio: Pure In-Browser Web App (+17 more)
 
 ### Community 4 - "ci_render_and_publish.py"
-Cohesion: 0.19
-Nodes (14): base64, create_github_release_and_upload(), download_file(), main(), notify_make_webhook(), Path, Sends the minimal payload to Make.com incoming webhook. Payload: { video_url,…, CI Render & Publish Helper for GitHub Actions & Make.com Automation Handles… (+6 more)
+Cohesion: 0.17
+Nodes (15): base64, os, create_github_release_and_upload(), download_file(), main(), notify_make_webhook(), Path, Sends the minimal payload to Make.com incoming webhook. Payload: { video_url,… (+7 more)
 
 ### Community 6 - "generate_sample_assets.py"
-Cohesion: 0.16
-Nodes (13): argparse, math, pil, create_gradient(), generate_audio_voiceover(), generate_scene_image(), Path, Draw vertical linear gradient. (+5 more)
+Cohesion: 0.15
+Nodes (14): argparse, math, pil, create_gradient(), generate_audio_voiceover(), generate_scene_image(), Path, Draw vertical linear gradient. (+6 more)
 
 ### Community 7 - "SpeechCueAlignEngine"
-Cohesion: 0.08
-Nodes (29): dataclasses, re, AlignmentResult, main(), Path, Speech-Cue Align Engine for FB 2minutes Storymaker Implements audio analysis…, Parse script file into structured [(scene_title, scene_text)] entries., Represents a segment of speech with timing information. (+21 more)
+Cohesion: 0.07
+Nodes (27): dataclasses, json, re, AlignmentResult, main(), Path, Speech-Cue Align Engine for FB 2minutes Storymaker Implements audio analysis…, Parse script file into structured [(scene_title, scene_text)] entries. (+19 more)
 
 ### Community 8 - "termux_ui.py"
 Cohesion: 0.08
-Nodes (47): check_assets(), generate_sample_assets(), main(), FB 2minutes Storymaker - Automated Storytelling Engine Based on the…, Starts the local web studio interface., Check if required assets are present in assets/ directory., Invoke the sample asset generator., Executes the full Picture-Book Motion storytelling pipeline. (+39 more)
+Nodes (46): check_assets(), generate_sample_assets(), main(), FB 2minutes Storymaker - Automated Storytelling Engine Based on the…, Starts the local web studio interface., Check if required assets are present in assets/ directory., Invoke the sample asset generator., Executes the full Picture-Book Motion storytelling pipeline. (+38 more)
 
 ### Community 9 - "Speech-Cue Align Engine"
 Cohesion: 0.12
@@ -112,23 +115,23 @@ Cohesion: 0.20
 Nodes (9): 1. ⚡ Calling the API from Google Flow, 2. 📦 Payload Sent to Make.com Webhook, 3. 🎯 Setting Up Make.com Scenario, 4. 🔑 Vercel Environment Variables, 🏗️ Architecture Overview, 🚀 Automated Publishing Pipeline: Google Flow -> Vercel / GitHub Actions -> Make.com, Detailed Confirmation Response from Vercel (`202 Accepted`):, Method A: Via Vercel Gateway (Recommended) (+1 more)
 
 ### Community 17 - "VideoExporter"
-Cohesion: 0.18
-Nodes (7): Path, Renders video frames and multiplexes audio using FFmpeg to export the final…, Find the scene corresponding to timestamp t., Renders the complete story video and exports it to output_path., VideoExporter, Background thread function that executes the full rendering pipeline., run_pipeline_thread()
+Cohesion: 0.13
+Nodes (11): MasterTimeline, Path, Builds the MasterTimeline combining speech alignment segments with visual…, Export timeline manifest to JSON for visual choreographer and exporter., Complete master timeline manifest., Locate and order image files from a zip archive or directory. Orders by numeric…, Path, Renders video frames and multiplexes audio using FFmpeg to export the final… (+3 more)
 
 ## Knowledge Gaps
 - **47 isolated node(s):** `install.sh script`, `setup_local.sh script`, `rewrites`, `headers`, `1. Script Preparation (`script.txt`)` (+42 more)
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 163 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **9 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 159 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **13 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `SpeechCueAlignEngine` connect `SpeechCueAlignEngine` to `VisualChoreographer`, `termux_ui.py`, `Speech-Cue Align Engine`, `VideoExporter`, `TestAlignEngine`?**
-  _High betweenness centrality (0.142) - this node is a cross-community bridge._
-- **Why does `VisualChoreographer` connect `VisualChoreographer` to `VideoExporter`?**
-  _High betweenness centrality (0.074) - this node is a cross-community bridge._
+- **Why does `SpeechCueAlignEngine` connect `SpeechCueAlignEngine` to `termux_ui.py`, `Speech-Cue Align Engine`, `video_exporter.py`?**
+  _High betweenness centrality (0.146) - this node is a cross-community bridge._
+- **Why does `VisualChoreographer` connect `VisualChoreographer` to `VideoExporter`, `video_exporter.py`?**
+  _High betweenness centrality (0.075) - this node is a cross-community bridge._
 - **Why does `Core Classes` connect `Speech-Cue Align Engine` to `SpeechCueAlignEngine`?**
-  _High betweenness centrality (0.062) - this node is a cross-community bridge._
+  _High betweenness centrality (0.063) - this node is a cross-community bridge._
 - **Are the 7 inferred relationships involving `SpeechCueAlignEngine` (e.g. with `run_pipeline()` and ``SpeechCueAlignEngine``) actually correct?**
   _`SpeechCueAlignEngine` has 7 INFERRED edges - model-reasoned connections that need verification._
 - **Are the 4 inferred relationships involving `VisualChoreographer` (e.g. with `SceneTimeline` and `VideoExporter`) actually correct?**

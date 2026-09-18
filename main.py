@@ -169,3 +169,16 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+# Top-level fallback exports for Vercel / WSGI / ASGI scanners
+def handler(environ=None, start_response=None):
+    """Fallback handler so cloud scanners (Vercel, WSGI) recognize main.py safely."""
+    if callable(start_response):
+        start_response("200 OK", [("Content-Type", "text/plain; charset=utf-8")])
+        return [b"FB 2minutes Storymaker CLI Engine"]
+    return {"status": "ok", "service": "FB 2minutes Storymaker CLI Engine"}
+
+
+app = handler
+application = handler

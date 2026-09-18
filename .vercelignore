@@ -1,0 +1,13 @@
+# Ignore backend CLI and build scripts on Vercel deployment
+main.py
+setup.py
+src/
+scripts/
+tests/
+assets/
+Makefile
+install.sh
+graphify-out/
+.github/
+*.pyc
+__pycache__/

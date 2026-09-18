@@ -197,12 +197,6 @@
     "ast_hash": "54f9c747ef5af20057eae726a5afe554",
     "semantic_hash": ""
   },
-  "api/render.py": {
-    "mtime": 1789720073.6288784,
-    "seen": 1789720569.5483866,
-    "ast_hash": "786fb4d040d7abc549f5c6af9b876ee1",
-    "semantic_hash": ""
-  },
   "scripts/ci_render_and_publish.py": {
     "mtime": 1789720231.7888784,
     "seen": 1789720569.5484178,
@@ -210,9 +204,9 @@
     "semantic_hash": ""
   },
   "vercel.json": {
-    "mtime": 1789719195.2528784,
-    "seen": 1789719496.1263359,
-    "ast_hash": "85ceafb37774aabbd32616cd877f6db3",
+    "mtime": 1789720832.4128783,
+    "seen": 1789720987.1378853,
+    "ast_hash": "0e59dd4982bf4b76f5e79bd24d61d180",
     "semantic_hash": ""
   },
   ".github/workflows/generate_and_publish.yml": {
@@ -227,12 +221,6 @@
     "ast_hash": "49ab3f1f03925df21b680a70f7eb97fb",
     "semantic_hash": ""
   },
-  "api/render.js": {
-    "mtime": 1789719155.3328786,
-    "seen": 1789719496.126177,
-    "ast_hash": "3f665eecb4c8233c3f5eff9f141891a6",
-    "semantic_hash": ""
-  },
   "api/trigger.js": {
     "mtime": 1789720017.5088785,
     "seen": 1789720569.5483985,
@@ -240,9 +228,9 @@
     "semantic_hash": ""
   },
   "tests/test_api_gateway.py": {
-    "mtime": 1789720274.2048783,
-    "seen": 1789720569.5484912,
-    "ast_hash": "32375fcd52978fec213c2300cdd4b4cd",
+    "mtime": 1789720869.0328784,
+    "seen": 1789720987.1378777,
+    "ast_hash": "a6d6a68f359301fe7c772c40f489803b",
     "semantic_hash": ""
   }
 }
