@@ -2577,12 +2577,12 @@
     },
     {
       "id": "main_rationale_176",
-      "label": "Fallback handler so cloud scanners (Vercel, WSGI) recognize main.py safely.",
+      "label": "WSGI entrypoint for Vercel deployment: serves index.html and web studio assets.",
       "_origin": "ast",
       "community": 6,
       "community_name": "main.py",
       "file_type": "rationale",
-      "norm_label": "fallback handler so cloud scanners (vercel, wsgi) recognize main.py safely.",
+      "norm_label": "wsgi entrypoint for vercel deployment: serves index.html and web studio assets.",
       "source_file": "main.py",
       "source_location": "L176"
     },
@@ -9271,7 +9271,7 @@
       "confidence_score": 0.85,
       "context": "assignment",
       "source_file": "main.py",
-      "source_location": "L183",
+      "source_location": "L224",
       "weight": 1.0
     },
     {
@@ -9692,5 +9692,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "ddf02f16babbd0d8b8d8538db7c9a254155f5225"
+  "built_at_commit": "908e3d4457d205c7eb55f9bbc98ff2834e3083e1"
 }
