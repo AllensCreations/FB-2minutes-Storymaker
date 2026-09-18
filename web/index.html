@@ -996,7 +996,10 @@
 
       // Clean floating white captions directly on video (matching user screenshot)
       if (showCaptions && activeScene.text) {
-        drawFloatingCaption(ctx, activeScene.text, canvas.width / 2, canvas.height * 0.78, canvas.width - 120, 44);
+        const sceneDur = Math.max((activeScene.end - activeScene.start) || 0.1, 0.1);
+        const sceneT = Math.max(0, currentTime - activeScene.start);
+        const activeCaption = getTimedCaptionChunk(activeScene.text, sceneT, sceneDur);
+        drawFloatingCaption(ctx, activeCaption, canvas.width / 2, canvas.height * 0.78, canvas.width - 120, 44);
       }
 
       // Subtle story progress bar at very bottom
@@ -1005,6 +1008,19 @@
         ctx.fillStyle = '#3b82f6';
         ctx.fillRect(0, canvas.height - 6, canvas.width * overallProg, 6);
       }
+    }
+
+    function getTimedCaptionChunk(text, sceneTime, sceneDuration, wordsPerChunk = 7) {
+      const words = text.trim().split(/\s+/);
+      if (words.length <= wordsPerChunk) return text.trim();
+      const chunks = [];
+      for (let i = 0; i < words.length; i += wordsPerChunk) {
+        chunks.push(words.slice(i, i + wordsPerChunk).join(' '));
+      }
+      const dur = Math.max(sceneDuration || 0.1, 0.1);
+      const prog = Math.max(0, Math.min(sceneTime / dur, 0.999));
+      const idx = Math.min(Math.floor(prog * chunks.length), chunks.length - 1);
+      return chunks[idx];
     }
 
     function drawFloatingCaption(context, text, centerX, centerY, maxWidth, lineHeight) {

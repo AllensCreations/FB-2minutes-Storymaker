@@ -58,7 +58,7 @@ class TestServerlessApp(unittest.TestCase):
     def test_embedded_fallback_integrity(self):
         """Fallback decompresses to full index.html even without disk access."""
         fallback = app.get_fallback_html()
-        self.assertEqual(len(fallback), 60025)
+        self.assertEqual(len(fallback), 60855)
         self.assertIn(b'StoryShorts Studio', fallback)
 
 

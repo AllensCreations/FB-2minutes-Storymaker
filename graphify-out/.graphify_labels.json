@@ -1,5 +1,5 @@
 {
-  "0": "StorymakerRequestHandler",
+  "0": "server.py",
   "1": "VisualChoreographer",
   "2": "fb-2minutes-storymaker",
   "3": "FB-2minutes Storymaker",
@@ -16,7 +16,7 @@
   "14": "duration_director/README.md",
   "15": "exporter/README.md",
   "16": "🚀 Automated Publishing Pipeline: Google Flow -> Vercel / GitHub Actions -> Make.com",
-  "17": "SceneDurationDirector",
+  "17": "pathlib",
   "18": "vercel.json",
   "19": "TestApiGatewayNode",
   "20": "trigger.js",
@@ -25,6 +25,5 @@
   "23": "unittest_mock",
   "24": "urllib_error",
   "25": "app.py",
-  "26": "run_tui_main",
   "27": "TestServerlessApp"
 }

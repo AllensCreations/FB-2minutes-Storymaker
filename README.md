@@ -1,73 +1,91 @@
 # FB-2minutes Storymaker
 
-An automated storytelling engine that generates storybook-style vertical videos (9:16) by synchronizing voice-over narration, scripts, and visual assets with **"Picture-Book Motion"** aesthetics.
+An automated storytelling engine that generates viral storybook-style vertical videos (9:16) by synchronizing voice-over narration, scripts, and visual assets with **"Picture-Book Motion"** aesthetics and **Dynamic Timed Subtitle Paging**.
 
-Includes both a **command-line pipeline** and a **creative studio Web UI** (`index.html`) for in-browser creation, scene preview, and playback.
+Supports three execution modes:
+1. **Cloud Automation Engine**: Google Flow AI &rarr; Vercel Serverless API Gateway &rarr; GitHub Actions (FFmpeg 1080&times;1920) &rarr; Make.com Auto-Publishing.
+2. **Creative Studio Web UI (`index.html`)**: Interactive zero-dependency in-browser studio with real-time waveform, draggable cut markers, live 9:16 canvas preview, and 1-click WebM/MP4 export.
+3. **Local CLI & Android Termux Terminal UI (`main.py`)**: Native terminal interface for local Linux, macOS, and Android phones running Termux.
 
 ---
 
-## 🎬 System Overview
-
-FB-2minutes Storymaker implements the editorial behavior, narrative pacing, and visual style of storybook motion videos:
-
-### Core Philosophy: "Picture-Book Motion"
-- **The Canvas is a Page**: Warm editorial parchment background provides continuity while scene artwork cards enter and drift.
-- **The Voice is the Conductor**: Visual transitions snap to speech pauses and narrative sentences rather than rigid BPM beats.
-- **Movement Serves Focus**:
-  - **Scene Entrances**: Gentle Spring Pop (scale 90% &rarr; 102% &rarr; 100% over 350ms) and Cross-Dissolve transitions.
-  - **Subtle Life Micro-Drift**: Slow intentional push (3–4% zoom over the scene duration) and harmonic breathing oscillation.
-- **Aspect Composition (9:16 Vertical Story)**: Centers artwork in the upper region with drop shadow and reserves the lower third for dark contrast typography cards with dynamic narrative captions.
+## 🎬 System Overview & Architecture
 
 ```
-[Raw Voice-Over (.mp3)]   [Scene Script (.txt)]   [Ordered Visuals (.zip)]
-           │                       │                       │
-           └──────────────┬────────┘                       │
-                          ▼                                │
-           ┌─────────────────────────────┐                 │
-           │   Speech-Cue Align Engine   │                 │
-           │  • Audio duration analysis  │                 │
-           │  • Narrative pause snapping │                 │
-           └──────────────┬──────────────┘                 │
-                          ▼                                │
-           ┌─────────────────────────────┐                 │
-           │   Scene Duration Director   │◄────────────────┘
-           │  • Maps Scene[N] -> Img[N]  │
-           │  • Allocates timeline plan  │
-           └──────────────┬──────────────┘
-                          ▼
-           ┌─────────────────────────────┐
-           │   Visual Choreography Core  │
-           │  • Spring-Pop & Paper Cut   │
-           │  • Life micro-drift (zoom)  │
-           │  • Lower-third captions     │
-           └──────────────┬──────────────┘
-                          ▼
-           ┌─────────────────────────────┐
-           │   Final Master Video        │
-           │   Exporter (FFmpeg H.264)   │
-           │   assets/output/            │
-           │   final_story.mp4           │
-           └─────────────────────────────┘
+┌────────────────────────────────────────────────────────┐
+│ 1. CONTENT IDEATION & ASSETS (Google Flow AI)          │
+│    • Input: Story Topic / Script JSON                  │
+│    • Output: Structured Scene JSON + Images + Voiceover │
+└───────────────────────┬────────────────────────────────┘
+                        │ HTTP POST /api/trigger
+                        ▼
+┌────────────────────────────────────────────────────────┐
+│ 2. VERCEL SERVERLESS GATEWAY & CREATIVE STUDIO         │
+│    • api/trigger.js (Node.js API Gateway):             │
+│      Validates x-api-key & triggers GitHub Actions     │
+│    • app.py / index.html (Universal Web Studio):       │
+│      Interactive preview, waveform scrubbing & cuts    │
+└───────────────────────┬────────────────────────────────┘
+                        │ GitHub API (workflow_dispatch)
+                        ▼
+┌────────────────────────────────────────────────────────┐
+│ 3. HIGH-SPEED RENDER ENGINE (GitHub Actions / Termux)  │
+│    • Speech-Cue Align Engine (speech_align.py):        │
+│      Duration analysis & silence gap detection (-35dB) │
+│    • Scene Duration Director (duration_director.py):   │
+│      Timeline synchronization (Scene[N] -> Img[N])     │
+│    • Visual Choreography Core (choreography_core.py):  │
+│      - 9:16 Full-bleed edge-to-edge cover framing      │
+│      - Continuous Ken Burns push-in & drift            │
+│      - Smooth 0.45s cinematic cross-dissolve           │
+│      - Dynamic Timed Sub-Caption Paging (TikTok style) │
+│    • Final Master Video Exporter (video_exporter.py):  │
+│      Direct frame-piping to FFmpeg H.264 (1080x1920)   │
+└───────────────────────┬────────────────────────────────┘
+                        │ Webhook Callback
+                        ▼
+┌────────────────────────────────────────────────────────┐
+│ 4. AUTOMATED DISTRIBUTION (Make.com)                   │
+│    • Receives final video URL & metadata               │
+│    • Auto-publishes to Facebook Reels, TikTok & Shorts │
+└────────────────────────────────────────────────────────┘
 ```
+
+---
+
+## 💬 High Word Counts: Auto-Split & Auto-Captioning
+
+When a story scene has a high word count (e.g., 30–60 words across 10–18 seconds), rendering all text at once crowds the vertical canvas and causes truncation. FB-2minutes Storymaker resolves this via two complementary mechanisms:
+
+### 1. Dynamic Timed Sub-Caption Paging (TikTok / Reels Style)
+- **Visual Continuity:** The scene's background artwork stays on screen with uninterrupted Ken Burns camera motion.
+- **Progressive Chunking:** Long narration text is automatically split into bite-sized phrases (5–7 words each).
+- **Proportional Time Slicing:** As the scene advances in time, only the phrase currently spoken is drawn on screen in crisp white font with a dark drop shadow and outline.
+- **Zero Overflow:** Subtitles never exceed 1–2 lines, ensuring 100% readability on mobile devices without any cutoffs (`...`).
+
+```text
+[Scene 2: 12.0s Duration | 30 Words Total]
+├── 0.0s – 4.0s : "Deep in the whispering enchanted woods,"
+├── 4.0s – 8.0s : "Elsa uncovered a glowing golden key"
+└── 8.0s – 12.0s: "hidden beneath the roots of the oak."
+```
+
+### 2. Scene Subdivision Guidelines for Google Flow AI
+For optimal viewer retention in short-form videos (TikTok, Shorts, Reels):
+- **Ideal Scene Pacing:** 10–18 words per scene (~3.5 to 5.5 seconds of voiceover).
+- **Image Prompts:** Generate 1 fresh vertical 9:16 image per scene beat to keep visual energy high.
 
 ---
 
 ## 🚀 Quickstart: One-Line Installation
 
-Install and configure everything in one command (no manual cloning required):
+Install and configure the local pipeline in a single command on **Android (Termux)**, **Ubuntu/Debian**, **macOS**, or generic Linux:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/AllensCreations/FB-2minutes-Storymaker/main/install.sh | bash
 ```
 
-This single command automatically:
-1. **Detects your system**: **Android (Termux)**, **Debian/Ubuntu**, **macOS**, or generic Linux
-2. **Installs packages**: `python-pillow`, `ffmpeg`, `python3`, and `git`
-3. **Clones or updates** the repository into `./FB-2minutes-Storymaker`
-4. **Prepares demo assets**: Creates the sample story script, illustration cards, and narration audio
-5. **Installs global launcher**: Adds the `fb-storymaker` command directly to your PATH
-
-### Ready to Run:
+### Launch Modes:
 
 ```bash
 # 📱 Interactive Terminal Studio (Optimized for Android Termux)
@@ -84,247 +102,42 @@ fb-storymaker --render
 
 ---
 
-### Alternative: Clone & Run via Makefile
+## 🌐 Creative Studio Web UI (`index.html`)
 
-If you prefer cloning manually:
-```bash
-git clone https://github.com/AllensCreations/FB-2minutes-Storymaker.git
-cd FB-2minutes-Storymaker
+A completely self-contained in-browser Creative Studio requiring **zero external server setup**:
+- **Ingestion Deck:** Upload or drag-and-drop `script.txt`, `narration.mp3`, and `story_visuals.zip` (or load bundled interactive demo).
+- **Audio Waveform & Pause Snapping:** Real-time visual audio waveform with -35dB silence detection and interactive draggable cut markers.
+- **Scene Choreography Matrix:** Configure entrances (Spring-Pop, Dissolve, Zoom) and continuous motions (Push-in, Diagonal Drift, Horizontal Pan) per scene.
+- **Live 9:16 Canvas & Subtitle Pager:** Instant 30 FPS playback preview with live subtitle chunking and progress indicator.
+- **One-Click Export:** Client-side recording that exports master 1080&times;1920 video directly in your browser.
 
-# Automated local setup
-make setup
-
-# Run the Storymaker
-make tui   # 📱 Interactive Terminal Studio (best for Termux on Android)
-make web   # 🌐 Creative Studio Web UI -> http://localhost:8000
-make run   # 🎬 Batch Video Render -> assets/output/final_story.mp4
-```
-
----
-
-## 📱 Interactive Termux Terminal UI (TUI)
-
-For Android Termux users who want an interactive dashboard without memorizing command line flags:
-
-```bash
-make tui
-# or
-fb-storymaker --tui
-```
-
-```text
-┌────────────────────────────────────────────────────────┐
-│  FB-2MINUTES STORYMAKER  -  TERMUX CREATIVE STUDIO     │
-│  Picture-Book Motion & Narrative Synchronizer          │
-└────────────────────────────────────────────────────────┘
-  [✓] Narration Audio  : assets/voice-over/narration.mp3
-  [✓] Story Script     : assets/scripts/story.txt
-  [✓] Visuals (Zip)    : assets/visuals/story_visuals.zip
-  [✓] Master Video     : assets/output/final_story.mp4 (4.2 MB)
-──────────────────────────────────────────────────────────
-  [1] 🎬 Render Master Video (Picture-Book Motion 9:16)
-  [2] 🌐 Launch Web Creative Studio (open in Android browser)
-  [3] 🔍 Inspect Scene Mapping Matrix & Audio Beats
-  [4] ▶️  Play / Watch Rendered Video (Android Player)
-  [5] ✨ Switch / Reset Sample Story (Scout & Jem / Elsa)
-  [6] 🩺 Termux Dependency Check & Auto-Repair
-  [0] 🚪 Exit
-```
-
-### Features built specifically for Termux:
-- **Zero External Dependencies**: Pure Python 3 ANSI escape codes and UTF-8 box drawing.
-- **Live Asset Monitor**: Instantly see if your voice-over, script, and image assets are in place.
-- **Live Render Progress**: Real-time rendering percentage bar `[████████░░░░] 67%`.
-- **Android Intent Integration**:
-  - Automatically opens Web Studio in Android Chrome/Firefox via `termux-open-url`.
-  - Automatically opens the rendered `.mp4` directly in your phone's default video player via `termux-open`.
-- **Termux Doctor**: Checks for `pkg install -y python-pillow ffmpeg` and repairs missing packages with a single keystroke.
-
-
----
-
-## 🌐 Creative Studio: Pure In-Browser Web App
-
-FB-2minutes Storymaker features a complete, zero-dependency **in-browser Creative Studio** (`index.html` & `web/index.html`). It runs 100% in your browser using the HTML5 Canvas, Web Audio API, and MediaRecorder—requiring **zero installation of Python C-libraries or FFmpeg**!
-
-### Launching the Studio:
+To launch locally:
 ```bash
 make web
 # or
 python3 -m http.server 8000
-# or
-fb-storymaker --web
 ```
-Then open **[http://localhost:8000](http://localhost:8000)** in any browser (Chrome, Safari, Firefox, or Android Termux browser).
-
-### The 4-Phase End-to-End Workflow:
-1. **Phase 1: Ingestion Deck**
-   - Drop `script.txt` (single sentence beats per line).
-   - Drop `narration.mp3` or `.wav` (recorded voice-over with 0.3s–0.5s pauses).
-   - Drop `scenes.zip` or select individual image files (`01_scout_intro.png`, etc.).
-   - *Tip:* Click **"✨ Load Scout & Jem Sample Story"** to instantly load a complete ready-to-test demo with synthesized voice-over, script beats, and illustrations!
-
-2. **Phase 2: Real Waveform & -35dB Silence Detection**
-   - Analyzes audio volume envelope and automatically spots natural breathing gaps below **-35dB**.
-   - Interactive waveform canvas with **draggable cut markers**: simply drag markers left or right to fine-tune scene cuts.
-   - Click anywhere to scrub the playhead.
-
-3. **Phase 3: Scene Mapping Matrix**
-   - Interactive matrix table pairing Scene #, Illustration artwork, Narration lines (split into dynamic Beat A &rarr; Beat B), and Start/End timestamps.
-   - Customize choreography rules per scene:
-     - **Entrances**: Gentle Pop-in (scale $0.94 \to 1.0$), Soft 150ms Dissolve, or Zoom Pop-in.
-     - **Continuous Motion**: Camera Push-in (+4% Zoom), Horizontal Pan (+30px slide), or Handheld Subtle Float (breathing sway).
-
-4. **Phase 4: Live 9:16 Canvas & 1-Click Master Export**
-   - Watch real-time 30 FPS Picture-Book Motion playback directly on the 9:16 vertical canvas with synced audio and two-beat lower-third captions.
-   - Click **"🚀 Export Master Video"** to record the canvas stream and download the finished vertical 1080&times;1920 video directly to your device downloads folder.
+Visit **[http://localhost:8000](http://localhost:8000)**.
 
 ---
 
-## 📁 Repository Structure
+## ☁️ Vercel Serverless Architecture
 
-```
-FB-2minutes-Storymaker/
-├── src/
-│   ├── align_engine/           # Speech-Cue Align Engine
-│   │   ├── align_engine.py     # Script parser, audio duration & pause timing
-│   │   └── __init__.py
-│   ├── duration_director/      # Scene Duration Director
-│   │   ├── duration_director.py# Asset resolution, Scene[N] -> Img[N], timeline plan
-│   │   └── __init__.py
-│   ├── choreography_core/      # Visual Choreography Core
-│   │   ├── choreography_core.py# Picture-Book Motion: Spring-pop, micro-drift, captions
-│   │   └── __init__.py
-│   └── exporter/               # Final Master Video Exporter
-│       ├── video_exporter.py   # Raw frame piping to FFmpeg, audio multiplexing
-│       └── __init__.py
-├── web/
-│   ├── index.html              # Creative Studio Web UI
-│   └── server.py               # Lightweight zero-dependency Web & API server
-├── scripts/
-│   └── generate_sample_assets.py # Sample story generator (audio, images, script, zip)
-├── assets/
-│   ├── voice-over/             # Narration audio (narration.mp3)
-│   ├── scripts/                # Story text script (story.txt)
-│   ├── visuals/                # Visual illustrations zip (story_visuals.zip)
-│   ├── processed/              # Alignment, timeline JSON, extracted frames
-│   └── output/                 # Rendered video (final_story.mp4)
-├── tests/                      # Automated test suite
-│   ├── test_align_engine.py
-│   ├── test_duration_director.py
-│   └── test_choreography_core.py
-├── setup_local.sh              # Local environment setup script
-├── Makefile                    # Make targets (setup, run, web, test, clean)
-├── main.py                     # Main CLI and pipeline orchestrator
-├── requirements.txt            # Python dependencies (Pillow, etc.)
-└── setup.py                    # Package configuration
-```
+The repository is pre-configured for automated, zero-config deployment on Vercel:
 
----
-
-## 📝 Custom Asset Specification
-
-To create your own custom story video, replace or place files in `assets/`:
-
-### 1. Voice-Over Audio (`assets/voice-over/narration.mp3` or `.wav`)
-- Standard MP3 or WAV audio track containing your narration.
-- The pipeline reads the duration and cadence to synchronize scene cuts.
-
-### 2. Scene Script (`assets/scripts/story.txt`)
-Format your script with `[Scene N: Title]` headers followed by the scene narration:
-```text
-[Scene 1: Introduction]
-In a quiet village nestled between rolling hills, a young baker named Elsa begins her day before sunrise.
-
-[Scene 2: The Problem]
-But today, the magical yeast that makes her bread rise has gone missing from her pantry.
-
-[Scene 3: The Journey]
-Elsa must venture into the Enchanted Forest to find the legendary Golden Yeast.
-```
-
-### 3. Visual Assets (`assets/visuals/story_visuals.zip`)
-- A `.zip` archive containing your illustrations (PNG, JPG, or WebP).
-- Files should be named with numbers matching the scene sequence (e.g. `scene_1.png`, `scene_2.png`, or `1.png`, `2.png`).
-- Resolution: Recommended square (1080x1080) or vertical (1080x1350) artwork. The choreographer automatically scales, adds drop-shadows, and frames the visuals within the 9:16 vertical canvas.
-
----
-
-## ⚙️ CLI Reference
-
-```bash
-# Run the pipeline with default settings
-python3 main.py
-
-# Launch Web UI on a specific port
-python3 main.py --web --port 8080
-
-# Specify output frame rate (default: 24 fps)
-python3 main.py --run --fps 30
-
-# Re-generate bundled demo sample assets
-python3 main.py --generate-assets
-
-# Check asset readiness
-python3 main.py --check
-```
-
----
-
-## 🛠️ Makefile Commands
-
-| Command | Description |
-| :--- | :--- |
-| `make setup` | Run automated local setup (`setup_local.sh`) |
-| `make run` | Execute the full pipeline and output `assets/output/final_story.mp4` |
-| `make web` | Launch the local Web UI on `http://localhost:8000` |
-| `make sample-assets` | Regenerate bundled sample story assets |
-| `make test` | Run automated unit and integration tests |
-| `make clean` | Clean up generated videos, caches, and intermediate files |
-| `make format` | Format Python code with `black` and `isort` |
-| `make lint` | Lint Python source code with `flake8` |
-
----
-
-## 🧪 Running Tests
-
-To run the automated test suite:
-```bash
-make test
-```
-*(Or `python3 -m unittest discover -s tests -p "test_*.py" -v`)*
-
----
+| Component | File | Runtime | Purpose |
+| :--- | :--- | :--- | :--- |
+| **Serverless Entrypoint** | [`app.py`](file:///root/FB-2minutes-Storymaker/app.py) / [`index.py`](file:///root/FB-2minutes-Storymaker/index.py) | Python 3.9+ (`BaseHTTPRequestHandler` + WSGI) | Serves the Creative Studio Web UI (`index.html`) with dual Lambda dispatch and embedded gzip fallback. |
+| **API Gateway** | [`api/trigger.js`](file:///root/FB-2minutes-Storymaker/api/trigger.js) | Node.js Serverless (ESM) | Ingests story JSON, validates `x-api-key`, and triggers GitHub Actions workflows. |
+| **Build Configuration** | [`pyproject.toml`](file:///root/FB-2minutes-Storymaker/pyproject.toml) & [`uv.lock`](file:///root/FB-2minutes-Storymaker/uv.lock) | PEP 621 Standard | Satisfies Vercel's `uv` package resolver with zero build errors. |
+| **Routing & Rewrites** | [`vercel.json`](file:///root/FB-2minutes-Storymaker/vercel.json) | Vercel Platform | Maps `/api/render` &rarr; `/api/trigger` with global CORS headers. |
 
 ---
 
 ## 🤖 Google Flow AI Automation & Make.com Integration
 
-You can connect an automated content creator like **Google Flow AI** to generate stories, script cues, and metadata, dispatch them to the **Vercel API Gateway** or **GitHub Actions Runner**, and automatically deliver the final 9:16 video to **Make.com** for scheduled publishing to TikTok, YouTube Shorts, and Facebook Reels.
-
-### 🏗️ Architecture
-
-```
-[Google Flow AI] ─── POST /api/render ───► [Vercel API Gateway]
-                                                  │ (repository_dispatch)
-                                                  ▼
-                                      [GitHub Actions Runner]
-                                      • Preinstalled FFmpeg & Pillow
-                                      • Renders 1080x1920 MP4 Video
-                                      • Uploads to GitHub Releases
-                                                  │
-                                                  ▼
-                                         [Make.com Webhook]
-                                         { video_url, title, ... }
-                                                  │
-                                                  ▼
-                                      [TikTok / Reels / Shorts]
-```
-
----
-
-### 📋 Master System Prompt for Google Flow AI
-*(Copy and paste this into the **System Instructions** or **Agent Persona** box in Google Flow)*:
+### 1. Master System Prompt for Google Flow AI
+*(Copy and paste this into Google Flow's **System Instructions** or **Agent Persona** box)*:
 
 ```text
 You are an Elite Social Media Story & Video Producer specialized in viral TikTok, YouTube Shorts, and Facebook Reels.
@@ -336,31 +149,19 @@ Your mission is to take story concepts or scene JSON inputs, generate vertical 9
 ### WORKFLOW EXECUTION:
 1. INPUT PARSING:
    Receive the user's Scene JSON containing scene numbers, narration text, and visual image prompts.
-   Example Input:
-   [
-     {
-       "scene": 1,
-       "text": "In a quiet village nestled between rolling hills, Elsa begins her day before sunrise.",
-       "image_prompt": "Cinematic vertical 9:16 storybook illustration of a cozy village bakery at dawn, warm glowing lanterns, morning mist, watercolor digital painting"
-     },
-     {
-       "scene": 2,
-       "text": "She opens the wooden cupboard, but the magical yeast has mysteriously vanished.",
-       "image_prompt": "Close-up cinematic 9:16 illustration of a young female baker looking shocked inside an open rustic wooden cupboard, glowing dust particles, storybook style"
-     }
-   ]
+   Pacing Rule: Keep each scene between 10 and 20 words for maximum visual engagement.
 
 2. IMAGE GENERATION STEP:
-   - For each scene in the list, trigger your Image Generation tool using the `image_prompt`.
+   - For each scene, trigger your Image Generation tool using the `image_prompt`.
    - Ensure the image output format is vertical 9:16 aspect ratio.
-   - Capture the generated image URL (or base64) for each scene.
+   - Capture the generated image URL for each scene.
 
 3. AUDIO INGESTION:
-   - Use the voice-over narration audio uploaded by the user, and obtain its accessible URL or base64 data.
+   - Ingest the voiceover narration audio URL or base64 data.
 
 4. METADATA CREATION:
-   - Title: High-curiosity, high-CTR hook title (under 60 characters).
-   - Description: 2-3 sentence engaging caption with 4-6 viral hashtags (e.g., #storytime #shorts #tiktok #viral #reels).
+   - Title: High-CTR hook title (under 60 characters).
+   - Description: 2-3 sentence engaging caption with 4-6 viral hashtags (#storytime #shorts #tiktok #viral #reels).
    - Upload Date: Target schedule time in ISO 8601 format (e.g. "2026-09-20T18:00:00Z").
 
 5. PIPELINE DISPATCH CONTRACT:
@@ -371,12 +172,12 @@ Your mission is to take story concepts or scene JSON inputs, generate vertical 9
      Content-Type: application/json
      x-api-key: <YOUR_API_SECRET_KEY>
 
-   Payload Structure (Direct Scene Array - No ZIP required!):
+   Payload Structure (Direct Scene Array):
    {
      "title": "<Catchy Video Title>",
      "description": "<Engaging Description with hashtags>",
      "upload_date": "<ISO-8601 UTC Timestamp>",
-     "audio_url": "<Public URL to uploaded voiceover audio OR provide audio_base64>",
+     "audio_url": "<Public URL to uploaded voiceover audio>",
      "make_webhook_url": "<Make.com incoming webhook URL>",
      "scenes": [
        {
@@ -392,7 +193,7 @@ Your mission is to take story concepts or scene JSON inputs, generate vertical 9
      ]
    }
 
-   Expected Response from API (202 Accepted):
+   Expected Response (202 Accepted):
    {
      "ok": true,
      "status": "queued",
@@ -406,20 +207,19 @@ Your mission is to take story concepts or scene JSON inputs, generate vertical 9
 
 ---
 
-### 💬 Sample Input JSON Template for Google Flow
-*(Use this template when feeding story scripts and image prompts into Google Flow)*:
+### 2. Sample Input JSON Template for Google Flow
 
 ```json
 [
   {
     "scene": 1,
     "text": "In a quiet village nestled between rolling hills, Elsa begins her day before sunrise.",
-    "image_prompt": "Cinematic vertical 9:16 storybook illustration of a cozy village bakery at dawn, warm glowing lanterns, morning mist, watercolor digital painting, detailed artstation"
+    "image_prompt": "Cinematic vertical 9:16 storybook illustration of a cozy village bakery at dawn, warm glowing lanterns, morning mist, watercolor digital painting"
   },
   {
     "scene": 2,
     "text": "She opens the wooden cupboard, but the magical yeast has mysteriously vanished.",
-    "image_prompt": "Close-up cinematic 9:16 illustration of a young female baker looking shocked inside an open rustic wooden cupboard, glowing dust particles, storybook style"
+    "image_prompt": "Close-up cinematic 9:16 illustration of a young female baker looking shocked inside an open rustic wooden cupboard, glowing dust particles"
   },
   {
     "scene": 3,
@@ -436,18 +236,103 @@ Your mission is to take story concepts or scene JSON inputs, generate vertical 9
 
 ---
 
-### 📦 Webhook Payload Delivered to Make.com
+### 3. Webhook Payload Delivered to Make.com
 
-When GitHub Actions completes the video rendering, it sends this minimal JSON payload to your `make_webhook_url`:
+When GitHub Actions completes video rendering, it dispatches this payload to your `make_webhook_url`:
 
 ```json
 {
   "video_url": "https://github.com/AllensCreations/FB-2minutes-Storymaker/releases/download/v-run-12345678/final_story.mp4",
   "title": "The Mystery of the Golden Forest",
-  "description": "Elsa ventures into the Whispering Woods. #story #shorts #tiktok",
-  "scheduled_time": "2026-09-18T18:00:00Z"
+  "description": "Elsa ventures into the Whispering Woods. #story #shorts #tiktok #viral",
+  "scheduled_time": "2026-09-20T18:00:00Z"
 }
 ```
+
+---
+
+## 📁 Repository Structure
+
+```
+FB-2minutes-Storymaker/
+├── api/
+│   └── trigger.js              # Vercel Node.js Serverless API Gateway
+├── app.py                      # Universal Python Serverless entrypoint (BaseHTTPRequestHandler + WSGI)
+├── index.py                    # Serverless entrypoint alias
+├── index.html                  # Creative Studio Web UI (Browser client)
+├── main.py                     # Main CLI and pipeline orchestrator
+├── vercel.json                 # Vercel function routing, CORS & rewrites
+├── pyproject.toml              # PEP 621 metadata & Vercel entrypoint declaration
+├── uv.lock                     # Pre-locked dependency graph
+├── src/
+│   ├── align_engine/           # Speech-Cue Align Engine (script parsing & pause detection)
+│   ├── duration_director/      # Scene Duration Director (asset & timeline mapping)
+│   ├── choreography_core/      # Visual Choreographer (Ken Burns, dissolves, sub-captions)
+│   ├── exporter/               # Video Exporter (FFmpeg frame-pipe & audio muxing)
+│   └── termux_ui.py            # Interactive Terminal Dashboard for Termux
+├── web/
+│   ├── index.html              # Mirror of Creative Studio UI
+│   └── server.py               # Local Python HTTP dev server
+├── assets/
+│   ├── voice-over/             # Narration audio (narration.mp3)
+│   ├── scripts/                # Story text script (story.txt)
+│   ├── visuals/                # Visual illustrations zip (story_visuals.zip)
+│   └── output/                 # Rendered video (final_story.mp4)
+├── tests/                      # Automated test suite (100% passing)
+│   ├── test_align_engine.py
+│   ├── test_api_gateway.py
+│   ├── test_choreography_core.py
+│   ├── test_duration_director.py
+│   └── test_serverless_app.py
+├── Makefile                    # Make targets (setup, run, web, test, clean)
+└── requirements.txt            # Runtime dependencies (Pillow>=10.0.0)
+```
+
+---
+
+## ⚙️ CLI Reference
+
+```bash
+# Run the pipeline with default assets
+python3 main.py
+
+# Launch Web UI on a specific port
+python3 main.py --web --port 8080
+
+# Specify custom output frame rate (default: 24 fps)
+python3 main.py --run --fps 30
+
+# Verify asset readiness
+python3 main.py --check
+
+# Regenerate bundled sample assets
+python3 main.py --generate-assets
+```
+
+---
+
+## 🛠️ Makefile Commands
+
+| Command | Description |
+| :--- | :--- |
+| `make setup` | Run automated local setup (`setup_local.sh`) |
+| `make run` | Execute the full pipeline and output `assets/output/final_story.mp4` |
+| `make tui` | Open the interactive Termux Terminal UI |
+| `make web` | Launch the local Web UI on `http://localhost:8000` |
+| `make test` | Run the full test suite (`unittest`) |
+| `make clean` | Clean up generated videos, caches, and temporary files |
+
+---
+
+## 🧪 Testing
+
+Run the automated test suite covering all engines, the Vercel serverless entrypoints, and API dispatch:
+
+```bash
+python3 -m unittest discover -s tests -p "test_*.py" -v
+```
+
+All 20 tests pass with zero external mock failures.
 
 ---
 

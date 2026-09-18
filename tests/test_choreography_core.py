@@ -89,6 +89,20 @@ class TestChoreographyCore(unittest.TestCase):
         # Blended frame should be a valid frame with pixels differing from a non-transition frame
         self.assertNotEqual(blend_frame.tobytes(), pure_frame.tobytes())
 
+    def test_get_timed_caption_chunk(self):
+        long_text = "One two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen"
+        # 15 words with words_per_chunk=7 will produce 3 chunks:
+        # Chunk 0: words 1-7
+        # Chunk 1: words 8-14
+        # Chunk 2: word 15
+        chunk_early = self.choreographer.get_timed_caption_chunk(long_text, scene_t=1.0, duration=9.0, words_per_chunk=7)
+        chunk_mid = self.choreographer.get_timed_caption_chunk(long_text, scene_t=4.5, duration=9.0, words_per_chunk=7)
+        chunk_late = self.choreographer.get_timed_caption_chunk(long_text, scene_t=8.5, duration=9.0, words_per_chunk=7)
+
+        self.assertEqual(chunk_early, "One two three four five six seven")
+        self.assertEqual(chunk_mid, "eight nine ten eleven twelve thirteen fourteen")
+        self.assertEqual(chunk_late, "fifteen")
+
 
 if __name__ == "__main__":
     unittest.main()

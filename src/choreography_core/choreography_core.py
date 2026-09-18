@@ -212,6 +212,24 @@ class VisualChoreographer:
             img_frame.paste(scaled_img, (final_x, final_y))
         return img_frame
 
+    @staticmethod
+    def get_timed_caption_chunk(text: str, scene_t: float, duration: float, words_per_chunk: int = 7) -> str:
+        """
+        Splits long scene text into dynamic timed sub-caption chunks (TikTok style)
+        so long narrations don't overflow the 9:16 vertical canvas or get truncated.
+        """
+        words = text.strip().split()
+        if len(words) <= words_per_chunk:
+            return text.strip()
+
+        chunks = []
+        for i in range(0, len(words), words_per_chunk):
+            chunks.append(" ".join(words[i:i + words_per_chunk]))
+
+        prog = max(0.0, min(scene_t / max(duration, 0.1), 0.999))
+        chunk_idx = min(int(prog * len(chunks)), len(chunks) - 1)
+        return chunks[chunk_idx]
+
     def render_frame(
         self,
         scene: SceneTimeline,
@@ -246,9 +264,10 @@ class VisualChoreographer:
         # 3. Clean floating white caption directly over the lower third (matching screenshot)
         if show_captions and scene.text:
             draw = ImageDraw.Draw(frame)
+            active_caption = self.get_timed_caption_chunk(scene.text, scene_t, scene.duration)
             self._draw_text_wrapped(
                 draw=draw,
-                text=scene.text,
+                text=active_caption,
                 x=self.width // 2,
                 y=int(self.height * 0.78),
                 max_width=self.width - 160,

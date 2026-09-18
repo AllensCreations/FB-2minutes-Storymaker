@@ -240,9 +240,9 @@
     "semantic_hash": ""
   },
   "app.py": {
-    "mtime": 1789736797.60888,
-    "seen": 1789736986.4733086,
-    "ast_hash": "fd82476df93cb61c0469df34fbca8ed6",
+    "mtime": 1789737586.94088,
+    "seen": 1789738891.159924,
+    "ast_hash": "1aa517068ab004353acf670588b4d3ea",
     "semantic_hash": ""
   },
   "index.py": {
@@ -255,6 +255,12 @@
     "mtime": 1789736923.6208801,
     "seen": 1789736986.4733253,
     "ast_hash": "e91655a760eab01a886400e05297279b",
+    "semantic_hash": ""
+  },
+  "tests/test_serverless_app.py": {
+    "mtime": 1789738850.7248797,
+    "seen": 1789738891.1599865,
+    "ast_hash": "4b54a97747c3c4c6d444147fbc006fe4",
     "semantic_hash": ""
   }
 }
