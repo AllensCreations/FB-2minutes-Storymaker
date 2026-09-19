@@ -77,6 +77,21 @@ For optimal viewer retention in short-form videos (TikTok, Shorts, Reels):
 
 ---
 
+## 📐 Smart Aspect Ratio Detection (1:1 → 4:5 Auto-Adaptation)
+
+The engine automatically inspects the aspect ratio of incoming image assets and adapts the target video canvas:
+
+| Input Image Ratio | Target Video Ratio | Output Dimensions | Best For |
+| :--- | :--- | :--- | :--- |
+| **1:1 Square** (e.g. $1080 \times 1080$, $1024 \times 1024$) | **4:5 Vertical** | **$1080 \times 1350$** | Facebook & Instagram Feed, Stories, Portrait Carousels. Reduces horizontal crop to just 20% (instead of 44%), preserving nearly the full square artwork! |
+| **9:16 Vertical** (e.g. $1080 \times 1920$, $720 \times 1280$) | **9:16 Full Vertical** | **$1080 \times 1920$** | TikTok, YouTube Shorts, Facebook Reels. Edge-to-edge full-bleed vertical display. |
+
+- **In the Web Studio (`index.html`):** The preview canvas immediately shifts to a 4:5 frame with a `4:5 Auto` badge, and exports `story_4x5.mp4` directly in-browser.
+- **In Python CLI & CI (`duration_director.py`):** The pipeline auto-sets `timeline.width = 1080` and `timeline.height = 1350`, instructing FFmpeg to render at $1080 \times 1350$.
+- **Explicit Override:** You can always force custom dimensions (e.g. `width=1080, height=1920`) in code or CLI arguments if needed.
+
+---
+
 ## 🚀 Quickstart: One-Line Installation
 
 Install and configure the local pipeline in a single command on **Android (Termux)**, **Ubuntu/Debian**, **macOS**, or generic Linux:

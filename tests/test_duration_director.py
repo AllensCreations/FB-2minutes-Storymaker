@@ -23,19 +23,25 @@ class TestDurationDirector(unittest.TestCase):
 
     def test_build_timeline(self):
         alignment = self.aligner.align_speech_with_script(self.audio_path, self.script_path)
+        # 1. Auto-detected 4:5 ratio for 1:1 square images
         timeline = self.director.build_timeline(alignment, self.visuals_path, fps=24)
 
         self.assertIsInstance(timeline, MasterTimeline)
         self.assertEqual(len(timeline.scenes), 6)
         self.assertEqual(timeline.fps, 24)
         self.assertEqual(timeline.width, 1080)
-        self.assertEqual(timeline.height, 1920)
+        self.assertEqual(timeline.height, 1350)  # Auto-detected 4:5 for 1:1 images
 
         # Check scene durations
         for scene in timeline.scenes:
             self.assertGreater(scene.duration, 0)
             self.assertEqual(round(scene.end_time - scene.start_time, 2), scene.duration)
             self.assertTrue(Path(scene.image_path).exists())
+
+        # 2. Explicit dimensions override
+        forced_timeline = self.director.build_timeline(alignment, self.visuals_path, fps=24, width=1080, height=1920)
+        self.assertEqual(forced_timeline.width, 1080)
+        self.assertEqual(forced_timeline.height, 1920)
 
 
 if __name__ == "__main__":

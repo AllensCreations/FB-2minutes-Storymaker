@@ -10,6 +10,7 @@
   <style>
     body { background-color: #0d1117; color: #e6edf3; }
     .aspect-short { aspect-ratio: 9 / 16; }
+    .aspect-4-5 { aspect-ratio: 4 / 5; }
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: #161b22; border-radius: 3px; }
     ::-webkit-scrollbar-thumb { background: #30363d; border-radius: 3px; }
@@ -96,7 +97,7 @@
       <!-- 2. Preview Canvas -->
       <div class="flex flex-col items-center justify-between bg-gray-900 p-5 rounded-xl border border-gray-800">
         <div class="w-full flex items-center justify-between mb-3">
-          <h2 class="text-base font-semibold text-white">2. Canvas Preview (9:16)</h2>
+          <h2 id="previewHeading" class="text-base font-semibold text-white flex items-center">2. Canvas Preview (9:16)</h2>
           <div class="flex items-center gap-1.5">
             <select id="transitionSelect" class="bg-gray-800 border border-gray-700 text-gray-300 text-[11px] rounded px-1.5 py-1 focus:outline-none focus:border-blue-500 cursor-pointer" title="Scene Transition Style">
               <option value="cross_dissolve">🎬 Cross-Dissolve</option>
@@ -107,7 +108,7 @@
             </button>
           </div>
         </div>
-        <div class="relative w-full max-w-[280px] aspect-short bg-black rounded-lg overflow-hidden shadow-2xl border border-gray-800">
+        <div id="previewBox" class="relative w-full max-w-[280px] aspect-short bg-black rounded-lg overflow-hidden shadow-2xl border border-gray-800 transition-all duration-300">
           <canvas id="previewCanvas" width="720" height="1280" class="w-full h-full object-contain"></canvas>
         </div>
         
@@ -297,7 +298,53 @@
 
       imgCountLabel.textContent = `${loadedImages.length} image(s)`;
       statusEl.textContent = `Loaded ${loadedImages.length} image(s).`;
+      const detectedRatio = updateCanvasAspectRatio(loadedImages);
+      if (detectedRatio === '4:5') {
+        statusEl.textContent = `Loaded ${loadedImages.length} 1:1 image(s) -> Auto-adapted video to 4:5 format!`;
+      }
+      drawFrame(currentTime);
     });
+
+    function updateCanvasAspectRatio(images) {
+      const previewBox = document.getElementById('previewBox');
+      const previewHeading = document.getElementById('previewHeading');
+      const canvas = document.getElementById('previewCanvas');
+      if (!canvas) return '9:16';
+
+      if (images && images.length > 0) {
+        const first = images[0];
+        const w = first.naturalWidth || first.width;
+        const h = first.naturalHeight || first.height;
+        if (w && h) {
+          const ratio = w / h;
+          // 1:1 Square (ratio between 0.85 and 1.15) -> Auto-switch to 4:5 (1080x1350)
+          if (ratio >= 0.85 && ratio <= 1.15) {
+            canvas.width = 1080;
+            canvas.height = 1350;
+            if (previewBox) {
+              previewBox.classList.remove('aspect-short', 'max-w-[280px]');
+              previewBox.classList.add('aspect-4-5', 'max-w-[320px]');
+            }
+            if (previewHeading) {
+              previewHeading.innerHTML = '2. Canvas Preview <span class="text-xs text-amber-400 bg-amber-400/10 px-1.5 py-0.5 rounded ml-1 font-normal border border-amber-400/30">4:5 Auto</span>';
+            }
+            return '4:5';
+          }
+        }
+      }
+
+      // Default: 9:16 Vertical
+      canvas.width = 720;
+      canvas.height = 1280;
+      if (previewBox) {
+        previewBox.classList.remove('aspect-4-5', 'max-w-[320px]');
+        previewBox.classList.add('aspect-short', 'max-w-[280px]');
+      }
+      if (previewHeading) {
+        previewHeading.textContent = '2. Canvas Preview (9:16)';
+      }
+      return '9:16';
+    }
 
     // =========================================================================
     // Universal Script Parser: JSON, (Next image) splits, Scene N: blocks
@@ -635,6 +682,7 @@
       }
 
       statusEl.textContent = "Aligning audio pauses to scenes...";
+      updateCanvasAspectRatio(loadedImages);
       if (detectedPauses.length === 0) {
         detectedPauses = findPauses(audioBuffer);
       }
@@ -1150,7 +1198,7 @@
         const blob = new Blob(chunks, { type: mimeType });
         const a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
-        a.download = `short_video.${ext}`;
+        a.download = (canvas.height === 1350 ? `story_4x5.${ext}` : `short_video.${ext}`);
         a.click();
 
         exportBtn.disabled = false;

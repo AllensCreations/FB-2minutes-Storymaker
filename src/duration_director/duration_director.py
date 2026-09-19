@@ -9,6 +9,7 @@ import zipfile
 from dataclasses import asdict, dataclass
 import sys
 from pathlib import Path
+from typing import List, Optional, Tuple
 
 # Add src to sys.path for direct script execution
 src_dir = str(Path(__file__).resolve().parent.parent)
@@ -90,19 +91,51 @@ class SceneDurationDirector:
         print(f"[Scene Duration Director] Located {len(images)} visual asset(s)")
         return images
 
+    def detect_aspect_ratio(self, images: List[Path]) -> Tuple[int, int, str]:
+        """
+        Detects aspect ratio from input images.
+        If images are square (1:1), automatically returns 4:5 dimensions (1080, 1350).
+        Otherwise defaults to 9:16 vertical (1080, 1920).
+        """
+        if not images:
+            return 1080, 1920, "9:16"
+
+        try:
+            from PIL import Image
+            for img_path in images[:3]:  # Check sample of first images
+                if img_path.is_file():
+                    with Image.open(img_path) as im:
+                        w, h = im.size
+                        if h > 0:
+                            ratio = w / h
+                            # If ratio is between 0.85 and 1.15, detect as 1:1 Square -> 4:5
+                            if 0.85 <= ratio <= 1.15:
+                                return 1080, 1350, "4:5"
+        except Exception:
+            pass
+
+        return 1080, 1920, "9:16"
+
     def build_timeline(
         self,
         alignment: AlignmentResult,
         visuals_source: Path,
         fps: int = 24,
-        width: int = 1080,
-        height: int = 1920
+        width: Optional[int] = None,
+        height: Optional[int] = None
     ) -> MasterTimeline:
         """
         Builds the MasterTimeline combining speech alignment segments with visual assets.
+        Auto-adapts output dimensions: 1:1 square images -> 4:5 (1080x1350), vertical images -> 9:16 (1080x1920).
         """
         print("[Scene Duration Director] Building master story timeline...")
         images = self.resolve_visual_assets(visuals_source)
+
+        if width is None or height is None:
+            auto_w, auto_h, ar_name = self.detect_aspect_ratio(images)
+            width = width if width is not None else auto_w
+            height = height if height is not None else auto_h
+            print(f"[Scene Duration Director] Aspect Ratio: {ar_name} ({width}x{height})")
 
         scenes: List[SceneTimeline] = []
         num_segments = len(alignment.segments)
