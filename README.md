@@ -242,7 +242,15 @@ Run the full automated test suite covering all engines, alignment routines, and 
 python3 -m unittest discover tests
 ```
 
-All **39 unit tests** pass cleanly with zero external mock failures.
+All **40 unit tests** pass cleanly with zero external mock failures.
+
+---
+
+## 📚 Guides & Automation Documentation
+
+- [🗄️ Turso + Make.com Integration Guide](file:///root/FB-2minutes-Storymaker/docs/TURSO_MAKE_GUIDE.md): Replace Google Apps Script (Sheets) with Turso (libSQL Edge DB) and automate Facebook & YouTube publishing in Make.com.
+- [✨ Google AI Studio Workflow Guide](file:///root/FB-2minutes-Storymaker/docs/GOOGLE_STUDIO_GUIDE.md): Step-by-step instructions for streaming story packages directly from Google AI Studio.
+- [🚀 Automation & Webhook Pipeline Guide](file:///root/FB-2minutes-Storymaker/docs/AUTOMATION_GUIDE.md): End-to-end automated pipeline connecting Google Flow, GitHub Actions, and Make.com.
 
 ---
 

@@ -102,9 +102,9 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1790683716.6300056,
-    "seen": 1790683796.5656722,
-    "ast_hash": "2b14dc311cf9b2977bc73b7a49339acb",
+    "mtime": 1790696768.494006,
+    "seen": 1790696789.4634852,
+    "ast_hash": "9f2896de671771a86b91bcb8bb815a9b",
     "semantic_hash": ""
   },
   "assets/processed/alignment.txt": {
@@ -327,6 +327,12 @@
     "mtime": 1790608639.3180053,
     "seen": 1790609823.7241058,
     "ast_hash": "6f8e19e7517c77f2cfb41fd0d0513be7",
+    "semantic_hash": ""
+  },
+  "docs/TURSO_MAKE_GUIDE.md": {
+    "mtime": 1790696755.274006,
+    "seen": 1790696789.463503,
+    "ast_hash": "94a9a88fb10e481633e720a49c13a6c8",
     "semantic_hash": ""
   }
 }

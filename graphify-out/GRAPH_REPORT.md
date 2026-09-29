@@ -1,17 +1,17 @@
 # Graph Report - FB-2minutes-Storymaker  (2026-09-29)
 
 ## Corpus Check
-- 44 files · ~109,879 words
+- 45 files · ~114,248 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 8 file(s) not represented in the graph (top: (none) 6, .zip 1, .lock 1)
 
 ## Summary
-- 546 nodes · 988 edges · 33 communities (21 shown, 12 thin omitted)
+- 569 nodes · 1010 edges · 33 communities (22 shown, 11 thin omitted)
 - Extraction: 93% EXTRACTED · 7% INFERRED · 0% AMBIGUOUS · INFERRED: 71 edges (avg confidence: 0.89)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `af5178ac`
+- Built from commit: `f14e68f7`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -33,7 +33,7 @@
 - duration_director/README.md
 - exporter/README.md
 - 🚀 Automated Publishing Pipeline: Google Flow -> Vercel / GitHub Actions -> Make.com
-- generate_scene_image
+- generate_sample_assets.py
 - vercel.json
 - TestApiGatewayNode
 - server.py
@@ -42,11 +42,11 @@
 - TestServerlessApp
 - handler
 - GOOGLE_STUDIO_GUIDE.md
+- 🗄️ Turso + Make.com Integration Guide
 - VisualChoreographer
 - main
 - package_images_to_zip
 - TestItemsManager
-- TestAlignEngine
 - SpeechCueAlignEngine
 
 ## God Nodes (most connected - your core abstractions)
@@ -64,23 +64,23 @@
 ## Surprising Connections (you probably didn't know these)
 - `run_pipeline()` --uses--> `SpeechCueAlignEngine`  [INFERRED]
   main.py → src/align_engine/align_engine.py
-- `run_pipeline()` --uses--> `SceneDurationDirector`  [INFERRED]
-  main.py → src/duration_director/duration_director.py
 - `run_pipeline()` --calls--> `VideoExporter`  [INFERRED]
   main.py → src/exporter/video_exporter.py
+- `auto_publish_story_item_thread()` --uses--> `SpeechSegment`  [INFERRED]
+  web/server.py → src/align_engine/align_engine.py
+- `render_story_item_thread()` --uses--> `SpeechSegment`  [INFERRED]
+  web/server.py → src/align_engine/align_engine.py
 - `TestAlignEngine` --uses--> `AlignmentResult`  [INFERRED]
   tests/test_align_engine.py → src/align_engine/align_engine.py
-- ``SpeechCueAlignEngine`` --references--> `SpeechCueAlignEngine`  [INFERRED]
-  src/align_engine/README.md → src/align_engine/align_engine.py
 
 ## Import Cycles
 - None detected.
 
-## Communities (33 total, 12 thin omitted)
+## Communities (33 total, 11 thin omitted)
 
 ### Community 0 - "StorymakerRequestHandler"
-Cohesion: 0.08
-Nodes (24): SimpleHTTPRequestHandler, get_local_ip(), Detect primary LAN IP address for local network access., delete_file_from_dropbox(), delete_from_google_sheet(), get_assets_status(), get_project_assets_info(), get_story_scenes() (+16 more)
+Cohesion: 0.07
+Nodes (32): SimpleHTTPRequestHandler, get_local_ip(), Detect primary LAN IP address for local network access., auto_publish_story_item_thread(), check_dropbox_duplicate(), check_sheet_duplicate(), delete_file_from_dropbox(), delete_from_google_sheet() (+24 more)
 
 ### Community 1 - "Speech-Cue Align Engine"
 Cohesion: 0.12
@@ -88,7 +88,7 @@ Nodes (15): 1. Audio Analysis, 2. Speech-Script Alignment, As a Module, Command 
 
 ### Community 3 - "FB-2minutes Storymaker"
 Cohesion: 0.07
-Nodes (26): 1. Ingest a New Story Package, 1. Installation, 1. Modern 3-Tab Studio Navigation, 2. Auto-Jump & Instant Canvas Preview on "Open & Render", 2. Environment Configuration, 2. Update and Replace an Existing Package (by Item ID), 3. Launching the Application, 3. Minimalist Studio UI (+18 more)
+Nodes (27): 1. Ingest a New Story Package, 1. Installation, 1. Modern 3-Tab Studio Navigation, 2. Auto-Jump & Instant Canvas Preview on "Open & Render", 2. Environment Configuration, 2. Update and Replace an Existing Package (by Item ID), 3. Launching the Application, 3. Minimalist Studio UI (+19 more)
 
 ### Community 4 - "read_env_settings"
 Cohesion: 0.10
@@ -99,8 +99,8 @@ Cohesion: 0.10
 Nodes (21): ItemsManager, natural_sort_key(), Any, Path, Register an SSE subscriber queue., Unregister an SSE subscriber queue., Send an SSE event payload to all active subscriber queues., Return all stories in the items queue, newest first. (+13 more)
 
 ### Community 8 - "termux_ui.py"
-Cohesion: 0.08
-Nodes (47): check_assets(), generate_sample_assets(), handler(), main(), FB 2minutes Storymaker - Automated Storytelling Engine Based on the…, Starts the local web studio interface., WSGI entrypoint for Vercel deployment: serves index.html and web studio assets., Check if required assets are present in assets/ directory. (+39 more)
+Cohesion: 0.05
+Nodes (58): check_assets(), generate_sample_assets(), handler(), main(), FB 2minutes Storymaker - Automated Storytelling Engine Based on the…, Starts the local web studio interface., WSGI entrypoint for Vercel deployment: serves index.html and web studio assets., Check if required assets are present in assets/ directory. (+50 more)
 
 ### Community 9 - "package_story"
 Cohesion: 0.20
@@ -114,9 +114,9 @@ Nodes (10): 1. Script Preparation (`script.txt`), 2. Voice-Over Recording (`narr
 Cohesion: 0.20
 Nodes (9): 1. ⚡ Calling the API from Google Flow, 2. 📦 Payload Sent to Make.com Webhook, 3. 🎯 Setting Up Make.com Scenario, 4. 🔑 Vercel Environment Variables, 🏗️ Architecture Overview, 🚀 Automated Publishing Pipeline: Google Flow -> Vercel / GitHub Actions -> Make.com, Detailed Confirmation Response from Vercel (`202 Accepted`):, Method A: Via Vercel Gateway (Recommended) (+1 more)
 
-### Community 17 - "generate_scene_image"
-Cohesion: 0.29
-Nodes (7): create_gradient(), generate_audio_voiceover(), generate_scene_image(), Path, Draw vertical linear gradient., Generate a high-resolution 1080x1080 scene illustration card., Synthesizes a pleasant multi-tone chime & narration track matching the story…
+### Community 17 - "generate_sample_assets.py"
+Cohesion: 0.18
+Nodes (12): math, pil, create_gradient(), generate_audio_voiceover(), generate_scene_image(), Path, Draw vertical linear gradient., Generate a high-resolution 1080x1080 scene illustration card. (+4 more)
 
 ### Community 18 - "vercel.json"
 Cohesion: 0.33
@@ -124,7 +124,7 @@ Nodes (5): includeFiles, functions, app.py, headers, rewrites
 
 ### Community 21 - "server.py"
 Cohesion: 0.07
-Nodes (49): Vercel Serverless Entrypoint for FB 2minutes Storymaker Compatible with: 1.…, argparse, base64, dataclasses, datetime, gzip, http, http_server (+41 more)
+Nodes (48): Vercel Serverless Entrypoint for FB 2minutes Storymaker Compatible with: 1.…, argparse, base64, dataclasses, datetime, gzip, http, http_server (+40 more)
 
 ### Community 23 - "ArchiveManager"
 Cohesion: 0.19
@@ -142,9 +142,13 @@ Nodes (10): get_fallback_html(), handler, HandlerMeta, WSGI application entrypoi
 Cohesion: 0.33
 Nodes (5): 1. 📄 How the Story JSON is Created (`story.json`), If you have an images folder and story.json:, If you only have images and want auto-generated scene markers:, Recommended JSON Format (Clean Narration Strings), Storymaker JSON & ZIP Bridge Integration Guide
 
+### Community 27 - "🗄️ Turso + Make.com Integration Guide"
+Cohesion: 0.09
+Nodes (21): 1. 🛠️ Setting Up Your Turso Database, 2. 📋 Database Schema (SQL DDL), 3. 🧪 Testing Turso via HTTP API (`curl`), 4. 🧩 Step-by-Step: Connecting Turso in Make.com, 5. 🐍 How FB-2minutes-Storymaker Logs Directly to Turso, 6. 🔒 Security & Best Practices, 🏗️ Architecture Overview, Insert a Story Record (+13 more)
+
 ### Community 28 - "VisualChoreographer"
-Cohesion: 0.08
-Nodes (19): ImageDraw, ImageFont, skipUnless, Image, Draws word-wrapped stroked subtitles inside a TikTok dark pill badge., Computes (scale, offset_x, offset_y) for subtle micro-motion push-in. Scale:…, Creates and caches a subtle top/bottom ambient vignette overlay matching…, Applies a soft Gaussian drop shadow behind the centered artwork. (+11 more)
+Cohesion: 0.06
+Nodes (32): ImageDraw, ImageFont, skipUnless, main(), Image, Visual Choreography Core for FB 2minutes Storymaker Implements "Picture-Book…, Draws word-wrapped stroked subtitles inside a TikTok dark pill badge., Computes (scale, offset_x, offset_y) for subtle micro-motion push-in. Scale:… (+24 more)
 
 ### Community 29 - "main"
 Cohesion: 0.24
@@ -159,23 +163,21 @@ Cohesion: 0.13
 Nodes (3): parse_multipart_request(), Zero-dependency multipart/form-data parser for file uploads., TestItemsManager
 
 ### Community 34 - "SpeechCueAlignEngine"
-Cohesion: 0.05
-Nodes (47): AlignmentResult, main(), Path, Parse script file into structured [(scene_title, scene_text)] entries., Represents a segment of speech with timing information., Align speech segments from audio with script scenes based on narrative cadence.…, Export alignment to both human-readable text and JSON., Result of aligning speech segments with visual scenes. (+39 more)
+Cohesion: 0.10
+Nodes (12): main(), Path, Parse script file into structured [(scene_title, scene_text)] entries., Align speech segments from audio with script scenes based on narrative cadence.…, Export alignment to both human-readable text and JSON., Analyzes voice-over audio and aligns it with scene scripts to determine optimal…, Get exact duration of audio file in seconds via ffprobe or wave/fallback., Parses script content string into structured [(scene_title, scene_text)]… (+4 more)
 
 ## Knowledge Gaps
-- **56 isolated node(s):** `install.sh script`, `GIT_TERMINAL_PROMPT`, `fb-2minutes-storymaker`, `setup_local.sh script`, `includeFiles` (+51 more)
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 270 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **12 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **74 isolated node(s):** `install.sh script`, `GIT_TERMINAL_PROMPT`, `fb-2minutes-storymaker`, `setup_local.sh script`, `includeFiles` (+69 more)
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 289 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **11 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `SpeechCueAlignEngine` connect `SpeechCueAlignEngine` to `StorymakerRequestHandler`, `Speech-Cue Align Engine`, `TestAlignEngine`, `termux_ui.py`, `server.py`?**
-  _High betweenness centrality (0.100) - this node is a cross-community bridge._
+- **Why does `SpeechCueAlignEngine` connect `SpeechCueAlignEngine` to `StorymakerRequestHandler`, `Speech-Cue Align Engine`, `termux_ui.py`, `server.py`, `VisualChoreographer`?**
+  _High betweenness centrality (0.092) - this node is a cross-community bridge._
 - **Why does `ItemsManager` connect `ItemsManager` to `server.py`, `TestItemsManager`?**
-  _High betweenness centrality (0.087) - this node is a cross-community bridge._
-- **Why does `VisualChoreographer` connect `VisualChoreographer` to `SpeechCueAlignEngine`, `server.py`?**
-  _High betweenness centrality (0.078) - this node is a cross-community bridge._
+  _High betweenness centrality (0.080) - this node is a cross-community bridge._
 - **Are the 11 inferred relationships involving `SpeechCueAlignEngine` (e.g. with `run_pipeline()` and ``SpeechCueAlignEngine``) actually correct?**
   _`SpeechCueAlignEngine` has 11 INFERRED edges - model-reasoned connections that need verification._
 - **Are the 4 inferred relationships involving `VisualChoreographer` (e.g. with `SceneTimeline` and `VideoExporter`) actually correct?**
@@ -184,3 +186,5 @@ _Questions this graph is uniquely positioned to answer:_
   _`ItemsManager` has 2 INFERRED edges - model-reasoned connections that need verification._
 - **Are the 7 inferred relationships involving `SceneDurationDirector` (e.g. with `run_pipeline()` and `AlignmentResult`) actually correct?**
   _`SceneDurationDirector` has 7 INFERRED edges - model-reasoned connections that need verification._
+- **What connects `install.sh script`, `GIT_TERMINAL_PROMPT`, `fb-2minutes-storymaker` to the rest of the system?**
+  _74 weakly-connected nodes found - possible documentation gaps or missing edges._

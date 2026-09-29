@@ -16,7 +16,7 @@
   "14": "duration_director/README.md",
   "15": "exporter/README.md",
   "16": "🚀 Automated Publishing Pipeline: Google Flow -> Vercel / GitHub Actions -> Make.com",
-  "17": "generate_scene_image",
+  "17": "generate_sample_assets.py",
   "18": "vercel.json",
   "19": "TestApiGatewayNode",
   "20": "trigger.js",
@@ -26,10 +26,10 @@
   "24": "TestServerlessApp",
   "25": "handler",
   "26": "GOOGLE_STUDIO_GUIDE.md",
+  "27": "🗄️ Turso + Make.com Integration Guide",
   "28": "VisualChoreographer",
   "29": "main",
   "30": "package_images_to_zip",
   "31": "TestItemsManager",
-  "33": "TestAlignEngine",
   "34": "SpeechCueAlignEngine"
 }
