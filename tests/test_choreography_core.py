@@ -60,9 +60,9 @@ class TestChoreographyCore(unittest.TestCase):
         self.assertEqual(frame_with_captions.size, (1080, 1920))
         self.assertEqual(frame_without_captions.size, (1080, 1920))
 
-        # Pixel data in caption area (around lower third y=1497) should differ
-        crop_with = frame_with_captions.crop((440, 1460, 640, 1540)).tobytes()
-        crop_without = frame_without_captions.crop((440, 1460, 640, 1540)).tobytes()
+        # Pixel data in caption area (around lower third y=1382 at 72% height) should differ
+        crop_with = frame_with_captions.crop((440, 1350, 640, 1430)).tobytes()
+        crop_without = frame_without_captions.crop((440, 1350, 640, 1430)).tobytes()
         self.assertNotEqual(crop_with, crop_without, "Frame with captions should differ from frame without captions in the caption area.")
 
     def test_cross_dissolve_transition(self):
@@ -102,6 +102,22 @@ class TestChoreographyCore(unittest.TestCase):
         self.assertEqual(chunk_early, "One two three four five six seven")
         self.assertEqual(chunk_mid, "eight nine ten eleven twelve thirteen fourteen")
         self.assertEqual(chunk_late, "fifteen")
+
+    def test_hormozi_caption_chunk_and_styles(self):
+        # 1. Test 1-2 word chunking with spring-pop scale
+        text = "In a quiet village nestled between rolling hills"
+        chunk_t0, scale_t0 = self.choreographer.get_hormozi_caption_chunk(text, scene_t=0.01, duration=5.0)
+        self.assertIn("In a", chunk_t0)
+        self.assertGreater(scale_t0, 1.0)  # Punchy bounce at the very start
+
+        # 2. Test rendering all 4 presets without exceptions
+        for preset in ["gold", "mint", "cyan", "white"]:
+            frame = self.choreographer.render_frame(
+                self.scene, scene_t=1.0, total_t=1.0, total_duration=21.0,
+                show_captions=True, caption_style=preset
+            )
+            self.assertEqual(frame.size, (1080, 1920))
+            self.assertEqual(frame.mode, "RGB")
 
 
 if __name__ == "__main__":

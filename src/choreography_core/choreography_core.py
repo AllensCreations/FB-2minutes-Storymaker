@@ -250,11 +250,41 @@ class VisualChoreographer:
             bg.paste(scaled_img, (final_x, final_y))
         return bg.convert("RGB")
 
+    CAPTION_PRESETS = {
+        "gold": {
+            "font_color": (255, 230, 0),       # #FFE600 Bold Hormozi Yellow
+            "stroke_color": (0, 0, 0),
+            "stroke_width": 8,
+            "shadow_color": (0, 0, 0, 230),
+            "font_size": 52
+        },
+        "mint": {
+            "font_color": (0, 255, 157),       # #00FF9D Cyber Neon Mint
+            "stroke_color": (0, 0, 0),
+            "stroke_width": 8,
+            "shadow_color": (0, 0, 0, 230),
+            "font_size": 52
+        },
+        "cyan": {
+            "font_color": (0, 229, 255),       # #00E5FF Electric Ice Cyan
+            "stroke_color": (0, 0, 0),
+            "stroke_width": 8,
+            "shadow_color": (0, 0, 0, 230),
+            "font_size": 52
+        },
+        "white": {
+            "font_color": (255, 255, 255),     # Classic White
+            "stroke_color": (0, 0, 0),
+            "stroke_width": 7,
+            "shadow_color": (0, 0, 0, 230),
+            "font_size": 50
+        }
+    }
+
     @staticmethod
     def get_timed_caption_chunk(text: str, scene_t: float, duration: float, words_per_chunk: int = 7) -> str:
         """
-        Splits long scene text into dynamic timed sub-caption chunks (TikTok style)
-        so long narrations don't overflow the 9:16 vertical canvas or get truncated.
+        Legacy phrase chunking for backwards compatibility.
         """
         words = text.strip().split()
         if len(words) <= words_per_chunk:
@@ -268,6 +298,114 @@ class VisualChoreographer:
         chunk_idx = min(int(prog * len(chunks)), len(chunks) - 1)
         return chunks[chunk_idx]
 
+    @staticmethod
+    def get_hormozi_caption_chunk(text: str, scene_t: float, duration: float) -> Tuple[str, float]:
+        """
+        Splits scene text into 1-2 word punchy chunks with character-weighted timing.
+        Returns: (active_chunk_text, scale_multiplier_for_spring_pop)
+        """
+        words = [w for w in text.strip().split() if w]
+        if not words:
+            return "", 1.0
+
+        # Group short words into pairs (1-2 words per pop)
+        chunks = []
+        i = 0
+        while i < len(words):
+            word = words[i]
+            if len(word) <= 3 and i + 1 < len(words):
+                chunks.append(f"{word} {words[i+1]}")
+                i += 2
+            elif i + 1 < len(words) and len(word) + len(words[i+1]) <= 11 and not (word.endswith((".", "!", "?", ","))):
+                chunks.append(f"{word} {words[i+1]}")
+                i += 2
+            else:
+                chunks.append(word)
+                i += 1
+
+        if not chunks:
+            return "", 1.0
+
+        # Calculate character-based weights with pause for punctuation
+        weights = []
+        for ch in chunks:
+            w = len(ch)
+            if ch.endswith((",", ";", ":")):
+                w += 2
+            elif ch.endswith((".", "!", "?")):
+                w += 4
+            weights.append(max(w, 2))
+
+        total_weight = sum(weights)
+        dur = max(duration, 0.1)
+
+        # Allocate time ranges
+        time_ranges = []
+        cur_t = 0.0
+        for idx, ch in enumerate(chunks):
+            ch_dur = (weights[idx] / total_weight) * dur
+            time_ranges.append((ch, cur_t, cur_t + ch_dur))
+            cur_t += ch_dur
+
+        # Find active chunk at scene_t
+        active_chunk = chunks[-1]
+        active_start = time_ranges[-1][1]
+        for ch, start_t, end_t in time_ranges:
+            if start_t <= scene_t < end_t:
+                active_chunk = ch
+                active_start = start_t
+                break
+
+        # Calculate punchy spring pop animation (1.25x -> 1.0x over first 130ms)
+        elapsed = max(0.0, scene_t - active_start)
+        pop_duration = 0.13
+        if elapsed < pop_duration:
+            prog = elapsed / pop_duration
+            scale = 1.0 + 0.25 * math.cos(prog * math.pi * 0.5) * (1.0 - prog)
+        else:
+            scale = 1.0
+
+        return active_chunk, scale
+
+    def _draw_hormozi_caption(
+        self,
+        draw: ImageDraw.ImageDraw,
+        text: str,
+        scale: float,
+        style_key: str = "gold"
+    ):
+        """Draws 1-2 word punchy caption at lower third (~72% down) with outline & shadow."""
+        if not text:
+            return
+        style = self.CAPTION_PRESETS.get(style_key, self.CAPTION_PRESETS["gold"])
+        font_size = int(style["font_size"] * scale)
+        font = self._get_font(font_size)
+        x = self.width // 2
+        y = int(self.height * 0.72)
+        stroke_w = max(2, int(style["stroke_width"] * scale))
+        shadow_offset = max(2, int(4 * scale))
+
+        # 1. Soft drop shadow
+        draw.text(
+            (x + shadow_offset, y + shadow_offset),
+            text,
+            font=font,
+            fill=style["shadow_color"],
+            stroke_width=stroke_w + 2,
+            stroke_fill=style["shadow_color"],
+            anchor="mm"
+        )
+        # 2. Main stroke and font fill
+        draw.text(
+            (x, y),
+            text,
+            font=font,
+            fill=style["font_color"],
+            stroke_width=stroke_w,
+            stroke_fill=style["stroke_color"],
+            anchor="mm"
+        )
+
     def render_frame(
         self,
         scene: SceneTimeline,
@@ -276,15 +414,16 @@ class VisualChoreographer:
         total_duration: float = 21.0,
         show_captions: bool = True,
         prev_scene: Optional[SceneTimeline] = None,
-        transition_duration: float = 0.45
+        transition_duration: float = 0.45,
+        caption_style: str = "gold"
     ) -> Image.Image:
         """
-        Renders a single 1080x1920 video frame matching HTML5 canvas:
+        Renders a single video frame matching HTML5 canvas:
         - Full-bleed edge-to-edge ambient glow backdrop
         - Top/bottom vignette gradient
         - Smooth cinematic cross-dissolve transition between scenes with continuous motion
-        - Subtle Ken Burns push-in & drift
-        - Floating white caption directly on the video
+        - Subtle Ken Burns push-in
+        - 1-2 Word Punchy Hormozi Spring Pop caption directly over lower third (72% down)
         - 6px blue story progress bar at very bottom
         """
         # 1. Render current scene image with Ken Burns push-in & drift
@@ -301,21 +440,15 @@ class VisualChoreographer:
         else:
             frame = cur_frame
 
-        # 3. Clean floating white caption directly over the lower third
+        # 3. 1-2 Word Punchy Spring Pop Caption directly over lower third (72% down)
         if show_captions and scene.text:
             draw = ImageDraw.Draw(frame)
-            active_caption = self.get_timed_caption_chunk(scene.text, scene_t, scene.duration)
-            self._draw_text_wrapped(
+            active_chunk, pop_scale = self.get_hormozi_caption_chunk(scene.text, scene_t, scene.duration)
+            self._draw_hormozi_caption(
                 draw=draw,
-                text=active_caption,
-                x=self.width // 2,
-                y=int(self.height * 0.78),
-                max_width=self.width - 160,
-                font_color=(255, 255, 255),
-                stroke_color=(0, 0, 0),
-                stroke_width=4,
-                font_size=42,
-                line_height=56
+                text=active_chunk,
+                scale=pop_scale,
+                style_key=caption_style
             )
 
         # 4. Subtle overall story progress bar at very bottom (matching 6px canvas progress bar)

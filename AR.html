@@ -224,6 +224,12 @@
               <span class="w-2 h-2 rounded-full bg-blue-500"></span> Canvas Preview (9:16)
             </h2>
             <div class="flex items-center gap-1.5">
+              <select id="captionStyleSelect" class="bg-gray-900 border border-amber-500/40 text-amber-300 text-[11px] font-semibold rounded-lg px-2 py-1 focus:outline-none focus:border-amber-400 cursor-pointer" title="Caption Style Preset">
+                <option value="gold" selected>👑 Hormozi Gold</option>
+                <option value="mint">🌿 Neon Mint</option>
+                <option value="cyan">⚡ Electric Cyan</option>
+                <option value="white">🎬 Classic White</option>
+              </select>
               <select id="transitionSelect" class="bg-gray-900 border border-gray-700 text-gray-300 text-[11px] rounded-lg px-2 py-1 focus:outline-none focus:border-blue-500 cursor-pointer" title="Scene Transition Style">
                 <option value="cross_dissolve">🎬 Dissolve</option>
                 <option value="cut">✂️ Cut</option>
@@ -901,11 +907,16 @@
     const exportProgress = document.getElementById('exportProgress');
     const exportBar = document.getElementById('exportBar');
     const exportPct = document.getElementById('exportPct');
-    const exportText = document.getElementById('exportText');
-    const captionToggleBtn = document.getElementById('captionToggleBtn');
-    const captionToggleText = document.getElementById('captionToggleText');
-    const transitionSelect = document.getElementById('transitionSelect');
+    const captionStyleSelect = document.getElementById('captionStyleSelect');
     let showCaptions = true;
+    let currentCaptionStyle = 'gold';
+
+    if (captionStyleSelect) {
+      captionStyleSelect.addEventListener('change', (e) => {
+        currentCaptionStyle = e.target.value;
+        drawFrame(audioElement.currentTime || 0);
+      });
+    }
 
     if (transitionSelect) {
       transitionSelect.addEventListener('change', () => {
@@ -990,12 +1001,23 @@
         statusEl.textContent = "Unpacking ZIP archive...";
         const zip = await JSZip.loadAsync(zipFile);
         const imageFiles = [];
+        const seenFnames = new Set();
+        let internalDups = 0;
         for (const filename of Object.keys(zip.files)) {
           if (!zip.files[filename].dir && !filename.startsWith('__MACOSX') && !filename.startsWith('.')) {
             if (filename.match(/\.(png|jpe?g|webp)$/i)) {
-              imageFiles.push(filename);
+              const baseName = filename.split('/').pop().toLowerCase();
+              if (seenFnames.has(baseName)) {
+                internalDups++;
+              } else {
+                seenFnames.add(baseName);
+                imageFiles.push(filename);
+              }
             }
           }
+        }
+        if (internalDups > 0) {
+          showToast(`⚠️ Warning: ${internalDups} duplicate image(s) skipped in ZIP.`);
         }
         imageFiles.sort();
         for (const fname of imageFiles) {
@@ -1877,12 +1899,12 @@
         }
       }
 
-      // Clean floating white captions directly on video (matching user screenshot)
+      // Hormozi Word-by-Word Spring Pop Captions (with choice of preset styles)
       if (showCaptions && activeScene.text) {
         const sceneDur = Math.max((activeScene.end - activeScene.start) || 0.1, 0.1);
         const sceneT = Math.max(0, currentTime - activeScene.start);
-        const activeCaption = getTimedCaptionChunk(activeScene.text, sceneT, sceneDur);
-        drawFloatingCaption(ctx, activeCaption, canvas.width / 2, canvas.height * 0.78, canvas.width - 120, 44);
+        const chunkInfo = getHormoziCaptionChunk(activeScene.text, sceneT, sceneDur);
+        drawHormoziPopCaption(ctx, chunkInfo.text, chunkInfo.scale, currentCaptionStyle, canvas.width, canvas.height);
       }
 
       // Subtle story progress bar at very bottom
@@ -1891,6 +1913,146 @@
         ctx.fillStyle = '#3b82f6';
         ctx.fillRect(0, canvas.height - 6, canvas.width * overallProg, 6);
       }
+    }
+
+    const CAPTION_STYLES = {
+      gold: {
+        fill: '#FFE600',       // Bold Hormozi Yellow
+        stroke: '#000000',
+        strokeWidth: 8,
+        shadowColor: 'rgba(0, 0, 0, 0.9)',
+        shadowBlur: 14,
+        shadowOffset: 4,
+        fontSize: 52
+      },
+      mint: {
+        fill: '#00FF9D',       // Cyber Neon Mint
+        stroke: '#000000',
+        strokeWidth: 8,
+        shadowColor: 'rgba(0, 0, 0, 0.9)',
+        shadowBlur: 14,
+        shadowOffset: 4,
+        fontSize: 52
+      },
+      cyan: {
+        fill: '#00E5FF',       // Electric Ice Cyan
+        stroke: '#000000',
+        strokeWidth: 8,
+        shadowColor: 'rgba(0, 0, 0, 0.9)',
+        shadowBlur: 14,
+        shadowOffset: 4,
+        fontSize: 52
+      },
+      white: {
+        fill: '#FFFFFF',       // Classic Crisp White
+        stroke: '#000000',
+        strokeWidth: 7,
+        shadowColor: 'rgba(0, 0, 0, 0.9)',
+        shadowBlur: 14,
+        shadowOffset: 4,
+        fontSize: 50
+      }
+    };
+
+    function getHormoziCaptionChunk(text, sceneTime, sceneDuration) {
+      if (!text || !text.trim()) return { text: '', scale: 1.0 };
+      const words = text.trim().split(/\s+/).filter(Boolean);
+      if (words.length === 0) return { text: '', scale: 1.0 };
+
+      // Group short words into punchy 1-2 word chunks
+      const chunks = [];
+      let i = 0;
+      while (i < words.length) {
+        const word = words[i];
+        if (word.length <= 3 && i + 1 < words.length) {
+          chunks.push(`${word} ${words[i + 1]}`);
+          i += 2;
+        } else if (i + 1 < words.length && (word.length + words[i + 1].length) <= 11 && !(/[.!?,]$/.test(word))) {
+          chunks.push(`${word} ${words[i + 1]}`);
+          i += 2;
+        } else {
+          chunks.push(word);
+          i += 1;
+        }
+      }
+
+      if (chunks.length === 0) return { text: '', scale: 1.0 };
+
+      // Character-based weights with punctuation pauses
+      const weights = chunks.map(ch => {
+        let w = ch.length;
+        if (/[,;:]$/.test(ch)) w += 2;
+        else if (/[.!?]$/.test(ch)) w += 4;
+        return Math.max(w, 2);
+      });
+
+      const totalWeight = weights.reduce((a, b) => a + b, 0);
+      const dur = Math.max(sceneDuration || 0.1, 0.1);
+
+      let curT = 0;
+      const timeRanges = chunks.map((ch, idx) => {
+        const chDur = (weights[idx] / totalWeight) * dur;
+        const range = { chunk: ch, start: curT, end: curT + chDur };
+        curT += chDur;
+        return range;
+      });
+
+      let activeChunk = chunks[chunks.length - 1];
+      let activeStart = timeRanges[timeRanges.length - 1].start;
+      for (const r of timeRanges) {
+        if (sceneTime >= r.start && sceneTime < r.end) {
+          activeChunk = r.chunk;
+          activeStart = r.start;
+          break;
+        }
+      }
+
+      // Punchy spring pop animation (1.25x -> 1.0x over first 130ms)
+      const elapsed = Math.max(0, sceneTime - activeStart);
+      const popDuration = 0.13;
+      let scale = 1.0;
+      if (elapsed < popDuration) {
+        const prog = elapsed / popDuration;
+        scale = 1.0 + 0.25 * Math.cos(prog * Math.PI * 0.5) * (1.0 - prog);
+      }
+
+      return { text: activeChunk, scale };
+    }
+
+    function drawHormoziPopCaption(context, text, scale, styleKey, canvasWidth, canvasHeight) {
+      if (!text) return;
+      const style = CAPTION_STYLES[styleKey] || CAPTION_STYLES.gold;
+      const fontSize = Math.round(style.fontSize * scale);
+
+      context.save();
+      context.font = `900 ${fontSize}px "Impact", "Arial Black", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`;
+      context.textAlign = 'center';
+      context.textBaseline = 'middle';
+
+      const x = canvasWidth / 2;
+      const y = canvasHeight * 0.72; // Lower third position (72% from top)
+      const strokeW = Math.max(2, Math.round(style.strokeWidth * scale));
+      const shadowOffset = Math.max(2, Math.round(4 * scale));
+
+      // 1. Soft drop shadow
+      context.shadowColor = style.shadowColor;
+      context.shadowBlur = style.shadowBlur;
+      context.shadowOffsetX = shadowOffset;
+      context.shadowOffsetY = shadowOffset;
+
+      // 2. Thick black outline
+      context.lineWidth = strokeW;
+      context.strokeStyle = style.stroke;
+      context.lineJoin = 'round';
+      context.miterLimit = 2;
+      context.strokeText(text, x, y);
+
+      // 3. Vibrant colored text fill
+      context.shadowColor = 'transparent';
+      context.fillStyle = style.fill;
+      context.fillText(text, x, y);
+
+      context.restore();
     }
 
     function getTimedCaptionChunk(text, sceneTime, sceneDuration, wordsPerChunk = 7) {
@@ -2623,7 +2785,8 @@
               db_app_secret: dbAppSecret,
               db_refresh_token: dbRefreshToken,
               db_token: dbToken,
-              show_captions: typeof showCaptions !== 'undefined' ? showCaptions : true
+              show_captions: typeof showCaptions !== 'undefined' ? showCaptions : true,
+              caption_style: currentCaptionStyle || 'gold'
             })
           });
 
@@ -3470,7 +3633,10 @@
         const res = await fetch(`/api/items/${itemId}/render`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ show_captions: true })
+          body: JSON.stringify({
+            show_captions: typeof showCaptions !== 'undefined' ? showCaptions : true,
+            caption_style: currentCaptionStyle || 'gold'
+          })
         });
         const data = await res.json();
         if (!data.ok) {
@@ -3553,6 +3719,36 @@
             body: formData
           });
           const data = await res.json();
+
+          if (res.status === 409 || data.is_duplicate) {
+            const confirmed = confirm(`⚠️ Duplicate Story Package Detected:\n\n${data.message || 'A story package with this name already exists in your Story Packages queue.'}\n\nDo you want to overwrite and replace the existing package?`);
+            if (confirmed) {
+              const retryForm = new FormData();
+              if (isZip) {
+                retryForm.append('file', files[0]);
+              } else {
+                const defaultTitle = files[0].name.replace(/\.[^/.]+$/, '').replace(/[_\-\d]+$/, '').trim() || 'Uploaded Images';
+                retryForm.append('title', defaultTitle);
+                for (const f of files) retryForm.append('file', f);
+              }
+              retryForm.append('replace', 'true');
+              retryForm.append('force', 'true');
+              if (data.item_id) retryForm.append('item_id', data.item_id);
+              const retryRes = await fetch('/api/upload_item', {
+                method: 'POST',
+                body: retryForm
+              });
+              const retryData = await retryRes.json();
+              if (retryData.ok) {
+                showToast(`✓ Story package "${retryData.item?.title || 'Package'}" replaced successfully!`);
+                loadItemsList();
+              } else {
+                alert("Replace failed: " + (retryData.error || "Unknown error"));
+              }
+            }
+            return;
+          }
+
           if (data.ok) {
             showToast(`Story package "${data.item?.title || 'Package'}" uploaded!`);
             loadItemsList();
@@ -3752,6 +3948,36 @@
             body: formData
           });
           const data = await res.json();
+
+          if (res.status === 409 || data.is_duplicate) {
+            const confirmed = confirm(`⚠️ Duplicate Story Package Detected:\n\n${data.message || 'A story package with this name already exists in your Story Packages queue.'}\n\nDo you want to overwrite and replace the existing package?`);
+            if (confirmed) {
+              const retryForm = new FormData();
+              retryForm.append('file', fileToUpload);
+              if (jsonText) retryForm.append('json', jsonText);
+              if (titleText) retryForm.append('title', titleText);
+              retryForm.append('replace', 'true');
+              retryForm.append('force', 'true');
+              if (data.item_id) retryForm.append('item_id', data.item_id);
+              const retryRes = await fetch('/api/upload_item', {
+                method: 'POST',
+                body: retryForm
+              });
+              const retryData = await retryRes.json();
+              if (retryData.ok) {
+                closeZipJsonModal();
+                showToast(`✨ Story "${retryData.item?.title || 'Package'}" replaced successfully!`);
+                loadItemsList();
+                return;
+              } else {
+                alert("Replace failed: " + (retryData.error || "Unknown server error"));
+              }
+            }
+            submitZipJsonBtn.disabled = false;
+            submitZipJsonBtn.innerHTML = '<span>🚀</span> Add to Item Queue';
+            return;
+          }
+
           if (data.ok) {
             closeZipJsonModal();
             showToast(`✨ Story "${data.item?.title || 'Package'}" added to Item Queue!`);
@@ -3793,7 +4019,10 @@
           const res = await fetch('/api/render', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ show_captions: showCaptions })
+            body: JSON.stringify({
+              show_captions: showCaptions,
+              caption_style: currentCaptionStyle || 'gold'
+            })
           });
           const data = await res.json();
           if (data.ok) {

@@ -42,13 +42,14 @@ class VideoExporter:
         audio_path: Path,
         output_path: Path,
         progress_callback: Optional[Callable[[float, str], None]] = None,
-        show_captions: bool = True
+        show_captions: bool = True,
+        caption_style: str = "gold"
     ) -> Path:
         """
         Renders the complete story video and exports it to output_path.
         """
         output_path.parent.mkdir(parents=True, exist_ok=True)
-        print(f"[Video Exporter] Starting video export to: {output_path} (captions: {'ON' if show_captions else 'OFF'})")
+        print(f"[Video Exporter] Starting video export to: {output_path} (captions: {'ON' if show_captions else 'OFF'}, style: {caption_style})")
 
         choreographer = VisualChoreographer(width=timeline.width, height=timeline.height)
         fps = timeline.fps or self.fps
@@ -108,7 +109,8 @@ class VideoExporter:
                     total_duration=total_duration,
                     show_captions=show_captions,
                     prev_scene=prev_scene,
-                    transition_duration=0.45
+                    transition_duration=0.45,
+                    caption_style=caption_style
                 )
 
                 # Write raw RGB bytes to ffmpeg stdin

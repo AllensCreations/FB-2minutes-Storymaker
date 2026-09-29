@@ -146,7 +146,7 @@ def get_project_assets_info():
     }
 
 
-def run_pipeline_thread(show_captions: bool = True):
+def run_pipeline_thread(show_captions: bool = True, caption_style: str = "gold"):
     """Background thread function that executes the full rendering pipeline."""
     global RENDER_STATE
     with RENDER_LOCK:
@@ -157,6 +157,7 @@ def run_pipeline_thread(show_captions: bool = True):
         RENDER_STATE["video_ready"] = False
         RENDER_STATE["started_at"] = time.time()
         RENDER_STATE["show_captions"] = show_captions
+        RENDER_STATE["caption_style"] = caption_style
 
     try:
         audio_path = VOICE_DIR / "narration.mp3"
@@ -201,7 +202,8 @@ def run_pipeline_thread(show_captions: bool = True):
             audio_path=audio_path,
             output_path=output_path,
             progress_callback=on_render_progress,
-            show_captions=show_captions
+            show_captions=show_captions,
+            caption_style=caption_style
         )
 
         with RENDER_LOCK:
@@ -222,7 +224,7 @@ ITEM_RENDER_STATES = {}
 ITEM_RENDER_LOCK = threading.Lock()
 
 
-def render_story_item_thread(item_id: str, show_captions: bool = True):
+def render_story_item_thread(item_id: str, show_captions: bool = True, caption_style: str = "gold"):
     """Background worker that renders an item from the Items Queue using FFmpeg."""
     global ITEM_RENDER_STATES
     item = default_manager.get_item(item_id)
@@ -354,7 +356,8 @@ def render_story_item_thread(item_id: str, show_captions: bool = True):
             audio_path=audio_path,
             output_path=output_path,
             progress_callback=on_item_render_progress,
-            show_captions=show_captions
+            show_captions=show_captions,
+            caption_style=caption_style
         )
 
         # Log into local archive manifest!
@@ -517,7 +520,8 @@ def auto_publish_story_item_thread(
     item_id: str,
     db_cfg: Dict[str, str],
     gas_url: str,
-    show_captions: bool = True
+    show_captions: bool = True,
+    caption_style: str = "gold"
 ):
     """
     End-to-end background publishing pipeline:
@@ -620,7 +624,8 @@ def auto_publish_story_item_thread(
             audio_path=audio_path,
             output_path=output_path,
             progress_callback=on_progress,
-            show_captions=show_captions
+            show_captions=show_captions,
+            caption_style=caption_style
         )
 
         # Step 2: Upload to Dropbox
@@ -870,11 +875,14 @@ class StorymakerRequestHandler(SimpleHTTPRequestHandler):
             global RENDER_STATE
             content_length = int(self.headers.get("Content-Length", 0))
             show_captions = True
+            caption_style = "gold"
             if content_length > 0:
                 try:
                     payload = json.loads(self.rfile.read(content_length).decode("utf-8"))
                     if "show_captions" in payload:
                         show_captions = bool(payload["show_captions"])
+                    if "caption_style" in payload:
+                        caption_style = str(payload["caption_style"]).strip().lower()
                 except Exception:
                     pass
 
@@ -882,9 +890,9 @@ class StorymakerRequestHandler(SimpleHTTPRequestHandler):
                 if RENDER_STATE["status"] == "running":
                     self.send_json({"ok": False, "message": "A render is already in progress."}, status=409)
                     return
-            thread = threading.Thread(target=run_pipeline_thread, args=(show_captions,), daemon=True)
+            thread = threading.Thread(target=run_pipeline_thread, args=(show_captions, caption_style), daemon=True)
             thread.start()
-            self.send_json({"ok": True, "message": f"Render job started (captions: {'ON' if show_captions else 'OFF'})."})
+            self.send_json({"ok": True, "message": f"Render job started (captions: {'ON' if show_captions else 'OFF'}, style: {caption_style})."})
 
         elif path == "/api/generate-assets":
             try:
@@ -1035,6 +1043,7 @@ class StorymakerRequestHandler(SimpleHTTPRequestHandler):
                     script_text = fields.get("script") or fields.get("script_text")
                     json_text = fields.get("json") or fields.get("json_code") or fields.get("story_json")
                     replace_flag = fields.get("replace", "").lower() in ["true", "1", "yes"]
+                    force_flag = fields.get("force", "").lower() in ["true", "1", "yes"]
                     target_item_id = fields.get("item_id") or fields.get("id") or fields.get("replace_id")
 
                     file_list = files.get("_list", [])
@@ -1050,6 +1059,19 @@ class StorymakerRequestHandler(SimpleHTTPRequestHandler):
                         if img_candidates:
                             # Natural sort
                             img_candidates.sort(key=lambda x: natural_sort_key(x["filename"]))
+                            # Duplicate check for images
+                            if not replace_flag and not force_flag and not target_item_id and title:
+                                existing_img_item = default_manager.find_item_by_title_or_id(title)
+                                if existing_img_item:
+                                    self.send_json({
+                                        "ok": False,
+                                        "is_duplicate": True,
+                                        "item_id": existing_img_item["id"],
+                                        "title": existing_img_item.get("title", title),
+                                        "message": f"Duplicate detected: A story package titled '{existing_img_item.get('title', title)}' already exists. Overwrite and replace?"
+                                    }, status=409)
+                                    return
+
                             item_meta = default_manager.save_images_item(
                                 images=[(f["filename"], f["bytes"]) for f in img_candidates],
                                 title=title,
@@ -1070,6 +1092,8 @@ class StorymakerRequestHandler(SimpleHTTPRequestHandler):
 
                 elif "application/zip" in content_type or "application/octet-stream" in content_type:
                     zip_bytes = body
+                    replace_flag = False
+                    force_flag = False
 
                 if not zip_bytes:
                     self.send_json({"ok": False, "error": "No ZIP file or image assets found in upload request."}, status=400)
@@ -1082,6 +1106,21 @@ class StorymakerRequestHandler(SimpleHTTPRequestHandler):
                         matched_item = default_manager.get_item(target_item_id)
                     elif title:
                         matched_item = default_manager.find_item_by_title_or_id(title)
+                elif not force_flag:
+                    # Duplicate check for ZIP upload: verify by title or zip stem
+                    candidate_title = title or Path(filename).stem.replace("_", " ").replace("-", " ").strip()
+                    if candidate_title and candidate_title.lower() != "story pack":
+                        matched_item_dup = default_manager.find_item_by_title_or_id(candidate_title)
+                        if matched_item_dup:
+                            self.send_json({
+                                "ok": False,
+                                "is_duplicate": True,
+                                "item_id": matched_item_dup["id"],
+                                "title": matched_item_dup.get("title", candidate_title),
+                                "filename": filename,
+                                "message": f"Duplicate detected: A story package titled '{matched_item_dup.get('title', candidate_title)}' already exists in your Story Packages queue. Overwrite and replace it?"
+                            }, status=409)
+                            return
 
                 if matched_item:
                     item_meta = default_manager.update_item(
@@ -1373,12 +1412,15 @@ class StorymakerRequestHandler(SimpleHTTPRequestHandler):
             try:
                 item_id = path.replace("/api/items/", "").replace("/render", "").strip("/")
                 show_captions = True
+                caption_style = "gold"
                 content_length = int(self.headers.get("Content-Length", 0))
                 if content_length > 0:
                     try:
                         payload = json.loads(self.rfile.read(content_length).decode("utf-8"))
                         if "show_captions" in payload:
                             show_captions = bool(payload["show_captions"])
+                        if "caption_style" in payload:
+                            caption_style = str(payload["caption_style"]).strip().lower()
                     except Exception:
                         pass
 
@@ -1389,9 +1431,9 @@ class StorymakerRequestHandler(SimpleHTTPRequestHandler):
                         return
                     ITEM_RENDER_STATES[item_id] = {"status": "starting", "progress": 0.0}
 
-                t = threading.Thread(target=render_story_item_thread, args=(item_id, show_captions), daemon=True)
+                t = threading.Thread(target=render_story_item_thread, args=(item_id, show_captions, caption_style), daemon=True)
                 t.start()
-                self.send_json({"ok": True, "message": f"Background FFmpeg render started for item {item_id}."})
+                self.send_json({"ok": True, "message": f"Background FFmpeg render started for item {item_id} (captions: {'ON' if show_captions else 'OFF'}, style: {caption_style})."})
             except Exception as e:
                 self.send_json({"ok": False, "error": str(e)}, status=500)
 
@@ -1500,6 +1542,7 @@ class StorymakerRequestHandler(SimpleHTTPRequestHandler):
                 db_refresh_token = payload.get("db_refresh_token", "").strip()
                 db_token = payload.get("db_token", "").strip()
                 show_captions = bool(payload.get("show_captions", True))
+                caption_style = str(payload.get("caption_style", "gold")).strip().lower()
 
                 raw_title = item.get("title") or item_id
                 clean_slug = re.sub(r'[^a-zA-Z0-9_\-]+', '-', raw_title.lower()).strip('-')
@@ -1551,7 +1594,7 @@ class StorymakerRequestHandler(SimpleHTTPRequestHandler):
                 }
                 t = threading.Thread(
                     target=auto_publish_story_item_thread,
-                    args=(item_id, db_cfg, gas_url, show_captions),
+                    args=(item_id, db_cfg, gas_url, show_captions, caption_style),
                     daemon=True
                 )
                 t.start()
