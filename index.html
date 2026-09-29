@@ -185,7 +185,7 @@
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 items-stretch">
         
         <!-- 1. Input Panel (Promax) -->
-        <div class="space-y-4 promax-panel p-5 rounded-2xl flex flex-col justify-between">
+        <div class="space-y-4 promax-panel p-5 rounded-2xl flex flex-col justify-between min-w-0">
           <div class="space-y-4">
             <div class="flex items-center justify-between pb-1 border-b border-white/[0.06]">
               <h2 class="text-sm font-bold text-white tracking-tight flex items-center gap-2">
@@ -278,30 +278,43 @@
         </div>
 
         <!-- 2. Preview Canvas (Promax Cinema Monitor) -->
-        <div class="promax-panel p-5 rounded-2xl flex flex-col items-center justify-between space-y-4">
-          <div class="w-full flex items-center justify-between pb-1 border-b border-white/[0.06]">
-            <div class="flex items-center gap-2">
-              <span class="w-2.5 h-2.5 rounded-full bg-blue-500 shadow-[0_0_8px_#3b82f6]"></span>
-              <h2 id="previewHeading" class="text-sm font-bold text-white tracking-tight flex items-center gap-2">
+        <div class="promax-panel p-5 rounded-2xl flex flex-col items-center justify-between space-y-3.5 min-w-0">
+          <!-- Top Title Bar -->
+          <div class="w-full flex items-center justify-between pb-1.5 border-b border-white/[0.06]">
+            <div class="flex items-center gap-2 min-w-0">
+              <span class="w-2.5 h-2.5 rounded-full bg-blue-500 shadow-[0_0_8px_#3b82f6] flex-shrink-0"></span>
+              <h2 id="previewHeading" class="text-sm font-bold text-white tracking-tight truncate">
                 Canvas Preview
               </h2>
-              <span id="canvasAspectBadge" class="text-[10px] font-mono font-bold px-2 py-0.5 rounded-md bg-blue-500/15 text-blue-300 border border-blue-500/30">9:16 Short</span>
+              <span id="canvasAspectBadge" class="text-[10px] font-mono font-bold px-2 py-0.5 rounded-md bg-blue-500/15 text-blue-300 border border-blue-500/30 flex-shrink-0">9:16 Short</span>
             </div>
-            <div class="flex items-center gap-1.5">
-              <select id="captionStyleSelect" class="bg-gray-950/90 border border-amber-500/40 text-amber-300 text-[11px] font-bold rounded-lg px-2 py-1 focus:outline-none focus:border-amber-400 cursor-pointer shadow-sm hover:border-amber-400 transition" title="Caption Style Preset">
-                <option value="gold" selected>👑 Hormozi Gold</option>
-                <option value="mint">🌿 Neon Mint</option>
-                <option value="cyan">⚡ Electric Cyan</option>
-                <option value="white">🎬 Classic White</option>
+            <span class="text-[10px] font-mono text-zinc-400 flex-shrink-0">Step 2 of 3</span>
+          </div>
+
+          <!-- Compact Monitor Toolbar Controls (Zero Overflow, Promax Glass Pill) -->
+          <div class="w-full flex items-center justify-between gap-1.5 bg-black/40 p-1.5 rounded-xl border border-white/[0.06] shadow-inner">
+            <!-- Style Preset Selector -->
+            <div class="flex-1 min-w-0">
+              <select id="captionStyleSelect" class="w-full bg-gray-950/90 border border-amber-500/40 text-amber-300 text-[10px] sm:text-[11px] font-bold rounded-lg px-2 py-1 focus:outline-none focus:border-amber-400 cursor-pointer shadow-sm hover:border-amber-400 transition truncate" title="Hormozi Spring-Pop Style Preset">
+                <option value="gold" selected>👑 Gold</option>
+                <option value="mint">🌿 Mint</option>
+                <option value="cyan">⚡ Cyan</option>
+                <option value="white">🎬 White</option>
               </select>
-              <select id="transitionSelect" class="bg-gray-950/90 border border-gray-700 hover:border-gray-600 text-gray-300 text-[11px] rounded-lg px-2 py-1 focus:outline-none focus:border-blue-500 cursor-pointer shadow-sm transition" title="Scene Transition Style">
-                <option value="cross_dissolve">🎬 Dissolve</option>
-                <option value="cut">✂️ Cut</option>
-              </select>
-              <button id="captionToggleBtn" class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold border border-blue-500/50 bg-blue-500/20 text-blue-300 hover:bg-blue-500/30 transition select-none cursor-pointer">
-                <span>💬</span> <span id="captionToggleText">Captions: ON</span>
-              </button>
             </div>
+
+            <!-- Transition Style Selector -->
+            <div class="flex-shrink-0">
+              <select id="transitionSelect" class="bg-gray-950/90 border border-gray-700 hover:border-gray-600 text-gray-300 text-[10px] sm:text-[11px] font-medium rounded-lg px-2 py-1 focus:outline-none focus:border-blue-500 cursor-pointer shadow-sm transition" title="Scene Transition Style">
+                <option value="cross_dissolve">Dissolve</option>
+                <option value="cut">Cut</option>
+              </select>
+            </div>
+
+            <!-- Compact CC Toggle Pill -->
+            <button id="captionToggleBtn" type="button" class="flex-shrink-0 flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] sm:text-[11px] font-bold border border-blue-500/50 bg-blue-500/20 text-blue-300 hover:bg-blue-500/30 transition select-none cursor-pointer active:scale-[0.97]" title="Toggle Captions">
+              <span>💬</span> <span id="captionToggleText">CC ON</span>
+            </button>
           </div>
 
           <!-- Studio Video Monitor Viewport (Zero clipping, supports 9:16 and 4:5 seamlessly) -->
@@ -346,14 +359,17 @@
         </div>
 
         <!-- 3. Item Metadata & Publisher (Promax) -->
-        <div class="promax-panel p-5 rounded-2xl flex flex-col justify-between min-h-[540px] space-y-4">
+        <div class="promax-panel p-5 rounded-2xl flex flex-col justify-between min-h-[540px] space-y-4 min-w-0">
           <div class="space-y-3.5">
-            <div class="flex items-center justify-between pb-2 border-b border-white/[0.06]">
+            <div class="flex items-center justify-between pb-1.5 border-b border-white/[0.06]">
               <div class="flex items-center gap-2">
                 <span class="w-2.5 h-2.5 rounded-full bg-amber-500 shadow-[0_0_8px_#f59e0b]"></span>
                 <h2 class="text-sm font-bold text-white tracking-tight">3. Item Metadata &amp; Publisher</h2>
               </div>
-              <span id="metaSaveStatus" class="text-[10px] font-mono text-emerald-400 font-bold">✓ Ready</span>
+              <div class="flex items-center gap-2">
+                <span id="metaSaveStatus" class="text-[10px] font-mono text-emerald-400 font-bold">✓ Ready</span>
+                <span class="text-[10px] font-mono text-zinc-400">Step 3 of 3</span>
+              </div>
             </div>
 
             <!-- Social Published Lock Warning Banner -->
@@ -1013,11 +1029,11 @@
       captionToggleBtn.addEventListener('click', () => {
         showCaptions = !showCaptions;
         if (showCaptions) {
-          captionToggleBtn.className = 'flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-medium border border-blue-500/50 bg-blue-500/20 text-blue-300 hover:bg-blue-500/30 transition select-none';
-          captionToggleText.textContent = 'Captions: ON';
+          captionToggleBtn.className = 'flex-shrink-0 flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] sm:text-[11px] font-bold border border-blue-500/50 bg-blue-500/20 text-blue-300 hover:bg-blue-500/30 transition select-none cursor-pointer active:scale-[0.97]';
+          captionToggleText.textContent = 'CC ON';
         } else {
-          captionToggleBtn.className = 'flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-medium border border-gray-700 bg-gray-800 text-gray-400 hover:bg-gray-700 transition select-none';
-          captionToggleText.textContent = 'Captions: OFF';
+          captionToggleBtn.className = 'flex-shrink-0 flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] sm:text-[11px] font-bold border border-gray-700 bg-gray-800 text-gray-400 hover:bg-gray-700 transition select-none cursor-pointer active:scale-[0.97]';
+          captionToggleText.textContent = 'CC OFF';
         }
         drawFrame(audioElement.currentTime || 0);
       });
