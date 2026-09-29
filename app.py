@@ -139,6 +139,16 @@ application = wsgi_app
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 8000))
-    server = HTTPServer(('0.0.0.0', port), handler)
+    try:
+        from web.server import StorymakerRequestHandler
+        server_handler = StorymakerRequestHandler
+    except Exception:
+        server_handler = handler
+    try:
+        from http.server import ThreadingHTTPServer
+        server_cls = ThreadingHTTPServer
+    except Exception:
+        server_cls = HTTPServer
+    server = server_cls(('0.0.0.0', port), server_handler)
     print(f'Starting local server on http://localhost:{port}')
     server.serve_forever()

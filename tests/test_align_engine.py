@@ -15,7 +15,8 @@ class TestAlignEngine(unittest.TestCase):
 
     def setUp(self):
         self.engine = SpeechCueAlignEngine()
-        self.script_path = REPO_ROOT / "assets" / "scripts" / "story.txt"
+        default_script = REPO_ROOT / "assets" / "scripts" / "story_default.txt"
+        self.script_path = default_script if default_script.exists() else (REPO_ROOT / "assets" / "scripts" / "story.txt")
         self.audio_path = REPO_ROOT / "assets" / "voice-over" / "narration.mp3"
 
     def test_parse_script(self):

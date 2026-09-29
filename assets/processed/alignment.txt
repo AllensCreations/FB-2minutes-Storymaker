@@ -1,34 +1,54 @@
 # FB 2minutes Storymaker - Speech Alignment Export
 # Total Duration: 21.00 seconds
-# Number of Segments: 6
+# Number of Segments: 10
 
-Scene 1 [Scene 1: Introduction]:
-  Time: 0.00s - 4.02s (duration: 4.02s)
-  Text: In a quiet village nestled between rolling hills, a young baker named Elsa begins her day before sunrise.
+Scene 1 [Scene 1]:
+  Time: 0.00s - 2.50s (duration: 2.50s)
+  Text: What if your obsession with making everything 'flawless' is actually just a clever disguise for being terrified of being judged?
   Confidence: 0.95
 
-Scene 2 [Scene 2: The Problem]:
-  Time: 4.02s - 7.60s (duration: 3.58s)
-  Text: But today, the magical yeast that makes her bread rise has gone missing from her pantry.
+Scene 2 [Scene 2]:
+  Time: 2.50s - 5.00s (duration: 2.50s)
+  Text: This is The Perfectionism Trap, explained by Tobi.
   Confidence: 0.95
 
-Scene 3 [Scene 3: The Journey]:
-  Time: 7.60s - 10.50s (duration: 2.90s)
-  Text: Elsa must venture into the Enchanted Forest to find the legendary Golden Yeast.
+Scene 3 [Scene 3]:
+  Time: 5.00s - 7.50s (duration: 2.50s)
+  Text: We use perfectionism as armor, thinking that if our work is flawless, nobody can ever hurt our feelings.
   Confidence: 0.95
 
-Scene 4 [Scene 4: The Discovery]:
-  Time: 10.50s - 13.63s (duration: 3.13s)
-  Text: Deep in the forest, she discovers the yeast guarded by a friendly forest spirit.
+Scene 4 [Scene 4]:
+  Time: 7.50s - 10.00s (duration: 2.50s)
+  Text: The reality is that perfection doesn't exist in the real world, meaning your project will stay trapped in your head forever.
   Confidence: 0.95
 
-Scene 5 [Scene 5: The Return]:
-  Time: 13.63s - 17.20s (duration: 3.57s)
-  Text: With the Golden Yeast restored, Elsa bakes the most magnificent bread the village has ever seen.
+Scene 5 [Scene 5]:
+  Time: 10.00s - 12.50s (duration: 2.50s)
+  Text: You are trading actual, messy progress for the imaginary safety of a grade that never gets handed in.
   Confidence: 0.95
 
-Scene 6 [Scene 6: Celebration]:
-  Time: 17.20s - 21.00s (duration: 3.80s)
-  Text: The village celebrates with a feast, and Elsa's fame as the finest baker spreads throughout the land.
+Scene 6 [Scene 6]:
+  Time: 12.50s - 15.18s (duration: 2.68s)
+  Text: If you are not willing to put something out into the world that makes you cringe just a little bit, you will never grow.
+  Confidence: 0.95
+
+Scene 7 [Scene 7]:
+  Time: 15.18s - 17.68s (duration: 2.50s)
+  Text: It is time to stop polishing a ghost and start releasing real work into the hands of reality.
+  Confidence: 0.95
+
+Scene 8 [Scene 8]:
+  Time: 17.68s - 20.18s (duration: 2.50s)
+  Text: True momentum is built by learning from your mistakes in public, rather than hiding your potential in private.
+  Confidence: 0.95
+
+Scene 9 [Scene 9]:
+  Time: 20.18s - 21.00s (duration: 0.82s)
+  Text: Think about the project you've been hiding in a drawer because it's 'not ready yet'—what happens if you let it see the light today?
+  Confidence: 0.95
+
+Scene 10 [Scene 10]:
+  Time: 21.00s - 21.00s (duration: 0.00s)
+  Text: Freedom is the reward for the moment you decide your work doesn't have to be a masterpiece to matter.
   Confidence: 0.95
 

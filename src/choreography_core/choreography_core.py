@@ -40,14 +40,15 @@ class VisualChoreographer:
         return self._image_cache[path_str]
 
     def get_blurred_background(self, path_str: str) -> Image.Image:
-        """Creates and caches a heavily blurred cover background for TikTok-style vertical framing."""
-        cache_key = f"blur_{path_str}"
+        """Creates and caches a heavily blurred cover background for ambient glow framing."""
+        cache_key = f"blur_{path_str}_{self.width}_{self.height}"
         if cache_key in self._image_cache:
             return self._image_cache[cache_key]
 
         src = self.get_source_image(path_str)
         # Downscale for ultra-fast blur on mobile/Termux
-        small_w, small_h = 360, 640
+        small_w = 360
+        small_h = int(360 * (self.height / self.width))
         h_r = small_w / src.width
         v_r = small_h / src.height
         cov_r = max(h_r, v_r)
@@ -57,12 +58,12 @@ class VisualChoreographer:
         top = (scaled.height - small_h) // 2
         cropped = scaled.crop((left, top, left + small_w, top + small_h)).convert("RGBA")
 
-        # Apply blur and darken overlay
+        # Apply blur and darken overlay for ambient glow
         blurred = cropped.filter(ImageFilter.BoxBlur(18))
-        dark_overlay = Image.new("RGBA", (small_w, small_h), (0, 0, 0, 95))
+        dark_overlay = Image.new("RGBA", (small_w, small_h), (0, 0, 0, 110))
         blurred.paste(dark_overlay, (0, 0), dark_overlay)
 
-        # Scale up to full 1080x1920
+        # Scale up to full canvas dimensions
         bg_full = blurred.resize((self.width, self.height), Image.Resampling.BICUBIC).convert("RGB")
         self._image_cache[cache_key] = bg_full
         return bg_full
@@ -161,9 +162,9 @@ class VisualChoreographer:
         scene_t: float
     ) -> Tuple[float, float, float]:
         """
-        Computes (scale, offset_x, offset_y) for smooth cinematic push-in & drift.
-        Scale: 1.00 -> 1.08 with smoothstep easing.
-        Drift: gentle upward diagonal drift (+18px x, -28px y) keeping subject safely framed.
+        Computes (scale, offset_x, offset_y) for subtle micro-motion push-in.
+        Scale: 1.00 -> 1.03 with smoothstep easing, centered so the artwork stays
+        crisp and within margins without horizontal overflow/crop.
         """
         duration = max(scene.duration, 0.1)
         progress = max(0.0, scene_t / duration)
@@ -172,10 +173,47 @@ class VisualChoreographer:
             eased = p * p * (3.0 - 2.0 * p)
         else:
             eased = 1.0 + (p - 1.0) * 0.2
-        scale = 1.0 + (0.08 * eased)
-        offset_x = 18.0 * eased
-        offset_y = -28.0 * eased
+        scale = 1.0 + (0.03 * eased)
+        offset_x = 0.0
+        offset_y = 0.0
         return scale, offset_x, offset_y
+
+    def _get_vignette_overlay(self) -> Image.Image:
+        """Creates and caches a subtle top/bottom ambient vignette overlay matching browser canvas."""
+        if hasattr(self, "_vignette_overlay") and self._vignette_overlay is not None:
+            return self._vignette_overlay
+
+        img = Image.new("RGBA", (self.width, self.height), (0, 0, 0, 0))
+        draw = ImageDraw.Draw(img)
+        h = self.height
+        p20 = int(h * 0.20)
+        p80 = int(h * 0.80)
+
+        # Top gradient: 0% -> alpha 153 (0.60), 20% -> alpha 38 (0.15)
+        for y in range(p20):
+            ratio = y / max(p20, 1)
+            alpha = int(153 * (1.0 - ratio) + 38 * ratio)
+            draw.line([(0, y), (self.width, y)], fill=(0, 0, 0, alpha))
+
+        # Middle: 20% to 80% -> alpha 38 (0.15)
+        draw.rectangle([0, p20, self.width, p80], fill=(0, 0, 0, 38))
+
+        # Bottom gradient: 80% -> alpha 38 (0.15), 100% -> alpha 166 (0.65)
+        for y in range(p80, h):
+            ratio = (y - p80) / max(h - p80, 1)
+            alpha = int(38 * (1.0 - ratio) + 166 * ratio)
+            draw.line([(0, y), (self.width, y)], fill=(0, 0, 0, alpha))
+
+        self._vignette_overlay = img
+        return self._vignette_overlay
+
+    def _draw_drop_shadow(self, base_img: Image.Image, x: int, y: int, w: int, h: int, radius: int = 24, offset_y: int = 4) -> None:
+        """Applies a soft Gaussian drop shadow behind the centered artwork."""
+        shadow_box = Image.new("RGBA", (self.width, self.height), (0, 0, 0, 0))
+        sdraw = ImageDraw.Draw(shadow_box)
+        sdraw.rectangle([x, y + offset_y, x + w, y + h + offset_y], fill=(0, 0, 0, 165))
+        shadow_box = shadow_box.filter(ImageFilter.GaussianBlur(radius))
+        base_img.paste(shadow_box, (0, 0), shadow_box)
 
     def _render_scene_image(
         self,
@@ -184,33 +222,33 @@ class VisualChoreographer:
         offset_x: float = 0.0,
         offset_y: float = 0.0
     ) -> Image.Image:
-        """Renders the scene artwork filling the 9:16 vertical frame edge-to-edge (cover) with drift offsets."""
+        """
+        Renders the scene artwork auto-fitting the canvas width with ambient glow background,
+        cinematic vignette gradient, and soft drop shadow. Does NOT crop horizontally.
+        """
         src_img = self.get_source_image(scene.image_path)
-        h_ratio = self.width / src_img.width
-        v_ratio = self.height / src_img.height
-        cover_ratio = max(h_ratio, v_ratio) * scale
-
-        scaled_w = int(src_img.width * cover_ratio)
-        scaled_h = int(src_img.height * cover_ratio)
+        fit_ratio = (self.width / src_img.width) * scale
+        scaled_w = int(src_img.width * fit_ratio)
+        scaled_h = int(src_img.height * fit_ratio)
         scaled_img = src_img.resize((scaled_w, scaled_h), Image.Resampling.BICUBIC)
 
-        raw_shift_x = int((self.width - scaled_w) // 2 + offset_x)
-        raw_shift_y = int((self.height - scaled_h) // 2 + offset_y)
+        # 1. Ambient glow background sampled from the scene image
+        bg = self.get_blurred_background(scene.image_path).copy().convert("RGBA")
 
-        # Clamping to ensure no black borders ever show
-        min_x = self.width - scaled_w
-        max_x = 0
-        min_y = self.height - scaled_h
-        max_y = 0
-        final_x = max(min_x, min(raw_shift_x, max_x))
-        final_y = max(min_y, min(raw_shift_y, max_y))
+        # 2. Subtle Vignette gradient top/bottom
+        vignette = self._get_vignette_overlay()
+        bg.paste(vignette, (0, 0), vignette)
 
-        img_frame = Image.new("RGB", (self.width, self.height), (0, 0, 0))
+        # 3. Centered Width-Fitted Image with soft drop shadow
+        final_x = int((self.width - scaled_w) // 2 + offset_x)
+        final_y = int((self.height - scaled_h) // 2 + offset_y)
+        self._draw_drop_shadow(bg, final_x, final_y, scaled_w, scaled_h, radius=24, offset_y=4)
+
         if scaled_img.mode == "RGBA":
-            img_frame.paste(scaled_img, (final_x, final_y), scaled_img)
+            bg.paste(scaled_img, (final_x, final_y), scaled_img)
         else:
-            img_frame.paste(scaled_img, (final_x, final_y))
-        return img_frame
+            bg.paste(scaled_img, (final_x, final_y))
+        return bg.convert("RGB")
 
     @staticmethod
     def get_timed_caption_chunk(text: str, scene_t: float, duration: float, words_per_chunk: int = 7) -> str:
@@ -241,11 +279,13 @@ class VisualChoreographer:
         transition_duration: float = 0.45
     ) -> Image.Image:
         """
-        Renders a single 1080x1920 video frame with:
-        - Full-bleed edge-to-edge image framing (as seen in user screenshot)
+        Renders a single 1080x1920 video frame matching HTML5 canvas:
+        - Full-bleed edge-to-edge ambient glow backdrop
+        - Top/bottom vignette gradient
         - Smooth cinematic cross-dissolve transition between scenes with continuous motion
-        - Subtle Ken Burns push-in & drift (1.00 -> 1.08 + diagonal drift)
-        - Floating white caption directly on the video (matching user screenshot)
+        - Subtle Ken Burns push-in & drift
+        - Floating white caption directly on the video
+        - 6px blue story progress bar at very bottom
         """
         # 1. Render current scene image with Ken Burns push-in & drift
         scale_cur, off_x_cur, off_y_cur = self.compute_motion_transform(scene, scene_t)
@@ -261,7 +301,7 @@ class VisualChoreographer:
         else:
             frame = cur_frame
 
-        # 3. Clean floating white caption directly over the lower third (matching screenshot)
+        # 3. Clean floating white caption directly over the lower third
         if show_captions and scene.text:
             draw = ImageDraw.Draw(frame)
             active_caption = self.get_timed_caption_chunk(scene.text, scene_t, scene.duration)
@@ -278,12 +318,12 @@ class VisualChoreographer:
                 line_height=56
             )
 
-        # 4. Subtle overall story progress bar at very bottom
+        # 4. Subtle overall story progress bar at very bottom (matching 6px canvas progress bar)
         draw = ImageDraw.Draw(frame)
         overall_progress = max(0.0, min(1.0, total_t / max(total_duration, 0.1)))
         overall_fill_w = int(self.width * overall_progress)
         if overall_fill_w > 0:
-            draw.rectangle([0, self.height - 8, overall_fill_w, self.height], fill=(59, 130, 246))
+            draw.rectangle([0, self.height - 6, overall_fill_w, self.height], fill=(59, 130, 246))
 
         return frame
 

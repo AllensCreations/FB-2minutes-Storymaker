@@ -103,10 +103,14 @@ def start_web_server(port: int = 8000, open_browser: bool = False):
     start_server(host="0.0.0.0", port=port, open_browser=open_browser)
 
 
+__version__ = "1.0.0"
+
+
 def main():
     parser = argparse.ArgumentParser(
-        description="FB 2minutes Storymaker - Automated Storytelling Engine"
+        description=f"FB 2minutes Storymaker v{__version__} - Automated Storytelling Engine"
     )
+    parser.add_argument("--version", "-v", action="version", version=f"FB 2minutes Storymaker v{__version__}")
     parser.add_argument("--tui", action="store_true", help="Launch the interactive Termux / mobile Terminal UI")
     parser.add_argument("--run", action="store_true", help="Execute the complete story generation pipeline")
     parser.add_argument("--web", action="store_true", help="Launch the local Web UI Studio")

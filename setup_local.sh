@@ -1,18 +1,24 @@
 #!/usr/bin/env bash
 # ==============================================================================
 # FB 2minutes Storymaker - Local Setup Script
+# Version: 1.0.0
 # Sets up Python environment, dependencies, FFmpeg check, and sample assets.
 # Includes first-class support for Termux (Android), Debian/Ubuntu, macOS, Windows.
 # ==============================================================================
 
 set -e
 
+APP_VERSION="1.0.0"
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$REPO_DIR"
 
 echo "========================================================"
-echo "🎬 Setting up FB 2minutes Storymaker Environment"
+echo "🎬 Setting up FB 2minutes Storymaker Environment (v${APP_VERSION})"
 echo "========================================================"
+
+# Save Version Metadata
+echo "$APP_VERSION" > "$REPO_DIR/VERSION"
+echo "$APP_VERSION" > "$REPO_DIR/.version"
 
 # 0. Check for Termux (Android)
 IS_TERMUX=0
@@ -105,17 +111,23 @@ else
     fi
 fi
 
-# 5. Generate Sample Assets
+# 5. Synchronize HTML Assets
+echo "Syncing HTML assets..."
+cp -f "$REPO_DIR/index.html" "$REPO_DIR/web/index.html" 2>/dev/null || true
+cp -f "$REPO_DIR/index.html" "$REPO_DIR/AR.html" 2>/dev/null || true
+
+# 6. Generate Sample Assets
 echo "Ensuring sample story assets exist..."
-$RUN_PYTHON scripts/generate_sample_assets.py
+$RUN_PYTHON scripts/generate_sample_assets.py --theme elsa 2>/dev/null || true
 
 echo ""
 echo "========================================================"
-echo "🎉 Setup complete! You are ready to create stories."
+echo "🎉 Setup complete! FB 2minutes Storymaker v${APP_VERSION} ready."
 echo "========================================================"
 echo ""
 echo "Quick Commands:"
-echo "  1. Run Storymaker via CLI:  make run   (or $RUN_PYTHON main.py)"
-echo "  2. Launch Web UI Studio:    make web   (or $RUN_PYTHON main.py --web)"
-echo "  3. Run Test Suite:          make test"
+echo "  1. Launch Web UI Studio:    make web   (or $RUN_PYTHON main.py --web)"
+echo "  2. Interactive Console:     make tui   (or $RUN_PYTHON main.py --tui)"
+echo "  3. Run Storymaker via CLI:  make run   (or $RUN_PYTHON main.py)"
+echo "  4. Run Test Suite:          make test  (or $RUN_PYTHON -m unittest discover tests)"
 echo ""

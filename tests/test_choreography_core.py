@@ -35,14 +35,14 @@ class TestChoreographyCore(unittest.TestCase):
         )
 
     def test_motion_transform(self):
-        # Test smooth cinematic push-in and diagonal drift
+        # Test subtle micro-motion push-in (centered without drift)
         scale_early, off_x_early, off_y_early = self.choreographer.compute_motion_transform(self.scene, scene_t=0.05)
         scale_mid, off_x_mid, off_y_mid = self.choreographer.compute_motion_transform(self.scene, scene_t=1.5)
 
-        self.assertGreater(scale_mid, 1.0)  # Slow intentional push zoom
+        self.assertGreater(scale_mid, 1.0)  # Slow intentional micro push
         self.assertGreater(scale_mid, scale_early)
-        self.assertGreater(off_x_mid, off_x_early)  # Drifts rightward
-        self.assertLess(off_y_mid, off_y_early)     # Drifts upward
+        self.assertEqual(off_x_mid, 0.0)    # Perfectly centered horizontally
+        self.assertEqual(off_y_mid, 0.0)
 
     def test_render_frame_dimensions(self):
         frame = self.choreographer.render_frame(self.scene, scene_t=1.0, total_t=1.0, total_duration=21.0)

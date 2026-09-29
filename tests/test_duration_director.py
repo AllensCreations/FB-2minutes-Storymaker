@@ -17,7 +17,8 @@ class TestDurationDirector(unittest.TestCase):
     def setUp(self):
         self.aligner = SpeechCueAlignEngine()
         self.director = SceneDurationDirector()
-        self.script_path = REPO_ROOT / "assets" / "scripts" / "story.txt"
+        default_script = REPO_ROOT / "assets" / "scripts" / "story_default.txt"
+        self.script_path = default_script if default_script.exists() else (REPO_ROOT / "assets" / "scripts" / "story.txt")
         self.audio_path = REPO_ROOT / "assets" / "voice-over" / "narration.mp3"
         self.visuals_path = REPO_ROOT / "assets" / "visuals" / "story_visuals.zip"
 
