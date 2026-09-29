@@ -11,8 +11,16 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2/dist/transformers.min.js"></script>
   <style>
+    :root {
+      --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+      --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
     body {
-      background-color: #080a11;
+      background-color: #07090e;
+      background-image:
+        radial-gradient(ellipse 80% 50% at 50% -20%, rgba(99, 102, 241, 0.12), transparent 70%),
+        radial-gradient(ellipse 60% 40% at 90% 85%, rgba(168, 85, 247, 0.05), transparent 60%);
+      background-attachment: fixed;
       color: #e2e8f0;
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
       letter-spacing: -0.01em;
@@ -22,6 +30,47 @@
     }
     .aspect-short { aspect-ratio: 9 / 16; }
     .aspect-4-5 { aspect-ratio: 4 / 5; }
+    .promax-panel {
+      background: rgba(13, 17, 26, 0.82);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+      transition: border-color 0.2s var(--ease-out-expo);
+    }
+    .promax-panel:hover {
+      border-color: rgba(255, 255, 255, 0.12);
+    }
+    .promax-monitor-bezel {
+      background: linear-gradient(180deg, #1a1f2c 0%, #0d1017 100%);
+      box-shadow:
+        0 25px 60px -15px rgba(0, 0, 0, 0.9),
+        0 0 0 1px rgba(255, 255, 255, 0.1),
+        inset 0 1px 1px rgba(255, 255, 255, 0.15);
+    }
+    .promax-btn-shine {
+      position: relative;
+      overflow: hidden;
+    }
+    .promax-btn-shine::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -60%;
+      width: 40%;
+      height: 200%;
+      background: linear-gradient(
+        60deg,
+        rgba(255, 255, 255, 0) 20%,
+        rgba(255, 255, 255, 0.22) 50%,
+        rgba(255, 255, 255, 0) 80%
+      );
+      transform: rotate(25deg);
+      transition: all 0.6s ease;
+    }
+    .promax-btn-shine:hover::after {
+      left: 120%;
+    }
     .glass-card {
       background: linear-gradient(180deg, rgba(17, 24, 39, 0.75) 0%, rgba(10, 14, 24, 0.9) 100%);
       border: 1px solid rgba(255, 255, 255, 0.08);
@@ -34,16 +83,16 @@
       border: 1px solid rgba(255, 255, 255, 0.08);
     }
     ::selection {
-      background-color: rgba(59, 130, 246, 0.35);
+      background-color: rgba(99, 102, 241, 0.4);
       color: #ffffff;
     }
     .hidden {
       display: none !important;
     }
     ::-webkit-scrollbar { width: 6px; height: 6px; }
-    ::-webkit-scrollbar-track { background: #080a11; border-radius: 3px; }
+    ::-webkit-scrollbar-track { background: #07090e; border-radius: 3px; }
     ::-webkit-scrollbar-thumb { background: #1e2638; border-radius: 3px; }
-    ::-webkit-scrollbar-thumb:hover { background: #3b82f6; }
+    ::-webkit-scrollbar-thumb:hover { background: #6366f1; }
   </style>
 </head>
 <body class="p-3 sm:p-5 font-sans min-h-screen">
@@ -51,44 +100,44 @@
   <div id="toastContainer" class="fixed top-5 right-5 z-[9999] flex flex-col gap-2.5 pointer-events-none max-w-sm w-full"></div>
 
   <div class="max-w-7xl mx-auto space-y-5">
-    <!-- Unified Studio Application Bar -->
+    <!-- Unified Studio Application Bar (Promax) -->
     <header class="border-b border-white/[0.08] pb-4 flex flex-wrap items-center justify-between gap-4">
-      <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 via-purple-600 to-pink-600 flex items-center justify-center text-white shadow-lg shadow-indigo-500/20 font-bold text-lg select-none">
+      <div class="flex items-center gap-3.5">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 via-purple-600 to-pink-500 flex items-center justify-center text-white shadow-[0_0_20px_rgba(99,102,241,0.35)] font-bold text-lg select-none">
           🎬
         </div>
         <div>
           <div class="flex items-center gap-2">
-            <h1 class="text-xl font-bold text-white tracking-tight">StoryShorts Studio</h1>
-            <span class="text-[10px] font-mono font-semibold px-2 py-0.5 bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 rounded-full">v1.0.0</span>
+            <h1 class="text-xl font-extrabold text-white tracking-tight">StoryShorts Studio</h1>
+            <span class="text-[10px] font-mono font-bold px-2 py-0.5 bg-gradient-to-r from-amber-500/20 via-pink-500/20 to-indigo-500/20 text-amber-300 border border-amber-500/40 rounded-full shadow-[0_0_12px_rgba(245,158,11,0.25)] tracking-wider">PROMAX v1.0.0</span>
           </div>
-          <p class="text-xs text-gray-400">Vertical storytelling studio: Visuals, Narration &amp; Cloud Scheduling</p>
+          <p class="text-xs text-zinc-400">Vertical storytelling studio: Visuals, Narration &amp; Cloud Scheduling</p>
         </div>
       </div>
 
-      <!-- Segmented Navigation Pill -->
+      <!-- Segmented Navigation Pill (Promax) -->
       <nav class="flex items-center p-1 bg-gray-950/90 border border-white/[0.08] rounded-xl shadow-inner gap-1">
-        <button id="navItemsBtn" type="button" class="py-1.5 px-3.5 rounded-lg text-xs font-semibold transition flex items-center gap-1.5 bg-gray-900/80 hover:bg-gray-800 text-gray-300 border border-gray-800">
+        <button id="navItemsBtn" type="button" class="py-1.5 px-3.5 rounded-lg text-xs font-semibold transition flex items-center gap-1.5 bg-gray-900/80 hover:bg-gray-800 text-gray-300 hover:text-white border border-gray-800 cursor-pointer active:scale-[0.98]">
           <span>📦</span> Story Packages
-          <span id="itemsBadge" class="ml-1 px-1.5 py-0.2 text-[10px] font-bold rounded-full bg-indigo-600 text-white">0</span>
+          <span id="itemsBadge" class="ml-1 px-1.5 py-0.2 text-[10px] font-bold rounded-full bg-indigo-600 text-white shadow-sm">0</span>
         </button>
-        <button id="navStudioBtn" type="button" class="py-1.5 px-3.5 rounded-lg text-xs font-semibold transition flex items-center gap-1.5 bg-indigo-600 text-white shadow-md shadow-indigo-900/30">
+        <button id="navStudioBtn" type="button" class="py-1.5 px-3.5 rounded-lg text-xs font-semibold transition flex items-center gap-1.5 bg-indigo-600 text-white shadow-md shadow-indigo-900/40 cursor-pointer active:scale-[0.98]">
           <span>🎬</span> Studio
         </button>
-        <button id="navScheduleBtn" type="button" class="py-1.5 px-3.5 rounded-lg text-xs font-semibold transition flex items-center gap-1.5 bg-gray-900/80 hover:bg-gray-800 text-gray-300 border border-gray-800">
+        <button id="navScheduleBtn" type="button" class="py-1.5 px-3.5 rounded-lg text-xs font-semibold transition flex items-center gap-1.5 bg-gray-900/80 hover:bg-gray-800 text-gray-300 hover:text-white border border-gray-800 cursor-pointer active:scale-[0.98]">
           <span>📅</span> Schedule
         </button>
       </nav>
 
       <!-- Right Toolbar Controls -->
       <div class="flex items-center gap-2">
-        <button id="openSettingsModalBtn" type="button" onclick="openSettingsModal('general')" class="py-1.5 px-3 rounded-lg bg-gray-900/90 hover:bg-gray-800 text-gray-300 hover:text-white border border-white/[0.08] transition shadow-sm text-xs font-semibold flex items-center gap-1.5 cursor-pointer" title="Settings & Cloud Credentials">
+        <button id="openSettingsModalBtn" type="button" onclick="openSettingsModal('general')" class="py-1.5 px-3 rounded-lg bg-gray-900/90 hover:bg-gray-800 text-gray-200 hover:text-white border border-white/[0.08] hover:border-white/[0.16] transition shadow-sm text-xs font-semibold flex items-center gap-1.5 cursor-pointer active:scale-[0.98]" title="Settings & Cloud Credentials">
           <span>⚙️</span> Settings
         </button>
         <span id="offlineHeaderBadge" class="hidden inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/30 text-[11px] font-mono font-bold text-amber-300">
           <span>⚡</span> Offline
         </span>
-        <span id="sseStatusIndicator" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-gray-950/80 border border-white/[0.08] text-[11px] text-gray-300 font-mono">
+        <span id="sseStatusIndicator" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-gray-950/80 border border-white/[0.08] text-[11px] text-zinc-300 font-mono shadow-sm">
           <span class="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_#34d399] animate-pulse"></span> Live
         </span>
         <button id="syncTermuxBtn" class="hidden" type="button"></button>
@@ -135,36 +184,41 @@
       <!-- 3-Column Studio Grid -->
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 items-stretch">
         
-        <!-- 1. Input Panel -->
-        <div class="space-y-4 bg-gray-900/90 backdrop-blur-md p-5 rounded-2xl border border-white/[0.08] shadow-xl flex flex-col justify-between">
+        <!-- 1. Input Panel (Promax) -->
+        <div class="space-y-4 promax-panel p-5 rounded-2xl flex flex-col justify-between">
           <div class="space-y-4">
-            <h2 class="text-sm font-bold text-white tracking-tight flex items-center gap-2">
-              <span class="w-2 h-2 rounded-full bg-blue-500"></span> 1. Assets &amp; Ingestion
-            </h2>
+            <div class="flex items-center justify-between pb-1 border-b border-white/[0.06]">
+              <h2 class="text-sm font-bold text-white tracking-tight flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-blue-500 shadow-[0_0_8px_#3b82f6]"></span> 1. Assets &amp; Ingestion
+              </h2>
+              <span class="text-[10px] font-mono text-zinc-400">Step 1 of 3</span>
+            </div>
 
             <!-- Voice-Over Upload & TTS Studio -->
             <div class="space-y-2">
               <div class="flex items-center justify-between">
-                <label class="text-xs font-semibold text-gray-300">Voice-Over Audio</label>
-                <span id="audioDurLabel" class="text-[11px] text-gray-400 font-mono"></span>
+                <label class="text-xs font-semibold text-zinc-200 flex items-center gap-1.5">
+                  <span>🎙️</span> Voice-Over Audio
+                </label>
+                <span id="audioDurLabel" class="text-[11px] text-zinc-400 font-mono font-medium"></span>
                 <span id="whisperOutput" class="hidden"></span>
               </div>
-              <input type="file" id="audioInput" accept="audio/*" class="w-full text-xs text-gray-400 file:mr-2 file:py-1 file:px-3 file:rounded-lg file:border-0 file:bg-blue-600 file:text-white hover:file:bg-blue-700 cursor-pointer" />
+              <input type="file" id="audioInput" accept="audio/*" class="w-full text-xs text-zinc-400 file:mr-2.5 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:bg-indigo-600 hover:file:bg-indigo-500 file:text-white file:font-semibold file:cursor-pointer cursor-pointer bg-black/40 border border-white/[0.08] rounded-xl p-1.5 transition" />
 
-              <!-- Gemini Voice-over Studio -->
-              <div id="geminiTtsCard" class="p-3 rounded-xl bg-gray-950/80 border border-purple-500/30 shadow-inner space-y-2.5">
+              <!-- Gemini Voice-over Studio (Promax) -->
+              <div id="geminiTtsCard" class="p-3.5 rounded-xl bg-gradient-to-b from-purple-950/40 to-gray-950/80 border border-purple-500/30 shadow-[inset_0_1px_0_rgba(168,85,247,0.2)] space-y-2.5">
                 <div class="flex items-center justify-between">
                   <div class="flex items-center gap-1.5">
                     <span class="text-xs">✨</span>
-                    <span class="text-xs font-semibold text-purple-200">Gemini Voice Studio</span>
-                    <span class="text-[9px] bg-purple-950/80 text-purple-300 border border-purple-800/60 px-1.5 py-0.5 rounded font-mono">Flash TTS · 1.1x Tempo</span>
+                    <span class="text-xs font-bold text-purple-200">Gemini Voice Studio</span>
+                    <span class="text-[9px] bg-purple-950/80 text-purple-300 border border-purple-800/60 px-1.5 py-0.5 rounded font-mono font-semibold">Flash TTS · 1.1x</span>
                   </div>
-                  <span id="ttsStatusPill" class="text-[10px] text-gray-400 font-mono">No audio</span>
+                  <span id="ttsStatusPill" class="text-[10px] text-zinc-400 font-mono">No audio</span>
                 </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   <div>
-                    <label class="block text-[10px] uppercase font-mono tracking-wider text-gray-400 mb-1">Select Voice</label>
-                    <select id="geminiVoiceSelect" class="w-full bg-gray-900 border border-gray-700 text-gray-200 text-xs rounded-lg px-2 py-1.5 focus:outline-none focus:border-purple-500 cursor-pointer">
+                    <label class="block text-[10px] uppercase font-mono tracking-wider text-zinc-400 font-semibold mb-1">Select Voice</label>
+                    <select id="geminiVoiceSelect" class="w-full bg-gray-950 border border-gray-800 hover:border-purple-500/50 text-zinc-200 text-xs rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-purple-500 cursor-pointer transition">
                       <option value="Puck" selected>Puck (Youthful &amp; Lively - Default)</option>
                       <option value="Charon">Charon (Deep Cinematic Male)</option>
                       <option value="Kore">Kore (Warm Story Narrator)</option>
@@ -173,15 +227,15 @@
                     </select>
                   </div>
                   <div class="flex items-end">
-                    <button id="generateTtsBtn" type="button" class="w-full py-1.5 px-3 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 active:scale-[0.98] text-white rounded-lg font-medium text-xs transition flex items-center justify-center gap-1.5 shadow">
+                    <button id="generateTtsBtn" type="button" class="w-full py-1.5 px-3 bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-600 hover:from-purple-500 hover:to-indigo-500 active:scale-[0.98] text-white rounded-lg font-bold text-xs transition flex items-center justify-center gap-1.5 shadow-md shadow-purple-950/50 cursor-pointer promax-btn-shine">
                       <span id="ttsBtnIcon">🎙️</span>
-                      <span id="ttsBtnText">Generate 1.1x Voice-over</span>
+                      <span id="ttsBtnText">Generate 1.1x Audio</span>
                     </button>
                   </div>
                 </div>
-                <div class="text-[10px] text-gray-400 flex items-center justify-between pt-0.5">
-                  <span>Reads Story Script with crisp 1.1x cadence</span>
-                  <button id="ttsConfigureKeyBtn" type="button" class="text-purple-400 hover:underline">Config Key</button>
+                <div class="text-[10px] text-zinc-400 flex items-center justify-between pt-0.5 font-medium">
+                  <span>Synthesizes narration with punchy 1.1x cadence</span>
+                  <button id="ttsConfigureKeyBtn" type="button" class="text-purple-400 hover:text-purple-300 font-semibold transition">Config Key</button>
                 </div>
               </div>
             </div>
@@ -189,22 +243,26 @@
             <!-- Images Upload -->
             <div class="space-y-1.5">
               <div class="flex items-center justify-between">
-                <label class="text-xs font-semibold text-gray-300">Images (.zip or multiple images)</label>
-                <span id="imgCountLabel" class="text-[11px] text-gray-500 font-mono"></span>
+                <label class="text-xs font-semibold text-zinc-200 flex items-center gap-1.5">
+                  <span>🖼️</span> Images (.zip or multiple)
+                </label>
+                <span id="imgCountLabel" class="text-[11px] text-zinc-400 font-mono font-medium"></span>
               </div>
-              <input type="file" id="zipInput" accept=".zip,image/*" multiple class="w-full text-xs text-gray-400 file:mr-2 file:py-1 file:px-3 file:rounded-lg file:border-0 file:bg-blue-600 file:text-white hover:file:bg-blue-700 cursor-pointer" />
+              <input type="file" id="zipInput" accept=".zip,image/*" multiple class="w-full text-xs text-zinc-400 file:mr-2.5 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:bg-blue-600 hover:file:bg-blue-500 file:text-white file:font-semibold file:cursor-pointer cursor-pointer bg-black/40 border border-white/[0.08] rounded-xl p-1.5 transition" />
             </div>
 
             <!-- Script Input -->
             <div class="space-y-1.5">
               <div class="flex items-center justify-between">
-                <label class="text-xs font-semibold text-gray-300">Story Script / JSON</label>
-                <span id="scriptCountLabel" class="text-[11px] text-indigo-400 font-mono font-medium"></span>
+                <label class="text-xs font-semibold text-zinc-200 flex items-center gap-1.5">
+                  <span>📝</span> Story Script / JSON
+                </label>
+                <span id="scriptCountLabel" class="text-[11px] text-indigo-400 font-mono font-semibold"></span>
               </div>
-              <textarea id="scriptInput" rows="5" placeholder="Paste JSON code or narration script:&#10;&#10;Scene 1: In a quiet village, Elsa starts her day...&#10;(Next image)&#10;Scene 2: The magical yeast has gone missing...&#10;(Next image)&#10;Scene 3: Elsa ventures into the forest..." class="w-full bg-gray-950 border border-gray-800 focus:border-blue-500 rounded-xl p-3 text-xs text-gray-200 focus:outline-none font-mono leading-relaxed transition"></textarea>
-              <div class="flex items-center justify-between text-[10px] text-gray-500">
+              <textarea id="scriptInput" rows="5" placeholder="Paste JSON code or narration script:&#10;&#10;Scene 1: In a quiet village, Elsa starts her day...&#10;(Next image)&#10;Scene 2: The magical yeast has gone missing...&#10;(Next image)&#10;Scene 3: Elsa ventures into the forest..." class="w-full bg-gray-950/90 border border-white/[0.08] focus:border-indigo-500 rounded-xl p-3 text-xs text-zinc-200 placeholder-zinc-600 focus:outline-none font-mono leading-relaxed transition shadow-inner"></textarea>
+              <div class="flex items-center justify-between text-[10px] text-zinc-400 font-medium">
                 <span>Supports JSON, (Next image), or Scene 1:</span>
-                <button id="saveTermuxBtn" type="button" class="text-emerald-400 hover:underline flex items-center gap-1" title="Save script locally">
+                <button id="saveTermuxBtn" type="button" class="text-emerald-400 hover:text-emerald-300 font-semibold flex items-center gap-1 transition cursor-pointer" title="Save script locally">
                   <span>💾</span> Save Local
                 </button>
               </div>
@@ -212,74 +270,90 @@
           </div>
 
           <!-- Status Bar -->
-          <div class="pt-2 border-t border-gray-800/80">
-            <div id="status" class="text-xs text-gray-400 text-center font-mono py-1">Ready for files.</div>
+          <div class="pt-2.5 border-t border-white/[0.06]">
+            <div id="status" class="text-xs text-zinc-400 text-center font-mono py-1 flex items-center justify-center gap-1.5">
+              <span class="w-1.5 h-1.5 rounded-full bg-zinc-500"></span> Ready for files.
+            </div>
           </div>
         </div>
 
-        <!-- 2. Preview Canvas -->
-        <div class="bg-gray-900/90 backdrop-blur-md p-5 rounded-2xl border border-white/[0.08] shadow-xl flex flex-col items-center justify-between space-y-4">
-          <div class="w-full flex items-center justify-between">
-            <h2 id="previewHeading" class="text-sm font-bold text-white tracking-tight flex items-center gap-2">
-              <span class="w-2 h-2 rounded-full bg-blue-500"></span> Canvas Preview (9:16)
-            </h2>
+        <!-- 2. Preview Canvas (Promax Cinema Monitor) -->
+        <div class="promax-panel p-5 rounded-2xl flex flex-col items-center justify-between space-y-4">
+          <div class="w-full flex items-center justify-between pb-1 border-b border-white/[0.06]">
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-blue-500 shadow-[0_0_8px_#3b82f6]"></span>
+              <h2 id="previewHeading" class="text-sm font-bold text-white tracking-tight flex items-center gap-2">
+                Canvas Preview
+              </h2>
+              <span id="canvasAspectBadge" class="text-[10px] font-mono font-bold px-2 py-0.5 rounded-md bg-blue-500/15 text-blue-300 border border-blue-500/30">9:16 Short</span>
+            </div>
             <div class="flex items-center gap-1.5">
-              <select id="captionStyleSelect" class="bg-gray-900 border border-amber-500/40 text-amber-300 text-[11px] font-semibold rounded-lg px-2 py-1 focus:outline-none focus:border-amber-400 cursor-pointer" title="Caption Style Preset">
+              <select id="captionStyleSelect" class="bg-gray-950/90 border border-amber-500/40 text-amber-300 text-[11px] font-bold rounded-lg px-2 py-1 focus:outline-none focus:border-amber-400 cursor-pointer shadow-sm hover:border-amber-400 transition" title="Caption Style Preset">
                 <option value="gold" selected>👑 Hormozi Gold</option>
                 <option value="mint">🌿 Neon Mint</option>
                 <option value="cyan">⚡ Electric Cyan</option>
                 <option value="white">🎬 Classic White</option>
               </select>
-              <select id="transitionSelect" class="bg-gray-900 border border-gray-700 text-gray-300 text-[11px] rounded-lg px-2 py-1 focus:outline-none focus:border-blue-500 cursor-pointer" title="Scene Transition Style">
+              <select id="transitionSelect" class="bg-gray-950/90 border border-gray-700 hover:border-gray-600 text-gray-300 text-[11px] rounded-lg px-2 py-1 focus:outline-none focus:border-blue-500 cursor-pointer shadow-sm transition" title="Scene Transition Style">
                 <option value="cross_dissolve">🎬 Dissolve</option>
                 <option value="cut">✂️ Cut</option>
               </select>
-              <button id="captionToggleBtn" class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium border border-blue-500/50 bg-blue-500/20 text-blue-300 hover:bg-blue-500/30 transition select-none">
+              <button id="captionToggleBtn" class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold border border-blue-500/50 bg-blue-500/20 text-blue-300 hover:bg-blue-500/30 transition select-none cursor-pointer">
                 <span>💬</span> <span id="captionToggleText">Captions: ON</span>
               </button>
             </div>
           </div>
 
           <!-- Studio Video Monitor Viewport (Zero clipping, supports 9:16 and 4:5 seamlessly) -->
-          <div class="relative p-2.5 bg-gradient-to-b from-gray-800 to-gray-950 rounded-2xl border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.8)] transition-all duration-300">
+          <div class="relative p-2.5 promax-monitor-bezel rounded-2xl transition-all duration-300 group">
+            <!-- Studio Monitor Status HUD overlay -->
+            <div class="absolute top-4 left-4 right-4 z-10 flex items-center justify-between pointer-events-none opacity-80 group-hover:opacity-100 transition-opacity">
+              <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-black/60 backdrop-blur-md text-emerald-400 border border-emerald-500/30">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> 24 FPS
+              </span>
+              <span id="canvasResBadge" class="px-2 py-0.5 rounded-full text-[10px] font-mono font-medium bg-black/60 backdrop-blur-md text-zinc-300 border border-white/10">
+                720 × 1280
+              </span>
+            </div>
+
             <div id="previewBox" class="relative w-full max-w-[280px] aspect-short bg-black rounded-xl overflow-hidden border border-gray-900 shadow-inner flex items-center justify-center transition-all duration-300">
-              <canvas id="previewCanvas" width="720" height="1280" class="w-full h-full object-contain block"></canvas>
+              <canvas id="previewCanvas" width="720" height="1280" class="w-full h-full object-contain block cursor-pointer"></canvas>
             </div>
           </div>
           
-          <!-- Playback Controls -->
-          <div class="w-full max-w-[300px] space-y-2">
-            <button id="playBtn" disabled class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 active:scale-[0.98] disabled:opacity-40 text-xs rounded-xl font-semibold text-white transition shadow-lg shadow-indigo-950/30 flex items-center justify-center gap-1.5 cursor-pointer">
+          <!-- Playback Controls (Promax) -->
+          <div class="w-full max-w-[300px] space-y-2.5">
+            <button id="playBtn" disabled class="w-full py-2.5 bg-gradient-to-r from-indigo-600 via-indigo-500 to-purple-600 hover:from-indigo-500 hover:to-purple-500 active:scale-[0.98] disabled:opacity-40 text-xs rounded-xl font-bold text-white transition shadow-lg shadow-indigo-950/40 flex items-center justify-center gap-2 cursor-pointer promax-btn-shine">
               <span>▶</span> Play Preview
             </button>
             <!-- Keyboard shortcuts -->
-            <div class="flex items-center justify-center gap-2 pt-1 text-[10px] text-gray-500 font-mono select-none">
-              <span class="px-1.5 py-0.5 rounded bg-gray-900 border border-gray-800 text-gray-400">Space</span> Play
-              <span class="px-1.5 py-0.5 rounded bg-gray-900 border border-gray-800 text-gray-400">←/→</span> Seek
-              <span class="px-1.5 py-0.5 rounded bg-gray-900 border border-gray-800 text-gray-400">M</span> Cut
+            <div class="flex items-center justify-center gap-2 pt-0.5 text-[10px] text-zinc-400 font-mono select-none">
+              <span class="px-1.5 py-0.5 rounded bg-gray-950 border border-gray-800 text-zinc-300">Space</span> Play
+              <span class="px-1.5 py-0.5 rounded bg-gray-950 border border-gray-800 text-zinc-300">←/→</span> Scrub
+              <span class="px-1.5 py-0.5 rounded bg-gray-950 border border-gray-800 text-zinc-300">M</span> Cut
             </div>
             <!-- Progress Bar -->
             <div id="exportProgress" class="hidden space-y-1.5 bg-gray-950 p-2.5 rounded-xl border border-gray-800">
-              <div class="flex justify-between text-[10px] text-gray-400">
+              <div class="flex justify-between text-[10px] text-zinc-400 font-medium">
                 <span id="exportText">Rendering video...</span>
                 <span id="exportPct" class="font-mono text-indigo-400 font-bold">0%</span>
               </div>
               <div class="w-full h-1.5 bg-gray-800 rounded-full overflow-hidden">
-                <div id="exportBar" class="h-full bg-indigo-500 transition-all duration-75" style="width: 0%;"></div>
+                <div id="exportBar" class="h-full bg-gradient-to-r from-indigo-500 to-purple-500 transition-all duration-75" style="width: 0%;"></div>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- 3. Item Metadata & Publisher -->
-        <div class="bg-gray-900/90 backdrop-blur-md p-5 rounded-2xl border border-white/[0.08] shadow-xl flex flex-col justify-between min-h-[540px] space-y-4">
+        <!-- 3. Item Metadata & Publisher (Promax) -->
+        <div class="promax-panel p-5 rounded-2xl flex flex-col justify-between min-h-[540px] space-y-4">
           <div class="space-y-3.5">
-            <div class="flex items-center justify-between pb-2.5 border-b border-gray-800">
+            <div class="flex items-center justify-between pb-2 border-b border-white/[0.06]">
               <div class="flex items-center gap-2">
-                <span class="w-2 h-2 rounded-full bg-indigo-500"></span>
+                <span class="w-2.5 h-2.5 rounded-full bg-amber-500 shadow-[0_0_8px_#f59e0b]"></span>
                 <h2 class="text-sm font-bold text-white tracking-tight">3. Item Metadata &amp; Publisher</h2>
               </div>
-              <span id="metaSaveStatus" class="text-[10px] font-mono text-emerald-400 font-medium">✓ Ready</span>
+              <span id="metaSaveStatus" class="text-[10px] font-mono text-emerald-400 font-bold">✓ Ready</span>
             </div>
 
             <!-- Social Published Lock Warning Banner -->
@@ -304,49 +378,60 @@
               <span>Delivered to Dropbox &amp; Schedule. Editable until marked live on Facebook or YouTube.</span>
             </div>
 
-            <!-- Target Filename Output -->
+            <!-- Target Filename Output with 1-Click Copy -->
             <div>
-              <label class="block text-[10px] font-mono uppercase tracking-wider text-gray-400 font-semibold mb-1">Target Filename</label>
-              <div id="studioTargetFilename" class="w-full bg-black/60 border border-gray-800 rounded-lg px-3 py-2 text-xs font-mono text-amber-300 font-semibold truncate select-all">
+              <div class="flex items-center justify-between mb-1">
+                <label class="text-[10px] font-mono uppercase tracking-wider text-zinc-400 font-bold">Target Filename</label>
+                <button type="button" onclick="copyTargetFilename()" class="text-[10px] font-mono text-zinc-400 hover:text-amber-300 transition flex items-center gap-1 cursor-pointer" title="Copy filename">
+                  <span>📋</span> Copy
+                </button>
+              </div>
+              <div id="studioTargetFilename" class="w-full bg-black/60 border border-white/[0.08] rounded-lg px-3 py-2 text-xs font-mono text-amber-300 font-semibold truncate select-all">
                 story_output.mp4
               </div>
             </div>
 
             <!-- Story Title -->
             <div>
-              <label class="block text-[10px] font-mono uppercase tracking-wider text-gray-400 font-semibold mb-1">Story Title</label>
-              <input type="text" id="studioStoryTitleInput" placeholder="Enter story title..." class="w-full bg-gray-950/90 border border-gray-800 rounded-lg px-3 py-2 text-xs font-medium text-gray-100 placeholder-gray-600 focus:border-indigo-500 focus:outline-none transition" />
+              <div class="flex items-center justify-between mb-1">
+                <label class="text-[10px] font-mono uppercase tracking-wider text-zinc-400 font-bold">Story Title</label>
+                <span id="studioTitleCount" class="text-[10px] font-mono text-zinc-500">0 chars</span>
+              </div>
+              <input type="text" id="studioStoryTitleInput" placeholder="Enter story title..." class="w-full bg-gray-950/90 border border-white/[0.08] focus:border-indigo-500 rounded-lg px-3 py-2 text-xs font-medium text-zinc-100 placeholder-zinc-600 focus:outline-none transition shadow-inner" />
             </div>
 
             <!-- Social Caption -->
             <div>
-              <label class="block text-[10px] font-mono uppercase tracking-wider text-gray-400 font-semibold mb-1">Social Caption</label>
-              <textarea id="studioStoryCaptionInput" rows="2" placeholder="Engaging hook or social caption..." class="w-full bg-gray-950/90 border border-gray-800 rounded-lg p-2.5 text-xs text-gray-200 placeholder-gray-600 focus:border-indigo-500 focus:outline-none transition resize-none"></textarea>
+              <div class="flex items-center justify-between mb-1">
+                <label class="text-[10px] font-mono uppercase tracking-wider text-zinc-400 font-bold">Social Caption</label>
+                <span id="studioCaptionCount" class="text-[10px] font-mono text-zinc-500">0 chars</span>
+              </div>
+              <textarea id="studioStoryCaptionInput" rows="2" placeholder="Engaging hook or social caption..." class="w-full bg-gray-950/90 border border-white/[0.08] focus:border-indigo-500 rounded-lg p-2.5 text-xs text-zinc-200 placeholder-zinc-600 focus:outline-none transition resize-none shadow-inner"></textarea>
             </div>
 
             <!-- Social Description & Hashtags -->
             <div>
-              <label class="block text-[10px] font-mono uppercase tracking-wider text-gray-400 font-semibold mb-1">Description &amp; Hashtags</label>
-              <textarea id="studioStoryDescInput" rows="2" placeholder="#story #shorts #animation..." class="w-full bg-gray-950/90 border border-gray-800 rounded-lg p-2.5 text-xs text-gray-200 placeholder-gray-600 focus:border-indigo-500 focus:outline-none transition resize-none"></textarea>
+              <label class="block text-[10px] font-mono uppercase tracking-wider text-zinc-400 font-bold mb-1">Description &amp; Hashtags</label>
+              <textarea id="studioStoryDescInput" rows="2" placeholder="#story #shorts #animation..." class="w-full bg-gray-950/90 border border-white/[0.08] focus:border-indigo-500 rounded-lg p-2.5 text-xs text-zinc-200 placeholder-zinc-600 focus:outline-none transition resize-none shadow-inner"></textarea>
             </div>
           </div>
 
           <!-- Bottom Action Buttons: 1-Click Auto-Publish -->
-          <div class="pt-3 border-t border-gray-800 space-y-2.5">
-            <button id="studioAutoPublishBtn" type="button" class="w-full py-2.5 px-4 rounded-xl font-bold text-xs bg-gradient-to-r from-amber-500 via-amber-600 to-amber-500 hover:from-amber-400 hover:to-amber-500 text-gray-950 shadow-lg shadow-amber-950/50 transition flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98]">
+          <div class="pt-3 border-t border-white/[0.06] space-y-2.5">
+            <button id="studioAutoPublishBtn" type="button" class="w-full py-2.5 px-4 rounded-xl font-bold text-xs bg-gradient-to-r from-amber-500 via-amber-600 to-amber-500 hover:from-amber-400 hover:to-amber-500 text-gray-950 shadow-lg shadow-amber-950/50 transition flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98] promax-btn-shine">
               <span id="studioPublishIcon">🚀</span>
               <span id="studioPublishText">Auto-Publish to Dropbox &amp; Sheets</span>
             </button>
             <div id="studioPublishProgress" class="hidden space-y-1.5 bg-black/60 p-2.5 rounded-xl border border-gray-800">
-              <div class="flex justify-between text-[10px] text-gray-400">
+              <div class="flex justify-between text-[10px] text-zinc-400 font-medium">
                 <span id="studioPublishStep">Publishing story...</span>
                 <span id="studioPublishPct" class="font-mono text-amber-400 font-bold">0%</span>
               </div>
               <div class="w-full h-1.5 bg-gray-800 rounded-full overflow-hidden">
-                <div id="studioPublishBar" class="h-full bg-amber-500 transition-all duration-150" style="width: 0%;"></div>
+                <div id="studioPublishBar" class="h-full bg-gradient-to-r from-amber-500 to-orange-500 transition-all duration-150" style="width: 0%;"></div>
               </div>
             </div>
-            <div class="flex items-center justify-between text-[10px] text-gray-500 font-mono">
+            <div class="flex items-center justify-between text-[10px] text-zinc-400 font-mono">
               <span id="studioItemStatusLabel">Status: Ready</span>
               <span id="studioLastSavedTime">Live Sync</span>
             </div>
@@ -355,8 +440,8 @@
 
       </div>
 
-      <!-- Bottom Waveform & Silence Timeline -->
-      <div class="bg-gray-900/90 backdrop-blur-md p-5 rounded-2xl border border-white/[0.08] shadow-xl space-y-3">
+      <!-- Bottom Waveform & Silence Timeline (Promax) -->
+      <div class="promax-panel p-5 rounded-2xl space-y-3">
         <div class="flex flex-wrap items-center justify-between gap-3">
           <div class="flex items-center gap-2">
             <span class="text-base text-amber-400">📊</span>
@@ -384,56 +469,56 @@
     </div>
     <!-- End 1. Studio View -->
 
-    <!-- 2. Items Queue View -->
+    <!-- 2. Items Queue View (Promax) -->
     <div id="itemsView" class="hidden space-y-6">
-      <div class="bg-gray-900 p-5 rounded-xl border border-gray-800 space-y-4">
+      <div class="promax-panel p-6 rounded-2xl space-y-4">
         <!-- Top Toolbar -->
-        <div class="flex flex-wrap items-center justify-between gap-3 border-b border-gray-800 pb-4">
+        <div class="flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.06] pb-4">
           <div>
             <h2 class="text-base font-semibold text-white flex items-center gap-2">
               <span>📦</span> Incoming Story Packages
               <span id="itemsTotalCount" class="text-xs font-normal text-gray-400 bg-gray-800 px-2 py-0.5 rounded-full border border-gray-700">0 Packages</span>
             </h2>
-            <p class="text-xs text-gray-400 mt-0.5">Dispatched from Google AI Studio / Gemini via API (<code class="text-blue-400 font-mono">POST /api/upload_item</code>)</p>
+            <p class="text-xs text-gray-400 mt-0.5">Dispatched from Google AI Studio / Gemini via API (<code class="text-indigo-400 font-mono">POST /api/upload_item</code>)</p>
           </div>
           <div class="flex items-center gap-2">
             <input type="file" id="manualZipInput" accept=".zip,image/*" multiple class="hidden" />
-            <button id="openZipJsonModalBtn" class="py-1.5 px-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-xs font-semibold text-white rounded-lg transition flex items-center gap-1.5 shadow-md shadow-blue-900/30">
+            <button id="openZipJsonModalBtn" class="py-1.5 px-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-xs font-bold text-white rounded-lg transition flex items-center gap-1.5 shadow-md shadow-blue-900/30 cursor-pointer active:scale-[0.98] promax-btn-shine">
               <span>✨</span> Upload ZIP + Paste JSON
             </button>
-            <button id="uploadZipItemBtn" class="py-1.5 px-3 bg-gray-800 hover:bg-gray-700 border border-gray-700 text-xs font-medium text-gray-200 rounded transition flex items-center gap-1.5" title="Upload a ZIP or multiple image files directly">
+            <button id="uploadZipItemBtn" class="py-1.5 px-3 bg-gray-800 hover:bg-gray-700 border border-gray-700 text-xs font-medium text-gray-200 rounded-lg transition flex items-center gap-1.5 cursor-pointer active:scale-[0.98]" title="Upload a ZIP or multiple image files directly">
               <span>📤</span> Upload ZIP / Images
             </button>
-            <button id="refreshItemsBtn" class="py-1.5 px-3 bg-blue-600 hover:bg-blue-500 text-xs font-medium text-white rounded transition flex items-center gap-1.5 shadow">
+            <button id="refreshItemsBtn" class="py-1.5 px-3 bg-indigo-600 hover:bg-indigo-500 text-xs font-medium text-white rounded-lg transition flex items-center gap-1.5 shadow cursor-pointer active:scale-[0.98]">
               <span>🔄</span> Refresh
             </button>
           </div>
         </div>
 
         <!-- Instructions Banner -->
-        <div class="p-3 bg-blue-950/40 border border-blue-800/50 rounded-lg text-xs text-blue-200 flex items-start gap-2.5">
+        <div class="p-3.5 bg-indigo-950/30 border border-indigo-500/20 rounded-xl text-xs text-indigo-200 flex items-start gap-2.5">
           <span class="text-base">💡</span>
           <div>
-            <div class="font-semibold text-blue-300">Google AI Studio Workflow:</div>
-            Stories received from Google Studio (or uploaded as ZIP) appear here in real-time via Server-Sent Events. Click <span class="font-bold text-amber-300">"⚡ Open & Sync in Studio"</span> on any story below to pre-load its artwork and narration script. Then upload your voice-over audio to auto-align!
+            <div class="font-semibold text-indigo-300">Google AI Studio Workflow:</div>
+            Stories received from Google Studio (or uploaded as ZIP) appear here in real-time via Server-Sent Events. Click <span class="font-bold text-amber-300">"⚡ Open &amp; Sync in Studio"</span> on any story below to pre-load its artwork and narration script. Then upload your voice-over audio to auto-align!
           </div>
         </div>
 
         <!-- Priority Filter Tabs for Items Queue -->
-        <div class="flex flex-wrap items-center justify-between gap-3 bg-gray-950/80 p-3 rounded-xl border border-gray-800">
+        <div class="flex flex-wrap items-center justify-between gap-3 bg-black/40 p-3 rounded-xl border border-white/[0.06]">
           <div class="flex flex-wrap items-center gap-2">
-            <span class="text-[10px] font-mono uppercase tracking-wider text-gray-400 font-semibold mr-1">Priority Filter:</span>
-            <button type="button" id="itemsFilterAll" onclick="setItemsFilter('all')" class="px-3 py-1 rounded-lg font-bold text-xs transition bg-blue-600 text-white shadow">
+            <span class="text-[10px] font-mono uppercase tracking-wider text-zinc-400 font-semibold mr-1">Priority Filter:</span>
+            <button type="button" id="itemsFilterAll" onclick="setItemsFilter('all')" class="px-3 py-1 rounded-lg font-bold text-xs transition bg-indigo-600 text-white shadow cursor-pointer active:scale-[0.98]">
               All Stories (<span id="itemsFilterCountAll">0</span>)
             </button>
-            <button type="button" id="itemsFilterPending" onclick="setItemsFilter('pending')" class="px-3 py-1 rounded-lg font-bold text-xs transition text-gray-400 hover:text-amber-300 bg-gray-900 border border-gray-800">
+            <button type="button" id="itemsFilterPending" onclick="setItemsFilter('pending')" class="px-3 py-1 rounded-lg font-bold text-xs transition text-gray-400 hover:text-amber-300 bg-gray-900 border border-gray-800 cursor-pointer active:scale-[0.98]">
               🔥 Needs Action (<span id="itemsFilterCountPending">0</span>)
             </button>
-            <button type="button" id="itemsFilterPublished" onclick="setItemsFilter('published')" class="px-3 py-1 rounded-lg font-bold text-xs transition text-gray-400 hover:text-emerald-400 bg-gray-900 border border-gray-800">
+            <button type="button" id="itemsFilterPublished" onclick="setItemsFilter('published')" class="px-3 py-1 rounded-lg font-bold text-xs transition text-gray-400 hover:text-emerald-400 bg-gray-900 border border-gray-800 cursor-pointer active:scale-[0.98]">
               ✓ Publish Complete (<span id="itemsFilterCountPublished">0</span>)
             </button>
           </div>
-          <div class="text-[11px] text-gray-400 font-mono" id="itemsFilterSummary">
+          <div class="text-[11px] text-zinc-400 font-mono" id="itemsFilterSummary">
             Showing all packages
           </div>
         </div>
@@ -446,11 +531,11 @@
     </div>
     <!-- End 2. Items Queue View -->
 
-    <!-- 3. Publishing Schedule & Manifest View -->
+    <!-- 3. Publishing Schedule & Manifest View (Promax) -->
     <div id="scheduleView" class="hidden space-y-6">
-      <div class="bg-gray-900/90 backdrop-blur-md p-6 rounded-2xl border border-white/[0.08] shadow-xl space-y-5">
+      <div class="promax-panel p-6 rounded-2xl space-y-5">
         <!-- Schedule Header Banner -->
-        <div class="flex flex-wrap items-center justify-between gap-4 border-b border-gray-800 pb-5">
+        <div class="flex flex-wrap items-center justify-between gap-4 border-b border-white/[0.06] pb-5">
           <div class="space-y-1">
             <div class="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 mb-1">
               <span>📅</span> Publishing Schedule
@@ -1051,6 +1136,8 @@
       const previewBox = document.getElementById('previewBox');
       const previewHeading = document.getElementById('previewHeading');
       const canvas = document.getElementById('previewCanvas');
+      const aspectBadge = document.getElementById('canvasAspectBadge');
+      const resBadge = document.getElementById('canvasResBadge');
       if (!canvas) return '9:16';
 
       if (images && images.length > 0) {
@@ -1068,7 +1155,14 @@
               previewBox.classList.add('aspect-4-5', 'max-w-[320px]');
             }
             if (previewHeading) {
-              previewHeading.innerHTML = '2. Canvas Preview <span class="text-xs text-amber-400 bg-amber-400/10 px-1.5 py-0.5 rounded ml-1 font-normal border border-amber-400/30">4:5 Auto</span>';
+              previewHeading.textContent = 'Canvas Preview';
+            }
+            if (aspectBadge) {
+              aspectBadge.textContent = '4:5 Feed';
+              aspectBadge.className = 'text-[10px] font-mono font-bold px-2 py-0.5 rounded-md bg-amber-500/15 text-amber-300 border border-amber-500/30';
+            }
+            if (resBadge) {
+              resBadge.textContent = '1080 × 1350';
             }
             return '4:5';
           }
@@ -1083,7 +1177,14 @@
         previewBox.classList.add('aspect-short', 'max-w-[280px]');
       }
       if (previewHeading) {
-        previewHeading.textContent = '2. Canvas Preview (9:16)';
+        previewHeading.textContent = 'Canvas Preview';
+      }
+      if (aspectBadge) {
+        aspectBadge.textContent = '9:16 Short';
+        aspectBadge.className = 'text-[10px] font-mono font-bold px-2 py-0.5 rounded-md bg-blue-500/15 text-blue-300 border border-blue-500/30';
+      }
+      if (resBadge) {
+        resBadge.textContent = '720 × 1280';
       }
       return '9:16';
     }
@@ -1649,23 +1750,67 @@
 
       waveCtx.clearRect(0, 0, W, H);
 
-      // Baseline
-      waveCtx.strokeStyle = '#1c2128';
-      waveCtx.lineWidth = 1;
-      waveCtx.beginPath();
-      waveCtx.moveTo(0, H / 2);
-      waveCtx.lineTo(W, H / 2);
-      waveCtx.stroke();
+      // 1. Dark DAW workspace background
+      waveCtx.fillStyle = '#080b12';
+      waveCtx.fillRect(0, 0, W, H);
 
-      if (!audioBuffer) return;
+      if (!audioBuffer) {
+        // Empty state grid
+        waveCtx.strokeStyle = 'rgba(255, 255, 255, 0.04)';
+        waveCtx.lineWidth = 1;
+        for (let gx = 0; gx < W; gx += 40) {
+          waveCtx.beginPath();
+          waveCtx.moveTo(gx, 0);
+          waveCtx.lineTo(gx, H);
+          waveCtx.stroke();
+        }
+        waveCtx.fillStyle = 'rgba(255, 255, 255, 0.2)';
+        waveCtx.font = '11px "Inter", -apple-system, sans-serif';
+        waveCtx.textAlign = 'center';
+        waveCtx.textBaseline = 'middle';
+        waveCtx.fillText('Load voice-over audio to display interactive waveform & scene cuts', W / 2, H / 2);
+        return;
+      }
 
       const duration = audioBuffer.duration;
       const data = audioBuffer.getChannelData(0);
       const step = Math.ceil(data.length / W);
-      const amp = H * 0.44;
+      const amp = H * 0.42;
 
-      // 1. Draw Waveform Peaks
-      waveCtx.fillStyle = '#388bfd';
+      // 2. Grid lines & second markers
+      waveCtx.font = '9px "JetBrains Mono", monospace';
+      waveCtx.textAlign = 'center';
+      for (let sec = 1; sec < duration; sec++) {
+        const sx = (sec / duration) * W;
+        const is5s = (sec % 5 === 0);
+        waveCtx.strokeStyle = is5s ? 'rgba(255, 255, 255, 0.12)' : 'rgba(255, 255, 255, 0.03)';
+        waveCtx.lineWidth = 1;
+        waveCtx.beginPath();
+        waveCtx.moveTo(sx, is5s ? 0 : H - 6);
+        waveCtx.lineTo(sx, H);
+        waveCtx.stroke();
+
+        if (is5s && sx < W - 20) {
+          waveCtx.fillStyle = 'rgba(255, 255, 255, 0.35)';
+          waveCtx.fillText(`${sec}s`, sx, 10);
+        }
+      }
+
+      // Current playhead x
+      const curTime = audioElement.currentTime || 0;
+      const playX = Math.max(0, Math.min((curTime / duration) * W, W));
+
+      // 3. Audio peaks with gradient illumination
+      const playedGrad = waveCtx.createLinearGradient(0, 0, 0, H);
+      playedGrad.addColorStop(0, '#38bdf8');   // Neon Sky Blue
+      playedGrad.addColorStop(0.5, '#6366f1'); // Electric Indigo
+      playedGrad.addColorStop(1, '#38bdf8');
+
+      const unplayedGrad = waveCtx.createLinearGradient(0, 0, 0, H);
+      unplayedGrad.addColorStop(0, '#1e293b'); // Dark Slate
+      unplayedGrad.addColorStop(0.5, '#334155');
+      unplayedGrad.addColorStop(1, '#1e293b');
+
       for (let x = 0; x < W; x++) {
         let min = 1.0;
         let max = -1.0;
@@ -1677,25 +1822,28 @@
           if (val > max) max = val;
         }
         const barH = Math.max(2, (max - min) * amp);
-        waveCtx.fillRect(x, (H - barH) / 2, 1, barH);
+        const yTop = (H - barH) / 2;
+
+        waveCtx.fillStyle = (x <= playX) ? playedGrad : unplayedGrad;
+        waveCtx.fillRect(x, yTop, 1, barH);
       }
 
-      // 2. Draw -36dB Silence Marks
-      waveCtx.fillStyle = 'rgba(249, 115, 22, 0.3)';
+      // 4. Detected Silence Pauses
       for (const p of detectedPauses) {
         const px = (p / duration) * W;
+        waveCtx.fillStyle = 'rgba(251, 146, 60, 0.25)';
         waveCtx.fillRect(px - 1, 0, 2, H);
       }
 
-      // 3. Draw Cut Markers with Handles
+      // 5. Scene Cut Markers with handles
       for (let i = 1; i < sceneCuts.length - 1; i++) {
         const cutTime = sceneCuts[i];
         const cx = (cutTime / duration) * W;
 
-        // Line
+        // Cut dashed guide line
         waveCtx.strokeStyle = '#f97316';
         waveCtx.lineWidth = 2;
-        waveCtx.setLineDash([3, 2]);
+        waveCtx.setLineDash([4, 3]);
         waveCtx.beginPath();
         waveCtx.moveTo(cx, 0);
         waveCtx.lineTo(cx, H);
@@ -1703,22 +1851,24 @@
         waveCtx.setLineDash([]);
 
         // Handle Badge
+        waveCtx.shadowColor = 'rgba(249, 115, 22, 0.6)';
+        waveCtx.shadowBlur = 8;
         waveCtx.fillStyle = '#f97316';
         waveCtx.beginPath();
-        waveCtx.roundRect(cx - 20, 3, 40, 16, 8);
+        waveCtx.roundRect(cx - 20, 2, 40, 16, 8);
         waveCtx.fill();
+        waveCtx.shadowColor = 'transparent';
 
         waveCtx.fillStyle = '#ffffff';
-        waveCtx.font = 'bold 9px monospace';
+        waveCtx.font = 'bold 9px "JetBrains Mono", monospace';
         waveCtx.textAlign = 'center';
         waveCtx.textBaseline = 'middle';
-        waveCtx.fillText(`${cutTime.toFixed(1)}s`, cx, 11);
+        waveCtx.fillText(`${cutTime.toFixed(1)}s`, cx, 10);
       }
 
-      // 4. Draw Playhead
-      const curTime = audioElement.currentTime || 0;
-      const playX = (curTime / duration) * W;
-
+      // 6. Illuminated Playhead
+      waveCtx.shadowColor = 'rgba(255, 255, 255, 0.8)';
+      waveCtx.shadowBlur = 8;
       waveCtx.strokeStyle = '#ffffff';
       waveCtx.lineWidth = 2;
       waveCtx.beginPath();
@@ -1728,11 +1878,12 @@
 
       waveCtx.fillStyle = '#ffffff';
       waveCtx.beginPath();
-      waveCtx.moveTo(playX - 5, 0);
-      waveCtx.lineTo(playX + 5, 0);
-      waveCtx.lineTo(playX, 7);
+      waveCtx.moveTo(playX - 6, 0);
+      waveCtx.lineTo(playX + 6, 0);
+      waveCtx.lineTo(playX, 8);
       waveCtx.closePath();
       waveCtx.fill();
+      waveCtx.shadowColor = 'transparent';
     }
 
     function getMarkerUnderPointer(clientX) {
@@ -2121,7 +2272,20 @@
       context.restore();
     }
 
-    // Playback loop
+    // Playback loop & Promax transport controls
+    function setPlayState(isPlaying) {
+      if (!playBtn) return;
+      if (isPlaying) {
+        playBtn.innerHTML = '<span>⏸</span> Pause Preview';
+        playBtn.classList.remove('from-indigo-600', 'via-indigo-500', 'to-purple-600');
+        playBtn.classList.add('from-amber-600', 'via-amber-500', 'to-orange-600');
+      } else {
+        playBtn.innerHTML = '<span>▶</span> Play Preview';
+        playBtn.classList.remove('from-amber-600', 'via-amber-500', 'to-orange-600');
+        playBtn.classList.add('from-indigo-600', 'via-indigo-500', 'to-purple-600');
+      }
+    }
+
     function updateLoop() {
       if (!audioElement.paused && !audioElement.ended) {
         const t = audioElement.currentTime;
@@ -2131,7 +2295,7 @@
         highlightActiveScene(t);
         animFrameId = requestAnimationFrame(updateLoop);
       } else {
-        playBtn.textContent = 'Play';
+        setPlayState(false);
       }
     }
 
@@ -2139,17 +2303,26 @@
       getAudioContext();
       if (audioElement.paused) {
         audioElement.play();
-        playBtn.textContent = 'Pause';
+        setPlayState(true);
         updateLoop();
       } else {
         audioElement.pause();
-        playBtn.textContent = 'Play';
+        setPlayState(false);
         cancelAnimationFrame(animFrameId);
       }
     });
 
+    // Canvas Click-to-Play
+    const previewCanvasEl = document.getElementById('previewCanvas');
+    if (previewCanvasEl) {
+      previewCanvasEl.addEventListener('click', () => {
+        if (!playBtn || playBtn.disabled) return;
+        playBtn.click();
+      });
+    }
+
     audioElement.addEventListener('ended', () => {
-      playBtn.textContent = 'Play';
+      setPlayState(false);
     });
 
     // In-Browser MediaRecorder Export with Progress Bar (MP4 with WebM fallback)
@@ -2526,6 +2699,22 @@
         .replace(/^_+|_+$/g, "") + ".mp4";
     }
 
+    function updateStudioMetadataCounters() {
+      const titleInput = document.getElementById("studioStoryTitleInput");
+      const captionInput = document.getElementById("studioStoryCaptionInput");
+      const titleCount = document.getElementById("studioTitleCount");
+      const captionCount = document.getElementById("studioCaptionCount");
+
+      if (titleInput && titleCount) {
+        const len = titleInput.value.length;
+        titleCount.textContent = `${len} char${len === 1 ? '' : 's'}`;
+      }
+      if (captionInput && captionCount) {
+        const len = captionInput.value.length;
+        captionCount.textContent = `${len} char${len === 1 ? '' : 's'}`;
+      }
+    }
+
     function updateStudioFilenamePreview() {
       const titleInput = document.getElementById("studioStoryTitleInput");
       const filenameBox = document.getElementById("studioTargetFilename");
@@ -2533,7 +2722,41 @@
         const raw = titleInput.value.trim() || "story_output";
         filenameBox.textContent = pipeSlugify(raw);
       }
+      updateStudioMetadataCounters();
     }
+
+    function copyTargetFilename() {
+      const filenameBox = document.getElementById("studioTargetFilename");
+      if (!filenameBox) return;
+      const text = filenameBox.textContent.trim();
+      if (!text) return;
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(() => {
+          showToast(`Copied filename "${text}" to clipboard!`);
+        }).catch(() => {
+          fallbackCopyText(text);
+        });
+      } else {
+        fallbackCopyText(text);
+      }
+    }
+
+    function fallbackCopyText(text) {
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      ta.style.position = "fixed";
+      ta.style.opacity = "0";
+      document.body.appendChild(ta);
+      ta.select();
+      try {
+        document.execCommand("copy");
+        showToast(`Copied filename "${text}" to clipboard!`);
+      } catch (_) {
+        showToast("Could not copy to clipboard", "warn");
+      }
+      document.body.removeChild(ta);
+    }
+    window.copyTargetFilename = copyTargetFilename;
 
     function getStudioStoryMetadata() {
       const titleInput = document.getElementById("studioStoryTitleInput");
@@ -2699,8 +2922,18 @@
     const studioTitleInp = document.getElementById("studioStoryTitleInput");
     const studioCaptionInp = document.getElementById("studioStoryCaptionInput");
     const studioDescInp = document.getElementById("studioStoryDescInput");
-    if (studioTitleInp) studioTitleInp.addEventListener("input", queueMetadataAutoSave);
-    if (studioCaptionInp) studioCaptionInp.addEventListener("input", queueMetadataAutoSave);
+    if (studioTitleInp) {
+      studioTitleInp.addEventListener("input", () => {
+        updateStudioMetadataCounters();
+        queueMetadataAutoSave();
+      });
+    }
+    if (studioCaptionInp) {
+      studioCaptionInp.addEventListener("input", () => {
+        updateStudioMetadataCounters();
+        queueMetadataAutoSave();
+      });
+    }
     if (studioDescInp) studioDescInp.addEventListener("input", queueMetadataAutoSave);
 
     const studioAutoPublishBtnEl = document.getElementById("studioAutoPublishBtn");
@@ -3011,6 +3244,7 @@
         if (studioCaptionInput) studioCaptionInput.value = "";
         if (studioDescInput) studioDescInput.value = "";
         if (studioFilenameBox) studioFilenameBox.textContent = "story_output.mp4";
+        updateStudioMetadataCounters();
         applyMetadataLockState(false, false);
       });
     }
@@ -3394,6 +3628,7 @@
         if (studioCaptionInput) studioCaptionInput.value = item.caption || "";
         if (studioDescInput) studioDescInput.value = item.description || "";
         if (studioFilenameBox) studioFilenameBox.textContent = (item.filename || pipeSlugify(item.title || "story_output")) + (item.filename && item.filename.endsWith(".mp4") ? "" : ".mp4");
+        updateStudioMetadataCounters();
 
         const isSocialLocked = Boolean(item.fb_published || item.yt_published || (fbDone || ytDone));
         const isCloudSynced = Boolean(item._isPublished || item.published_complete || archMatch);
