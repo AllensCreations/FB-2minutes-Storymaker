@@ -826,6 +826,79 @@
               </div>
             </div>
 
+            <!-- Turso Database + Make.com Integration Guide Accordion (Promax) -->
+            <div class="border border-purple-500/30 rounded-xl overflow-hidden bg-gradient-to-b from-purple-950/20 to-gray-950/40">
+              <div class="flex items-center justify-between p-3.5 cursor-pointer select-none bg-purple-950/30 hover:bg-purple-900/30 transition" onclick="toggleTursoGuide()">
+                <div class="flex items-center gap-2.5">
+                  <span class="text-base">🗄️</span>
+                  <div>
+                    <div class="text-xs font-bold text-purple-200 flex items-center gap-1.5">
+                      <span>Turso (libSQL Edge DB) + Make.com Guide</span>
+                      <span class="text-[9px] bg-purple-950 border border-purple-700/60 text-purple-300 px-1.5 py-0.2 rounded font-mono font-semibold">Fast Alternative</span>
+                    </div>
+                    <p class="text-[11px] text-zinc-400">Replace Google Sheets with ultra-fast edge SQLite and automate posting in Make.com</p>
+                  </div>
+                </div>
+                <div class="flex items-center gap-2">
+                  <button type="button" class="py-1 px-2.5 bg-purple-900/60 hover:bg-purple-800 border border-purple-600/50 text-purple-200 font-semibold rounded-lg text-[10px] transition flex items-center gap-1 cursor-pointer" onclick="event.stopPropagation(); copyTursoSchema();">
+                    <span>📋</span> Copy Schema
+                  </button>
+                  <span id="tursoGuideToggleIcon" class="text-xs text-purple-300">▼</span>
+                </div>
+              </div>
+
+              <div id="tursoGuideContent" class="hidden p-4 border-t border-purple-500/20 space-y-3.5 bg-black/40">
+                <!-- Step 1 & 2 -->
+                <div class="space-y-1.5">
+                  <div class="flex items-center gap-2 text-xs font-bold text-zinc-200">
+                    <span class="w-5 h-5 rounded-full bg-purple-900/60 border border-purple-500/40 text-purple-300 text-[10px] flex items-center justify-center font-mono font-bold">1</span>
+                    <span>Create Database &amp; Table in Turso</span>
+                  </div>
+                  <p class="text-[11px] text-zinc-400 pl-7">Run <code class="text-purple-300 font-mono bg-purple-950/60 px-1.5 py-0.5 rounded border border-purple-800/40">turso db create storymaker-db</code>, then open shell with <code class="text-purple-300 font-mono bg-purple-950/60 px-1.5 py-0.5 rounded border border-purple-800/40">turso db shell storymaker-db</code> and execute:</p>
+                  <div class="pl-7">
+                    <textarea id="tursoSchemaText" rows="6" readonly class="w-full bg-gray-950 border border-purple-900/40 rounded-lg p-2.5 text-[11px] font-mono text-purple-200/90 focus:outline-none"></textarea>
+                  </div>
+                </div>
+
+                <!-- Step 3: Make.com Setup -->
+                <div class="space-y-1.5 pt-2 border-t border-white/[0.06]">
+                  <div class="flex items-center gap-2 text-xs font-bold text-zinc-200">
+                    <span class="w-5 h-5 rounded-full bg-indigo-900/60 border border-indigo-500/40 text-indigo-300 text-[10px] flex items-center justify-center font-mono font-bold">2</span>
+                    <span>Connect Turso in Make.com via HTTP Module</span>
+                  </div>
+                  <div class="pl-7 space-y-2 text-[11px] text-zinc-300">
+                    <p>In Make.com, add an <strong>HTTP → Make a request</strong> module configured to poll Turso:</p>
+                    <ul class="list-disc list-inside space-y-1 text-zinc-400 font-mono text-[10px]">
+                      <li><strong class="text-zinc-200">URL:</strong> <code class="text-indigo-300">https://storymaker-db-[org].turso.io/v2/pipeline</code></li>
+                      <li><strong class="text-zinc-200">Method:</strong> <code class="text-indigo-300">POST</code></li>
+                      <li><strong class="text-zinc-200">Headers:</strong> <code class="text-indigo-300">Authorization: Bearer YOUR_TURSO_TOKEN</code>, <code class="text-indigo-300">Content-Type: application/json</code></li>
+                    </ul>
+                  </div>
+                </div>
+
+                <!-- Step 4: Make.com Scenario Flow -->
+                <div class="space-y-1.5 pt-2 border-t border-white/[0.06]">
+                  <div class="flex items-center gap-2 text-xs font-bold text-zinc-200">
+                    <span class="w-5 h-5 rounded-full bg-emerald-900/60 border border-emerald-500/40 text-emerald-300 text-[10px] flex items-center justify-center font-mono font-bold">3</span>
+                    <span>Make.com Automation Pipeline</span>
+                  </div>
+                  <div class="pl-7 flex flex-wrap items-center gap-1.5 text-[10px] font-mono text-zinc-300">
+                    <span class="px-2 py-1 rounded bg-gray-900 border border-gray-800">1. Turso Query (fb_published = 0)</span>
+                    <span>→</span>
+                    <span class="px-2 py-1 rounded bg-gray-900 border border-gray-800">2. Dropbox Download</span>
+                    <span>→</span>
+                    <span class="px-2 py-1 rounded bg-gray-900 border border-gray-800">3. Facebook &amp; YouTube Upload</span>
+                    <span>→</span>
+                    <span class="px-2 py-1 rounded bg-gray-900 border border-gray-800">4. Turso Update (fb_published = 1)</span>
+                  </div>
+                </div>
+
+                <div class="pl-7 pt-1 text-[11px] text-zinc-400">
+                  📖 Complete step-by-step instructions available in <a href="docs/TURSO_MAKE_GUIDE.md" target="_blank" class="text-purple-400 hover:underline font-semibold">docs/TURSO_MAKE_GUIDE.md</a>
+                </div>
+              </div>
+            </div>
+
             <!-- Action Buttons & Status -->
             <div class="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-gray-800">
               <div class="flex items-center gap-2">
@@ -4638,6 +4711,51 @@ function handleRequest(e) {
       }
     };
 
+    const TURSO_SCHEMA_SQL = `CREATE TABLE IF NOT EXISTS stories (
+    id TEXT PRIMARY KEY,
+    filename TEXT UNIQUE NOT NULL,
+    title TEXT NOT NULL,
+    caption TEXT,
+    description TEXT,
+    dropbox_path TEXT,
+    status TEXT DEFAULT 'ready',
+    fb_published INTEGER DEFAULT 0,
+    fb_published_at TEXT,
+    yt_published INTEGER DEFAULT 0,
+    yt_published_at TEXT,
+    created_at TEXT DEFAULT (datetime('now'))
+);
+CREATE INDEX IF NOT EXISTS idx_stories_status ON stories(status, fb_published, yt_published);`;
+
+    window.toggleTursoGuide = function() {
+      const el = document.getElementById("tursoGuideContent");
+      const icon = document.getElementById("tursoGuideToggleIcon");
+      if (!el) return;
+      if (el.classList.contains("hidden")) {
+        el.classList.remove("hidden");
+        if (icon) icon.textContent = "▲";
+        const ta = document.getElementById("tursoSchemaText");
+        if (ta && !ta.value) ta.value = TURSO_SCHEMA_SQL;
+      } else {
+        el.classList.add("hidden");
+        if (icon) icon.textContent = "▼";
+      }
+    };
+
+    window.copyTursoSchema = function() {
+      const ta = document.getElementById("tursoSchemaText");
+      if (ta) ta.value = TURSO_SCHEMA_SQL;
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(TURSO_SCHEMA_SQL).then(() => {
+          showToast("Turso SQL Schema copied to clipboard!");
+        }).catch(() => {
+          fallbackCopyText(TURSO_SCHEMA_SQL);
+        });
+      } else {
+        fallbackCopyText(TURSO_SCHEMA_SQL);
+      }
+    };
+
         function updateTokenPill() {
       const rt = pipeV('dbRefreshToken') || pipeCfg('dbRefreshToken', DEFAULT_REFRESH_TOKEN);
       const pill = document.getElementById('tokenPill');
@@ -5205,6 +5323,8 @@ function handleRequest(e) {
     function initPublisherPipeline() {
       const gasArea = document.getElementById('gasScript');
       if (gasArea) gasArea.value = GAS_SCRIPT;
+      const tursoArea = document.getElementById('tursoSchemaText');
+      if (tursoArea) tursoArea.value = TURSO_SCHEMA_SQL;
 
       const appKeyEl = document.getElementById('dbAppKey');
       if (appKeyEl) appKeyEl.value = pipeLs('dbAppKey') || DEFAULT_APP_KEY;
