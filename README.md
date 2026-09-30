@@ -1,6 +1,6 @@
 # FB-2minutes Storymaker
 
-[![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://github.com/AllensCreations/FB-2minutes-Storymaker)
+[![Version](https://img.shields.io/badge/version-1.0.2-blue.svg)](https://github.com/AllensCreations/FB-2minutes-Storymaker)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![Tests Passing](https://img.shields.io/badge/tests-39%20passed-brightgreen.svg)](tests/)
@@ -11,7 +11,7 @@ An automated storytelling engine that produces viral storybook-style vertical vi
 
 ## ⚡ One-Line Quick Install & Auto-Updater
 
-Install or automatically upgrade your existing installation to the latest **v1.0.0** release with a single command on **Linux**, **macOS**, or **Android Termux**:
+Install or automatically upgrade your existing installation to the latest **v1.0.2** release with a single command on **Linux**, **macOS**, or **Android Termux**:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/AllensCreations/FB-2minutes-Storymaker/main/install.sh | bash
@@ -145,8 +145,12 @@ Or clone and set up locally:
 ```bash
 git clone https://github.com/AllensCreations/FB-2minutes-Storymaker.git
 cd FB-2minutes-Storymaker
+git config core.hooksPath .githooks
 bash setup_local.sh
 ```
+
+The pre-commit hook increments the patch version by `0.0.1` and stages the synchronized version files on each commit.
+When launched from a Git checkout, the terminal app checks its configured upstream on every run, fast-forwards and restarts when behind, and refuses to launch if it cannot verify or safely apply an update. A network connection is required.
 
 ### 2. Environment Configuration
 
@@ -182,6 +186,8 @@ python3 app.py
 ```bash
 # Interactive Terminal Dashboard for Termux / mobile consoles
 fb-storymaker --tui
+# Use Up/Down (or J/K) to navigate, Enter to select, number keys to jump, Q to quit
+# The app checks for updates first and restarts automatically after a safe fast-forward.
 
 # Batch render video directly from CLI
 fb-storymaker --run
@@ -264,7 +270,7 @@ FB-2minutes-Storymaker/
 ├── main.py                     # Main CLI and pipeline orchestrator
 ├── install.sh                  # One-line installer and v1.0.0 auto-updater
 ├── setup_local.sh              # Local environment configuration script
-├── VERSION                     # Release version indicator (1.0.0)
+├── VERSION                     # Release version indicator (1.0.2)
 ├── .env.example                # Example environment variables template
 ├── src/
 │   ├── align_engine/           # Speech-Cue Align Engine (script parsing & pause detection)

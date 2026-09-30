@@ -213,10 +213,13 @@ class ItemsManager:
 
         # 1. Unpack ZIP safely (guard against zip-slip)
         with zipfile.ZipFile(io.BytesIO(zip_bytes), "r") as zf:
+            item_root = item_folder.resolve()
             for member in zf.infolist():
                 # Ignore directories or path traversal
                 target_path = (item_folder / member.filename).resolve()
-                if not str(target_path).startswith(str(item_folder.resolve())):
+                try:
+                    target_path.relative_to(item_root)
+                except ValueError:
                     continue
                 if member.is_dir():
                     target_path.mkdir(parents=True, exist_ok=True)
@@ -536,6 +539,15 @@ class ItemsManager:
             item_folder = (self.items_dir / item_id).resolve()
             if not item_folder.exists() or not item_folder.is_dir():
                 return None
+
+            if (
+                not isinstance(filename, str)
+                or not filename
+                or filename in {".", ".."}
+                or Path(filename).name != filename
+                or "\\" in filename
+            ):
+                raise ValueError("Audio filename must be a plain file name.")
 
             # Write audio file
             audio_path = item_folder / filename

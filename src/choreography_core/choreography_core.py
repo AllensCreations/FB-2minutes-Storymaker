@@ -308,32 +308,25 @@ class VisualChoreographer:
         return chunks[chunk_idx].upper()
 
     @staticmethod
-    def get_hormozi_caption_chunk(text: str, scene_t: float, duration: float) -> Tuple[str, float]:
+    def get_hormozi_caption_chunk(
+        text: str,
+        scene_t: float,
+        duration: float,
+        words_per_chunk: int = 5
+    ) -> Tuple[str, float]:
         """
-        Splits scene text into 1-2 word punchy chunks with character-weighted timing.
+        Splits scene text into 5-10 word caption chunks with character-weighted timing.
         Returns: (active_chunk_text in UPPERCASE, scale_multiplier_for_spring_pop)
         """
         words = [w for w in text.strip().split() if w]
         if not words:
             return "", 1.0
 
-        # Group short words into pairs (1-2 words per pop)
-        chunks = []
-        i = 0
-        while i < len(words):
-            word = words[i]
-            if len(word) <= 3 and i + 1 < len(words):
-                chunks.append(f"{word} {words[i+1]}")
-                i += 2
-            elif i + 1 < len(words) and len(word) + len(words[i+1]) <= 11 and not (word.endswith((".", "!", "?", ","))):
-                chunks.append(f"{word} {words[i+1]}")
-                i += 2
-            else:
-                chunks.append(word)
-                i += 1
-
-        if not chunks:
-            return "", 1.0
+        words_per_chunk = max(5, min(10, int(words_per_chunk)))
+        chunks = [
+            " ".join(words[i:i + words_per_chunk])
+            for i in range(0, len(words), words_per_chunk)
+        ]
 
         # Calculate character-based weights with pause for punctuation
         weights = []
@@ -390,6 +383,9 @@ class VisualChoreographer:
         style = self.CAPTION_PRESETS.get(style_key, self.CAPTION_PRESETS["gold"])
         font_size = int(style["font_size"] * scale)
         font = self._get_font(font_size)
+        while font_size > 24 and draw.textbbox((0, 0), text, font=font)[2] > self.width * 0.9:
+            font_size -= 2
+            font = self._get_font(font_size)
         x = self.width // 2
         y = int(self.height * 0.72)
         stroke_w = max(2, int(style["stroke_width"] * scale))
@@ -425,7 +421,9 @@ class VisualChoreographer:
         show_captions: bool = True,
         prev_scene: Optional[SceneTimeline] = None,
         transition_duration: float = 0.45,
-        caption_style: str = "gold"
+        caption_style: str = "gold",
+        caption_words_per_chunk: int = 5,
+        retro_flicker: bool = False
     ) -> Image.Image:
         """
         Renders a single video frame matching HTML5 canvas:
@@ -433,7 +431,7 @@ class VisualChoreographer:
         - Top/bottom vignette gradient
         - Smooth cinematic cross-dissolve transition between scenes with continuous motion
         - Subtle Ken Burns push-in
-        - 1-2 Word Punchy Hormozi Spring Pop caption directly over lower third (72% down)
+        - Timed 5-10 word Hormozi Spring Pop captions directly over lower third (72% down)
         - 6px blue story progress bar at very bottom
         """
         # 1. Render current scene image with Ken Burns push-in & drift
@@ -453,7 +451,9 @@ class VisualChoreographer:
         # 3. 1-2 Word Punchy Spring Pop Caption directly over lower third (72% down)
         if show_captions and scene.text:
             draw = ImageDraw.Draw(frame)
-            active_chunk, pop_scale = self.get_hormozi_caption_chunk(scene.text, scene_t, scene.duration)
+            active_chunk, pop_scale = self.get_hormozi_caption_chunk(
+                scene.text, scene_t, scene.duration, caption_words_per_chunk
+            )
             self._draw_hormozi_caption(
                 draw=draw,
                 text=active_chunk,
@@ -467,6 +467,11 @@ class VisualChoreographer:
         overall_fill_w = int(self.width * overall_progress)
         if overall_fill_w > 0:
             draw.rectangle([0, self.height - 6, overall_fill_w, self.height], fill=(59, 130, 246))
+
+        if retro_flicker:
+            alpha = 0.075 + 0.025 * math.sin(total_t * 2 * math.pi * 8)
+            warm_overlay = Image.new("RGB", frame.size, (255, 220, 160))
+            frame = Image.blend(frame, warm_overlay, alpha)
 
         return frame
 
