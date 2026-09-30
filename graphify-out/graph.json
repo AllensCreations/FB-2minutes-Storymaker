@@ -1334,7 +1334,7 @@
       "file_type": "code",
       "norm_label": "start_server()",
       "source_file": "web/server.py",
-      "source_location": "L2175"
+      "source_location": "L2178"
     },
     {
       "id": "web_server_start_server_open",
@@ -1346,7 +1346,7 @@
       "file_type": "code",
       "norm_label": "_open()",
       "source_file": "web/server.py",
-      "source_location": "L2224"
+      "source_location": "L2227"
     },
     {
       "id": "tests_test_api_gateway_testapigatewaynode_run_node_eval",
@@ -2198,7 +2198,7 @@
       "file_type": "code",
       "norm_label": ".do_delete()",
       "source_file": "web/server.py",
-      "source_location": "L2082"
+      "source_location": "L2085"
     },
     {
       "id": "web_server_storymakerrequesthandler_do_get",
@@ -2234,7 +2234,7 @@
       "file_type": "code",
       "norm_label": ".do_options()",
       "source_file": "web/server.py",
-      "source_location": "L2095"
+      "source_location": "L2098"
     },
     {
       "id": "web_server_storymakerrequesthandler_send_json",
@@ -2246,7 +2246,7 @@
       "file_type": "code",
       "norm_label": ".send_json()",
       "source_file": "web/server.py",
-      "source_location": "L2102"
+      "source_location": "L2105"
     },
     {
       "id": "web_server_storymakerrequesthandler_serve_file",
@@ -2258,7 +2258,7 @@
       "file_type": "code",
       "norm_label": ".serve_file()",
       "source_file": "web/server.py",
-      "source_location": "L2112"
+      "source_location": "L2115"
     },
     {
       "id": "web_server_storymakerrequesthandler_serve_video_range",
@@ -2270,7 +2270,7 @@
       "file_type": "code",
       "norm_label": ".serve_video_range()",
       "source_file": "web/server.py",
-      "source_location": "L2128"
+      "source_location": "L2131"
     },
     {
       "id": "src_items_manager_parse_multipart_request",
@@ -5396,7 +5396,7 @@
       "source_location": "L124"
     },
     {
-      "id": "web_server_rationale_2129",
+      "id": "web_server_rationale_2132",
       "label": "Supports HTTP 206 Partial Content for streaming/scrubbing in HTML5 video.",
       "_origin": "ast",
       "community": 38,
@@ -5404,7 +5404,7 @@
       "file_type": "rationale",
       "norm_label": "supports http 206 partial content for streaming/scrubbing in html5 video.",
       "source_file": "web/server.py",
-      "source_location": "L2129"
+      "source_location": "L2132"
     },
     {
       "id": "web_server_rationale_710",
@@ -8991,7 +8991,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "web/server.py",
-      "source_location": "L2089",
+      "source_location": "L2092",
       "weight": 1.0
     },
     {
@@ -9123,7 +9123,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "web/server.py",
-      "source_location": "L1887",
+      "source_location": "L1890",
       "weight": 1.0
     },
     {
@@ -9135,7 +9135,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "web/server.py",
-      "source_location": "L1900",
+      "source_location": "L1903",
       "weight": 1.0
     },
     {
@@ -9147,7 +9147,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "web/server.py",
-      "source_location": "L1945",
+      "source_location": "L1948",
       "weight": 1.0
     },
     {
@@ -12195,7 +12195,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "web/server.py",
-      "source_location": "L2241",
+      "source_location": "L2244",
       "weight": 1.0
     },
     {
@@ -13563,7 +13563,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "web/server.py",
-      "source_location": "L2112",
+      "source_location": "L2115",
       "weight": 1.0
     },
     {
@@ -13575,7 +13575,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "web/server.py",
-      "source_location": "L2128",
+      "source_location": "L2131",
       "weight": 1.0
     },
     {
@@ -14896,7 +14896,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "web/server.py",
-      "source_location": "L2175",
+      "source_location": "L2178",
       "weight": 1.0
     },
     {
@@ -16491,7 +16491,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "web/server.py",
-      "source_location": "L2082",
+      "source_location": "L2085",
       "weight": 1.0
     },
     {
@@ -16502,7 +16502,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "web/server.py",
-      "source_location": "L2095",
+      "source_location": "L2098",
       "weight": 1.0
     },
     {
@@ -16513,7 +16513,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "web/server.py",
-      "source_location": "L2102",
+      "source_location": "L2105",
       "weight": 1.0
     },
     {
@@ -16524,7 +16524,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "web/server.py",
-      "source_location": "L2112",
+      "source_location": "L2115",
       "weight": 1.0
     },
     {
@@ -16535,7 +16535,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "web/server.py",
-      "source_location": "L2128",
+      "source_location": "L2131",
       "weight": 1.0
     },
     {
@@ -18145,14 +18145,14 @@
       "weight": 1.0
     },
     {
-      "source": "web_server_rationale_2129",
+      "source": "web_server_rationale_2132",
       "target": "web_server_storymakerrequesthandler_serve_video_range",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "web/server.py",
-      "source_location": "L2129",
+      "source_location": "L2132",
       "weight": 1.0
     },
     {
@@ -18523,7 +18523,7 @@
       "confidence_score": 0.85,
       "context": "argument",
       "source_file": "web/server.py",
-      "source_location": "L2231",
+      "source_location": "L2234",
       "weight": 1.0
     },
     {
@@ -19003,7 +19003,7 @@
       "confidence_score": 0.85,
       "context": "call",
       "source_file": "web/server.py",
-      "source_location": "L2198",
+      "source_location": "L2201",
       "weight": 1.0
     },
     {
@@ -19015,7 +19015,7 @@
       "confidence_score": 0.85,
       "context": "call",
       "source_file": "web/server.py",
-      "source_location": "L2209",
+      "source_location": "L2212",
       "weight": 1.0
     },
     {
@@ -19027,7 +19027,7 @@
       "confidence_score": 0.85,
       "context": "call",
       "source_file": "web/server.py",
-      "source_location": "L2228",
+      "source_location": "L2231",
       "weight": 1.0
     },
     {
@@ -19111,7 +19111,7 @@
       "confidence_score": 0.85,
       "context": "call",
       "source_file": "web/server.py",
-      "source_location": "L1742",
+      "source_location": "L1744",
       "weight": 1.0
     },
     {
@@ -19849,5 +19849,5 @@
       "source_file": "docs/GOOGLE_STUDIO_GUIDE.md"
     }
   ],
-  "built_at_commit": "e1010b077146978faa96d3b126ca605c624792e0"
+  "built_at_commit": "47b685b4dc17ef04039095dbcca32af770779302"
 }

@@ -1733,15 +1733,18 @@ class StorymakerRequestHandler(SimpleHTTPRequestHandler):
                 auth_token = payload.get("auth_token") or cfg.get("turso_auth_token", "")
                 filename = payload.get("filename", "").strip()
                 caption = payload.get("caption", "")
+                description = payload.get("description", "")
                 status = payload.get("status", "ready")
                 uploaded_to_fb_ig = payload.get("uploaded_to_fb_ig", "pending")
                 uploaded_to_youtube = payload.get("uploaded_to_youtube", "pending")
+                dropbox_path = payload.get("dropbox_path")
                 if not filename:
                     self.send_json({"ok": False, "error": "Filename is required."}, status=400)
                     return
                 res = turso_log_story(
                     db_url, auth_token, filename, caption, description, status,
-                    uploaded_to_fb_ig, uploaded_to_youtube
+                    uploaded_to_fb_ig, uploaded_to_youtube,
+                    dropbox_path=dropbox_path
                 )
                 self.send_json(res)
             except Exception as e:
