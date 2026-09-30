@@ -1,36 +1,36 @@
 # FB-2minutes Storymaker
 
-[![Version](https://img.shields.io/badge/version-1.0.3-blue.svg)](https://github.com/AllensCreations/FB-2minutes-Storymaker)
+[![Version](https://img.shields.io/badge/version-1.0.4-blue.svg)](https://github.com/AllensCreations/FB-2minutes-Storymaker)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
-[![Tests Passing](https://img.shields.io/badge/tests-39%20passed-brightgreen.svg)](tests/)
+[![Tests](https://img.shields.io/badge/tests-unittest-blue.svg)](tests/)
 
-An automated storytelling engine that produces viral storybook-style vertical videos (9:16 and 4:5) by synchronizing narration audio, scripts, and visual artwork with **"Picture-Book Motion"** aesthetics, **Dynamic Timed Subtitle Paging**, **Multimodal AI Audio Alignment**, and **1-Click Cloud Auto-Publishing**.
+An automated storytelling engine that turns your narration, scripts, and artwork into vertical videos (9:16 and 4:5), with timed captions, audio alignment, and optional cloud publishing.
 
 ---
 
 ## ⚡ One-Line Quick Install & Auto-Updater
 
-Install or automatically upgrade your existing installation to the latest **v1.0.3** release with a single command on **Linux**, **macOS**, or **Android Termux**:
+Install or update the application on **Linux**, **macOS**, or **Android Termux**:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/AllensCreations/FB-2minutes-Storymaker/main/install.sh | bash
 ```
 
-### Auto-Update Guarantee
-The installer reads the local version metadata (`VERSION`), cleanly terminates any lingering port locks on `8000`/`8001`, pulls the newest release without git conflicts, updates Python and system dependencies, synchronizes HTML templates across mobile and web directories, and configures the global `fbsm` terminal launcher and `fb-storymaker` CLI command.
+After installation, `fbsm` opens the interactive terminal dashboard. Terminal launches check the current Git branch's configured upstream, fast-forward and restart when an update is available, and stop with an error if an update cannot be verified or safely applied. A network connection is required.
 
-To check your installed version:
 ```bash
 fbsm
-# Opens the interactive terminal UI
-
-Choose **Edit .env settings** to open the local environment file in your terminal editor (`$VISUAL`, `$EDITOR`, `nano`, or `vi`).
+# Open the interactive terminal dashboard
 
 fb-storymaker --version
-# or
+# Check the application version
+
 bash install.sh --version
+# Check the installer version
 ```
+
+From the dashboard, choose **Edit .env settings** to open `.env` in `$VISUAL`, `$EDITOR`, `nano`, or `vi`.
 
 ---
 
@@ -45,7 +45,7 @@ bash install.sh --version
                         │ POST /api/upload_item (ZIP + JSON)
                         ▼
 ┌────────────────────────────────────────────────────────┐
-│ 2. CREATIVE STUDIO & PACKAGES QUEUE (v1.0.0 Web UI)    │
+│ 2. CREATIVE STUDIO & PACKAGES QUEUE (Web UI)           │
 │    • 📦 Story Packages: Live catalog, status, archive  │
 │    • 🎬 Studio: Real-time waveform, timeline markers,  │
 │      ambient backdrop glow, canvas preview & TTS       │
@@ -82,42 +82,49 @@ bash install.sh --version
 
 ---
 
-## ✨ Key Features & Enhancements in v1.0.0
+## ✨ Key Features
 
-### 1. Modern 3-Tab Studio Navigation
+### 1. Studio & Publishing Queue
 - **📦 Story Packages**: Manage incoming story packages, track real-time rendering progress via Server-Sent Events (SSE), filter by pending/published status, and load stories into the studio with one click.
 - **🎬 Studio**: Creative canvas with 30 FPS playback, interactive audio waveform, manual draggable cut markers, fast cadence alignment, and multimodal AI auto-alignment.
+- **⏳ Publish Queue**: Auto-publish saves the current package and starts background rendering/upload; Studio clears only after the server accepts the job. Follow progress here, and reopen failed stories to retry.
 - **📅 Schedule**: Calendar view tracking published campaigns, release dates, and Facebook/YouTube distribution channels.
 - **⚙️ Settings Modal**: Consolidated credentials modal supporting Gemini API keys, Gemini model selection (`gemini-2.5-flash`, `gemini-1.5-pro`, `gemini-3.8-flash`), Dropbox cloud credentials, and Google Sheets manifest URLs.
 
-### 2. Auto-Jump & Instant Canvas Preview on "Open & Render"
+### 2. Interactive Terminal Dashboard
+- Run `fbsm` to open the terminal dashboard (equivalent to `fb-storymaker --tui`).
+- Use Up/Down or J/K to navigate, Enter to select, number keys for shortcuts, and Q to exit. Short terminals scroll the selection menu.
+- Choose **Edit .env settings** to edit local credentials from the terminal.
+- On Git checkouts, startup checks for updates and safely fast-forwards to the configured upstream when behind.
+
+### 3. Auto-Jump & Instant Canvas Preview on "Open & Render"
 - Clicking **"🎬 Open & Render"** (or **"🎙️ Open & Add Voiceover"**) on any story package card automatically switches the view to Studio and scrolls to the top of the interface.
 - Loads scene images in parallel via non-blocking asynchronous fetching.
 - Instantly displays the first scene illustration inside the Canvas Preview with full ambient backdrop glow and drop-shadow, even before audio upload.
 - If voiceover audio is packaged, audio decoding, speech-cut snapping, and waveform rendering complete automatically.
 
-### 3. Minimalist Studio UI
+### 4. Minimalist Studio UI
 - **Single Primary Action**: Combined redundant export, server render, and cloud publish buttons into a single primary action button: `🚀 Auto-Publish to Dropbox & Sheets`.
 - **Direct Local Download**: High-definition local MP4 download link is provided directly within the post-render completion toast notification without cluttering the canvas controls.
 - **Unified Timeline Alignment**: Consolidated timeline build and alignment tools into a single `✨ Auto-Align Timeline` button with smart multimodal AI analysis and offline cadence fallback.
 - **Streamlined Inputs**: Clean script input header displaying live scene counts with support for both structured JSON and plain-text `(Next image)` line markers.
 
-### 4. Puck Voiceover & 1.1x Tempo Narration
+### 5. Puck Voiceover & 1.1x Tempo Narration
 - **Default Voice**: Google Gemini TTS defaults to `Puck (Youthful & Lively)` for energetic, engaging storytelling.
 - **1.1x Speech Pacing**: Voiceover tracks are filtered at 1.1x speed using lossless audio tempo scaling (`atempo=1.1`), ensuring crisp narration that maintains voice pitch while eliminating drag.
 
-### 5. Reactive Item Metadata & Social Publish Locking
+### 6. Reactive Item Metadata & Social Publish Locking
 - **Real-Time Auto-Save**: Story title, social caption, and hashtags auto-sync in the background with 300ms debouncing.
 - **Social Publish Safety Lock**: Once a story is verified live on Facebook or YouTube (`fb_published` or `yt_published`), metadata editing is locked with an explicit unlock prompt to protect against desynchronization.
 
-### 6. Triple-Layer Duplicate Prevention
+### 7. Triple-Layer Duplicate Prevention
 - Protects against accidental overwrites by checking:
   1. Local story catalog (`published_complete` tag).
   2. Google Sheets manifest record.
   3. Dropbox destination folder.
 - If a matching filename is detected, an interactive confirmation modal requests explicit overwrite authorization.
 
-### 7. 100% Visual Parity (FFmpeg & Browser Canvas)
+### 8. 100% Visual Parity (FFmpeg & Browser Canvas)
 - **Ambient Backdrop Glow**: Gaussian-blurred, brightness-adjusted background sampled from the scene artwork.
 - **Vignette Gradient**: Soft vertical gradient overlay (darkening top and bottom edges for readability).
 - **Centered Width-Fitted Artwork with Drop Shadow**: 24px soft drop shadow behind the illustration.
@@ -150,12 +157,15 @@ Or clone and set up locally:
 ```bash
 git clone https://github.com/AllensCreations/FB-2minutes-Storymaker.git
 cd FB-2minutes-Storymaker
-git config core.hooksPath .githooks
 bash setup_local.sh
 ```
 
-The pre-commit hook increments the patch version by `0.0.1` and stages the synchronized version files on each commit.
-When launched from a Git checkout, the terminal app checks its configured upstream on every run, fast-forwards and restarts when behind, and refuses to launch if it cannot verify or safely apply an update. A network connection is required.
+`setup_local.sh` installs dependencies but does not create demo stories. Start with your own narration, script, and visual assets.
+
+To increment the patch version by `0.0.1` on each local commit, enable the included Git hook:
+```bash
+git config core.hooksPath .githooks
+```
 
 ### 2. Environment Configuration
 
@@ -179,11 +189,11 @@ PORT=8000
 ### 3. Launching the Application
 
 ```bash
-# Launch the Web Studio (opens http://localhost:8000)
+# Launch the Web Studio
 fb-storymaker --web
 
-# Or run directly via Python
-python3 app.py
+# Or run directly from the checkout
+python3 main.py --web
 ```
 
 ### 4. Terminal & Android Termux Mode
@@ -192,7 +202,8 @@ python3 app.py
 # Interactive Terminal Dashboard for Termux / mobile consoles
 fbsm
 # Use Up/Down (or J/K) to navigate, Enter to select, number keys to jump, Q to quit
-# The app checks for updates first and restarts automatically after a safe fast-forward.
+# Checks for upstream updates first; fast-forwards and restarts when safely behind.
+# Requires a Git checkout with an upstream configured and network access.
 
 # The long form remains available:
 fb-storymaker --tui
@@ -250,21 +261,19 @@ python3 scripts/send_story.py path/to/images/ --script path/to/story.json --upda
 
 ## 🧪 Testing & Verification
 
-Run the full automated test suite covering all engines, alignment routines, and publishing pipelines:
+Run the automated test suite:
 
 ```bash
-python3 -m unittest discover tests
+python3 -m unittest discover -s tests -p 'test_*.py'
 ```
-
-All **40 unit tests** pass cleanly with zero external mock failures.
 
 ---
 
 ## 📚 Guides & Automation Documentation
 
-- [🗄️ Turso + Make.com Integration Guide](file:///root/FB-2minutes-Storymaker/docs/TURSO_MAKE_GUIDE.md): Replace Google Apps Script (Sheets) with Turso (libSQL Edge DB) and automate Facebook & YouTube publishing in Make.com.
-- [✨ Google AI Studio Workflow Guide](file:///root/FB-2minutes-Storymaker/docs/GOOGLE_STUDIO_GUIDE.md): Step-by-step instructions for streaming story packages directly from Google AI Studio.
-- [🚀 Automation & Webhook Pipeline Guide](file:///root/FB-2minutes-Storymaker/docs/AUTOMATION_GUIDE.md): End-to-end automated pipeline connecting Google Flow, GitHub Actions, and Make.com.
+- [Turso + Make.com Integration Guide](docs/TURSO_MAKE_GUIDE.md): Configure the database and publishing workflow.
+- [Google AI Studio Workflow Guide](docs/GOOGLE_STUDIO_GUIDE.md): Prepare and send story packages from Google AI Studio.
+- [Automation & Webhook Pipeline Guide](docs/AUTOMATION_GUIDE.md): Connect Google Flow, GitHub Actions, and Make.com.
 
 ---
 
@@ -276,10 +285,11 @@ FB-2minutes-Storymaker/
 ├── AR.html                     # Mirrored client UI
 ├── app.py                      # Universal Python HTTP server & API gateway
 ├── main.py                     # Main CLI and pipeline orchestrator
-├── install.sh                  # One-line installer and v1.0.0 auto-updater
+├── install.sh                  # Installer and launcher setup
 ├── setup_local.sh              # Local environment configuration script
-├── VERSION                     # Release version indicator (1.0.3)
+├── VERSION                     # Release version indicator
 ├── .env.example                # Example environment variables template
+├── .githooks/                  # Optional version-bump commit hook
 ├── src/
 │   ├── align_engine/           # Speech-Cue Align Engine (script parsing & pause detection)
 │   ├── duration_director/      # Scene Duration Director (asset & timeline mapping)
@@ -295,8 +305,8 @@ FB-2minutes-Storymaker/
 ├── scripts/
 │   ├── google_studio_bridge.py # Automated bridge script
 │   └── send_story.py           # Python CLI script to send story packages to server
-├── assets/                     # Story packages, visuals, scripts, and output videos
-├── tests/                      # Automated test suite (39 unit tests)
+├── assets/                     # User story packages, visuals, scripts, and output videos
+├── tests/                      # Automated test suite
 ├── Makefile                    # Make targets (setup, run, web, test, clean)
 └── requirements.txt            # Runtime dependencies
 ```

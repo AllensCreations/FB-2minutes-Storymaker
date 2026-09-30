@@ -10,6 +10,7 @@ Handles incoming story packages (ZIP archives) from Google AI Studio / APIs:
 
 import io
 import json
+import math
 import os
 import queue
 import re
@@ -557,6 +558,7 @@ class ItemsManager:
             target["audio_file"] = filename
             target["audio_url"] = f"/api/items/{item_id}/audio"
             target["audio_status"] = "ready"
+            target.pop("caption_word_timings", None)
 
             # Also update story.json if it exists inside the item folder
             story_json_path = item_folder / "story.json"
@@ -564,6 +566,7 @@ class ItemsManager:
                 try:
                     s_data = json.loads(story_json_path.read_text(encoding="utf-8"))
                     s_data["audio_file"] = filename
+                    s_data.pop("caption_word_timings", None)
                     story_json_path.write_text(json.dumps(s_data, indent=2, ensure_ascii=False), encoding="utf-8")
                 except Exception:
                     pass
@@ -574,8 +577,63 @@ class ItemsManager:
         self.broadcast_event("item_updated", target)
         return target
 
-    def save_item_cuts(self, item_id: str, scene_cuts: List[float]) -> Optional[Dict[str, Any]]:
+    def save_item_cuts(
+        self,
+        item_id: str,
+        scene_cuts: List[float],
+        caption_word_timings: Optional[List[Dict[str, Any]]] = None,
+        scene_texts: Optional[List[str]] = None
+    ) -> Optional[Dict[str, Any]]:
         """Save aligned cut timestamps into story item."""
+        if scene_texts is not None and (
+            not isinstance(scene_texts, list)
+            or len(scene_texts) > 100
+            or any(not isinstance(text, str) or len(text) > 10000 for text in scene_texts)
+        ):
+            raise ValueError("Scene texts must be a list of at most 100 strings.")
+        if scene_texts is not None and len(scene_cuts) != len(scene_texts) + 1:
+            raise ValueError("Scene text count must match the saved cut markers.")
+        if caption_word_timings is not None:
+            if not isinstance(caption_word_timings, list) or len(caption_word_timings) > 100:
+                raise ValueError("Caption word timings must be a list of at most 100 scenes.")
+            if scene_texts is not None and len(caption_word_timings) not in {0, len(scene_texts)}:
+                raise ValueError("Caption timing count must match the scene text count.")
+            clean_timings = []
+            for scene in caption_word_timings:
+                if not isinstance(scene, dict):
+                    raise ValueError("Each caption timing entry must be an object.")
+                text = scene.get("text")
+                words = scene.get("words")
+                try:
+                    start, end = float(scene["start"]), float(scene["end"])
+                except (KeyError, TypeError, ValueError):
+                    raise ValueError("Caption timing entries need numeric start and end times.")
+                if (
+                    not isinstance(text, str) or len(text) > 10000
+                    or not math.isfinite(start) or not math.isfinite(end)
+                    or start < 0 or end < start
+                    or not isinstance(words, list) or len(words) > 2000
+                ):
+                    raise ValueError("Caption timing entry is invalid.")
+                clean_words = []
+                for pair in words:
+                    if not isinstance(pair, list) or len(pair) != 2:
+                        raise ValueError("Each word timing must contain start and end.")
+                    try:
+                        word_start, word_end = map(float, pair)
+                    except (TypeError, ValueError):
+                        raise ValueError("Word timing values must be numeric.")
+                    if (
+                        not math.isfinite(word_start) or not math.isfinite(word_end)
+                        or word_start < 0 or word_end < word_start
+                        or word_end > end - start + 0.1
+                    ):
+                        raise ValueError("Word timing is outside its scene.")
+                    clean_words.append([word_start, word_end])
+                clean_timings.append({
+                    "text": text, "start": start, "end": end, "words": clean_words
+                })
+
         with self._lock:
             items = self._read_index()
             target = next((it for it in items if it["id"] == item_id), None)
@@ -587,15 +645,41 @@ class ItemsManager:
                 return None
 
             target["scene_cuts"] = scene_cuts
+            if scene_texts is not None:
+                existing_scenes = target.get("scenes") or []
+                target["scenes"] = [
+                    {
+                        **(existing_scenes[idx] if idx < len(existing_scenes) and isinstance(existing_scenes[idx], dict) else {}),
+                        "scene": idx + 1,
+                        "text": text
+                    }
+                    for idx, text in enumerate(scene_texts)
+                ]
+                target["script_text"] = "\n(Next image)\n".join(scene_texts)
+            if caption_word_timings is not None:
+                target["caption_word_timings"] = clean_timings
 
             story_json_path = item_folder / "story.json"
-            if story_json_path.exists():
+            if scene_texts is not None or story_json_path.exists():
                 try:
-                    s_data = json.loads(story_json_path.read_text(encoding="utf-8"))
+                    s_data = (
+                        json.loads(story_json_path.read_text(encoding="utf-8"))
+                        if story_json_path.exists() else {}
+                    )
                     s_data["scene_cuts"] = scene_cuts
+                    if scene_texts is not None:
+                        s_data["scenes"] = target["scenes"]
+                    if scene_texts is not None or not story_json_path.exists():
+                        s_data["script_text"] = target.get("script_text", "")
+                    if caption_word_timings is not None:
+                        s_data["caption_word_timings"] = clean_timings
                     story_json_path.write_text(json.dumps(s_data, indent=2, ensure_ascii=False), encoding="utf-8")
-                except Exception:
-                    pass
+                except (OSError, json.JSONDecodeError):
+                    if scene_texts is not None:
+                        raise
+
+            if scene_texts is not None:
+                (item_folder / "script.txt").write_text(target["script_text"], encoding="utf-8")
 
             self._write_index(items)
 

@@ -24,6 +24,14 @@ def replace(path, pattern, replacement, count=1):
     file_path.write_text(updated, encoding="utf-8")
 
 
+def replace_if_present(path, pattern, replacement):
+    file_path = root / path
+    text = file_path.read_text(encoding="utf-8")
+    updated, matches = re.subn(pattern, replacement, text, count=1)
+    if matches:
+        file_path.write_text(updated, encoding="utf-8")
+
+
 version_pattern = r"\d+\.\d+\.\d+"
 replace("VERSION", rf"^{version_pattern}$", version)
 replace(".version", rf"^{version_pattern}$", version)
@@ -36,8 +44,8 @@ replace("install.sh", r'APP_VERSION="\d+\.\d+\.\d+"', f'APP_VERSION="{version}"'
 replace("setup_local.sh", r"Version: \d+\.\d+\.\d+", f"Version: {version}")
 replace("setup_local.sh", r'APP_VERSION="\d+\.\d+\.\d+"', f'APP_VERSION="{version}"')
 replace("README.md", r"version-\d+\.\d+\.\d+-blue\.svg", f"version-{version}-blue.svg")
-replace("README.md", r"latest \*\*v\d+\.\d+\.\d+\*\*", f"latest **v{version}**")
-replace(
+replace_if_present("README.md", r"latest \*\*v\d+\.\d+\.\d+\*\*", f"latest **v{version}**")
+replace_if_present(
     "README.md",
     r"(VERSION\s+# Release version indicator \()\d+\.\d+\.\d+(\))",
     rf"\g<1>{version}\2",
@@ -46,6 +54,7 @@ replace(
 subprocess.run(
     [
         "git", "add", "--",
+        ".githooks/pre-commit",
         "VERSION", ".version", "main.py", "pyproject.toml", "setup.py",
         "uv.lock", "install.sh", "setup_local.sh", "README.md",
     ],

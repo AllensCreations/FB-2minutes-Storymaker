@@ -6,7 +6,7 @@ Maps Scene[N] -> Img[N], allocates start/end times, and prepares timeline manife
 import json
 import re
 import zipfile
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, field
 import sys
 from pathlib import Path
 from typing import List, Optional, Tuple
@@ -31,6 +31,7 @@ class SceneTimeline:
     duration: float
     transition_in: str = "spring_pop"  # spring_pop | cross_dissolve | cut
     transition_duration: float = 0.3
+    caption_word_times: List[Tuple[float, float]] = field(default_factory=list)
 
 
 @dataclass

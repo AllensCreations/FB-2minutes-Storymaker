@@ -64,6 +64,59 @@ class TestItemsManager(unittest.TestCase):
 
         self.assertFalse(escaped_path.exists())
 
+    def test_save_item_caption_word_timings(self):
+        buf = io.BytesIO()
+        with zipfile.ZipFile(buf, "w") as zf:
+            zf.writestr("story.json", json.dumps({
+                "scenes": [{"text": "One two three four five"}]
+            }))
+            zf.writestr("01.png", b"IMAGE")
+        item = self.manager.save_zip_item(buf.getvalue(), filename="timed.zip")
+        timings = [{
+            "text": "One two three four five",
+            "start": 0,
+            "end": 2,
+            "words": [[0.1, 0.2], [0.3, 0.4], [0.5, 0.6], [0.7, 0.8], [0.9, 1.0]]
+        }]
+
+        updated = self.manager.save_item_cuts(item["id"], [0, 2], timings)
+        self.assertEqual(updated["caption_word_timings"], timings)
+        story = json.loads((Path(self.temp_dir) / item["id"] / "story.json").read_text())
+        self.assertEqual(story["caption_word_timings"], timings)
+
+        with self.assertRaisesRegex(ValueError, "outside its scene"):
+            self.manager.save_item_cuts(item["id"], [0, 2], [{
+                **timings[0], "words": [[0.1, 2.2], *timings[0]["words"][1:]]
+            }])
+
+        self.manager.save_item_audio(item["id"], b"NEW AUDIO", "replacement.wav")
+        self.assertNotIn("caption_word_timings", self.manager.get_item(item["id"]))
+        story = json.loads((Path(self.temp_dir) / item["id"] / "story.json").read_text())
+        self.assertNotIn("caption_word_timings", story)
+
+    def test_save_scene_text_with_timeline(self):
+        buf = io.BytesIO()
+        with zipfile.ZipFile(buf, "w") as zf:
+            zf.writestr("story.json", json.dumps({
+                "title": "Keep metadata",
+                "scenes": [{"scene": 1, "text": "Old line", "image": "01.png"}]
+            }))
+            zf.writestr("01.png", b"IMAGE")
+        item = self.manager.save_zip_item(buf.getvalue(), filename="script.zip")
+
+        updated = self.manager.save_item_cuts(item["id"], [0, 3], scene_texts=["New line"])
+        self.assertEqual(updated["scenes"][0]["text"], "New line")
+        self.assertEqual(updated["scenes"][0]["image"], "01.png")
+        self.assertEqual(updated["script_text"], "New line")
+        item_folder = Path(self.temp_dir) / item["id"]
+        self.assertEqual((item_folder / "script.txt").read_text(), "New line")
+        story = json.loads((item_folder / "story.json").read_text())
+        self.assertEqual(story["title"], "Keep metadata")
+        self.assertEqual(story["scenes"][0]["text"], "New line")
+
+        with self.assertRaisesRegex(ValueError, "count must match"):
+            self.manager.save_item_cuts(item["id"], [0, 1, 2], scene_texts=["Only one"])
+
     def test_zip_extraction_rejects_sibling_prefix_path(self):
         buf = io.BytesIO()
         with zipfile.ZipFile(buf, "w") as zf:
@@ -306,4 +359,3 @@ class TestItemsManager(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-

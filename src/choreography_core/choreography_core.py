@@ -312,7 +312,8 @@ class VisualChoreographer:
         text: str,
         scene_t: float,
         duration: float,
-        words_per_chunk: int = 5
+        words_per_chunk: int = 5,
+        word_times: Optional[List[Tuple[float, float]]] = None
     ) -> Tuple[str, float]:
         """
         Splits scene text into 5-10 word caption chunks with character-weighted timing.
@@ -328,35 +329,50 @@ class VisualChoreographer:
             for i in range(0, len(words), words_per_chunk)
         ]
 
-        # Calculate character-based weights with pause for punctuation
-        weights = []
-        for ch in chunks:
-            w = len(ch)
-            if ch.endswith((",", ";", ":")):
-                w += 2
-            elif ch.endswith((".", "!", "?")):
-                w += 4
-            weights.append(max(w, 2))
-
-        total_weight = sum(weights)
         dur = max(duration, 0.1)
+        chunk_starts = None
+        if word_times and len(word_times) == len(words):
+            try:
+                valid_times = all(
+                    len(pair) == 2
+                    and math.isfinite(float(pair[0]))
+                    and math.isfinite(float(pair[1]))
+                    and 0 <= float(pair[0]) <= float(pair[1]) <= dur + 0.1
+                    for pair in word_times
+                )
+                starts = [float(word_times[i][0]) for i in range(0, len(words), words_per_chunk)]
+                if (
+                    valid_times
+                    and all(starts[i] <= starts[i + 1] for i in range(len(starts) - 1))
+                ):
+                    chunk_starts = starts
+            except (TypeError, ValueError, IndexError):
+                chunk_starts = None
 
-        # Allocate time ranges
-        time_ranges = []
-        cur_t = 0.0
-        for idx, ch in enumerate(chunks):
-            ch_dur = (weights[idx] / total_weight) * dur
-            time_ranges.append((ch, cur_t, cur_t + ch_dur))
-            cur_t += ch_dur
+        if chunk_starts is None:
+            weights = []
+            for ch in chunks:
+                w = len(ch)
+                if ch.endswith((",", ";", ":")):
+                    w += 2
+                elif ch.endswith((".", "!", "?")):
+                    w += 4
+                weights.append(max(w, 2))
 
-        # Find active chunk at scene_t
-        active_chunk = chunks[-1]
-        active_start = time_ranges[-1][1]
-        for ch, start_t, end_t in time_ranges:
-            if start_t <= scene_t < end_t:
-                active_chunk = ch
-                active_start = start_t
+            total_weight = sum(weights)
+            chunk_starts = [0.0]
+            for weight in weights[:-1]:
+                chunk_starts.append(chunk_starts[-1] + (weight / total_weight) * dur)
+        elif scene_t < chunk_starts[0]:
+            return "", 1.0
+
+        chunk_idx = len(chunks) - 1
+        for idx, start_t in enumerate(chunk_starts):
+            if scene_t < (chunk_starts[idx + 1] if idx + 1 < len(chunks) else dur):
+                chunk_idx = idx
                 break
+        active_chunk = chunks[chunk_idx]
+        active_start = chunk_starts[chunk_idx]
 
         # Calculate punchy spring pop animation (1.25x -> 1.0x over first 130ms)
         elapsed = max(0.0, scene_t - active_start)
@@ -452,7 +468,8 @@ class VisualChoreographer:
         if show_captions and scene.text:
             draw = ImageDraw.Draw(frame)
             active_chunk, pop_scale = self.get_hormozi_caption_chunk(
-                scene.text, scene_t, scene.duration, caption_words_per_chunk
+                scene.text, scene_t, scene.duration, caption_words_per_chunk,
+                scene.caption_word_times
             )
             self._draw_hormozi_caption(
                 draw=draw,
