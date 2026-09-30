@@ -1,6 +1,6 @@
 # FB-2minutes Storymaker
 
-[![Version](https://img.shields.io/badge/version-1.0.2-blue.svg)](https://github.com/AllensCreations/FB-2minutes-Storymaker)
+[![Version](https://img.shields.io/badge/version-1.0.3-blue.svg)](https://github.com/AllensCreations/FB-2minutes-Storymaker)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![Tests Passing](https://img.shields.io/badge/tests-39%20passed-brightgreen.svg)](tests/)
@@ -11,17 +11,22 @@ An automated storytelling engine that produces viral storybook-style vertical vi
 
 ## ⚡ One-Line Quick Install & Auto-Updater
 
-Install or automatically upgrade your existing installation to the latest **v1.0.2** release with a single command on **Linux**, **macOS**, or **Android Termux**:
+Install or automatically upgrade your existing installation to the latest **v1.0.3** release with a single command on **Linux**, **macOS**, or **Android Termux**:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/AllensCreations/FB-2minutes-Storymaker/main/install.sh | bash
 ```
 
 ### Auto-Update Guarantee
-The installer reads the local version metadata (`VERSION`), cleanly terminates any lingering port locks on `8000`/`8001`, pulls the newest release without git conflicts, updates Python and system dependencies, synchronizes HTML templates across mobile and web directories, and configures the global `fb-storymaker` CLI command.
+The installer reads the local version metadata (`VERSION`), cleanly terminates any lingering port locks on `8000`/`8001`, pulls the newest release without git conflicts, updates Python and system dependencies, synchronizes HTML templates across mobile and web directories, and configures the global `fbsm` terminal launcher and `fb-storymaker` CLI command.
 
 To check your installed version:
 ```bash
+fbsm
+# Opens the interactive terminal UI
+
+Choose **Edit .env settings** to open the local environment file in your terminal editor (`$VISUAL`, `$EDITOR`, `nano`, or `vi`).
+
 fb-storymaker --version
 # or
 bash install.sh --version
@@ -185,9 +190,12 @@ python3 app.py
 
 ```bash
 # Interactive Terminal Dashboard for Termux / mobile consoles
-fb-storymaker --tui
+fbsm
 # Use Up/Down (or J/K) to navigate, Enter to select, number keys to jump, Q to quit
 # The app checks for updates first and restarts automatically after a safe fast-forward.
+
+# The long form remains available:
+fb-storymaker --tui
 
 # Batch render video directly from CLI
 fb-storymaker --run
@@ -270,7 +278,7 @@ FB-2minutes-Storymaker/
 ├── main.py                     # Main CLI and pipeline orchestrator
 ├── install.sh                  # One-line installer and v1.0.0 auto-updater
 ├── setup_local.sh              # Local environment configuration script
-├── VERSION                     # Release version indicator (1.0.2)
+├── VERSION                     # Release version indicator (1.0.3)
 ├── .env.example                # Example environment variables template
 ├── src/
 │   ├── align_engine/           # Speech-Cue Align Engine (script parsing & pause detection)

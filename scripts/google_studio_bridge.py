@@ -7,14 +7,11 @@ and story metadata are bundled into a ZIP package, and dispatches the ZIP
 to the FB-2minutes Storymaker API endpoint (/api/upload_item).
 
 Usage:
-    # 1. Dispatch sample 16-scene story package directly:
-    python3 scripts/google_studio_bridge.py --sample --upload http://localhost:8000/api/upload_item
-
-    # 2. Package existing story.json with image directory:
+    # 1. Package existing story.json with image directory:
     python3 scripts/google_studio_bridge.py --json story.json --images-dir ./my_images --upload http://localhost:8000/api/upload_item
 
-    # 3. Create zip locally without uploading:
-    python3 scripts/google_studio_bridge.py --sample --output story_pack.zip
+    # 2. Create zip locally without uploading:
+    python3 scripts/google_studio_bridge.py --json story.json --images-dir ./my_images --output story_pack.zip
 """
 
 import argparse
@@ -41,94 +38,6 @@ try:
 except ImportError:
     HAS_PIL = False
 
-
-
-SAMPLE_STORY = {
-    "title": "The Whispering Lighthouse",
-    "description": "An ancient keeper discovers the light is warning the land, not the sea. #storytime #mystery #shorts #tiktok",
-    "scenes": [
-        {
-            "scene": 1,
-            "text": "High upon the jagged cliffs of Cape Raven, old Silas kept watch over the blackened sea.",
-            "image_prompt": "Cinematic vertical 9:16 watercolor of an ancient stone lighthouse on high sea cliffs at midnight, rain and mist"
-        },
-        {
-            "scene": 2,
-            "text": "Every night for forty years, the brass gears turned the massive crystal lens like clockwork.",
-            "image_prompt": "Warm glowing close-up of intricate antique brass gears turning inside a lighthouse lantern room"
-        },
-        {
-            "scene": 3,
-            "text": "Tonight, the storm wailed with strange voices, rattling the heavy glass panes with relentless fury.",
-            "image_prompt": "Furious ocean storm crashing against tall lighthouse windows, silhouettes of raindrops and jagged lightning"
-        },
-        {
-            "scene": 4,
-            "text": "Suddenly, with a sickening metallic shriek, the iron turntable came to a dead halt.",
-            "image_prompt": "Sparks flying from jammed gears in a dark lantern room, dramatic shadows and smoke"
-        },
-        {
-            "scene": 5,
-            "text": "Silas gripped his wrench, but the enormous beam began swinging backwards on its own accord.",
-            "image_prompt": "Shocked old lighthouse keeper holding a wrench, watching the massive beam turn inland"
-        },
-        {
-            "scene": 6,
-            "text": "The blinding light sliced across the dark pine forest stretching for miles across the mountains.",
-            "image_prompt": "Sweeping golden light beam piercing through dark dense pine trees in a deep mountain valley"
-        },
-        {
-            "scene": 7,
-            "text": "Deep among the trees, something massive was moving towards the town below.",
-            "image_prompt": "A colossal dark creature silhouette rising between towering pine trees in the foggy woods"
-        },
-        {
-            "scene": 8,
-            "text": "Its eyes reflected the beacon with twin amber suns burning through the canopy.",
-            "image_prompt": "Giant glowing amber eyes illuminating through dark mist and branches, cinematic lighting"
-        },
-        {
-            "scene": 9,
-            "text": "Silas sprinted down the spiral iron stairs, his heart pounding against his ribs.",
-            "image_prompt": "Old keeper running down endless winding spiral staircase, lantern light flickering on cold stone walls"
-        },
-        {
-            "scene": 10,
-            "text": "He reached the telegraph desk and began hammering the warning key in frantic Morse code.",
-            "image_prompt": "Vintage telegraph machine clicking urgently under a swinging bulb, dust motes in the air"
-        },
-        {
-            "scene": 11,
-            "text": "In the valley below, church bells began to toll as villagers awoke to the midnight alarm.",
-            "image_prompt": "Cozy mountain village viewed from afar, lights turning on in windows, distant church tower bell tolling"
-        },
-        {
-            "scene": 12,
-            "text": "The keeper grabbed his signal flares and hurried onto the rain-slicked gallery deck.",
-            "image_prompt": "Old keeper on the high outdoor railing deck in a howling rainstorm, loading a red signal flare gun"
-        },
-        {
-            "scene": 13,
-            "text": "With a thunderous crack, he fired a bright crimson star into the roaring sky.",
-            "image_prompt": "Brilliant red flare arching through storm clouds, casting a dramatic red glow across cliffs and water"
-        },
-        {
-            "scene": 14,
-            "text": "The crimson glow revealed the mountain giant retreating back into the ancient crags.",
-            "image_prompt": "Gigantic mythical stone beast stepping backward into deep mountain mist, blinded by red flares"
-        },
-        {
-            "scene": 15,
-            "text": "Dawn broke over the tranquil cliffs, bathing Cape Raven in golden morning light.",
-            "image_prompt": "Peaceful sunrise over sea cliffs and quiet lighthouse, golden sunbeams cutting through morning fog"
-        },
-        {
-            "scene": 16,
-            "text": "Silas realized the beacon was never meant for ships; it was watching what lies behind.",
-            "image_prompt": "Old lighthouse keeper sipping hot tea on the balcony at sunrise, looking towards the majestic mountains"
-        }
-    ]
-}
 
 
 def create_storybook_image(scene_num: int, total_scenes: int, title: str, text: str, width: int = 1080, height: int = 1920) -> Image.Image:
@@ -274,7 +183,6 @@ def upload_zip(zip_bytes: bytes, upload_url: str, filename: str = "story_pack.zi
 
 def main():
     parser = argparse.ArgumentParser(description="Google AI Studio / Image Generation to FB-2minutes Storymaker Bridge")
-    parser.add_argument("--sample", action="store_true", help="Generate and use the sample 16-scene story package")
     parser.add_argument("--json", type=str, help="Path to story JSON file from Google Studio")
     parser.add_argument("--images-dir", type=str, help="Directory containing pre-generated scene images (No JSON required)")
     parser.add_argument("--title", type=str, help="Story title (optional)")
@@ -288,9 +196,7 @@ def main():
     story_data = None
     images_dir = Path(args.images_dir) if args.images_dir else None
 
-    if args.sample:
-        story_data = SAMPLE_STORY
-    elif args.json:
+    if args.json:
         with open(args.json, "r", encoding="utf-8") as f:
             story_data = json.load(f)
     elif images_dir and images_dir.is_dir():
@@ -333,7 +239,7 @@ def main():
             "scenes": scenes
         }
     else:
-        print("Error: Specify either --images-dir <dir>, --sample, or --json <story.json>")
+        print("Error: Specify --json <story.json> or --images-dir <dir>.")
         sys.exit(1)
 
     if args.title and story_data:

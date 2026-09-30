@@ -6,11 +6,12 @@ Provides a mobile-optimized terminal console with:
 - Web Studio launcher that automatically opens the Android browser (termux-open-url)
 - Scene Mapping Matrix viewer showing -35dB cut timestamps
 - Mobile video launcher (termux-open) to watch the exported MP4 in Android media player
-- Dependency inspector & sample story switcher
+- Dependency inspector & local .env editor
 """
 
 import os
 import shutil
+import shlex
 import subprocess
 import sys
 import textwrap
@@ -126,11 +127,12 @@ def _draw_interactive_menu(stdscr, status):
         ("2", "Open Web Studio"),
         ("3", "Inspect scene timing"),
         ("4", "Play latest video"),
-        ("5", "Change sample story"),
+        ("5", "Edit .env settings"),
         ("6", "Check dependencies"),
         ("0", "Exit"),
     ]
     selected = 0
+    first_visible = 0
     stdscr.keypad(True)
 
     if curses.has_colors():
@@ -168,9 +170,17 @@ def _draw_interactive_menu(stdscr, status):
             short_detail = textwrap.shorten(detail, width=max(8, width - 34), placeholder="...")
             write(row, f"{label:<12} [{state}]  {short_detail}", color)
 
-        write(10, "ACTIONS", curses.A_BOLD)
-        for index, (key, label) in enumerate(choices):
-            y = 11 + index
+        menu_top = 10
+        menu_bottom = max(menu_top + 1, height - 3)
+        visible_count = menu_bottom - menu_top
+        if selected < first_visible:
+            first_visible = selected
+        elif selected >= first_visible + visible_count:
+            first_visible = selected - visible_count + 1
+        write(menu_top - 1, "ACTIONS", curses.A_BOLD)
+        for row, index in enumerate(range(first_visible, min(len(choices), first_visible + visible_count))):
+            key, label = choices[index]
+            y = menu_top + row
             if index == selected:
                 write(y, f">  [{key}] {label}", curses.A_REVERSE | curses.A_BOLD)
             else:
@@ -397,28 +407,25 @@ def launch_web_studio_and_browser():
         time.sleep(0.5)
 
 
-def reset_or_switch_sample_story():
-    """Menu to switch demo story theme (Scout & Jem vs Elsa the Baker)."""
+def edit_env_settings():
+    """Open the local environment settings in the user's preferred terminal editor."""
     clear_screen()
     print_banner()
-    print(f"\n{C_BOLD}🎨 Sample Story Switcher & Reset{C_RESET}\n")
-    print("  [1] 👒 Scout & Jem (Southern Town, 4 Scenes, 24.0s)")
-    print("  [2] 🥐 Elsa the Baker (Fairytale Bakery, 6 Scenes, 21.0s)")
-    print("  [0] ↩️  Back")
+    env_path = REPO_ROOT / ".env"
+    if not env_path.exists():
+        example_path = REPO_ROOT / ".env.example"
+        if example_path.exists():
+            shutil.copyfile(example_path, env_path)
+        else:
+            env_path.touch()
 
-    choice = input(f"\n{C_AMBER}Select story [1/2]: {C_RESET}").strip()
-    if choice == "1":
-        print(f"\n{C_BLUE}Generating Scout & Jem preloaded assets (Southern Town, 4 scenes)...{C_RESET}")
-        from scripts.generate_sample_assets import generate_all_sample_assets
-        generate_all_sample_assets(theme="scout")
-        print(f"{C_GREEN}✓ Scout & Jem story activated! (Syncs with Web Studio & CLI){C_RESET}")
-        time.sleep(1.2)
-    elif choice == "2":
-        print(f"\n{C_BLUE}Generating Elsa the Baker preloaded assets (Fairytale Bakery, 6 scenes)...{C_RESET}")
-        from scripts.generate_sample_assets import generate_all_sample_assets
-        generate_all_sample_assets(theme="elsa")
-        print(f"{C_GREEN}✓ Elsa the Baker story activated! (Syncs with Web Studio & CLI){C_RESET}")
-        time.sleep(1.2)
+    editor = shlex.split(os.environ.get("VISUAL") or os.environ.get("EDITOR") or "")
+    if not editor:
+        editor = next(([path] for name in ("nano", "vi") if (path := shutil.which(name))), [])
+    if not editor:
+        print(f"{C_RED}No terminal editor found. Set EDITOR or VISUAL and try again.{C_RESET}")
+    else:
+        subprocess.run([*editor, str(env_path)], check=False)
 
 
 def run_termux_health_check():
@@ -480,7 +487,7 @@ def run_tui_main():
             print(f"  {C_BOLD}REVIEW & SETUP{C_RESET}")
             print(f"  {C_BLUE}[3]{C_RESET} Inspect scene timing")
             print(f"  {C_GREEN}[4]{C_RESET} Play latest video")
-            print(f"  {C_AMBER}[5]{C_RESET} Change sample story")
+            print(f"  {C_AMBER}[5]{C_RESET} Edit .env settings")
             print(f"  {C_GRAY}[6]{C_RESET} Check dependencies")
             print(f"\n{C_DIM}Type a number and press Enter · [0] Exit{C_RESET}")
             choice = input(f"\n{C_BOLD}Action › {C_RESET}").strip().lower()
@@ -495,7 +502,7 @@ def run_tui_main():
             open_media_file(OUTPUT_DIR / "final_story.mp4")
             time.sleep(1)
         elif choice == "5":
-            reset_or_switch_sample_story()
+            edit_env_settings()
         elif choice == "6":
             run_termux_health_check()
         elif choice in ("0", "q", "quit", "exit"):

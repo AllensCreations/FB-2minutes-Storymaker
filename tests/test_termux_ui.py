@@ -36,8 +36,10 @@ class TestTermuxUI(unittest.TestCase):
 
     def test_interactive_menu_navigates_with_arrow_keys(self):
         class FakeScreen:
-            def __init__(self, keys):
+            def __init__(self, keys, height=24):
                 self.keys = list(keys)
+                self.height = height
+                self.lines = []
 
             def keypad(self, enabled):
                 pass
@@ -46,10 +48,10 @@ class TestTermuxUI(unittest.TestCase):
                 pass
 
             def getmaxyx(self):
-                return 24, 80
+                return self.height, 80
 
             def addnstr(self, *args):
-                pass
+                self.lines.append(args[2])
 
             def refresh(self):
                 pass
@@ -63,6 +65,56 @@ class TestTermuxUI(unittest.TestCase):
         ):
             self.assertEqual(_draw_interactive_menu(FakeScreen([termux_ui.curses.KEY_DOWN, 10]), status), "2")
             self.assertEqual(_draw_interactive_menu(FakeScreen([ord("6")]), status), "6")
+
+    def test_short_terminal_scrolls_arrow_menu_to_all_actions(self):
+        class ShortScreen:
+            def __init__(self):
+                self.keys = [termux_ui.curses.KEY_DOWN] * 5 + [10]
+                self.lines = []
+
+            def keypad(self, enabled):
+                pass
+
+            def erase(self):
+                pass
+
+            def getmaxyx(self):
+                return 16, 80
+
+            def addnstr(self, y, x, text, limit, attr):
+                self.lines.append(text)
+
+            def refresh(self):
+                pass
+
+            def getch(self):
+                return self.keys.pop(0)
+
+        screen = ShortScreen()
+        status = {key: (True, f"assets/{key}") for key in ("voice", "script", "visuals", "video")}
+        with patch("termux_ui.curses.has_colors", return_value=False), patch(
+            "termux_ui.curses.color_pair", return_value=0
+        ):
+            self.assertEqual(_draw_interactive_menu(screen, status), "6")
+        self.assertTrue(any("[6] Check dependencies" in line for line in screen.lines))
+        self.assertFalse(any("sample story" in line.lower() for line in screen.lines))
+
+    def test_env_settings_opens_editor_and_creates_local_env_from_example(self):
+        import tempfile
+        from pathlib import Path
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / ".env.example").write_text('GEMINI_API_KEY=""\n', encoding="utf-8")
+            with patch("termux_ui.REPO_ROOT", root), patch.dict(
+                "termux_ui.os.environ", {"EDITOR": "nano"}, clear=True
+            ), patch("termux_ui.shutil.which", return_value="/usr/bin/nano"), patch(
+                "termux_ui.subprocess.run"
+            ) as run:
+                termux_ui.edit_env_settings()
+
+            self.assertEqual((root / ".env").read_text(encoding="utf-8"), 'GEMINI_API_KEY=""\n')
+            self.assertEqual(run.call_args.args[0], ["nano", str(root / ".env")])
 
 
 if __name__ == "__main__":

@@ -126,6 +126,12 @@ class TestTursoClient(unittest.TestCase):
         res = turso_client.turso_test_connection("https://test.turso.io", "token")
         self.assertTrue(res["ok"])
         self.assertIn("Connected to Turso database successfully", res["message"])
+        sql_statements = [
+            statement
+            for call in mock_exec.call_args_list
+            for statement, _ in call.args[2]
+        ]
+        self.assertFalse(any("INSERT INTO stories" in statement for statement in sql_statements))
 
     @patch("turso_client.execute_turso_pipeline")
     def test_turso_log_story(self, mock_exec):

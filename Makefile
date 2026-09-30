@@ -1,4 +1,4 @@
-.PHONY: setup termux-setup install dev test lint format type-check run web kill-server update sample-assets clean help
+.PHONY: setup termux-setup install dev test lint format type-check run web kill-server update clean help
 
 PYTHON ?= $(shell which python3 2>/dev/null || which python 2>/dev/null || echo python3)
 
@@ -39,18 +39,6 @@ update:
 tui:
 	$(PYTHON) main.py --tui
 
-sample-assets:
-	$(PYTHON) scripts/generate_sample_assets.py
-
-preload:
-	$(PYTHON) scripts/generate_sample_assets.py --theme elsa
-
-preload-scout:
-	$(PYTHON) scripts/generate_sample_assets.py --theme scout
-
-preload-elsa:
-	$(PYTHON) scripts/generate_sample_assets.py --theme elsa
-
 # Testing
 test:
 	$(PYTHON) -m unittest discover -s tests -p "test_*.py" -v
@@ -84,7 +72,6 @@ help:
 	@echo "  make run           - Run the full storytelling pipeline and render final_story.mp4"
 	@echo "  make web           - Launch the local Web UI Studio on http://localhost:8000"
 	@echo "  make tui           - Launch the interactive Termux / mobile Terminal UI"
-	@echo "  make sample-assets - Regenerate demo sample story assets"
 	@echo "  make test          - Run unit and pipeline integration tests"
 	@echo "  make clean         - Remove generated outputs, processed files, and python caches"
 	@echo "  make format        - Format source code with black and isort"
