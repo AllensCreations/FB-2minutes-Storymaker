@@ -2467,7 +2467,7 @@
       if (showCaptions && activeScene.text) {
         const sceneDur = Math.max((activeScene.end - activeScene.start) || 0.1, 0.1);
         const sceneT = Math.max(0, currentTime - activeScene.start);
-        const chunkInfo = getHormoziCaptionChunk(activeScene.text, sceneT, sceneDur, activeScene.start);
+        const chunkInfo = getTimedCaptionChunk(activeScene.text, sceneT, sceneDur);
         drawHormoziPopCaption(ctx, chunkInfo.text, chunkInfo.scale, currentCaptionStyle, canvas.width, canvas.height);
       }
 
@@ -2645,17 +2645,19 @@
       context.restore();
     }
 
-    function getTimedCaptionChunk(text, sceneTime, sceneDuration, wordsPerChunk = 7) {
-      const words = text.trim().split(/\s+/);
-      if (words.length <= wordsPerChunk) return text.trim().toUpperCase();
-      const chunks = [];
-      for (let i = 0; i < words.length; i += wordsPerChunk) {
-        chunks.push(words.slice(i, i + wordsPerChunk).join(' '));
-      }
-      const dur = Math.max(sceneDuration || 0.1, 0.1);
-      const prog = Math.max(0, Math.min(sceneTime / dur, 0.999));
-      const chunkIdx = Math.min(Math.floor(prog * chunks.length), chunks.length - 1);
-      return chunks[chunkIdx].toUpperCase();
+    function getTimedCaptionChunk(text, sceneTime, sceneDuration) {
+      const words = text.trim().split(/\s+/).filter(Boolean);
+      if (words.length === 0) return { text: '', scale: 1.0 };
+      const duration = Math.max(sceneDuration || 0.1, 0.1);
+      const wordDuration = duration / words.length;
+      const wordIndex = Math.min(Math.floor(Math.max(0, sceneTime) / wordDuration), words.length - 1);
+      const elapsed = Math.max(0, sceneTime - wordIndex * wordDuration);
+      const popDuration = 0.13;
+      const progress = Math.min(elapsed / popDuration, 1);
+      const scale = elapsed < popDuration
+        ? 1.0 + 0.25 * Math.cos(progress * Math.PI * 0.5) * (1.0 - progress)
+        : 1.0;
+      return { text: words[wordIndex].toUpperCase(), scale };
     }
 
     function drawFloatingCaption(context, text, centerX, centerY, maxWidth, lineHeight) {
@@ -3546,8 +3548,6 @@
           }
 
           const videoFile = new File([videoBlob], meta.filename, { type: 'video/mp4' });
-          handleFile(videoFile);
-
           if (btn) btn.innerHTML = '<span>📤</span> Uploading to Dropbox...';
           if (exportText) exportText.textContent = `Uploading "${meta.filename}" to Dropbox...`;
 
