@@ -16,7 +16,7 @@ src_dir = str(Path(__file__).resolve().parent.parent)
 if src_dir not in sys.path:
     sys.path.insert(0, src_dir)
 
-from align_engine import AlignmentResult, SpeechSegment
+from align_engine import AlignmentResult
 
 
 @dataclass

@@ -4,7 +4,6 @@ Based on the architectural blueprint for "Picture-Book Motion" storytelling vide
 """
 
 import argparse
-import os
 import sys
 from pathlib import Path
 

@@ -4,7 +4,6 @@ Pipes generated Picture-Book Motion frames to FFmpeg, multiplexing voice-over au
 into a production-quality 9:16 vertical MP4 video.
 """
 
-import os
 import subprocess
 import sys
 import time

@@ -26,7 +26,7 @@ import time
 import urllib.request
 import zipfile
 from pathlib import Path
-from typing import List, Dict, Any
+from typing import Dict, Any
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 SRC_DIR = REPO_ROOT / "src"
@@ -34,10 +34,9 @@ if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
 from items_manager import natural_sort_key
-from port_helper import get_active_port
 
 try:
-    from PIL import Image, ImageDraw, ImageFont
+    from PIL import Image, ImageDraw
     HAS_PIL = True
 except ImportError:
     HAS_PIL = False

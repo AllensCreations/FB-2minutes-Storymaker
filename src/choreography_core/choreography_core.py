@@ -9,7 +9,6 @@ Implements "Picture-Book Motion" aesthetics:
 
 import math
 import sys
-from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 

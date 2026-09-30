@@ -4,7 +4,6 @@ Provides random available port discovery and port discovery persistence
 to prevent server port overlap and address collision.
 """
 
-import os
 import random
 import socket
 from pathlib import Path

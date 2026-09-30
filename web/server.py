@@ -16,7 +16,7 @@ import sys
 import threading
 import time
 from http import HTTPStatus
-from http.server import HTTPServer, ThreadingHTTPServer, SimpleHTTPRequestHandler
+from http.server import ThreadingHTTPServer, SimpleHTTPRequestHandler
 from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 import urllib.error
@@ -2248,4 +2248,3 @@ if __name__ == "__main__":
     parser.add_argument("--open", action="store_true", help="Automatically open browser")
     args = parser.parse_args()
     start_server(args.host, args.port, open_browser=args.open)
-
