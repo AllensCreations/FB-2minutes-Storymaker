@@ -28,11 +28,20 @@ import zipfile
 from pathlib import Path
 from typing import List, Dict, Any
 
+REPO_ROOT = Path(__file__).resolve().parent.parent
+SRC_DIR = REPO_ROOT / "src"
+if str(SRC_DIR) not in sys.path:
+    sys.path.insert(0, str(SRC_DIR))
+
+from items_manager import natural_sort_key
+from port_helper import get_active_port
+
 try:
     from PIL import Image, ImageDraw, ImageFont
     HAS_PIL = True
 except ImportError:
     HAS_PIL = False
+
 
 
 SAMPLE_STORY = {
@@ -262,10 +271,6 @@ def upload_zip(zip_bytes: bytes, upload_url: str, filename: str = "story_pack.zi
         except Exception:
             return {"status": resp.status, "body": resp_data}
 
-
-def natural_sort_key(s: str):
-    import re
-    return [int(text) if text.isdigit() else text.lower() for text in re.split(r"(\d+)", str(s))]
 
 
 def main():

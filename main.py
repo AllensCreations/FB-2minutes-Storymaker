@@ -175,55 +175,7 @@ if __name__ == "__main__":
     main()
 
 
-# Top-level WSGI / Serverless exports for Vercel deployment
-def handler(environ=None, start_response=None):
-    """WSGI entrypoint for Vercel deployment: serves index.html and web studio assets."""
-    if callable(start_response):
-        path_info = environ.get("PATH_INFO", "/") if environ else "/"
-        clean_path = path_info.lstrip("/")
+# Top-level WSGI / Serverless exports for Vercel deployment (delegated to app.py)
+from app import app, application, handler
 
-        target_file = None
-        content_type = "text/html; charset=utf-8"
-
-        if not clean_path or clean_path == "index.html":
-            target_file = BASE_DIR / "index.html"
-            content_type = "text/html; charset=utf-8"
-        elif clean_path in ["AR.html", "web/index.html", "web/AR.html"]:
-            target_file = BASE_DIR / clean_path
-            content_type = "text/html; charset=utf-8"
-        else:
-            cand = BASE_DIR / clean_path
-            if cand.is_file() and not cand.name.endswith(".py"):
-                target_file = cand
-                if cand.suffix == ".css":
-                    content_type = "text/css; charset=utf-8"
-                elif cand.suffix == ".js":
-                    content_type = "application/javascript; charset=utf-8"
-                elif cand.suffix in [".png", ".jpg", ".jpeg", ".webp"]:
-                    content_type = f"image/{cand.suffix.replace('.', '')}"
-                elif cand.suffix == ".mp3":
-                    content_type = "audio/mpeg"
-                else:
-                    content_type = "application/octet-stream"
-            else:
-                # Default fallback to Web Studio UI
-                target_file = BASE_DIR / "index.html"
-                content_type = "text/html; charset=utf-8"
-
-        if target_file and target_file.exists():
-            content = target_file.read_bytes()
-            start_response("200 OK", [
-                ("Content-Type", content_type),
-                ("Content-Length", str(len(content))),
-                ("Access-Control-Allow-Origin", "*")
-            ])
-            return [content]
-
-        start_response("404 Not Found", [("Content-Type", "text/plain; charset=utf-8")])
-        return [b"Not Found"]
-
-    return {"status": "ok", "service": "FB 2minutes Storymaker"}
-
-
-app = handler
-application = handler
+__all__ = ["app", "application", "handler", "main", "run_pipeline"]

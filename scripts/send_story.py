@@ -32,10 +32,13 @@ import zipfile
 from pathlib import Path
 from typing import List, Union, Optional, Dict, Any
 
+REPO_ROOT = Path(__file__).resolve().parent.parent
+SRC_DIR = REPO_ROOT / "src"
+if str(SRC_DIR) not in sys.path:
+    sys.path.insert(0, str(SRC_DIR))
 
-def natural_sort_key(s: str):
-    """Sort strings containing numbers naturally (e.g. 1.png, 2.png, 10.png)."""
-    return [int(text) if text.isdigit() else text.lower() for text in re.split(r"(\d+)", str(s))]
+from items_manager import natural_sort_key
+
 
 
 def package_images_to_zip(

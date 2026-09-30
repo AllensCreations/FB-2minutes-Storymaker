@@ -709,7 +709,8 @@ class StorymakerRequestHandler(SimpleHTTPRequestHandler):
 
         clean_path = path.strip().lower()
         if clean_path in ("", "/", "/index.html", "/index.htm", "/ar.html", "/ar.htm", "/index", "/ar", "/web/index.html", "/web/ar.html"):
-            self.serve_file(WEB_DIR / "index.html", "text/html")
+            index_path = REPO_ROOT / "index.html" if (REPO_ROOT / "index.html").is_file() else WEB_DIR / "index.html"
+            self.serve_file(index_path, "text/html")
         elif path == "/api/status":
             self.send_json(get_assets_status())
         elif path == "/api/project-assets":
@@ -2042,16 +2043,20 @@ def start_server(host: str = "0.0.0.0", port=None, open_browser: bool = False, m
     httpd = None
     active_port = None
 
-    if port is not None and int(port) > 0:
-        target_port = int(port)
+    if port is not None:
         try:
-            httpd = ThreadingHTTPServer((host, target_port), StorymakerRequestHandler)
-            active_port = target_port
+            target_port = int(port)
+            if target_port > 0:
+                httpd = ThreadingHTTPServer((host, target_port), StorymakerRequestHandler)
+                active_port = target_port
+        except ValueError:
+            pass
         except OSError as e:
             if e.errno in (98, 48) or "already in use" in str(e).lower():
-                print(f"⚠️ Port {target_port} is currently in use. Selecting a random available port to prevent server overlap...")
+                print(f"⚠️ Port {port} is currently in use. Selecting a random available port to prevent server overlap...")
             else:
                 raise
+
 
     # If port was None, 0, or in use, randomly assign an available port
     if httpd is None:

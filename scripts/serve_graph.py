@@ -17,22 +17,7 @@ SRC_DIR = REPO_ROOT / "src"
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
-try:
-    from port_helper import find_random_available_port
-except Exception:
-    def find_random_available_port(host="0.0.0.0", min_port=5100, max_port=9999):
-        import socket, random
-        for p in random.sample(range(min_port, max_port + 1), 50):
-            try:
-                with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-                    s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-                    s.bind((host, p))
-                    return p
-            except OSError:
-                continue
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            s.bind((host, 0))
-            return s.getsockname()[1]
+from port_helper import find_random_available_port
 
 
 class GraphHandler(http.server.SimpleHTTPRequestHandler):

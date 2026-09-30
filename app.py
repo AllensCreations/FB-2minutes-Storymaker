@@ -144,28 +144,7 @@ if __name__ == '__main__':
     if str(src_dir) not in sys.path:
         sys.path.insert(0, str(src_dir))
 
-    try:
-        from port_helper import find_random_available_port, save_active_port
-    except Exception:
-        def find_random_available_port(host="0.0.0.0", min_port=5000, max_port=9999):
-            import socket, random
-            for p in random.sample(range(min_port, max_port + 1), 50):
-                try:
-                    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-                        s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-                        s.bind((host, p))
-                        return p
-                except OSError:
-                    continue
-            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-                s.bind((host, 0))
-                return s.getsockname()[1]
-
-        def save_active_port(port, filename=".active_port"):
-            try:
-                (BASE_DIR / filename).write_text(str(port), encoding="utf-8")
-            except Exception:
-                pass
+    from port_helper import find_random_available_port, save_active_port
 
     try:
         from web.server import StorymakerRequestHandler
@@ -182,13 +161,14 @@ if __name__ == '__main__':
     server_cls.allow_reuse_address = True
     server = None
     active_port = None
+    bind_host = os.environ.get('HOST', '0.0.0.0')
 
     # If PORT env var is explicitly provided, try it first
     env_port_str = os.environ.get('PORT')
     if env_port_str:
         try:
             target_port = int(env_port_str)
-            server = server_cls(('0.0.0.0', target_port), server_handler)
+            server = server_cls((bind_host, target_port), server_handler)
             active_port = target_port
         except OSError:
             print(f"⚠️ Warning: Environment port {env_port_str} is in use. Picking random available port...")
@@ -197,12 +177,13 @@ if __name__ == '__main__':
     if server is None:
         for _ in range(20):
             try:
-                p = find_random_available_port(min_port=5000, max_port=9999)
-                server = server_cls(('0.0.0.0', p), server_handler)
+                p = find_random_available_port(host=bind_host, min_port=5000, max_port=9999)
+                server = server_cls((bind_host, p), server_handler)
                 active_port = p
                 break
             except OSError:
                 continue
+
 
     if server is None:
         raise RuntimeError("Failed to bind server to any available port.")
