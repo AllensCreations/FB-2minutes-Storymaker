@@ -13,6 +13,7 @@ import os
 import shutil
 import subprocess
 import sys
+import textwrap
 import time
 from pathlib import Path
 
@@ -96,18 +97,22 @@ def get_asset_status():
 
 
 def print_status_box(status):
-    print(f"{C_BOLD}┌─ Asset Readiness Dashboard ────────────────────────────────┐{C_RESET}")
+    width = max(42, min(72, shutil.get_terminal_size((80, 24)).columns - 2))
+    detail_width = width - 34
+    title = "┌─ STORY ASSETS " + "─" * (width - 17) + "┐"
+    print(f"{C_BOLD}{title}{C_RESET}")
 
     def render_row(icon, label, found, detail):
-        tag = f"{C_GREEN}[✓ READY]{C_RESET}" if found else f"{C_RED}[✗ MISSING]{C_RESET}"
-        print(f"│  {icon} {C_BOLD}{label:<14}{C_RESET} {tag} {C_GRAY}{detail:<30}{C_RESET} │")
+        tag = f"{C_GREEN}[ READY  ]{C_RESET}" if found else f"{C_RED}[ MISSING]{C_RESET}"
+        detail = textwrap.shorten(detail, width=detail_width, placeholder="…")
+        print(f"│ {icon} {C_BOLD}{label:<15}{C_RESET} {tag} {C_GRAY}{detail:<{detail_width}}{C_RESET} │")
 
-    render_row("🎙️", "Voice-Over:", status["voice"][0], status["voice"][1])
-    render_row("📜", "Script:", status["script"][0], status["script"][1])
-    render_row("🖼️", "Visuals:", status["visuals"][0], status["visuals"][1])
-    render_row("🎬", "Master MP4:", status["video"][0], status["video"][1])
+    render_row("🎙️", "Voice-over", status["voice"][0], status["voice"][1])
+    render_row("📜", "Script", status["script"][0], status["script"][1])
+    render_row("🖼️", "Visuals", status["visuals"][0], status["visuals"][1])
+    render_row("🎬", "Master MP4", status["video"][0], status["video"][1])
 
-    print(f"{C_BOLD}└────────────────────────────────────────────────────────────┘{C_RESET}")
+    print(f"{C_BOLD}└{'─' * (width - 2)}┘{C_RESET}")
 
 
 def open_url_in_browser(url: str):
@@ -384,16 +389,17 @@ def run_tui_main():
         status = get_asset_status()
         print_status_box(status)
 
-        print(f"\n{C_BOLD}Interactive Controls:{C_RESET}")
-        print(f"  {C_ORANGE}[1]{C_RESET} 🚀 {C_BOLD}Render Master Video{C_RESET} (9:16 Picture-Book Motion MP4)")
-        print(f"  {C_CYAN}[2]{C_RESET} 🌐 {C_BOLD}Launch Web Studio & Open Browser{C_RESET} (Interactive Waveform)")
-        print(f"  {C_BLUE}[3]{C_RESET} 📊 {C_BOLD}Inspect Scene Mapping Matrix{C_RESET} (-35dB Cut Timestamps)")
-        print(f"  {C_GREEN}[4]{C_RESET} ▶️  {C_BOLD}Watch Output Video in Android Player{C_RESET}")
-        print(f"  {C_AMBER}[5]{C_RESET} 🎨 {C_BOLD}Switch or Reset Sample Story Assets{C_RESET}")
-        print(f"  {C_GRAY}[6]{C_RESET} 🛠️  {C_BOLD}Termux Dependency Health Check{C_RESET}")
-        print(f"  {C_RED}[0]{C_RESET} 🚪 {C_BOLD}Exit Studio{C_RESET}")
+        print(f"\n{C_BOLD}MAKE{C_RESET}")
+        print(f"  {C_ORANGE}[1]{C_RESET} 🚀  Render story video")
+        print(f"  {C_CYAN}[2]{C_RESET} 🌐  Open Web Studio")
+        print(f"  {C_BOLD}REVIEW & SETUP{C_RESET}")
+        print(f"  {C_BLUE}[3]{C_RESET} 📊  Inspect scene timing")
+        print(f"  {C_GREEN}[4]{C_RESET} ▶️   Play latest video")
+        print(f"  {C_AMBER}[5]{C_RESET} 🎨  Change sample story")
+        print(f"  {C_GRAY}[6]{C_RESET} 🛠️   Check dependencies")
+        print(f"\n{C_DIM}Type a number and press Enter · [0] Exit{C_RESET}")
 
-        choice = input(f"\n{C_BOLD}Select an action [0-6]: {C_RESET}").strip()
+        choice = input(f"\n{C_BOLD}Action › {C_RESET}").strip().lower()
 
         if choice == "1":
             run_video_render()
@@ -412,6 +418,9 @@ def run_tui_main():
             clear_screen()
             print(f"{C_ORANGE}👋 Thank you for using FB-2minutes Storymaker!{C_RESET}\n")
             break
+        else:
+            print(f"\n{C_RED}Choose one of the listed actions (1-6), or 0 to exit.{C_RESET}")
+            input(f"{C_DIM}Press Enter to continue...{C_RESET}")
 
 
 if __name__ == "__main__":
