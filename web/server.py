@@ -627,7 +627,11 @@ def auto_publish_story_item_thread(
             )
 
         # Step 2: Upload to Dropbox
-        db_path = f"/Storymaker_Exports/{out_filename}"
+        folder = db_cfg.get("folder") or "/Think with Tobi"
+        if not folder.startswith("/"):
+            folder = "/" + folder
+        folder = folder.rstrip("/") or "/Think with Tobi"
+        db_path = f"{folder}/{out_filename}"
         token = db_cfg.get("token")
         if not token and db_cfg.get("app_key") and db_cfg.get("app_secret") and db_cfg.get("refresh_token"):
             with ITEM_RENDER_LOCK:
@@ -1603,6 +1607,12 @@ class StorymakerRequestHandler(SimpleHTTPRequestHandler):
                 clean_slug = re.sub(r'[^a-zA-Z0-9_\-]+', '-', raw_title.lower()).strip('-')
                 out_filename = f"{clean_slug}.mp4"
 
+                db_folder = (payload.get("db_folder") or env_cfg.get("db_folder", "/Think with Tobi")).strip()
+                if not db_folder.startswith("/"):
+                    db_folder = "/" + db_folder
+                db_folder = db_folder.rstrip("/") or "/Think with Tobi"
+                target_db_path = f"{db_folder}/{out_filename}"
+
                 # Duplicate checks if not forced
                 if not force:
                     # 1. Local publish_complete tag
@@ -1629,12 +1639,12 @@ class StorymakerRequestHandler(SimpleHTTPRequestHandler):
                     if (db_token or (db_app_key and db_app_secret and db_refresh_token)):
                         try:
                             chk_token = db_token or get_dropbox_access_token(db_app_key, db_app_secret, db_refresh_token)
-                            if check_dropbox_duplicate(chk_token, f"/Storymaker_Exports/{out_filename}"):
+                            if check_dropbox_duplicate(chk_token, target_db_path):
                                 self.send_json({
                                     "ok": False,
                                     "is_duplicate": True,
                                     "filename": out_filename,
-                                    "message": f"Video '{out_filename}' already exists on Dropbox (/Storymaker_Exports/). Overwrite and re-publish?"
+                                    "message": f"Video '{out_filename}' already exists on Dropbox ({db_folder}/). Overwrite and re-publish?"
                                 }, status=409)
                                 return
                         except Exception:
@@ -1645,7 +1655,8 @@ class StorymakerRequestHandler(SimpleHTTPRequestHandler):
                     "token": db_token,
                     "app_key": db_app_key,
                     "app_secret": db_app_secret,
-                    "refresh_token": db_refresh_token
+                    "refresh_token": db_refresh_token,
+                    "folder": db_folder
                 }
                 turso_cfg = {
                     "db_url": turso_db_url,

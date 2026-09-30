@@ -1,7 +1,7 @@
 # Graph Report - FB-2minutes-Storymaker  (2026-09-29)
 
 ## Corpus Check
-- 50 files · ~124,550 words
+- 50 files · ~124,648 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 8 file(s) not represented in the graph (top: (none) 6, .zip 1, .lock 1)
 
@@ -11,7 +11,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `6ce255a4`
+- Built from commit: `e1010b07`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 

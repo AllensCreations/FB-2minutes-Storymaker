@@ -3400,6 +3400,8 @@
       // Auto-pull metadata into Publisher Stage 2 immediately
       autoPullFromStudio(true);
 
+      const dbFolder = pipeCfg('dbFolder', '/Think with Tobi');
+
       if (window.currentActiveItemId) {
         try {
           const res = await fetch(`/api/items/${window.currentActiveItemId}/auto-publish`, {
@@ -3413,6 +3415,7 @@
               db_app_secret: dbAppSecret,
               db_refresh_token: dbRefreshToken,
               db_token: dbToken,
+              db_folder: dbFolder,
               show_captions: typeof showCaptions !== 'undefined' ? showCaptions : true,
               caption_style: currentCaptionStyle || 'gold'
             })

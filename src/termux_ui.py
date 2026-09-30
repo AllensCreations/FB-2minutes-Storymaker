@@ -217,7 +217,11 @@ def run_video_render():
                         token = json.loads(resp.read().decode("utf-8")).get("access_token")
 
                 if token:
-                    db_target_path = f"/Storymaker_Exports/{output_path.name}"
+                    db_folder = env_cfg.get("db_folder", "/Think with Tobi")
+                    if not db_folder.startswith("/"):
+                        db_folder = "/" + db_folder
+                    db_folder = db_folder.rstrip("/") or "/Think with Tobi"
+                    db_target_path = f"{db_folder}/{output_path.name}"
                     url = "https://content.dropboxapi.com/2/files/upload"
                     headers = {
                         "Authorization": f"Bearer {token}",
