@@ -35,7 +35,8 @@ def read_env_settings() -> Dict[str, Any]:
         "db_app_secret": "",
         "db_refresh_token": "",
         "db_folder": "/Think with Tobi",
-        "gas_url": ""
+        "turso_db_url": "",
+        "turso_auth_token": ""
     }
     if ENV_PATH.exists():
         try:
@@ -60,8 +61,10 @@ def read_env_settings() -> Dict[str, Any]:
                     settings["db_refresh_token"] = v
                 elif k == "DROPBOX_FOLDER":
                     settings["db_folder"] = v
-                elif k in ("GOOGLE_SHEET_URL", "GOOGLE_APPS_SCRIPT_URL", "GAS_URL"):
-                    settings["gas_url"] = v
+                elif k in ("TURSO_DATABASE_URL", "TURSO_DB_URL", "LIBSQL_URL"):
+                    settings["turso_db_url"] = v
+                elif k in ("TURSO_AUTH_TOKEN", "LIBSQL_AUTH_TOKEN"):
+                    settings["turso_auth_token"] = v
         except Exception:
             pass
 
@@ -79,8 +82,10 @@ def read_env_settings() -> Dict[str, Any]:
         settings["db_refresh_token"] = os.getenv("DROPBOX_REFRESH_TOKEN", "")
     if not settings["db_folder"] or settings["db_folder"] == "/Think with Tobi":
         settings["db_folder"] = os.getenv("DROPBOX_FOLDER", "/Think with Tobi")
-    if not settings["gas_url"]:
-        settings["gas_url"] = os.getenv("GOOGLE_SHEET_URL") or os.getenv("GAS_URL", "")
+    if not settings["turso_db_url"]:
+        settings["turso_db_url"] = os.getenv("TURSO_DATABASE_URL") or os.getenv("TURSO_DB_URL", "")
+    if not settings["turso_auth_token"]:
+        settings["turso_auth_token"] = os.getenv("TURSO_AUTH_TOKEN", "")
 
     return settings
 
@@ -93,9 +98,10 @@ def write_env_settings(
     db_app_secret: Optional[str] = None,
     db_refresh_token: Optional[str] = None,
     db_folder: Optional[str] = None,
-    gas_url: Optional[str] = None
+    turso_db_url: Optional[str] = None,
+    turso_auth_token: Optional[str] = None
 ) -> Dict[str, Any]:
-    """Safely persist Gemini, Dropbox, and Google Sheets settings into local .env."""
+    """Safely persist Gemini, Dropbox, and Turso settings into local .env."""
     current = read_env_settings()
     clean_key = current["gemini_api_key"] if api_key is None else str(api_key or "").strip()
     clean_model = current["gemini_model"] if model is None else (str(model or "").strip() or DEFAULT_MODEL)
@@ -105,7 +111,8 @@ def write_env_settings(
     c_db_secret = current["db_app_secret"] if db_app_secret is None else str(db_app_secret or "").strip()
     c_db_refresh = current["db_refresh_token"] if db_refresh_token is None else str(db_refresh_token or "").strip()
     c_db_folder = current["db_folder"] if db_folder is None else str(db_folder or "").strip()
-    c_gas_url = current["gas_url"] if gas_url is None else str(gas_url or "").strip()
+    c_turso_url = current["turso_db_url"] if turso_db_url is None else str(turso_db_url or "").strip()
+    c_turso_token = current["turso_auth_token"] if turso_auth_token is None else str(turso_auth_token or "").strip()
 
     tracked_keys = {
         "GEMINI_API_KEY": clean_key,
@@ -115,7 +122,8 @@ def write_env_settings(
         "DROPBOX_APP_SECRET": c_db_secret,
         "DROPBOX_REFRESH_TOKEN": c_db_refresh,
         "DROPBOX_FOLDER": c_db_folder,
-        "GOOGLE_SHEET_URL": c_gas_url
+        "TURSO_DATABASE_URL": c_turso_url,
+        "TURSO_AUTH_TOKEN": c_turso_token
     }
     seen_keys = set()
     lines = []
@@ -126,12 +134,12 @@ def write_env_settings(
                 stripped = line.strip()
                 matched = False
                 for tk, tv in tracked_keys.items():
-                    if stripped.startswith(f"{tk}=") or (tk == "GOOGLE_SHEET_URL" and stripped.startswith("GAS_URL=")):
+                    if stripped.startswith(f"{tk}="):
                         lines.append(f'{tk}="{tv}"')
                         seen_keys.add(tk)
                         matched = True
                         break
-                if not matched:
+                if not matched and not stripped.startswith("GOOGLE_SHEET_URL=") and not stripped.startswith("GAS_URL="):
                     lines.append(line)
         except Exception:
             lines = []
@@ -152,8 +160,10 @@ def write_env_settings(
         "db_app_secret": c_db_secret,
         "db_refresh_token": c_db_refresh,
         "db_folder": c_db_folder,
-        "gas_url": c_gas_url
+        "turso_db_url": c_turso_url,
+        "turso_auth_token": c_turso_token
     }
+
 
 
 def call_gemini_api(

@@ -34,6 +34,14 @@ from deps_helper import ensure_pillow, ensure_ffmpeg
 from items_manager import default_manager, parse_multipart_request, natural_sort_key
 from archive_manager import ArchiveManager, get_local_ip
 from port_helper import find_random_available_port, save_active_port
+from turso_client import (
+    turso_test_connection,
+    turso_log_story,
+    turso_check_duplicate,
+    turso_delete_story,
+    turso_update_status,
+    turso_list_stories,
+)
 
 WEB_DIR = Path(__file__).resolve().parent
 ASSETS_DIR = REPO_ROOT / "assets"
@@ -430,34 +438,24 @@ def upload_file_to_dropbox(access_token: str, file_path: Path, dropbox_path: str
         return json.loads(resp.read().decode("utf-8"))
 
 
-def log_to_google_sheet(gas_url: str, filename: str, caption: str, description: str) -> Dict[str, Any]:
-    """Posts story publication row to Google Sheets via Google Apps Script Web App."""
-    url = f"{gas_url}?action=add&filename={urllib.parse.quote(filename)}&caption={urllib.parse.quote(caption)}&description={urllib.parse.quote(description)}"
-    req = urllib.request.Request(url, method="GET")
-    with urllib.request.urlopen(req, timeout=25) as resp:
-        return json.loads(resp.read().decode("utf-8"))
+def log_to_turso_db(db_url: str, auth_token: str, filename: str, caption: str, description: str, status: str = "ready") -> Dict[str, Any]:
+    """Posts story record directly to Turso libSQL edge database."""
+    return turso_log_story(db_url, auth_token, filename, caption, description, status)
 
 
-def check_sheet_duplicate(gas_url: str, filename: str, title: str) -> bool:
-    """Queries Google Sheets manifest to check if filename or story title already exists."""
-    try:
-        url = f"{gas_url}?action=get"
-        req = urllib.request.Request(url, method="GET")
-        with urllib.request.urlopen(req, timeout=15) as resp:
-            data = json.loads(resp.read().decode("utf-8"))
-            rows = data.get("data", [])
-            fn_clean = filename.lower().replace(".mp4", "")
-            title_clean = title.lower()
-            for r in rows:
-                r_fn = str(r.get("filename", "")).lower().replace(".mp4", "")
-                r_cap = str(r.get("caption", "")).lower()
-                if fn_clean and (fn_clean == r_fn or fn_clean in r_fn or r_fn in fn_clean):
-                    return True
-                if title_clean and (title_clean in r_cap or r_cap in title_clean):
-                    return True
-    except Exception:
-        pass
-    return False
+def check_turso_duplicate(db_url: str, auth_token: str, filename: str) -> bool:
+    """Queries Turso database to check if filename already exists."""
+    return turso_check_duplicate(db_url, auth_token, filename)
+
+
+def delete_from_turso(db_url: str, auth_token: str, filename: str) -> Dict[str, Any]:
+    """Deletes a story record from Turso database."""
+    return turso_delete_story(db_url, auth_token, filename)
+
+
+def update_turso_status(db_url: str, auth_token: str, filename: str, status: str) -> Dict[str, Any]:
+    """Updates story publication status in Turso database."""
+    return turso_update_status(db_url, auth_token, filename, status)
 
 
 def check_dropbox_duplicate(access_token: str, dropbox_path: str) -> bool:
@@ -495,40 +493,19 @@ def delete_file_from_dropbox(access_token: str, dropbox_path: str) -> Dict[str, 
         return {"ok": False, "error": str(e)}
 
 
-def delete_from_google_sheet(gas_url: str, filename: str) -> Dict[str, Any]:
-    """Deletes a row from Google Sheets by filename via Google Apps Script."""
-    try:
-        url = f"{gas_url}?action=delete&filename={urllib.parse.quote(filename)}"
-        req = urllib.request.Request(url, method="GET")
-        with urllib.request.urlopen(req, timeout=20) as resp:
-            return json.loads(resp.read().decode("utf-8"))
-    except Exception as e:
-        return {"ok": False, "error": str(e)}
-
-
-def update_google_sheet_status(gas_url: str, filename: str, platform: str, value: str) -> Dict[str, Any]:
-    """Updates Facebook or YouTube publication status (YES/NO) in Google Sheets."""
-    try:
-        url = f"{gas_url}?action=update&filename={urllib.parse.quote(filename)}&platform={urllib.parse.quote(platform)}&value={urllib.parse.quote(value)}"
-        req = urllib.request.Request(url, method="GET")
-        with urllib.request.urlopen(req, timeout=20) as resp:
-            return json.loads(resp.read().decode("utf-8"))
-    except Exception as e:
-        return {"ok": False, "error": str(e)}
-
-
 def auto_publish_story_item_thread(
     item_id: str,
     db_cfg: Dict[str, str],
-    gas_url: str,
+    turso_cfg: Optional[Dict[str, str]] = None,
     show_captions: bool = True,
     caption_style: str = "gold"
 ):
+
     """
     End-to-end background publishing pipeline:
     1. Render video via upgraded FFmpeg VideoExporter
     2. Upload MP4 directly to Dropbox
-    3. Log row to Google Sheets manifest
+    3. Log record to Turso database manifest
     4. Mark item as published_complete
     """
     item = default_manager.get_item(item_id)
@@ -656,20 +633,27 @@ def auto_publish_story_item_thread(
             })
             upload_file_to_dropbox(token, output_path, db_path)
 
-        # Step 3: Log to Google Sheets
-        if gas_url:
+        # Step 3: Log to Turso database
+        if turso_cfg and turso_cfg.get("db_url"):
             with ITEM_RENDER_LOCK:
                 ITEM_RENDER_STATES[item_id]["progress"] = 94.0
-                ITEM_RENDER_STATES[item_id]["message"] = "Logging row to Google Sheets manifest..."
+                ITEM_RENDER_STATES[item_id]["message"] = "Logging record to Turso edge database..."
             default_manager.broadcast_event("render_progress", {
                 "item_id": item_id,
                 "progress": 94.0,
                 "status": "running",
-                "message": "Logging to Google Sheets..."
+                "message": "Logging to Turso database..."
             })
             caption = item.get("caption") or item.get("title") or "Story Video"
             description = item.get("description") or "#story #shorts"
-            log_to_google_sheet(gas_url, out_filename, caption, description)
+            log_to_turso_db(
+                turso_cfg.get("db_url", ""),
+                turso_cfg.get("auth_token", ""),
+                out_filename,
+                caption,
+                description,
+                status="ready"
+            )
 
         # Step 4: Mark publish complete in catalog
         default_manager.mark_publish_complete(item_id, True)
@@ -677,13 +661,13 @@ def auto_publish_story_item_thread(
         with ITEM_RENDER_LOCK:
             ITEM_RENDER_STATES[item_id]["status"] = "done"
             ITEM_RENDER_STATES[item_id]["progress"] = 100.0
-            ITEM_RENDER_STATES[item_id]["message"] = f"✓ Successfully published {out_filename} to Dropbox & Google Sheets!"
+            ITEM_RENDER_STATES[item_id]["message"] = f"✓ Successfully published {out_filename} to Dropbox & Turso!"
 
         default_manager.broadcast_event("publish_completed", {
             "item_id": item_id,
             "filename": out_filename,
             "dropbox_path": db_path,
-            "message": f"✓ Published {out_filename} to Dropbox & Google Sheets!"
+            "message": f"✓ Published {out_filename} to Dropbox & Turso!"
         })
 
     except Exception as e:
@@ -732,8 +716,22 @@ class StorymakerRequestHandler(SimpleHTTPRequestHandler):
                 "db_app_secret": cfg.get("db_app_secret", ""),
                 "db_refresh_token": cfg.get("db_refresh_token", ""),
                 "db_folder": cfg.get("db_folder", "/Think with Tobi"),
-                "gas_url": cfg.get("gas_url", "")
+                "turso_db_url": cfg.get("turso_db_url", ""),
+                "turso_auth_token": cfg.get("turso_auth_token", "")
             })
+        elif path == "/api/turso/stories":
+            import gemini_service
+            cfg = gemini_service.read_env_settings()
+            db_url = cfg.get("turso_db_url", "")
+            auth_token = cfg.get("turso_auth_token", "")
+            if not db_url or not auth_token:
+                self.send_json({"ok": False, "error": "Turso database URL and auth token not configured."}, status=400)
+                return
+            try:
+                res = turso_list_stories(db_url, auth_token)
+                self.send_json({"ok": True, "stories": res})
+            except Exception as e:
+                self.send_json({"ok": False, "error": str(e)}, status=500)
         elif path == "/api/archive":
             self.send_json({
                 "ok": True,
@@ -1538,7 +1536,10 @@ class StorymakerRequestHandler(SimpleHTTPRequestHandler):
                     payload = json.loads(self.rfile.read(content_length).decode("utf-8"))
 
                 force = bool(payload.get("force", False))
-                gas_url = payload.get("gas_url", "").strip()
+                import gemini_service
+                env_cfg = gemini_service.read_env_settings()
+                turso_db_url = (payload.get("turso_db_url") or env_cfg.get("turso_db_url", "")).strip()
+                turso_auth_token = (payload.get("turso_auth_token") or env_cfg.get("turso_auth_token", "")).strip()
                 db_app_key = payload.get("db_app_key", "").strip()
                 db_app_secret = payload.get("db_app_secret", "").strip()
                 db_refresh_token = payload.get("db_refresh_token", "").strip()
@@ -1562,13 +1563,13 @@ class StorymakerRequestHandler(SimpleHTTPRequestHandler):
                         }, status=409)
                         return
 
-                    # 2. Google Sheets duplicate check
-                    if gas_url and check_sheet_duplicate(gas_url, out_filename, raw_title):
+                    # 2. Turso database duplicate check
+                    if turso_db_url and check_turso_duplicate(turso_db_url, turso_auth_token, out_filename):
                         self.send_json({
                             "ok": False,
                             "is_duplicate": True,
                             "filename": out_filename,
-                            "message": f"Story video '{out_filename}' already exists in your Google Sheets manifest. Overwrite and re-publish?"
+                            "message": f"Story video '{out_filename}' already exists in your Turso database. Overwrite and re-publish?"
                         }, status=409)
                         return
 
@@ -1594,9 +1595,13 @@ class StorymakerRequestHandler(SimpleHTTPRequestHandler):
                     "app_secret": db_app_secret,
                     "refresh_token": db_refresh_token
                 }
+                turso_cfg = {
+                    "db_url": turso_db_url,
+                    "auth_token": turso_auth_token
+                }
                 t = threading.Thread(
                     target=auto_publish_story_item_thread,
-                    args=(item_id, db_cfg, gas_url, show_captions, caption_style),
+                    args=(item_id, db_cfg, turso_cfg, show_captions, caption_style),
                     daemon=True
                 )
                 t.start()
@@ -1621,7 +1626,8 @@ class StorymakerRequestHandler(SimpleHTTPRequestHandler):
                 db_app_secret = payload.get("db_app_secret")
                 db_refresh_token = payload.get("db_refresh_token")
                 db_folder = payload.get("db_folder")
-                gas_url = payload.get("gas_url")
+                turso_db_url = payload.get("turso_db_url")
+                turso_auth_token = payload.get("turso_auth_token")
                 saved = gemini_service.write_env_settings(
                     api_key=api_key,
                     model=model,
@@ -1630,13 +1636,47 @@ class StorymakerRequestHandler(SimpleHTTPRequestHandler):
                     db_app_secret=db_app_secret,
                     db_refresh_token=db_refresh_token,
                     db_folder=db_folder,
-                    gas_url=gas_url
+                    turso_db_url=turso_db_url,
+                    turso_auth_token=turso_auth_token
                 )
                 self.send_json({
                     "ok": True,
                     "message": "Settings saved to local .env successfully!",
                     "settings": saved
                 })
+            except Exception as e:
+                self.send_json({"ok": False, "error": str(e)}, status=500)
+
+        elif path == "/api/turso/test":
+            try:
+                import gemini_service
+                content_length = int(self.headers.get("Content-Length", 0))
+                payload = json.loads(self.rfile.read(content_length).decode("utf-8")) if content_length > 0 else {}
+                cfg = gemini_service.read_env_settings()
+                db_url = payload.get("db_url") or cfg.get("turso_db_url", "")
+                auth_token = payload.get("auth_token") or cfg.get("turso_auth_token", "")
+                res = turso_test_connection(db_url, auth_token)
+                self.send_json(res)
+            except Exception as e:
+                self.send_json({"ok": False, "error": str(e)}, status=500)
+
+        elif path == "/api/turso/log":
+            try:
+                import gemini_service
+                content_length = int(self.headers.get("Content-Length", 0))
+                payload = json.loads(self.rfile.read(content_length).decode("utf-8")) if content_length > 0 else {}
+                cfg = gemini_service.read_env_settings()
+                db_url = payload.get("db_url") or cfg.get("turso_db_url", "")
+                auth_token = payload.get("auth_token") or cfg.get("turso_auth_token", "")
+                filename = payload.get("filename", "").strip()
+                caption = payload.get("caption", "")
+                description = payload.get("description", "")
+                status = payload.get("status", "ready")
+                if not filename:
+                    self.send_json({"ok": False, "error": "Filename is required."}, status=400)
+                    return
+                res = turso_log_story(db_url, auth_token, filename, caption, description, status)
+                self.send_json(res)
             except Exception as e:
                 self.send_json({"ok": False, "error": str(e)}, status=500)
 
@@ -1766,15 +1806,18 @@ class StorymakerRequestHandler(SimpleHTTPRequestHandler):
                 content_length = int(self.headers.get("Content-Length", 0))
                 payload = json.loads(self.rfile.read(content_length).decode("utf-8")) if content_length > 0 else {}
                 filename = payload.get("filename", "").strip()
-                gas_url = payload.get("gas_url") or os.getenv("GOOGLE_SHEET_URL", "").strip()
+                import gemini_service
+                cfg = gemini_service.read_env_settings()
+                turso_db_url = payload.get("turso_db_url") or cfg.get("turso_db_url", "")
+                turso_auth_token = payload.get("turso_auth_token") or cfg.get("turso_auth_token", "")
 
                 if not filename:
                     self.send_json({"ok": False, "error": "Filename is required to delete schedule item."}, status=400)
                     return
 
-                sheet_res = None
-                if gas_url:
-                    sheet_res = delete_from_google_sheet(gas_url, filename)
+                turso_res = None
+                if turso_db_url:
+                    turso_res = delete_from_turso(turso_db_url, turso_auth_token, filename)
 
                 # Delete from Dropbox
                 dropbox_res = None
@@ -1794,9 +1837,9 @@ class StorymakerRequestHandler(SimpleHTTPRequestHandler):
                 self.send_json({
                     "ok": True,
                     "filename": filename,
-                    "sheet_res": sheet_res,
+                    "turso_res": turso_res,
                     "dropbox_res": dropbox_res,
-                    "message": f"Successfully deleted '{filename}' from Google Sheets and Dropbox."
+                    "message": f"Successfully deleted '{filename}' from Turso and Dropbox."
                 })
             except Exception as e:
                 self.send_json({"ok": False, "error": str(e)}, status=500)
@@ -1806,17 +1849,23 @@ class StorymakerRequestHandler(SimpleHTTPRequestHandler):
                 content_length = int(self.headers.get("Content-Length", 0))
                 payload = json.loads(self.rfile.read(content_length).decode("utf-8")) if content_length > 0 else {}
                 filename = payload.get("filename", "").strip()
+                status = payload.get("status", "").strip().lower()
                 platform = payload.get("platform", "").strip().lower() # 'fb' or 'yt'
                 value = payload.get("value", "").strip().upper() # 'YES' or 'NO'
-                gas_url = payload.get("gas_url") or os.getenv("GOOGLE_SHEET_URL", "").strip()
+                if not status:
+                    status = "published" if value == "YES" else "ready"
+                import gemini_service
+                cfg = gemini_service.read_env_settings()
+                turso_db_url = payload.get("turso_db_url") or cfg.get("turso_db_url", "")
+                turso_auth_token = payload.get("turso_auth_token") or cfg.get("turso_auth_token", "")
 
-                if not filename or not platform:
-                    self.send_json({"ok": False, "error": "Filename and platform ('fb' or 'yt') are required."}, status=400)
+                if not filename:
+                    self.send_json({"ok": False, "error": "Filename is required."}, status=400)
                     return
 
-                sheet_res = None
-                if gas_url:
-                    sheet_res = update_google_sheet_status(gas_url, filename, platform, value)
+                turso_res = None
+                if turso_db_url:
+                    turso_res = update_turso_status(turso_db_url, turso_auth_token, filename, status)
 
                 # Also sync back to any matching local item in ItemsManager
                 matched_item = None
@@ -1824,19 +1873,22 @@ class StorymakerRequestHandler(SimpleHTTPRequestHandler):
                 for it in default_manager.list_items():
                     slug = re.sub(r'[^a-zA-Z0-9_\-]+', '-', (it.get("title") or it.get("id") or "").lower()).strip('-')
                     if slug == clean_target or it.get("id") == clean_target or (it.get("title") and it.get("title").lower() == clean_target):
-                        is_yes = (value == "YES")
+                        is_yes = (value == "YES" or status == "published")
                         if platform == "fb":
                             matched_item = default_manager.update_metadata(it["id"], fb_published=is_yes)
                         elif platform == "yt":
                             matched_item = default_manager.update_metadata(it["id"], yt_published=is_yes)
+                        else:
+                            matched_item = default_manager.update_metadata(it["id"], fb_published=is_yes, yt_published=is_yes)
                         break
 
                 self.send_json({
                     "ok": True,
                     "filename": filename,
                     "platform": platform,
+                    "status": status,
                     "value": value,
-                    "sheet_res": sheet_res,
+                    "turso_res": turso_res,
                     "matched_item": matched_item
                 })
             except Exception as e:
