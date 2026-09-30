@@ -103,21 +103,50 @@ class TestChoreographyCore(unittest.TestCase):
         self.assertEqual(chunk_late, "FIFTEEN")
 
     def test_hormozi_caption_chunk_and_styles(self):
-        # 1. Test 1-2 word chunking with spring-pop scale and uppercase enforcement
+        # Captions default to 5 words per timed chunk.
         text = "In a quiet village nestled between rolling hills"
         chunk_t0, scale_t0 = self.choreographer.get_hormozi_caption_chunk(text, scene_t=0.01, duration=5.0)
-        self.assertIn("IN A", chunk_t0)
+        self.assertEqual(chunk_t0, "IN A QUIET VILLAGE NESTLED")
         self.assertTrue(chunk_t0.isupper())
         self.assertGreater(scale_t0, 1.0)  # Punchy bounce at the very start
 
-        # 2. Test rendering all 4 presets without exceptions
+        long_text = "one two three four five six seven eight nine ten eleven twelve"
+        chunk_early, _ = self.choreographer.get_hormozi_caption_chunk(
+            long_text, scene_t=0.01, duration=9, words_per_chunk=5
+        )
+        chunk_late, _ = self.choreographer.get_hormozi_caption_chunk(
+            long_text, scene_t=8.99, duration=9, words_per_chunk=5
+        )
+        self.assertEqual(chunk_early.split(), ["ONE", "TWO", "THREE", "FOUR", "FIVE"])
+        self.assertEqual(chunk_late.split(), ["ELEVEN", "TWELVE"])
+
+        weighted_text = "extraordinarily extraordinarily extraordinarily extraordinarily extraordinarily a b c d e"
+        first_chunk, _ = self.choreographer.get_hormozi_caption_chunk(
+            weighted_text, scene_t=5, duration=10, words_per_chunk=5
+        )
+        second_chunk, _ = self.choreographer.get_hormozi_caption_chunk(
+            weighted_text, scene_t=9.5, duration=10, words_per_chunk=5
+        )
+        self.assertEqual(first_chunk, "EXTRAORDINARILY EXTRAORDINARILY EXTRAORDINARILY EXTRAORDINARILY EXTRAORDINARILY")
+        self.assertEqual(second_chunk, "A B C D E")
+
+        # Render all presets with optional flicker.
         for preset in ["gold", "mint", "cyan", "white"]:
             frame = self.choreographer.render_frame(
                 self.scene, scene_t=1.0, total_t=1.0, total_duration=21.0,
-                show_captions=True, caption_style=preset
+                show_captions=True, caption_style=preset,
+                caption_words_per_chunk=7, retro_flicker=True
             )
             self.assertEqual(frame.size, (1080, 1920))
             self.assertEqual(frame.mode, "RGB")
+
+    def test_retro_flicker_stays_subtle(self):
+        plain = self.choreographer.render_frame(self.scene, scene_t=1.0, total_t=1.0)
+        flicker = self.choreographer.render_frame(self.scene, scene_t=1.0, total_t=1.0, retro_flicker=True)
+        self.assertNotEqual(plain.tobytes(), flicker.tobytes())
+        plain_pixel = plain.getpixel((20, 20))
+        flicker_pixel = flicker.getpixel((20, 20))
+        self.assertLessEqual(max(abs(a - b) for a, b in zip(plain_pixel, flicker_pixel)), 20)
 
 
 if __name__ == "__main__":

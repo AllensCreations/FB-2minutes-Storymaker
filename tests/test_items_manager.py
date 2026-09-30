@@ -52,6 +52,35 @@ class TestItemsManager(unittest.TestCase):
         self.assertEqual(len(items), 1)
         self.assertEqual(items[0]["id"], item["id"])
 
+    def test_save_item_audio_rejects_path_traversal(self):
+        buf = io.BytesIO()
+        with zipfile.ZipFile(buf, "w") as zf:
+            zf.writestr("01.png", b"IMAGE")
+        item = self.manager.save_zip_item(buf.getvalue(), filename="audio-path.zip")
+        escaped_path = Path(self.temp_dir) / "escaped.wav"
+
+        with self.assertRaisesRegex(ValueError, "plain file name"):
+            self.manager.save_item_audio(item["id"], b"AUDIO", "../escaped.wav")
+
+        self.assertFalse(escaped_path.exists())
+
+    def test_zip_extraction_rejects_sibling_prefix_path(self):
+        buf = io.BytesIO()
+        with zipfile.ZipFile(buf, "w") as zf:
+            zf.writestr("01.png", b"IMAGE")
+        item = self.manager.save_zip_item(buf.getvalue(), filename="zip-path.zip")
+        sibling = Path(self.temp_dir) / f"{item['id']}_escape"
+        sibling.mkdir()
+
+        update = io.BytesIO()
+        with zipfile.ZipFile(update, "w") as zf:
+            zf.writestr("story.json", json.dumps({"title": "Updated", "scenes": [{"text": "Scene"}]}))
+            zf.writestr(f"../{sibling.name}/escaped.txt", "outside")
+
+        self.manager.save_zip_item(update.getvalue(), existing_item_id=item["id"])
+
+        self.assertFalse((sibling / "escaped.txt").exists())
+
     def test_delete_item(self):
         buf = io.BytesIO()
         with zipfile.ZipFile(buf, "w") as zf:
@@ -277,5 +306,4 @@ class TestItemsManager(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-
 

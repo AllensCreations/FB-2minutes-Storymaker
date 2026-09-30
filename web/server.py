@@ -54,6 +54,12 @@ PROCESSED_DIR = ASSETS_DIR / "processed"
 default_archive = ArchiveManager(OUTPUT_DIR)
 
 
+def _story_output_filename(title: str, item_id: str) -> str:
+    title = re.sub(r"(?:\.mp4)+$", "", title, flags=re.IGNORECASE)
+    slug = re.sub(r"[^a-zA-Z0-9_-]+", "-", title.lower()).strip("-")
+    return f"{slug or f'story_{item_id}'}.mp4"
+
+
 # Global rendering state tracker
 RENDER_STATE = {
     "status": "idle",       # idle | running | done | error
@@ -155,7 +161,12 @@ def get_project_assets_info():
     }
 
 
-def run_pipeline_thread(show_captions: bool = True, caption_style: str = "gold"):
+def run_pipeline_thread(
+    show_captions: bool = True,
+    caption_style: str = "gold",
+    caption_words_per_chunk: int = 5,
+    retro_flicker: bool = False
+):
     """Background thread function that executes the full rendering pipeline."""
     global RENDER_STATE
     with RENDER_LOCK:
@@ -212,7 +223,9 @@ def run_pipeline_thread(show_captions: bool = True, caption_style: str = "gold")
             output_path=output_path,
             progress_callback=on_render_progress,
             show_captions=show_captions,
-            caption_style=caption_style
+            caption_style=caption_style,
+            caption_words_per_chunk=caption_words_per_chunk,
+            retro_flicker=retro_flicker
         )
 
         with RENDER_LOCK:
@@ -233,7 +246,13 @@ ITEM_RENDER_STATES = {}
 ITEM_RENDER_LOCK = threading.Lock()
 
 
-def render_story_item_thread(item_id: str, show_captions: bool = True, caption_style: str = "gold"):
+def render_story_item_thread(
+    item_id: str,
+    show_captions: bool = True,
+    caption_style: str = "gold",
+    caption_words_per_chunk: int = 5,
+    retro_flicker: bool = False
+):
     """Background worker that renders an item from the Items Queue using FFmpeg."""
     global ITEM_RENDER_STATES
     item = default_manager.get_item(item_id)
@@ -281,11 +300,7 @@ def render_story_item_thread(item_id: str, show_captions: bool = True, caption_s
         script_path.write_text(script_text, encoding="utf-8")
 
     # Output filename based on item title
-    raw_title = item.get("title") or item_id
-    clean_slug = re.sub(r'[^a-zA-Z0-9_\-]+', '-', raw_title.lower()).strip('-')
-    if not clean_slug:
-        clean_slug = f"story_{item_id}"
-    out_filename = f"{clean_slug}.mp4"
+    out_filename = _story_output_filename(item.get("title") or item_id, item_id)
     output_path = OUTPUT_DIR / out_filename
 
     with ITEM_RENDER_LOCK:
@@ -366,7 +381,9 @@ def render_story_item_thread(item_id: str, show_captions: bool = True, caption_s
             output_path=output_path,
             progress_callback=on_item_render_progress,
             show_captions=show_captions,
-            caption_style=caption_style
+            caption_style=caption_style,
+            caption_words_per_chunk=caption_words_per_chunk,
+            retro_flicker=retro_flicker
         )
 
         # Log into local archive manifest!
@@ -498,7 +515,9 @@ def auto_publish_story_item_thread(
     db_cfg: Dict[str, str],
     turso_cfg: Optional[Dict[str, str]] = None,
     show_captions: bool = True,
-    caption_style: str = "gold"
+    caption_style: str = "gold",
+    caption_words_per_chunk: int = 5,
+    retro_flicker: bool = False
 ):
 
     """
@@ -513,11 +532,7 @@ def auto_publish_story_item_thread(
         return
 
     item_folder = (default_manager.items_dir / item_id).resolve()
-    raw_title = item.get("title") or item_id
-    clean_slug = re.sub(r'[^a-zA-Z0-9_\-]+', '-', raw_title.lower()).strip('-')
-    if not clean_slug:
-        clean_slug = f"story_{item_id}"
-    out_filename = f"{clean_slug}.mp4"
+    out_filename = _story_output_filename(item.get("title") or item_id, item_id)
     output_path = OUTPUT_DIR / out_filename
 
     with ITEM_RENDER_LOCK:
@@ -537,94 +552,85 @@ def auto_publish_story_item_thread(
     })
 
     try:
-        # Step 1: Render video only if MP4 doesn't already exist
-        if output_path.exists() and output_path.stat().st_size > 0:
-            with ITEM_RENDER_LOCK:
-                ITEM_RENDER_STATES[item_id]["progress"] = 75.0
-                ITEM_RENDER_STATES[item_id]["message"] = f"Video '{out_filename}' already rendered, skipping to upload..."
-            default_manager.broadcast_event("render_progress", {
-                "item_id": item_id,
-                "progress": 75.0,
-                "status": "running",
-                "message": f"Video already rendered, skipping to upload..."
-            })
+        # Render every publish with the current assets and settings; output names alone aren't a safe cache key.
+        with ITEM_RENDER_LOCK:
+            ITEM_RENDER_STATES[item_id]["message"] = "Starting video render..."
+        default_manager.broadcast_event("render_progress", {
+            "item_id": item_id,
+            "progress": 5.0,
+            "status": "running",
+            "message": "Starting video render..."
+        })
+
+        audio_file = item.get("audio_file") or "narration.wav"
+        audio_path = item_folder / audio_file
+        if not audio_path.exists():
+            for ext in [".wav", ".mp3", ".m4a", ".aac"]:
+                cand = list(item_folder.glob(f"*{ext}"))
+                if cand:
+                    audio_path = cand[0]
+                    break
+
+        if not audio_path.exists():
+            raise FileNotFoundError("Voiceover audio track missing from story package.")
+
+        aligner = SpeechCueAlignEngine()
+        audio_dur = aligner.get_audio_duration(audio_path)
+
+        scene_cuts = item.get("scene_cuts")
+        story_json_path = item_folder / "story.json"
+        if not scene_cuts and story_json_path.exists():
+            try:
+                s_json = json.loads(story_json_path.read_text(encoding="utf-8"))
+                scene_cuts = s_json.get("scene_cuts")
+            except Exception:
+                pass
+
+        if scene_cuts and len(scene_cuts) > 0:
+            cuts = sorted([float(c) for c in scene_cuts if 0 < float(c) < audio_dur])
+            time_points = [0.0] + cuts + [audio_dur]
+            scenes_data = item.get("scenes") or []
+            segments = []
+            scene_map = {}
+            for i in range(len(time_points) - 1):
+                st = time_points[i]
+                et = time_points[i + 1]
+                txt = scenes_data[i].get("text", f"Scene {i+1}") if i < len(scenes_data) else f"Scene {i+1}"
+                seg = SpeechSegment(start_time=st, end_time=et, text=txt, scene_title=f"Scene {i+1}")
+                segments.append(seg)
+                scene_map[i] = seg
+            alignment = AlignmentResult(segments=segments, scene_mapping=scene_map, total_duration=audio_dur)
         else:
+            script_path = item_folder / "script.txt"
+            alignment = aligner.align_speech_with_script(audio_path, script_path)
+
+        director = SceneDurationDirector()
+        timeline = director.build_timeline(alignment, item_folder, fps=24)
+
+        from exporter import VideoExporter
+        def on_progress(percent: float, status_msg: str):
+            scaled_pct = 5.0 + (percent * 0.70)  # Render is 5% -> 75%
             with ITEM_RENDER_LOCK:
-                ITEM_RENDER_STATES[item_id]["message"] = "Starting video render..."
+                ITEM_RENDER_STATES[item_id]["progress"] = round(scaled_pct, 1)
+                ITEM_RENDER_STATES[item_id]["message"] = status_msg
             default_manager.broadcast_event("render_progress", {
                 "item_id": item_id,
-                "progress": 5.0,
+                "progress": round(scaled_pct, 1),
                 "status": "running",
-                "message": "Starting video render..."
+                "message": status_msg
             })
 
-            audio_file = item.get("audio_file") or "narration.wav"
-            audio_path = item_folder / audio_file
-            if not audio_path.exists():
-                for ext in [".wav", ".mp3", ".m4a", ".aac"]:
-                    cand = list(item_folder.glob(f"*{ext}"))
-                    if cand:
-                        audio_path = cand[0]
-                        break
-
-            if not audio_path.exists():
-                raise FileNotFoundError("Voiceover audio track missing from story package.")
-
-            aligner = SpeechCueAlignEngine()
-            audio_dur = aligner.get_audio_duration(audio_path)
-
-            scene_cuts = item.get("scene_cuts")
-            story_json_path = item_folder / "story.json"
-            if not scene_cuts and story_json_path.exists():
-                try:
-                    s_json = json.loads(story_json_path.read_text(encoding="utf-8"))
-                    scene_cuts = s_json.get("scene_cuts")
-                except Exception:
-                    pass
-
-            if scene_cuts and len(scene_cuts) > 0:
-                cuts = sorted([float(c) for c in scene_cuts if 0 < float(c) < audio_dur])
-                time_points = [0.0] + cuts + [audio_dur]
-                scenes_data = item.get("scenes") or []
-                segments = []
-                scene_map = {}
-                for i in range(len(time_points) - 1):
-                    st = time_points[i]
-                    et = time_points[i + 1]
-                    txt = scenes_data[i].get("text", f"Scene {i+1}") if i < len(scenes_data) else f"Scene {i+1}"
-                    seg = SpeechSegment(start_time=st, end_time=et, text=txt, scene_title=f"Scene {i+1}")
-                    segments.append(seg)
-                    scene_map[i] = seg
-                alignment = AlignmentResult(segments=segments, scene_mapping=scene_map, total_duration=audio_dur)
-            else:
-                script_path = item_folder / "script.txt"
-                alignment = aligner.align_speech_with_script(audio_path, script_path)
-
-            director = SceneDurationDirector()
-            timeline = director.build_timeline(alignment, item_folder, fps=24)
-
-            from exporter import VideoExporter
-            def on_progress(percent: float, status_msg: str):
-                scaled_pct = 5.0 + (percent * 0.70)  # Render is 5% -> 75%
-                with ITEM_RENDER_LOCK:
-                    ITEM_RENDER_STATES[item_id]["progress"] = round(scaled_pct, 1)
-                    ITEM_RENDER_STATES[item_id]["message"] = status_msg
-                default_manager.broadcast_event("render_progress", {
-                    "item_id": item_id,
-                    "progress": round(scaled_pct, 1),
-                    "status": "running",
-                    "message": status_msg
-                })
-
-            exporter = VideoExporter(fps=24)
-            exporter.export_video(
-                timeline=timeline,
-                audio_path=audio_path,
-                output_path=output_path,
-                progress_callback=on_progress,
-                show_captions=show_captions,
-                caption_style=caption_style
-            )
+        exporter = VideoExporter(fps=24)
+        exporter.export_video(
+            timeline=timeline,
+            audio_path=audio_path,
+            output_path=output_path,
+            progress_callback=on_progress,
+            show_captions=show_captions,
+            caption_style=caption_style,
+            caption_words_per_chunk=caption_words_per_chunk,
+            retro_flicker=retro_flicker
+        )
 
         # Step 2: Upload to Dropbox
         folder = db_cfg.get("folder") or "/Think with Tobi"
@@ -933,6 +939,8 @@ class StorymakerRequestHandler(SimpleHTTPRequestHandler):
             content_length = int(self.headers.get("Content-Length", 0))
             show_captions = True
             caption_style = "gold"
+            caption_words_per_chunk = 5
+            retro_flicker = False
             if content_length > 0:
                 try:
                     payload = json.loads(self.rfile.read(content_length).decode("utf-8"))
@@ -940,6 +948,8 @@ class StorymakerRequestHandler(SimpleHTTPRequestHandler):
                         show_captions = bool(payload["show_captions"])
                     if "caption_style" in payload:
                         caption_style = str(payload["caption_style"]).strip().lower()
+                    caption_words_per_chunk = max(5, min(10, int(payload.get("caption_words_per_chunk", 5))))
+                    retro_flicker = bool(payload.get("retro_flicker", False))
                 except Exception:
                     pass
 
@@ -947,7 +957,11 @@ class StorymakerRequestHandler(SimpleHTTPRequestHandler):
                 if RENDER_STATE["status"] == "running":
                     self.send_json({"ok": False, "message": "A render is already in progress."}, status=409)
                     return
-            thread = threading.Thread(target=run_pipeline_thread, args=(show_captions, caption_style), daemon=True)
+            thread = threading.Thread(
+                target=run_pipeline_thread,
+                args=(show_captions, caption_style, caption_words_per_chunk, retro_flicker),
+                daemon=True
+            )
             thread.start()
             self.send_json({"ok": True, "message": f"Render job started (captions: {'ON' if show_captions else 'OFF'}, style: {caption_style})."})
 
@@ -1423,6 +1437,8 @@ class StorymakerRequestHandler(SimpleHTTPRequestHandler):
                     self.send_json({"ok": True, "item": updated, "audio_url": updated.get("audio_url")})
                 else:
                     self.send_json({"ok": False, "error": f"Story item {item_id} not found"}, status=404)
+            except ValueError as e:
+                self.send_json({"ok": False, "error": str(e)}, status=400)
             except Exception as e:
                 self.send_json({"ok": False, "error": str(e)}, status=500)
 
@@ -1469,6 +1485,8 @@ class StorymakerRequestHandler(SimpleHTTPRequestHandler):
                 item_id = path.replace("/api/items/", "").replace("/render", "").strip("/")
                 show_captions = True
                 caption_style = "gold"
+                caption_words_per_chunk = 5
+                retro_flicker = False
                 content_length = int(self.headers.get("Content-Length", 0))
                 if content_length > 0:
                     try:
@@ -1477,6 +1495,8 @@ class StorymakerRequestHandler(SimpleHTTPRequestHandler):
                             show_captions = bool(payload["show_captions"])
                         if "caption_style" in payload:
                             caption_style = str(payload["caption_style"]).strip().lower()
+                        caption_words_per_chunk = max(5, min(10, int(payload.get("caption_words_per_chunk", 5))))
+                        retro_flicker = bool(payload.get("retro_flicker", False))
                     except Exception:
                         pass
 
@@ -1487,7 +1507,11 @@ class StorymakerRequestHandler(SimpleHTTPRequestHandler):
                         return
                     ITEM_RENDER_STATES[item_id] = {"status": "starting", "progress": 0.0}
 
-                t = threading.Thread(target=render_story_item_thread, args=(item_id, show_captions, caption_style), daemon=True)
+                t = threading.Thread(
+                    target=render_story_item_thread,
+                    args=(item_id, show_captions, caption_style, caption_words_per_chunk, retro_flicker),
+                    daemon=True
+                )
                 t.start()
                 self.send_json({"ok": True, "message": f"Background FFmpeg render started for item {item_id} (captions: {'ON' if show_captions else 'OFF'}, style: {caption_style})."})
             except Exception as e:
@@ -1602,10 +1626,10 @@ class StorymakerRequestHandler(SimpleHTTPRequestHandler):
                 db_token = payload.get("db_token", "").strip()
                 show_captions = bool(payload.get("show_captions", True))
                 caption_style = str(payload.get("caption_style", "gold")).strip().lower()
+                caption_words_per_chunk = max(5, min(10, int(payload.get("caption_words_per_chunk", 5))))
+                retro_flicker = bool(payload.get("retro_flicker", False))
 
-                raw_title = item.get("title") or item_id
-                clean_slug = re.sub(r'[^a-zA-Z0-9_\-]+', '-', raw_title.lower()).strip('-')
-                out_filename = f"{clean_slug}.mp4"
+                out_filename = _story_output_filename(item.get("title") or item_id, item_id)
 
                 db_folder = (payload.get("db_folder") or env_cfg.get("db_folder", "/Think with Tobi")).strip()
                 if not db_folder.startswith("/"):
@@ -1664,7 +1688,10 @@ class StorymakerRequestHandler(SimpleHTTPRequestHandler):
                 }
                 t = threading.Thread(
                     target=auto_publish_story_item_thread,
-                    args=(item_id, db_cfg, turso_cfg, show_captions, caption_style),
+                    args=(
+                        item_id, db_cfg, turso_cfg, show_captions, caption_style,
+                        caption_words_per_chunk, retro_flicker
+                    ),
                     daemon=True
                 )
                 t.start()

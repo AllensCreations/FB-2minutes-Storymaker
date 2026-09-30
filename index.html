@@ -316,6 +316,19 @@
               <span>💬</span> <span id="captionToggleText">CC ON</span>
             </button>
           </div>
+          <div class="w-full flex items-center justify-between gap-2">
+            <label class="flex items-center gap-1.5 text-[10px] text-zinc-400 font-semibold">
+              Caption words
+              <select id="captionWordsSelect" class="bg-gray-950 border border-gray-700 text-zinc-200 rounded-md px-1.5 py-1 text-[10px]">
+                <option value="5" selected>5</option>
+                <option value="7">7</option>
+                <option value="10">10</option>
+              </select>
+            </label>
+            <button id="retroFlickerBtn" type="button" aria-pressed="false" class="px-2.5 py-1 rounded-lg text-[10px] font-bold border border-amber-500/40 bg-gray-900 text-amber-200 hover:bg-amber-950/50 transition">
+              🎞️ Retro flicker 10% OFF
+            </button>
+          </div>
 
           <!-- Studio Video Monitor Viewport (Zero clipping, supports 9:16 and 4:5 seamlessly) -->
           <div class="relative p-2.5 promax-monitor-bezel rounded-2xl transition-all duration-300 group">
@@ -1368,10 +1381,29 @@
     const captionStyleSelect = document.getElementById('captionStyleSelect');
     let showCaptions = true;
     let currentCaptionStyle = 'gold';
+    let captionWordsPerChunk = 5;
+    let retroFlickerEnabled = false;
+    const captionWordsSelect = document.getElementById('captionWordsSelect');
+    const retroFlickerBtn = document.getElementById('retroFlickerBtn');
 
     if (captionStyleSelect) {
       captionStyleSelect.addEventListener('change', (e) => {
         currentCaptionStyle = e.target.value;
+        drawFrame(audioElement.currentTime || 0);
+      });
+    }
+    if (captionWordsSelect) {
+      captionWordsSelect.addEventListener('change', () => {
+        captionWordsPerChunk = Math.max(5, Math.min(10, Number(captionWordsSelect.value) || 5));
+        drawFrame(audioElement.currentTime || 0);
+      });
+    }
+    if (retroFlickerBtn) {
+      retroFlickerBtn.addEventListener('click', () => {
+        retroFlickerEnabled = !retroFlickerEnabled;
+        retroFlickerBtn.setAttribute('aria-pressed', String(retroFlickerEnabled));
+        retroFlickerBtn.textContent = `🎞️ Retro flicker 10% ${retroFlickerEnabled ? 'ON' : 'OFF'}`;
+        retroFlickerBtn.classList.toggle('bg-amber-900/50', retroFlickerEnabled);
         drawFrame(audioElement.currentTime || 0);
       });
     }
@@ -2472,7 +2504,7 @@
       if (showCaptions && activeScene.text) {
         const sceneDur = Math.max((activeScene.end - activeScene.start) || 0.1, 0.1);
         const sceneT = Math.max(0, currentTime - activeScene.start);
-        const chunkInfo = getTimedCaptionChunk(activeScene.text, sceneT, sceneDur);
+        const chunkInfo = getTimedCaptionChunk(activeScene.text, sceneT, sceneDur, captionWordsPerChunk);
         drawHormoziPopCaption(ctx, chunkInfo.text, chunkInfo.scale, currentCaptionStyle, canvas.width, canvas.height);
       }
 
@@ -2481,6 +2513,11 @@
         const overallProg = Math.min(Math.max(currentTime / audioBuffer.duration, 0), 1);
         ctx.fillStyle = '#3b82f6';
         ctx.fillRect(0, canvas.height - 6, canvas.width * overallProg, 6);
+      }
+      if (retroFlickerEnabled) {
+        const alpha = 0.075 + 0.025 * Math.sin(currentTime * 2 * Math.PI * 8);
+        ctx.fillStyle = `rgba(255, 220, 160, ${alpha})`;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
       }
     }
 
@@ -2527,10 +2564,14 @@
       if (!text) return;
       text = String(text).toUpperCase();
       const style = CAPTION_STYLES[styleKey] || CAPTION_STYLES.gold;
-      const fontSize = Math.round(style.fontSize * scale);
+      let fontSize = Math.round(style.fontSize * scale);
 
       context.save();
       context.font = `900 ${fontSize}px "Impact", "Arial Black", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`;
+      while (fontSize > 24 && context.measureText(text).width > canvasWidth * 0.9) {
+        fontSize -= 2;
+        context.font = `900 ${fontSize}px "Impact", "Arial Black", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`;
+      }
       context.textAlign = 'center';
       context.textBaseline = 'middle';
 
@@ -2560,19 +2601,40 @@
       context.restore();
     }
 
-    function getTimedCaptionChunk(text, sceneTime, sceneDuration) {
+    function getTimedCaptionChunk(text, sceneTime, sceneDuration, wordsPerChunk = 5) {
       const words = text.trim().split(/\s+/).filter(Boolean);
       if (words.length === 0) return { text: '', scale: 1.0 };
       const duration = Math.max(sceneDuration || 0.1, 0.1);
-      const wordDuration = duration / words.length;
-      const wordIndex = Math.min(Math.floor(Math.max(0, sceneTime) / wordDuration), words.length - 1);
-      const elapsed = Math.max(0, sceneTime - wordIndex * wordDuration);
+      const chunkSize = Math.max(5, Math.min(10, Number(wordsPerChunk) || 5));
+      const chunks = [];
+      for (let i = 0; i < words.length; i += chunkSize) chunks.push(words.slice(i, i + chunkSize).join(' '));
+      const weights = chunks.map(chunk => {
+        let weight = chunk.length;
+        if (/[,;:]$/.test(chunk)) weight += 2;
+        else if (/[.!?]$/.test(chunk)) weight += 4;
+        return Math.max(weight, 2);
+      });
+      const totalWeight = weights.reduce((sum, weight) => sum + weight, 0);
+      let chunkIndex = chunks.length - 1;
+      let chunkStart = 0;
+      let cursor = 0;
+      for (let i = 0; i < chunks.length; i++) {
+        const chunkEnd = cursor + (weights[i] / totalWeight) * duration;
+        if (cursor <= sceneTime && sceneTime < chunkEnd) {
+          chunkIndex = i;
+          chunkStart = cursor;
+          break;
+        }
+        chunkStart = cursor;
+        cursor = chunkEnd;
+      }
+      const elapsed = Math.max(0, sceneTime - chunkStart);
       const popDuration = 0.13;
       const progress = Math.min(elapsed / popDuration, 1);
       const scale = elapsed < popDuration
         ? 1.0 + 0.25 * Math.cos(progress * Math.PI * 0.5) * (1.0 - progress)
         : 1.0;
-      return { text: words[wordIndex].toUpperCase(), scale };
+      return { text: chunks[chunkIndex].toUpperCase(), scale };
     }
 
     function drawFloatingCaption(context, text, centerX, centerY, maxWidth, lineHeight) {
@@ -3051,7 +3113,7 @@
     let metadataSaveTimeout = null;
 
     function pipeSlugify(text) {
-      return String(text || "story_output")
+      return String(text || "story_output").replace(/(?:\.mp4)+$/i, "")
         .toLowerCase()
         .replace(/[^a-z0-9_-]+/g, "_")
         .replace(/^_+|_+$/g, "") + ".mp4";
@@ -3462,13 +3524,15 @@
             throw new Error('Rendered video file is empty. Please check audio and canvas preview.');
           }
 
-          const videoFile = new File([videoBlob], meta.filename, { type: 'video/mp4' });
+          const outputExtension = mimeType.includes('mp4') ? 'mp4' : 'webm';
+          const outputFilename = `${meta.filename.replace(/\.(?:mp4|webm)$/i, '')}.${outputExtension}`;
+          const publishMeta = { ...meta, filename: outputFilename };
           if (btn) btn.innerHTML = '<span>📤</span> Uploading to Dropbox...';
-          if (exportText) exportText.textContent = `Uploading "${meta.filename}" to Dropbox...`;
+          if (exportText) exportText.textContent = `Uploading "${outputFilename}" to Dropbox...`;
 
           const token = await getAccessToken();
           const folder = (pipeCfg('dbFolder', DEFAULT_FOLDER) || '/Think with Tobi').replace(/\/$/, '');
-          const path = `${folder}/${meta.filename}`;
+          const path = `${folder}/${outputFilename}`;
 
           if (step2DetailText) step2DetailText.textContent = `Uploading to ${folder}/...`;
 
@@ -3515,7 +3579,7 @@
           if (step2Label) step2Label.className = 'text-emerald-400 font-medium flex items-center gap-1.5';
           if (step2Pct) step2Pct.textContent = '100%';
           if (step2Bar) step2Bar.style.width = '100%';
-          if (step2DetailText) step2DetailText.textContent = `✓ Uploaded to ${folder}/${meta.filename}`;
+          if (step2DetailText) step2DetailText.textContent = `✓ Uploaded to ${folder}/${outputFilename}`;
           if (pubOverallPct) pubOverallPct.textContent = '80%';
 
           // Step 3: Turso LibSQL Database Sync
@@ -3527,7 +3591,7 @@
           if (step3DetailText) step3DetailText.textContent = 'Writing story & dropbox_path to Turso libSQL...';
 
           await pushStoryToTurso({
-            ...meta,
+            ...publishMeta,
             dropbox_path: path
           });
 
@@ -3558,7 +3622,7 @@
           if (exportBar) exportBar.style.width = '100%';
           if (exportPct) exportPct.textContent = '100%';
 
-          showToast(`🚀 Successfully published "${meta.filename}" to Dropbox & Turso!`);
+          showToast(`🚀 Successfully published "${outputFilename}" to Dropbox & Turso!`);
 
           if (btn) {
             btn.disabled = false;
@@ -4136,6 +4200,36 @@
           window._publishedEditConfirmed = false;
         }
 
+        // Prevent assets and timeline state from the previously open story carrying over.
+        if (animFrameId) cancelAnimationFrame(animFrameId);
+        animFrameId = null;
+        isPlaying = false;
+        audioElement.pause();
+        audioElement.removeAttribute('src');
+        audioElement.load();
+        audioBuffer = null;
+        detectedPauses = [];
+        sceneCuts = [0];
+        previousSceneCuts = null;
+        draggingMarkerIdx = null;
+        loadedImages = [];
+        scenes = [];
+        const audioInput = document.getElementById('audioInput');
+        const zipInput = document.getElementById('zipInput');
+        if (audioInput) audioInput.value = '';
+        if (zipInput) zipInput.value = '';
+        if (audioDurLabel) audioDurLabel.textContent = '0.0s';
+        if (imgCountLabel) imgCountLabel.textContent = '0 image(s)';
+        if (timeDisplay) timeDisplay.textContent = `${formatTime(0)} / ${formatTime(0)}`;
+        if (playBtn) {
+          playBtn.disabled = true;
+          playBtn.innerHTML = '<span>▶</span> Play Preview';
+          playBtn.classList.remove('from-amber-600', 'via-amber-500', 'to-orange-600');
+          playBtn.classList.add('from-indigo-600', 'via-indigo-500', 'to-purple-600');
+        }
+        updateCanvasAspectRatio([]);
+        resizeWaveform();
+
         // AUTO-JUMP: Immediately switch to Studio view so user sees loading in real-time
         showStudioView();
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -4153,7 +4247,9 @@
         if (studioTitleInput) studioTitleInput.value = item.title || "";
         if (studioCaptionInput) studioCaptionInput.value = item.caption || "";
         if (studioDescInput) studioDescInput.value = item.description || "";
-        if (studioFilenameBox) studioFilenameBox.textContent = (item.filename || pipeSlugify(item.title || "story_output")) + (item.filename && item.filename.endsWith(".mp4") ? "" : ".mp4");
+        if (studioFilenameBox) studioFilenameBox.textContent = item.filename
+          ? item.filename.replace(/(?:\.mp4)+$/i, '') + '.mp4'
+          : pipeSlugify(item.title || "story_output");
         updateStudioMetadataCounters();
 
         const isSocialLocked = Boolean(item.fb_published || item.yt_published || (fbDone || ytDone));
@@ -4162,12 +4258,10 @@
 
         // 1. Load Script
         let scriptScenes = [];
-        if (item.script_text) {
-          const scriptInp = document.getElementById('scriptInput');
-          if (scriptInp) scriptInp.value = item.script_text;
-          scriptScenes = parseScriptScenes(item.script_text);
-          if (scriptCountLabel) scriptCountLabel.textContent = `${scriptScenes.length} scene(s)`;
-        }
+        const scriptInp = document.getElementById('scriptInput');
+        if (scriptInp) scriptInp.value = item.script_text || '';
+        scriptScenes = parseScriptScenes(item.script_text || '');
+        if (scriptCountLabel) scriptCountLabel.textContent = `${scriptScenes.length} scene(s)`;
 
         // Pre-fill Stage 2 JSON Object so filename & caption are synchronized
         const jsonInput = document.getElementById('jsonInput');
@@ -4181,7 +4275,6 @@
         }
 
         // 2. Load Images in Parallel
-        loadedImages = [];
         const imageList = item.images || [];
         statusEl.textContent = `Loading ${imageList.length} scene image(s)...`;
 
@@ -4284,7 +4377,6 @@
           showToast(`✓ Loaded story "${item.title || 'Untitled'}" with voiceover! Speech cuts auto-aligned.`);
         } else {
           showToast(`✓ Loaded story "${item.title || 'Untitled'}". Select voice-over audio to auto-sync!`);
-          const audioInput = document.getElementById('audioInput');
           if (audioInput) {
             audioInput.focus();
             audioInput.classList.add('ring-2', 'ring-blue-500');
@@ -4396,7 +4488,9 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             show_captions: typeof showCaptions !== 'undefined' ? showCaptions : true,
-            caption_style: currentCaptionStyle || 'gold'
+            caption_style: currentCaptionStyle || 'gold',
+            caption_words_per_chunk: captionWordsPerChunk,
+            retro_flicker: retroFlickerEnabled
           })
         });
         const data = await res.json();
@@ -4782,7 +4876,9 @@
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               show_captions: showCaptions,
-              caption_style: currentCaptionStyle || 'gold'
+              caption_style: currentCaptionStyle || 'gold',
+              caption_words_per_chunk: captionWordsPerChunk,
+              retro_flicker: retroFlickerEnabled
             })
           });
           const data = await res.json();
@@ -5678,7 +5774,7 @@ ALTER TABLE stories ADD COLUMN uploaded_to_youtube TEXT DEFAULT 'pending';`;
     }
 
     function pipeSlugify(title) {
-      const slug = String(title)
+      const slug = String(title).replace(/(?:\.mp4)+$/i, "")
         .toLowerCase()
         .normalize('NFKD').replace(/[\u0300-\u036f]/g, '')
         .replace(/['"]/g, '')
@@ -5702,7 +5798,7 @@ ALTER TABLE stories ADD COLUMN uploaded_to_youtube TEXT DEFAULT 'pending';`;
         if (!fn) throw new Error('Missing filename or Title field.');
 
         pipeJsonData = {
-          filename: fn.endsWith('.mp4') ? fn : fn + '.mp4',
+          filename: String(fn).replace(/(?:\.mp4)+$/i, '') + '.mp4',
           caption: cap,
           description: desc
         };

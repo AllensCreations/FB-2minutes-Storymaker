@@ -53,11 +53,9 @@ assets/visuals/raw_frames/
 .env
 .env.*
 
-# Graphify Cache & Backups
-graphify-out/cache/
-graphify-out/202*
+# Generated Graphify output
+graphify-out/
 
 # Runtime port discovery markers
 .active_port
 .graph_port
-
