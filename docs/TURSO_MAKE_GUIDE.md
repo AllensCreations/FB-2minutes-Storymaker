@@ -257,12 +257,22 @@ Turso returns rows in this format:
 ```
 
 In Make.com mapping:
-- `id` = `1.data.results[1].response.result.rows[1][1].value`
-- `filename` = `1.data.results[1].response.result.rows[1][2].value`
-- `title` = `1.data.results[1].response.result.rows[1][3].value`
-- `caption` = `1.data.results[1].response.result.rows[1][4].value`
-- `description` = `1.data.results[1].response.result.rows[1][5].value`
-- `dropbox_path` = `1.data.results[1].response.result.rows[1][6].value`
+- `filename` = `1.data.results[1].response.result.rows[1][1].value`
+- `caption` = `1.data.results[1].response.result.rows[1][2].value`
+- `description` = `1.data.results[1].response.result.rows[1][3].value`
+- `status` = `1.data.results[1].response.result.rows[1][4].value`
+- `uploaded_to_fb_ig` = `1.data.results[1].response.result.rows[1][5].value`
+- `uploaded_to_youtube` = `1.data.results[1].response.result.rows[1][6].value`
+
+#### 🔄 Migrating from Google Sheets to Turso:
+
+| Field | Old Google Sheets Variable | New Turso Edge Variable |
+| :--- | :--- | :--- |
+| **Filename** | `{{1.`0`}}` | `{{1.data.results[1].response.result.rows[1][1].value}}` |
+| **Caption** | `{{1.`1`}}` | `{{1.data.results[1].response.result.rows[1][2].value}}` |
+| **Description** | `{{1.`2`}}` | `{{1.data.results[1].response.result.rows[1][3].value}}` |
+| **Dropbox Link** | `path: /Folder/{{1.`0`}}` | `path: /Folder/{{1.data.results[1].response.result.rows[1][1].value}}` |
+| **Mark Published** | `google-sheets:updateRow` | `http:MakeRequest` (v4) `UPDATE uploaded_to_fb_ig = 'published'` |
 
 > [!TIP]
 > Add a Filter immediately after Module 1:

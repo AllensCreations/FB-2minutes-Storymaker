@@ -120,9 +120,9 @@
     "semantic_hash": ""
   },
   "index.html": {
-    "mtime": 1790742160.6900046,
-    "seen": 1790742200.4633024,
-    "ast_hash": "65172be678e3c03c228d108141f99463",
+    "mtime": 1790742354.2980044,
+    "seen": 1790742410.2265196,
+    "ast_hash": "974cc38b8217c43a7d9eee51c985735f",
     "semantic_hash": ""
   },
   "requirements.txt": {
@@ -156,9 +156,9 @@
     "semantic_hash": "2a409372d935a8f34b7285773eff2404"
   },
   "web/index.html": {
-    "mtime": 1790742170.1660044,
-    "seen": 1790742200.463316,
-    "ast_hash": "65172be678e3c03c228d108141f99463",
+    "mtime": 1790742376.4420044,
+    "seen": 1790742410.2265377,
+    "ast_hash": "974cc38b8217c43a7d9eee51c985735f",
     "semantic_hash": ""
   },
   "assets/voice-over/narration.mp3": {
@@ -186,9 +186,9 @@
     "semantic_hash": "b51fb2b5b4ed6c1d823f2016e341826a"
   },
   "AR.html": {
-    "mtime": 1790742170.1780045,
-    "seen": 1790742200.4632826,
-    "ast_hash": "65172be678e3c03c228d108141f99463",
+    "mtime": 1790742376.4620044,
+    "seen": 1790742410.2264879,
+    "ast_hash": "974cc38b8217c43a7d9eee51c985735f",
     "semantic_hash": ""
   },
   "scripts/ci_render_and_publish.py": {
@@ -324,9 +324,9 @@
     "semantic_hash": "6f8e19e7517c77f2cfb41fd0d0513be7"
   },
   "docs/TURSO_MAKE_GUIDE.md": {
-    "mtime": 1790740815.8380046,
-    "seen": 1790740955.9224946,
-    "ast_hash": "366ae13e5123890e92a52b697fe66189",
+    "mtime": 1790742371.4780045,
+    "seen": 1790742410.226516,
+    "ast_hash": "7a8b1c22495e013c2a32eae4360233c7",
     "semantic_hash": ""
   },
   "scripts/serve_graph.py": {

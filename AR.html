@@ -973,20 +973,61 @@
                   </div>
                 </div>
 
-                <!-- Step 3: Make.com Scenario Flow -->
-                <div class="space-y-1.5 pt-2 border-t border-white/[0.06]">
+                <!-- Step 3: Make.com Scenario Flow & Google Sheets Migration -->
+                <div class="space-y-2 pt-2 border-t border-white/[0.06]">
                   <div class="flex items-center gap-2 text-xs font-bold text-zinc-200">
                     <span class="w-5 h-5 rounded-full bg-emerald-900/60 border border-emerald-500/40 text-emerald-300 text-[10px] flex items-center justify-center font-mono font-bold">3</span>
-                    <span>Make.com Automation Pipeline</span>
+                    <span>Replacing Google Sheets with Turso in Make.com</span>
                   </div>
-                  <div class="pl-7 flex flex-wrap items-center gap-1.5 text-[10px] font-mono text-zinc-300">
-                    <span class="px-2 py-1 rounded bg-gray-900 border border-gray-800">1. Turso Query (uploaded_to_fb_ig = 'pending')</span>
-                    <span>→</span>
-                    <span class="px-2 py-1 rounded bg-gray-900 border border-gray-800">2. Dropbox Download</span>
-                    <span>→</span>
-                    <span class="px-2 py-1 rounded bg-gray-900 border border-gray-800">3. Facebook &amp; YouTube Upload</span>
-                    <span>→</span>
-                    <span class="px-2 py-1 rounded bg-gray-900 border border-gray-800">4. Turso Update (uploaded_to_fb_ig = 'published')</span>
+                  
+                  <div class="pl-7 space-y-2 text-[11px] text-zinc-300">
+                    <p class="text-zinc-400">
+                      When replacing Google Sheets (or using the 1-click Blueprint), map your downstream modules to the Turso response variables below:
+                    </p>
+
+                    <div class="overflow-x-auto rounded-lg border border-gray-800 bg-gray-950/80">
+                      <table class="w-full text-left font-mono text-[10px]">
+                        <thead>
+                          <tr class="border-b border-gray-800 text-zinc-400 bg-gray-900/50">
+                            <th class="py-1.5 px-3">Field</th>
+                            <th class="py-1.5 px-3">Old Google Sheets Variable</th>
+                            <th class="py-1.5 px-3 text-emerald-400">New Turso Edge Variable</th>
+                          </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-800/60 text-zinc-300">
+                          <tr>
+                            <td class="py-1.5 px-3 font-semibold text-white">Filename</td>
+                            <td class="py-1.5 px-3 text-zinc-500 line-through">{{1.`0`}}</td>
+                            <td class="py-1.5 px-3 text-emerald-300 font-bold">{{1.data.results[1].response.result.rows[1][1].value}}</td>
+                          </tr>
+                          <tr>
+                            <td class="py-1.5 px-3 font-semibold text-white">Caption</td>
+                            <td class="py-1.5 px-3 text-zinc-500 line-through">{{1.`1`}}</td>
+                            <td class="py-1.5 px-3 text-emerald-300 font-bold">{{1.data.results[1].response.result.rows[1][2].value}}</td>
+                          </tr>
+                          <tr>
+                            <td class="py-1.5 px-3 font-semibold text-white">Description</td>
+                            <td class="py-1.5 px-3 text-zinc-500 line-through">{{1.`2`}}</td>
+                            <td class="py-1.5 px-3 text-emerald-300 font-bold">{{1.data.results[1].response.result.rows[1][3].value}}</td>
+                          </tr>
+                          <tr>
+                            <td class="py-1.5 px-3 font-semibold text-white">Mark Done</td>
+                            <td class="py-1.5 px-3 text-zinc-500 line-through">Google Sheets: updateRow (YES)</td>
+                            <td class="py-1.5 px-3 text-emerald-300 font-bold">HTTP: MakeRequest (v4) UPDATE uploaded_to_fb_ig = 'published'</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+
+                    <div class="flex flex-wrap items-center gap-1.5 text-[10px] font-mono text-zinc-300 pt-1">
+                      <span class="px-2 py-1 rounded bg-gray-900 border border-gray-800">1. Turso Query (HTTP v4)</span>
+                      <span>→</span>
+                      <span class="px-2 py-1 rounded bg-gray-900 border border-gray-800">2. Dropbox Create Share Link</span>
+                      <span>→</span>
+                      <span class="px-2 py-1 rounded bg-gray-900 border border-gray-800">3. Instagram Reel &amp; Facebook Video</span>
+                      <span>→</span>
+                      <span class="px-2 py-1 rounded bg-gray-900 border border-gray-800">4. Turso Mark Published (HTTP v4)</span>
+                    </div>
                   </div>
                 </div>
 
