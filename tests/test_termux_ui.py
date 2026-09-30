@@ -13,7 +13,8 @@ SRC_DIR = REPO_ROOT / "src"
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
-from termux_ui import print_status_box
+import termux_ui
+from termux_ui import _draw_interactive_menu, print_status_box
 
 
 class TestTermuxUI(unittest.TestCase):
@@ -32,6 +33,36 @@ class TestTermuxUI(unittest.TestCase):
         self.assertEqual(len(lines[0]), 50)
         self.assertEqual(len(lines[-1]), 50)
         self.assertTrue(all("…" in line for line in lines[1:-1]))
+
+    def test_interactive_menu_navigates_with_arrow_keys(self):
+        class FakeScreen:
+            def __init__(self, keys):
+                self.keys = list(keys)
+
+            def keypad(self, enabled):
+                pass
+
+            def erase(self):
+                pass
+
+            def getmaxyx(self):
+                return 24, 80
+
+            def addnstr(self, *args):
+                pass
+
+            def refresh(self):
+                pass
+
+            def getch(self):
+                return self.keys.pop(0)
+
+        status = {key: (True, f"assets/{key}") for key in ("voice", "script", "visuals", "video")}
+        with patch("termux_ui.curses.has_colors", return_value=False), patch(
+            "termux_ui.curses.color_pair", return_value=0
+        ):
+            self.assertEqual(_draw_interactive_menu(FakeScreen([termux_ui.curses.KEY_DOWN, 10]), status), "2")
+            self.assertEqual(_draw_interactive_menu(FakeScreen([ord("6")]), status), "6")
 
 
 if __name__ == "__main__":

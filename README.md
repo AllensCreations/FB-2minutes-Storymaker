@@ -182,6 +182,7 @@ python3 app.py
 ```bash
 # Interactive Terminal Dashboard for Termux / mobile consoles
 fb-storymaker --tui
+# Use Up/Down (or J/K) to navigate, Enter to select, number keys to jump, Q to quit
 
 # Batch render video directly from CLI
 fb-storymaker --run

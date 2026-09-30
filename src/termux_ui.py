@@ -17,6 +17,11 @@ import textwrap
 import time
 from pathlib import Path
 
+try:
+    import curses
+except ImportError:
+    curses = None
+
 # Add src to sys.path
 REPO_ROOT = Path(__file__).resolve().parent.parent
 SRC_DIR = REPO_ROOT / "src"
@@ -113,6 +118,78 @@ def print_status_box(status):
     render_row("🎬", "Master MP4", status["video"][0], status["video"][1])
 
     print(f"{C_BOLD}└{'─' * (width - 2)}┘{C_RESET}")
+
+
+def _draw_interactive_menu(stdscr, status):
+    choices = [
+        ("1", "Render story video"),
+        ("2", "Open Web Studio"),
+        ("3", "Inspect scene timing"),
+        ("4", "Play latest video"),
+        ("5", "Change sample story"),
+        ("6", "Check dependencies"),
+        ("0", "Exit"),
+    ]
+    selected = 0
+    stdscr.keypad(True)
+
+    if curses.has_colors():
+        try:
+            curses.start_color()
+            curses.init_pair(1, curses.COLOR_GREEN, curses.COLOR_BLACK)
+            curses.init_pair(2, curses.COLOR_RED, curses.COLOR_BLACK)
+            curses.init_pair(3, curses.COLOR_YELLOW, curses.COLOR_BLACK)
+            curses.init_pair(4, curses.COLOR_CYAN, curses.COLOR_BLACK)
+        except curses.error:
+            pass
+
+    while True:
+        stdscr.erase()
+        height, width = stdscr.getmaxyx()
+
+        def write(y, text, attr=0, centered=False):
+            if 0 <= y < height - 1 and width > 1:
+                x = max(0, (width - len(text)) // 2) if centered else 2
+                stdscr.addnstr(y, x, text, max(0, width - x - 1), attr)
+
+        write(1, "FB 2MINUTES STORYMAKER", curses.color_pair(3) | curses.A_BOLD, centered=True)
+        write(2, "Create, review, and publish story videos", curses.A_DIM, centered=True)
+        write(4, "STORY ASSETS", curses.A_BOLD)
+
+        asset_labels = (
+            ("VOICE-OVER", status["voice"]),
+            ("SCRIPT", status["script"]),
+            ("VISUALS", status["visuals"]),
+            ("MASTER MP4", status["video"]),
+        )
+        for row, (label, (ready, detail)) in enumerate(asset_labels, start=5):
+            state = "READY  " if ready else "MISSING"
+            color = curses.color_pair(1 if ready else 2)
+            short_detail = textwrap.shorten(detail, width=max(8, width - 34), placeholder="...")
+            write(row, f"{label:<12} [{state}]  {short_detail}", color)
+
+        write(10, "ACTIONS", curses.A_BOLD)
+        for index, (key, label) in enumerate(choices):
+            y = 11 + index
+            if index == selected:
+                write(y, f">  [{key}] {label}", curses.A_REVERSE | curses.A_BOLD)
+            else:
+                write(y, f"   [{key}] {label}")
+
+        write(height - 2, "UP/DOWN or J/K: move    ENTER: select    Q: quit", curses.A_DIM, centered=True)
+        stdscr.refresh()
+
+        key = stdscr.getch()
+        if key in (curses.KEY_UP, ord("k"), ord("K")):
+            selected = (selected - 1) % len(choices)
+        elif key in (curses.KEY_DOWN, ord("j"), ord("J")):
+            selected = (selected + 1) % len(choices)
+        elif key in (curses.KEY_ENTER, 10, 13):
+            return choices[selected][0]
+        elif ord("0") <= key <= ord("6"):
+            return chr(key)
+        elif key in (ord("q"), ord("Q")):
+            return "0"
 
 
 def open_url_in_browser(url: str):
@@ -384,22 +461,29 @@ def run_termux_health_check():
 def run_tui_main():
     """Main event loop for the Termux TUI."""
     while True:
-        clear_screen()
-        print_banner()
         status = get_asset_status()
-        print_status_box(status)
+        if curses and sys.stdin.isatty() and sys.stdout.isatty():
+            try:
+                choice = curses.wrapper(_draw_interactive_menu, status)
+            except curses.error:
+                choice = None
+        else:
+            choice = None
 
-        print(f"\n{C_BOLD}MAKE{C_RESET}")
-        print(f"  {C_ORANGE}[1]{C_RESET} 🚀  Render story video")
-        print(f"  {C_CYAN}[2]{C_RESET} 🌐  Open Web Studio")
-        print(f"  {C_BOLD}REVIEW & SETUP{C_RESET}")
-        print(f"  {C_BLUE}[3]{C_RESET} 📊  Inspect scene timing")
-        print(f"  {C_GREEN}[4]{C_RESET} ▶️   Play latest video")
-        print(f"  {C_AMBER}[5]{C_RESET} 🎨  Change sample story")
-        print(f"  {C_GRAY}[6]{C_RESET} 🛠️   Check dependencies")
-        print(f"\n{C_DIM}Type a number and press Enter · [0] Exit{C_RESET}")
-
-        choice = input(f"\n{C_BOLD}Action › {C_RESET}").strip().lower()
+        if choice is None:
+            clear_screen()
+            print_banner()
+            print_status_box(status)
+            print(f"\n{C_BOLD}MAKE{C_RESET}")
+            print(f"  {C_ORANGE}[1]{C_RESET} Render story video")
+            print(f"  {C_CYAN}[2]{C_RESET} Open Web Studio")
+            print(f"  {C_BOLD}REVIEW & SETUP{C_RESET}")
+            print(f"  {C_BLUE}[3]{C_RESET} Inspect scene timing")
+            print(f"  {C_GREEN}[4]{C_RESET} Play latest video")
+            print(f"  {C_AMBER}[5]{C_RESET} Change sample story")
+            print(f"  {C_GRAY}[6]{C_RESET} Check dependencies")
+            print(f"\n{C_DIM}Type a number and press Enter · [0] Exit{C_RESET}")
+            choice = input(f"\n{C_BOLD}Action › {C_RESET}").strip().lower()
 
         if choice == "1":
             run_video_render()
