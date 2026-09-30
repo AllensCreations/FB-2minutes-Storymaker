@@ -256,28 +256,55 @@ Turso returns rows in this format:
 }
 ```
 
-In Make.com mapping:
-- `filename` = `1.data.results[1].response.result.rows[1][1].value`
-- `caption` = `1.data.results[1].response.result.rows[1][2].value`
-- `description` = `1.data.results[1].response.result.rows[1][3].value`
-- `status` = `1.data.results[1].response.result.rows[1][4].value`
-- `uploaded_to_fb_ig` = `1.data.results[1].response.result.rows[1][5].value`
-- `uploaded_to_youtube` = `1.data.results[1].response.result.rows[1][6].value`
+### Step 4.2.1: Clean Named Column Variables (Recommended)
 
-#### 🔄 Migrating from Google Sheets to Turso:
+By default, Turso returns row values in a nested array (`rows[1][1]`, `rows[1][2]`). To get **clean, human-readable column names** (identical to Google Sheets named pills) in Make.com:
 
-| Field | Old Google Sheets Variable | New Turso Edge Variable |
-| :--- | :--- | :--- |
-| **Filename** | `{{1.`0`}}` | `{{1.data.results[1].response.result.rows[1][1].value}}` |
-| **Caption** | `{{1.`1`}}` | `{{1.data.results[1].response.result.rows[1][2].value}}` |
-| **Description** | `{{1.`2`}}` | `{{1.data.results[1].response.result.rows[1][3].value}}` |
-| **Dropbox Link** | `path: /Folder/{{1.`0`}}` | `path: /Folder/{{1.data.results[1].response.result.rows[1][1].value}}` |
-| **Mark Published** | `google-sheets:updateRow` | `http:MakeRequest` (v4) `UPDATE uploaded_to_fb_ig = 'published'` |
+1. In Module 1 (HTTP Request), wrap the SELECT statement in SQLite's native `json_object()`:
+```sql
+SELECT json_object(
+  'filename', filename,
+  'caption', caption,
+  'description', description,
+  'status', status,
+  'uploaded_to_fb_ig', uploaded_to_fb_ig,
+  'uploaded_to_youtube', uploaded_to_youtube
+) AS story
+FROM stories
+WHERE (uploaded_to_fb_ig = 'pending' OR uploaded_to_youtube = 'pending')
+ORDER BY updated_at ASC LIMIT 1;
+```
 
-> [!TIP]
-> Add a Filter immediately after Module 1:
-> **Condition**: `1.data.results[1].response.result.rows` **exists** and **length > 0**.
-> This prevents the scenario from running when there are no new stories.
+2. Add Module 2: **JSON** -> **Parse JSON**
+   - **JSON string**: `{{1.data.results[1].response.result.rows[1][1].value}}`
+
+Make.com immediately unpacks every column into a first-class named variable pill:
+
+| Column Name | Clean Named Variable (Module 2) | Raw HTTP Array Path (Module 1) | Filter Rule |
+| :--- | :--- | :--- | :--- |
+| **filename** | `{{2.filename}}` | `{{1.data.results[1].response.result.rows[1][1].value}}` | Exists |
+| **caption** | `{{2.caption}}` | `{{1.data.results[1].response.result.rows[1][2].value}}` | Exists |
+| **description** | `{{2.description}}` | `{{1.data.results[1].response.result.rows[1][3].value}}` | Exists |
+| **status** | `{{2.status}}` | `{{1.data.results[1].response.result.rows[1][4].value}}` | Equal to: ready |
+| **uploaded_to_fb_ig** | `{{2.uploaded_to_fb_ig}}` | `{{1.data.results[1].response.result.rows[1][5].value}}` | Equal to: pending |
+| **uploaded_to_youtube** | `{{2.uploaded_to_youtube}}` | `{{1.data.results[1].response.result.rows[1][6].value}}` | Equal to: pending |
+
+---
+
+### Step 4.2.2: Make.com Filter Configuration
+
+Add a Filter on the connection line immediately between Module 2 and Module 3:
+- **Filter Label**: `Ready Stories for FB & YouTube`
+- **Condition 1**: `{{2.filename}}` [Exists]
+- **AND Condition 2**: `{{2.caption}}` [Exists]
+- **AND Condition 3**: `{{2.description}}` [Exists]
+- **AND Condition 4**: `{{2.uploaded_to_fb_ig}}` [Equal to (text)] `pending`
+- **OR Condition 5**: `{{2.uploaded_to_youtube}}` [Equal to (text)] `pending`
+
+This ensures that only valid, fully-formed story records with pending publication queues proceed to download and post.
+
+#### Scenario Pipeline Summary:
+`1. Turso Query (HTTP v4) → 2. JSON Parse JSON → [Filter: Pending & Ready] → 3. Dropbox Share Link → 4. Instagram / Facebook Video → 5. Turso Mark Published`
 
 ---
 
