@@ -3535,19 +3535,22 @@
       };
 
       recorder.onstop = async () => {
-        const videoBlob = new Blob(chunks, { type: mimeType });
-        const videoFile = new File([videoBlob], meta.filename, { type: 'video/mp4' });
-
-        handleFile(videoFile);
-
-        // Step 2: Upload to Dropbox
-        if (btn) btn.innerHTML = '<span>📤</span> Uploading to Dropbox...';
-        if (exportText) exportText.textContent = `Uploading "${meta.filename}" to Dropbox...`;
-        if (step2Icon) step2Icon.textContent = '⏳';
-        if (step2Label) step2Label.className = 'text-white font-medium flex items-center gap-1.5';
-        if (step2DetailText) step2DetailText.textContent = 'Obtaining Dropbox auth token...';
-
         try {
+          if (step2Icon) step2Icon.textContent = '⏳';
+          if (step2Label) step2Label.className = 'text-white font-medium flex items-center gap-1.5';
+          if (step2DetailText) step2DetailText.textContent = 'Obtaining Dropbox token...';
+
+          const videoBlob = new Blob(chunks, { type: mimeType });
+          if (!videoBlob || videoBlob.size === 0) {
+            throw new Error('Rendered video file is empty. Please check audio and canvas preview.');
+          }
+
+          const videoFile = new File([videoBlob], meta.filename, { type: 'video/mp4' });
+          handleFile(videoFile);
+
+          if (btn) btn.innerHTML = '<span>📤</span> Uploading to Dropbox...';
+          if (exportText) exportText.textContent = `Uploading "${meta.filename}" to Dropbox...`;
+
           const token = await getAccessToken();
           const folder = (pipeCfg('dbFolder', DEFAULT_FOLDER) || '/Think with Tobi').replace(/\/$/, '');
           const path = `${folder}/${meta.filename}`;
@@ -3588,7 +3591,7 @@
                 reject(new Error(errDesc));
               }
             };
-            xhr.onerror = () => reject(new Error('Network error connecting to Dropbox.'));
+            xhr.onerror = () => reject(new Error('Network error connecting to Dropbox API.'));
             xhr.send(videoBlob);
           });
 
@@ -3651,11 +3654,11 @@
           }
         } catch (err) {
           showToast(`✕ Auto-publish error: ${err.message}`, true);
-          if (step2Icon && step2Icon.textContent === '⏳') {
+          if (step2Icon && (step2Icon.textContent === '⏳' || step2Icon.textContent === '⚪')) {
             step2Icon.textContent = '✕';
             if (step2Label) step2Label.className = 'text-red-400 font-medium flex items-center gap-1.5';
             if (step2DetailText) step2DetailText.textContent = `Upload failed: ${err.message}`;
-          } else if (step3Icon && step3Icon.textContent === '⏳') {
+          } else if (step3Icon && (step3Icon.textContent === '⏳' || step3Icon.textContent === '⚪')) {
             step3Icon.textContent = '✕';
             if (step3Label) step3Label.className = 'text-red-400 font-medium flex items-center gap-1.5';
             if (step3DetailText) step3DetailText.textContent = `Turso sync failed: ${err.message}`;
@@ -3667,12 +3670,49 @@
         }
       };
 
-      recorder.start();
-      sourceNode.start(0);
+      recorder.start(100);
+      try {
+        sourceNode.start(0);
+      } catch (snErr) {
+        console.warn("sourceNode start:", snErr);
+      }
 
       const startTime = performance.now();
+      let renderStopped = false;
+
+      function stopAndFinalizeRender() {
+        if (renderStopped) return;
+        renderStopped = true;
+
+        drawFrame(duration);
+        if (step1Icon) step1Icon.textContent = '✓';
+        if (step1Label) step1Label.className = 'text-emerald-400 font-medium flex items-center gap-1.5';
+        if (step1Pct) step1Pct.textContent = '100%';
+        if (step1Bar) step1Bar.style.width = '100%';
+        if (step1DetailText) step1DetailText.textContent = '✓ Video Render Complete';
+        if (pubOverallPct) pubOverallPct.textContent = '35%';
+
+        if (step2Icon) step2Icon.textContent = '⏳';
+        if (step2Label) step2Label.className = 'text-white font-medium flex items-center gap-1.5';
+        if (step2DetailText) step2DetailText.textContent = 'Finalizing video file...';
+        if (step2Pct) step2Pct.textContent = '5%';
+        if (step2Bar) step2Bar.style.width = '5%';
+
+        try {
+          if (recorder && recorder.state === 'recording') {
+            recorder.requestData();
+            recorder.stop();
+          }
+        } catch (recErr) {
+          console.warn('Recorder stop warning:', recErr);
+        }
+        try {
+          sourceNode.stop();
+        } catch (_) {}
+      }
 
       function autoRenderLoop() {
+        if (renderStopped) return;
         const elapsed = (performance.now() - startTime) / 1000;
         const prog = Math.min(1.0, elapsed / duration);
         const pct1 = Math.round(prog * 100);
@@ -3688,15 +3728,7 @@
           drawFrame(elapsed);
           requestAnimationFrame(autoRenderLoop);
         } else {
-          drawFrame(duration);
-          if (step1Icon) step1Icon.textContent = '✓';
-          if (step1Label) step1Label.className = 'text-emerald-400 font-medium flex items-center gap-1.5';
-          if (step1Pct) step1Pct.textContent = '100%';
-          if (step1Bar) step1Bar.style.width = '100%';
-          if (step1DetailText) step1DetailText.textContent = '✓ Video Render Complete';
-          if (pubOverallPct) pubOverallPct.textContent = '35%';
-          recorder.stop();
-          sourceNode.stop();
+          stopAndFinalizeRender();
         }
       }
       autoRenderLoop();
@@ -5661,10 +5693,12 @@ ALTER TABLE stories ADD COLUMN uploaded_to_youtube TEXT DEFAULT 'pending';`;
     }
 
     async function getAccessToken() {
+      const directToken = pipeCfg('dbToken', '');
+      if (directToken) return directToken;
       const key    = pipeCfg('dbAppKey', DEFAULT_APP_KEY);
       const secret = pipeCfg('dbAppSecret', DEFAULT_APP_SECRET);
       const rt     = pipeCfg('dbRefreshToken', DEFAULT_REFRESH_TOKEN);
-      if (!key || !secret || !rt) throw new Error('Dropbox credentials missing: complete Stage 1.');
+      if (!key || !secret || !rt) throw new Error('Dropbox credentials missing: please verify in Settings.');
       const res = await fetch('https://api.dropboxapi.com/oauth2/token', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -5676,7 +5710,7 @@ ALTER TABLE stories ADD COLUMN uploaded_to_youtube TEXT DEFAULT 'pending';`;
         }).toString()
       });
       const json = await res.json();
-      if (!json.access_token) throw new Error(json.error_description || json.error || 'Could not refresh token');
+      if (!json.access_token) throw new Error(json.error_description || json.error || 'Could not refresh Dropbox token');
       return json.access_token;
     }
 
