@@ -520,12 +520,11 @@ def auto_publish_story_item_thread(
     out_filename = f"{clean_slug}.mp4"
     output_path = OUTPUT_DIR / out_filename
 
-    # Step 1: Render video
     with ITEM_RENDER_LOCK:
         ITEM_RENDER_STATES[item_id] = {
             "status": "running",
             "progress": 5.0,
-            "message": "Starting video render...",
+            "message": "Preparing publish...",
             "started_at": time.time(),
             "output_filename": out_filename
         }
@@ -534,77 +533,98 @@ def auto_publish_story_item_thread(
         "item_id": item_id,
         "progress": 5.0,
         "status": "running",
-        "message": "Starting video render..."
+        "message": "Preparing publish..."
     })
 
     try:
-        audio_file = item.get("audio_file") or "narration.wav"
-        audio_path = item_folder / audio_file
-        if not audio_path.exists():
-            for ext in [".wav", ".mp3", ".m4a", ".aac"]:
-                cand = list(item_folder.glob(f"*{ext}"))
-                if cand:
-                    audio_path = cand[0]
-                    break
-
-        if not audio_path.exists():
-            raise FileNotFoundError("Voiceover audio track missing from story package.")
-
-        aligner = SpeechCueAlignEngine()
-        audio_dur = aligner.get_audio_duration(audio_path)
-
-        scene_cuts = item.get("scene_cuts")
-        story_json_path = item_folder / "story.json"
-        if not scene_cuts and story_json_path.exists():
-            try:
-                s_json = json.loads(story_json_path.read_text(encoding="utf-8"))
-                scene_cuts = s_json.get("scene_cuts")
-            except Exception:
-                pass
-
-        if scene_cuts and len(scene_cuts) > 0:
-            cuts = sorted([float(c) for c in scene_cuts if 0 < float(c) < audio_dur])
-            time_points = [0.0] + cuts + [audio_dur]
-            scenes_data = item.get("scenes") or []
-            segments = []
-            scene_map = {}
-            for i in range(len(time_points) - 1):
-                st = time_points[i]
-                et = time_points[i + 1]
-                txt = scenes_data[i].get("text", f"Scene {i+1}") if i < len(scenes_data) else f"Scene {i+1}"
-                seg = SpeechSegment(start_time=st, end_time=et, text=txt, scene_title=f"Scene {i+1}")
-                segments.append(seg)
-                scene_map[i] = seg
-            alignment = AlignmentResult(segments=segments, scene_mapping=scene_map, total_duration=audio_dur)
-        else:
-            script_path = item_folder / "script.txt"
-            alignment = aligner.align_speech_with_script(audio_path, script_path)
-
-        director = SceneDurationDirector()
-        timeline = director.build_timeline(alignment, item_folder, fps=24)
-
-        from exporter import VideoExporter
-        def on_progress(percent: float, status_msg: str):
-            scaled_pct = 5.0 + (percent * 0.70)  # Render is 5% -> 75%
+        # Step 1: Render video only if MP4 doesn't already exist
+        if output_path.exists() and output_path.stat().st_size > 0:
             with ITEM_RENDER_LOCK:
-                ITEM_RENDER_STATES[item_id]["progress"] = round(scaled_pct, 1)
-                ITEM_RENDER_STATES[item_id]["message"] = status_msg
+                ITEM_RENDER_STATES[item_id]["progress"] = 75.0
+                ITEM_RENDER_STATES[item_id]["message"] = f"Video '{out_filename}' already rendered, skipping to upload..."
             default_manager.broadcast_event("render_progress", {
                 "item_id": item_id,
-                "progress": round(scaled_pct, 1),
+                "progress": 75.0,
                 "status": "running",
-                "message": status_msg
+                "message": f"Video already rendered, skipping to upload..."
+            })
+        else:
+            with ITEM_RENDER_LOCK:
+                ITEM_RENDER_STATES[item_id]["message"] = "Starting video render..."
+            default_manager.broadcast_event("render_progress", {
+                "item_id": item_id,
+                "progress": 5.0,
+                "status": "running",
+                "message": "Starting video render..."
             })
 
-        exporter = VideoExporter(fps=24)
-        exporter.export_video(
-            timeline=timeline,
-            audio_path=audio_path,
-            output_path=output_path,
-            progress_callback=on_progress,
-            show_captions=show_captions,
-            caption_style=caption_style
-        )
+            audio_file = item.get("audio_file") or "narration.wav"
+            audio_path = item_folder / audio_file
+            if not audio_path.exists():
+                for ext in [".wav", ".mp3", ".m4a", ".aac"]:
+                    cand = list(item_folder.glob(f"*{ext}"))
+                    if cand:
+                        audio_path = cand[0]
+                        break
+
+            if not audio_path.exists():
+                raise FileNotFoundError("Voiceover audio track missing from story package.")
+
+            aligner = SpeechCueAlignEngine()
+            audio_dur = aligner.get_audio_duration(audio_path)
+
+            scene_cuts = item.get("scene_cuts")
+            story_json_path = item_folder / "story.json"
+            if not scene_cuts and story_json_path.exists():
+                try:
+                    s_json = json.loads(story_json_path.read_text(encoding="utf-8"))
+                    scene_cuts = s_json.get("scene_cuts")
+                except Exception:
+                    pass
+
+            if scene_cuts and len(scene_cuts) > 0:
+                cuts = sorted([float(c) for c in scene_cuts if 0 < float(c) < audio_dur])
+                time_points = [0.0] + cuts + [audio_dur]
+                scenes_data = item.get("scenes") or []
+                segments = []
+                scene_map = {}
+                for i in range(len(time_points) - 1):
+                    st = time_points[i]
+                    et = time_points[i + 1]
+                    txt = scenes_data[i].get("text", f"Scene {i+1}") if i < len(scenes_data) else f"Scene {i+1}"
+                    seg = SpeechSegment(start_time=st, end_time=et, text=txt, scene_title=f"Scene {i+1}")
+                    segments.append(seg)
+                    scene_map[i] = seg
+                alignment = AlignmentResult(segments=segments, scene_mapping=scene_map, total_duration=audio_dur)
+            else:
+                script_path = item_folder / "script.txt"
+                alignment = aligner.align_speech_with_script(audio_path, script_path)
+
+            director = SceneDurationDirector()
+            timeline = director.build_timeline(alignment, item_folder, fps=24)
+
+            from exporter import VideoExporter
+            def on_progress(percent: float, status_msg: str):
+                scaled_pct = 5.0 + (percent * 0.70)  # Render is 5% -> 75%
+                with ITEM_RENDER_LOCK:
+                    ITEM_RENDER_STATES[item_id]["progress"] = round(scaled_pct, 1)
+                    ITEM_RENDER_STATES[item_id]["message"] = status_msg
+                default_manager.broadcast_event("render_progress", {
+                    "item_id": item_id,
+                    "progress": round(scaled_pct, 1),
+                    "status": "running",
+                    "message": status_msg
+                })
+
+            exporter = VideoExporter(fps=24)
+            exporter.export_video(
+                timeline=timeline,
+                audio_path=audio_path,
+                output_path=output_path,
+                progress_callback=on_progress,
+                show_captions=show_captions,
+                caption_style=caption_style
+            )
 
         # Step 2: Upload to Dropbox
         db_path = f"/Storymaker_Exports/{out_filename}"
@@ -1763,7 +1783,7 @@ class StorymakerRequestHandler(SimpleHTTPRequestHandler):
                 payload = json.loads(body)
                 script_text = payload.get("script_text", "")
                 voice_name = payload.get("voice_name", "Puck")
-                speed = float(payload.get("speed", 1.1))
+                speed = float(payload.get("speed", 1.0))
                 model = payload.get("gemini_model")
                 api_key = payload.get("gemini_api_key")
                 item_id = payload.get("item_id")

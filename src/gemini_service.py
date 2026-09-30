@@ -495,7 +495,7 @@ def call_gemini_audio_api(
     raise ValueError(last_err or "Gemini Audio Request Failed")
 
 
-def apply_audio_speed(wav_bytes: bytes, speed: float = 1.1) -> bytes:
+def apply_audio_speed(wav_bytes: bytes, speed: float = 1.0) -> bytes:
     """Uses ffmpeg atempo filter to speed up or slow down WAV audio losslessly."""
     if abs(speed - 1.0) < 0.01 or not wav_bytes:
         return wav_bytes
@@ -519,11 +519,11 @@ def generate_gemini_tts(
     voice_name: str = "Puck",
     api_key: Optional[str] = None,
     model: Optional[str] = None,
-    speed: float = 1.1
+    speed: float = 1.0
 ) -> Dict[str, Any]:
     """
     Synthesizes natural cinematic storybook voiceover from script text using Gemini TTS.
-    Defaults to voice 'Puck' and speeds up output to 1.1x tempo for crisp storytelling.
+    Defaults to voice 'Puck' at 1.0x natural tempo.
     Returns base64-encoded WAV audio ready for browser Web Audio playback and timeline alignment.
     """
     clean_script = str(script_text or "").strip()
