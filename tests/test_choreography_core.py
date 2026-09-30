@@ -139,6 +139,18 @@ class TestChoreographyCore(unittest.TestCase):
         self.assertEqual(first_chunk, "EXTRAORDINARILY EXTRAORDINARILY EXTRAORDINARILY EXTRAORDINARILY EXTRAORDINARILY")
         self.assertEqual(second_chunk, "A B C D E")
 
+        timed_text = "one two three four five six seven eight nine ten"
+        word_times = [(0.1 + i * 0.1, 0.15 + i * 0.1) for i in range(5)]
+        word_times += [(2.0 + i * 0.1, 2.05 + i * 0.1) for i in range(5)]
+        early, _ = self.choreographer.get_hormozi_caption_chunk(
+            timed_text, scene_t=1.5, duration=4, word_times=word_times
+        )
+        on_second_phrase, _ = self.choreographer.get_hormozi_caption_chunk(
+            timed_text, scene_t=2.0, duration=4, word_times=word_times
+        )
+        self.assertEqual(early, "ONE TWO THREE FOUR FIVE")
+        self.assertEqual(on_second_phrase, "SIX SEVEN EIGHT NINE TEN")
+
         # Render all presets with optional flicker.
         for preset in ["gold", "mint", "cyan", "white"]:
             frame = self.choreographer.render_frame(

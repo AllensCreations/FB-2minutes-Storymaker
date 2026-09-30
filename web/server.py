@@ -8,6 +8,7 @@ Provides a zero-dependency HTTP server with REST endpoints for:
 """
 
 import json
+import math
 import mimetypes
 import os
 import queue
@@ -58,6 +59,36 @@ def _story_output_filename(title: str, item_id: str) -> str:
     title = re.sub(r"(?:\.mp4)+$", "", title, flags=re.IGNORECASE)
     slug = re.sub(r"[^a-zA-Z0-9_-]+", "-", title.lower()).strip("-")
     return f"{slug or f'story_{item_id}'}.mp4"
+
+
+def _apply_caption_word_timings(timeline, timings) -> None:
+    """Apply saved ASR timings only to matching scene text and boundaries."""
+    if not isinstance(timings, list):
+        return
+    for idx, scene in enumerate(timeline.scenes):
+        if idx >= len(timings) or not isinstance(timings[idx], dict):
+            continue
+        saved = timings[idx]
+        try:
+            if (
+                saved.get("text") != scene.text
+                or abs(float(saved["start"]) - scene.start_time) > 0.05
+                or abs(float(saved["end"]) - scene.end_time) > 0.05
+                or not isinstance(saved.get("words"), list)
+                or len(saved["words"]) != len(scene.text.split())
+            ):
+                continue
+            words = [(float(pair[0]), float(pair[1])) for pair in saved["words"]]
+            if any(
+                not math.isfinite(start) or not math.isfinite(end)
+                or start < 0 or end < start or end > scene.duration + 0.1
+                or (idx and start < words[idx - 1][0])
+                for idx, (start, end) in enumerate(words)
+            ):
+                continue
+            scene.caption_word_times = words
+        except (KeyError, TypeError, ValueError, IndexError):
+            continue
 
 
 # Global rendering state tracker
@@ -201,6 +232,10 @@ def run_pipeline_thread(
 
         director = SceneDurationDirector()
         timeline = director.build_timeline(alignment, visuals_path, fps=24)
+        _apply_caption_word_timings(
+            timeline,
+            story_data.get("caption_word_timings") or item.get("caption_word_timings")
+        )
         director.export_timeline(timeline, PROCESSED_DIR / "timeline.json")
 
         # 3. Visual Choreography & Exporter
@@ -326,10 +361,12 @@ def render_story_item_thread(
         # Check for pre-saved scene_cuts
         scene_cuts = item.get("scene_cuts")
         story_json_path = item_folder / "story.json"
-        if not scene_cuts and story_json_path.exists():
+        story_data = {}
+        if story_json_path.exists():
             try:
-                s_json = json.loads(story_json_path.read_text(encoding="utf-8"))
-                scene_cuts = s_json.get("scene_cuts")
+                story_data = json.loads(story_json_path.read_text(encoding="utf-8"))
+                if not scene_cuts:
+                    scene_cuts = story_data.get("scene_cuts")
             except Exception:
                 pass
 
@@ -538,14 +575,17 @@ def auto_publish_story_item_thread(
     with ITEM_RENDER_LOCK:
         ITEM_RENDER_STATES[item_id] = {
             "status": "running",
+            "job_type": "publish",
             "progress": 5.0,
             "message": "Preparing publish...",
             "started_at": time.time(),
-            "output_filename": out_filename
+            "filename": out_filename,
+            "title": item.get("title") or item_id
         }
 
     default_manager.broadcast_event("render_progress", {
         "item_id": item_id,
+        "job_type": "publish",
         "progress": 5.0,
         "status": "running",
         "message": "Preparing publish..."
@@ -557,6 +597,7 @@ def auto_publish_story_item_thread(
             ITEM_RENDER_STATES[item_id]["message"] = "Starting video render..."
         default_manager.broadcast_event("render_progress", {
             "item_id": item_id,
+            "job_type": "publish",
             "progress": 5.0,
             "status": "running",
             "message": "Starting video render..."
@@ -579,10 +620,12 @@ def auto_publish_story_item_thread(
 
         scene_cuts = item.get("scene_cuts")
         story_json_path = item_folder / "story.json"
-        if not scene_cuts and story_json_path.exists():
+        story_data = {}
+        if story_json_path.exists():
             try:
-                s_json = json.loads(story_json_path.read_text(encoding="utf-8"))
-                scene_cuts = s_json.get("scene_cuts")
+                story_data = json.loads(story_json_path.read_text(encoding="utf-8"))
+                if not scene_cuts:
+                    scene_cuts = story_data.get("scene_cuts")
             except Exception:
                 pass
 
@@ -606,6 +649,10 @@ def auto_publish_story_item_thread(
 
         director = SceneDurationDirector()
         timeline = director.build_timeline(alignment, item_folder, fps=24)
+        _apply_caption_word_timings(
+            timeline,
+            story_data.get("caption_word_timings") or item.get("caption_word_timings")
+        )
 
         from exporter import VideoExporter
         def on_progress(percent: float, status_msg: str):
@@ -615,6 +662,7 @@ def auto_publish_story_item_thread(
                 ITEM_RENDER_STATES[item_id]["message"] = status_msg
             default_manager.broadcast_event("render_progress", {
                 "item_id": item_id,
+                "job_type": "publish",
                 "progress": round(scaled_pct, 1),
                 "status": "running",
                 "message": status_msg
@@ -645,6 +693,7 @@ def auto_publish_story_item_thread(
                 ITEM_RENDER_STATES[item_id]["message"] = "Refreshing Dropbox access token..."
             default_manager.broadcast_event("render_progress", {
                 "item_id": item_id,
+                "job_type": "publish",
                 "progress": 78.0,
                 "status": "running",
                 "message": "Refreshing Dropbox token..."
@@ -657,6 +706,7 @@ def auto_publish_story_item_thread(
                 ITEM_RENDER_STATES[item_id]["message"] = f"Uploading '{out_filename}' to Dropbox..."
             default_manager.broadcast_event("render_progress", {
                 "item_id": item_id,
+                "job_type": "publish",
                 "progress": 82.0,
                 "status": "running",
                 "message": f"Uploading '{out_filename}' to Dropbox..."
@@ -670,6 +720,7 @@ def auto_publish_story_item_thread(
                 ITEM_RENDER_STATES[item_id]["message"] = "Logging record to Turso edge database..."
             default_manager.broadcast_event("render_progress", {
                 "item_id": item_id,
+                "job_type": "publish",
                 "progress": 94.0,
                 "status": "running",
                 "message": "Logging to Turso database..."
@@ -696,6 +747,7 @@ def auto_publish_story_item_thread(
 
         default_manager.broadcast_event("publish_completed", {
             "item_id": item_id,
+            "job_type": "publish",
             "filename": out_filename,
             "dropbox_path": db_path,
             "message": f"✓ Published {out_filename} to Dropbox & Turso!"
@@ -708,6 +760,7 @@ def auto_publish_story_item_thread(
             ITEM_RENDER_STATES[item_id]["message"] = f"Publish failed: {e}"
         default_manager.broadcast_event("render_error", {
             "item_id": item_id,
+            "job_type": "publish",
             "error": str(e)
         })
 
@@ -836,6 +889,15 @@ class StorymakerRequestHandler(SimpleHTTPRequestHandler):
                 default_manager.unsubscribe_events(q)
             return
 
+        elif path == "/api/publish-queue":
+            with ITEM_RENDER_LOCK:
+                jobs = [
+                    {"item_id": item_id, **state}
+                    for item_id, state in ITEM_RENDER_STATES.items()
+                    if state.get("job_type") == "publish"
+                ]
+            jobs.sort(key=lambda job: job.get("started_at", 0), reverse=True)
+            self.send_json({"jobs": jobs[:50]})
         elif path.startswith("/api/items"):
             parts = [p for p in path.split("/") if p]
             # /api/items
@@ -1436,11 +1498,18 @@ class StorymakerRequestHandler(SimpleHTTPRequestHandler):
                 body = self.rfile.read(content_length).decode("utf-8")
                 payload = json.loads(body)
                 cuts = payload.get("cuts", [])
-                updated = default_manager.save_item_cuts(item_id, cuts)
+                updated = default_manager.save_item_cuts(
+                    item_id,
+                    cuts,
+                    payload.get("caption_word_timings"),
+                    payload.get("scene_texts")
+                )
                 if updated:
                     self.send_json({"ok": True, "item": updated})
                 else:
                     self.send_json({"ok": False, "error": f"Story item {item_id} not found"}, status=404)
+            except ValueError as e:
+                self.send_json({"ok": False, "error": str(e)}, status=400)
             except Exception as e:
                 self.send_json({"ok": False, "error": str(e)}, status=500)
 
@@ -1607,16 +1676,25 @@ class StorymakerRequestHandler(SimpleHTTPRequestHandler):
                 env_cfg = gemini_service.read_env_settings()
                 turso_db_url = (payload.get("turso_db_url") or env_cfg.get("turso_db_url", "")).strip()
                 turso_auth_token = (payload.get("turso_auth_token") or env_cfg.get("turso_auth_token", "")).strip()
-                db_app_key = payload.get("db_app_key", "").strip()
-                db_app_secret = payload.get("db_app_secret", "").strip()
-                db_refresh_token = payload.get("db_refresh_token", "").strip()
-                db_token = payload.get("db_token", "").strip()
+                db_app_key = str(payload.get("db_app_key") or "").strip()
+                db_app_secret = str(payload.get("db_app_secret") or "").strip()
+                db_refresh_token = str(payload.get("db_refresh_token") or "").strip()
+                db_token = str(payload.get("db_token") or "").strip()
+                if not turso_db_url or not turso_auth_token:
+                    self.send_json({"ok": False, "error": "Turso URL and auth token are required."}, status=400)
+                    return
+                if not (db_token or (db_app_key and db_app_secret and db_refresh_token)):
+                    self.send_json({"ok": False, "error": "Dropbox credentials are required."}, status=400)
+                    return
                 show_captions = bool(payload.get("show_captions", True))
                 caption_style = str(payload.get("caption_style", "gold")).strip().lower()
                 caption_words_per_chunk = max(5, min(10, int(payload.get("caption_words_per_chunk", 5))))
                 retro_flicker = bool(payload.get("retro_flicker", False))
 
                 out_filename = _story_output_filename(item.get("title") or item_id, item_id)
+                if not item.get("scenes"):
+                    self.send_json({"ok": False, "error": "Story scenes are required before publishing."}, status=400)
+                    return
 
                 db_folder = (payload.get("db_folder") or env_cfg.get("db_folder", "/Think with Tobi")).strip()
                 if not db_folder.startswith("/"):
@@ -1632,7 +1710,7 @@ class StorymakerRequestHandler(SimpleHTTPRequestHandler):
                             "ok": False,
                             "is_duplicate": True,
                             "filename": out_filename,
-                            "message": f"Story package '{raw_title}' is already marked as PUBLISH COMPLETE. Overwrite and re-publish?"
+                            "message": f"Story package '{item.get('title') or item_id}' is already marked as PUBLISH COMPLETE. Overwrite and re-publish?"
                         }, status=409)
                         return
 
@@ -1661,7 +1739,22 @@ class StorymakerRequestHandler(SimpleHTTPRequestHandler):
                         except Exception:
                             pass
 
-                # Start auto-publish thread
+                # Reserve the item before starting the worker so duplicate clicks cannot enqueue twice.
+                with ITEM_RENDER_LOCK:
+                    current = ITEM_RENDER_STATES.get(item_id, {})
+                    if current.get("status") in {"starting", "running"}:
+                        self.send_json({"ok": False, "message": "Publish job already queued for this story."}, status=409)
+                        return
+                    ITEM_RENDER_STATES[item_id] = {
+                        "status": "starting",
+                        "job_type": "publish",
+                        "progress": 0.0,
+                        "message": "Queued for auto-publish...",
+                        "title": item.get("title") or item_id,
+                        "filename": out_filename,
+                        "started_at": time.time()
+                    }
+
                 db_cfg = {
                     "token": db_token,
                     "app_key": db_app_key,
@@ -1681,10 +1774,26 @@ class StorymakerRequestHandler(SimpleHTTPRequestHandler):
                     ),
                     daemon=True
                 )
-                t.start()
+                try:
+                    t.start()
+                except Exception:
+                    with ITEM_RENDER_LOCK:
+                        ITEM_RENDER_STATES.pop(item_id, None)
+                    raise
+                default_manager.broadcast_event("render_progress", {
+                    "item_id": item_id,
+                    "job_type": "publish",
+                    "progress": 0.0,
+                    "status": "starting",
+                    "message": "Queued for auto-publish...",
+                    "title": item.get("title") or item_id,
+                    "filename": out_filename
+                })
                 self.send_json({
                     "ok": True,
-                    "message": f"Auto-publishing '{out_filename}' started in background.",
+                    "message": f"Auto-publishing '{out_filename}' queued in the background.",
+                    "item_id": item_id,
+                    "title": item.get("title") or item_id,
                     "filename": out_filename
                 })
             except Exception as e:

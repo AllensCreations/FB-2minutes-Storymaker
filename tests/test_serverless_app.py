@@ -1,8 +1,10 @@
 import unittest
 from http.server import BaseHTTPRequestHandler, HTTPServer
+import json
 import threading
 import tempfile
 import urllib.request
+from types import SimpleNamespace
 from pathlib import Path
 from unittest.mock import patch
 import app
@@ -12,9 +14,102 @@ from web.server import _story_output_filename
 
 
 class TestServerlessApp(unittest.TestCase):
+    def test_apply_caption_word_timings_requires_matching_scene(self):
+        scene = SimpleNamespace(
+            text="one two", start_time=0.0, end_time=2.0, duration=2.0,
+            caption_word_times=[]
+        )
+        timeline = SimpleNamespace(scenes=[scene])
+        timing = {
+            "text": "one two", "start": 0, "end": 2,
+            "words": [[0.2, 0.4], [1.0, 1.2]]
+        }
+
+        story_server._apply_caption_word_timings(timeline, [timing])
+        self.assertEqual(scene.caption_word_times, [(0.2, 0.4), (1.0, 1.2)])
+
+        scene.caption_word_times = []
+        story_server._apply_caption_word_timings(timeline, [{
+            **timing, "text": "different text"
+        }])
+        self.assertEqual(scene.caption_word_times, [])
+
     def test_story_filename_has_only_one_mp4_extension(self):
         self.assertEqual(_story_output_filename("A Story.mp4", "item-1"), "a-story.mp4")
         self.assertEqual(_story_output_filename("A Story.MP4.mp4", "item-1"), "a-story.mp4")
+
+    def test_publish_queue_api_returns_job_snapshot(self):
+        with patch.dict(story_server.ITEM_RENDER_STATES, {
+            "item-1": {
+                "job_type": "publish", "status": "running", "progress": 42,
+                "title": "A Story", "message": "Rendering"
+            },
+            "item-2": {"job_type": "render", "status": "running", "progress": 10}
+        }, clear=True):
+            server = HTTPServer(("127.0.0.1", 0), story_server.StorymakerRequestHandler)
+            thread = threading.Thread(target=server.handle_request)
+            thread.start()
+            try:
+                with urllib.request.urlopen(
+                    f"http://127.0.0.1:{server.server_port}/api/publish-queue"
+                ) as response:
+                    data = json.loads(response.read())
+                self.assertEqual(len(data["jobs"]), 1)
+                self.assertEqual(data["jobs"][0]["item_id"], "item-1")
+                self.assertEqual(data["jobs"][0]["progress"], 42)
+            finally:
+                server.server_close()
+                thread.join()
+
+    def test_auto_publish_api_queues_background_job(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            item_dir = Path(temp_dir) / "item-1"
+            item_dir.mkdir()
+            (item_dir / "voiceover.wav").write_bytes(b"audio")
+
+            class FakeManager:
+                items_dir = Path(temp_dir)
+
+                def get_item(self, item_id):
+                    return {
+                        "id": item_id, "title": "Queued story", "audio_file": "voiceover.wav",
+                        "scenes": [{"text": "A scene"}]
+                    }
+
+                def broadcast_event(self, *args):
+                    pass
+
+            server = HTTPServer(("127.0.0.1", 0), story_server.StorymakerRequestHandler)
+            thread = threading.Thread(target=server.handle_request)
+            thread.start()
+            payload = {
+                "db_token": "test-token", "turso_db_url": "https://db.example",
+                "turso_auth_token": "test-auth"
+            }
+            with (
+                patch.object(story_server, "default_manager", FakeManager()),
+                patch.dict(story_server.ITEM_RENDER_STATES, {}, clear=True),
+                patch("gemini_service.read_env_settings", return_value={}),
+                patch.object(story_server, "check_turso_duplicate", return_value=False),
+                patch.object(story_server, "check_dropbox_duplicate", return_value=False),
+                patch.object(story_server.threading, "Thread") as job_thread,
+            ):
+                try:
+                    request = urllib.request.Request(
+                        f"http://127.0.0.1:{server.server_port}/api/items/item-1/auto-publish",
+                        data=json.dumps(payload).encode(),
+                        headers={"Content-Type": "application/json"},
+                        method="POST"
+                    )
+                    with urllib.request.urlopen(request) as response:
+                        data = json.loads(response.read())
+                    self.assertTrue(data["ok"])
+                    self.assertEqual(data["title"], "Queued story")
+                    job_thread.return_value.start.assert_called_once()
+                    self.assertEqual(story_server.ITEM_RENDER_STATES["item-1"]["status"], "starting")
+                finally:
+                    server.server_close()
+                    thread.join()
 
     def test_auto_publish_renders_over_existing_output(self):
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -51,7 +146,7 @@ class TestServerlessApp(unittest.TestCase):
             ):
                 aligner_class.return_value.get_audio_duration.return_value = 2
                 aligner_class.return_value.align_speech_with_script.return_value = object()
-                director_class.return_value.build_timeline.return_value = []
+                director_class.return_value.build_timeline.return_value = SimpleNamespace(scenes=[])
                 exporter_class.return_value.export_video.side_effect = (
                     lambda **kwargs: Path(kwargs["output_path"]).write_bytes(b"fresh render")
                 )

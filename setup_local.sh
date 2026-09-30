@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 # ==============================================================================
 # FB 2minutes Storymaker - Local Setup Script
-# Version: 1.0.3
+# Version: 1.0.4
 # Sets up Python environment and dependencies.
 # Includes first-class support for Termux (Android), Debian/Ubuntu, macOS, Windows.
 # ==============================================================================
 
 set -e
 
-APP_VERSION="1.0.3"
+APP_VERSION="1.0.4"
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$REPO_DIR"
 
