@@ -438,13 +438,61 @@
               <span id="studioPublishIcon">🚀</span>
               <span id="studioPublishText">Auto-Publish to Dropbox &amp; Sheets</span>
             </button>
-            <div id="studioPublishProgress" class="hidden space-y-1.5 bg-black/60 p-2.5 rounded-xl border border-gray-800">
-              <div class="flex justify-between text-[10px] text-zinc-400 font-medium">
-                <span id="studioPublishStep">Publishing story...</span>
-                <span id="studioPublishPct" class="font-mono text-amber-400 font-bold">0%</span>
+            <!-- 3-Stage Progress Display for Auto-Publish -->
+            <div id="studioPublishProgress" class="hidden space-y-2.5 bg-black/80 p-3 rounded-xl border border-gray-800 shadow-xl">
+              <div class="flex items-center justify-between text-[11px] font-bold border-b border-gray-800/80 pb-1.5">
+                <span id="studioPublishTitle" class="text-white truncate max-w-[200px]">Auto-Publishing Story</span>
+                <span id="studioPublishOverallPct" class="font-mono text-amber-400">0%</span>
               </div>
-              <div class="w-full h-1.5 bg-gray-800 rounded-full overflow-hidden">
-                <div id="studioPublishBar" class="h-full bg-gradient-to-r from-amber-500 to-orange-500 transition-all duration-150" style="width: 0%;"></div>
+
+              <!-- Step 1: In-Browser Render -->
+              <div class="space-y-1">
+                <div class="flex justify-between text-[10px]">
+                  <span id="step1Label" class="text-zinc-400 font-medium flex items-center gap-1.5">
+                    <span id="step1Icon">⏳</span> 1. In-Browser Render
+                  </span>
+                  <span id="step1Pct" class="font-mono text-indigo-400 font-bold">0%</span>
+                </div>
+                <div class="w-full h-1.5 bg-gray-900 rounded-full overflow-hidden border border-gray-800">
+                  <div id="step1Bar" class="h-full bg-gradient-to-r from-indigo-500 to-purple-500 transition-all duration-75" style="width: 0%;"></div>
+                </div>
+                <div id="step1Detail" class="text-[9px] font-mono text-zinc-500 flex justify-between">
+                  <span id="step1DetailText">Recording canvas frames...</span>
+                  <span id="step1Time">0.0s / 0.0s</span>
+                </div>
+              </div>
+
+              <!-- Step 2: Upload to Dropbox -->
+              <div class="space-y-1">
+                <div class="flex justify-between text-[10px]">
+                  <span id="step2Label" class="text-zinc-500 font-medium flex items-center gap-1.5">
+                    <span id="step2Icon">⚪</span> 2. Dropbox Upload
+                  </span>
+                  <span id="step2Pct" class="font-mono text-blue-400 font-bold">0%</span>
+                </div>
+                <div class="w-full h-1.5 bg-gray-900 rounded-full overflow-hidden border border-gray-800">
+                  <div id="step2Bar" class="h-full bg-gradient-to-r from-blue-500 to-cyan-400 transition-all duration-75" style="width: 0%;"></div>
+                </div>
+                <div id="step2Detail" class="text-[9px] font-mono text-zinc-500 flex justify-between">
+                  <span id="step2DetailText">Waiting for render...</span>
+                  <span id="step2Bytes">0 KB / 0 KB</span>
+                </div>
+              </div>
+
+              <!-- Step 3: Sync to Turso -->
+              <div class="space-y-1">
+                <div class="flex justify-between text-[10px]">
+                  <span id="step3Label" class="text-zinc-500 font-medium flex items-center gap-1.5">
+                    <span id="step3Icon">⚪</span> 3. Turso Database Sync
+                  </span>
+                  <span id="step3Status" class="font-mono text-emerald-400 font-bold text-[9px]">Waiting</span>
+                </div>
+                <div class="w-full h-1.5 bg-gray-900 rounded-full overflow-hidden border border-gray-800">
+                  <div id="step3Bar" class="h-full bg-gradient-to-r from-emerald-500 to-teal-400 transition-all duration-150" style="width: 0%;"></div>
+                </div>
+                <div id="step3Detail" class="text-[9px] font-mono text-zinc-500">
+                  <span id="step3DetailText">Waiting for upload...</span>
+                </div>
               </div>
             </div>
             <div class="flex items-center justify-between text-[10px] text-zinc-400 font-mono">
@@ -3390,6 +3438,60 @@
         btn.innerHTML = '<span>⏳</span> Rendering in Browser...';
       }
 
+      // Studio 3-Stage Progress Elements
+      const publishProg = document.getElementById('studioPublishProgress');
+      const pubTitle = document.getElementById('studioPublishTitle');
+      const pubOverallPct = document.getElementById('studioPublishOverallPct');
+
+      const step1Icon = document.getElementById('step1Icon');
+      const step1Label = document.getElementById('step1Label');
+      const step1Pct = document.getElementById('step1Pct');
+      const step1Bar = document.getElementById('step1Bar');
+      const step1DetailText = document.getElementById('step1DetailText');
+      const step1Time = document.getElementById('step1Time');
+
+      const step2Icon = document.getElementById('step2Icon');
+      const step2Label = document.getElementById('step2Label');
+      const step2Pct = document.getElementById('step2Pct');
+      const step2Bar = document.getElementById('step2Bar');
+      const step2DetailText = document.getElementById('step2DetailText');
+      const step2Bytes = document.getElementById('step2Bytes');
+
+      const step3Icon = document.getElementById('step3Icon');
+      const step3Label = document.getElementById('step3Label');
+      const step3Status = document.getElementById('step3Status');
+      const step3Bar = document.getElementById('step3Bar');
+      const step3DetailText = document.getElementById('step3DetailText');
+
+      if (publishProg) publishProg.classList.remove('hidden');
+      if (pubTitle) pubTitle.textContent = `Auto-Publish: "${meta.title || meta.filename}"`;
+      if (pubOverallPct) pubOverallPct.textContent = '0%';
+
+      const duration = audioBuffer.duration || 1.0;
+
+      // Step 1: Active
+      if (step1Icon) step1Icon.textContent = '⏳';
+      if (step1Label) step1Label.className = 'text-white font-medium flex items-center gap-1.5';
+      if (step1Pct) step1Pct.textContent = '0%';
+      if (step1Bar) step1Bar.style.width = '0%';
+      if (step1DetailText) step1DetailText.textContent = 'Recording canvas frames...';
+      if (step1Time) step1Time.textContent = `0.0s / ${formatTime(duration)}`;
+
+      // Step 2: Pending
+      if (step2Icon) step2Icon.textContent = '⚪';
+      if (step2Label) step2Label.className = 'text-zinc-500 font-medium flex items-center gap-1.5';
+      if (step2Pct) step2Pct.textContent = '0%';
+      if (step2Bar) step2Bar.style.width = '0%';
+      if (step2DetailText) step2DetailText.textContent = 'Waiting for video render...';
+      if (step2Bytes) step2Bytes.textContent = '0 KB / 0 KB';
+
+      // Step 3: Pending
+      if (step3Icon) step3Icon.textContent = '⚪';
+      if (step3Label) step3Label.className = 'text-zinc-500 font-medium flex items-center gap-1.5';
+      if (step3Status) step3Status.textContent = 'Waiting';
+      if (step3Bar) step3Bar.style.width = '0%';
+      if (step3DetailText) step3DetailText.textContent = 'Waiting for Dropbox upload...';
+
       if (exportProgress) {
         exportProgress.classList.remove('hidden');
         exportBar.style.width = '0%';
@@ -3438,13 +3540,80 @@
 
         handleFile(videoFile);
 
-        if (exportText) exportText.textContent = `Uploading "${meta.filename}" to Dropbox...`;
+        // Step 2: Upload to Dropbox
         if (btn) btn.innerHTML = '<span>📤</span> Uploading to Dropbox...';
+        if (exportText) exportText.textContent = `Uploading "${meta.filename}" to Dropbox...`;
+        if (step2Icon) step2Icon.textContent = '⏳';
+        if (step2Label) step2Label.className = 'text-white font-medium flex items-center gap-1.5';
+        if (step2DetailText) step2DetailText.textContent = 'Obtaining Dropbox auth token...';
 
         try {
-          await uploadToDropbox();
+          const token = await getAccessToken();
+          const folder = (pipeCfg('dbFolder', DEFAULT_FOLDER) || '/Think with Tobi').replace(/\/$/, '');
+          const path = `${folder}/${meta.filename}`;
 
-          // Mark item as published if active package item
+          if (step2DetailText) step2DetailText.textContent = `Uploading to ${folder}/...`;
+
+          await new Promise((resolve, reject) => {
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', 'https://content.dropboxapi.com/2/files/upload');
+            xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+            xhr.setRequestHeader('Content-Type', 'application/octet-stream');
+            xhr.setRequestHeader('Dropbox-API-Arg', JSON.stringify({
+              path: path,
+              mode: 'overwrite',
+              autorename: false,
+              mute: false
+            }));
+
+            xhr.upload.onprogress = e => {
+              if (e.lengthComputable) {
+                const pct = Math.round(e.loaded / e.total * 100);
+                if (step2Bar) step2Bar.style.width = `${pct}%`;
+                if (step2Pct) step2Pct.textContent = `${pct}%`;
+                if (step2Bytes) step2Bytes.textContent = `${pipeFormatBytes(e.loaded)} / ${pipeFormatBytes(e.total)}`;
+                if (pubOverallPct) pubOverallPct.textContent = `${Math.round(35 + (pct * 0.45))}%`;
+              }
+            };
+
+            xhr.onload = () => {
+              if (xhr.status === 200) {
+                resolve();
+              } else {
+                let errDesc = xhr.responseText;
+                try {
+                  const p = JSON.parse(xhr.responseText);
+                  errDesc = p.error_summary || p.error_description || errDesc;
+                } catch (_) {}
+                reject(new Error(errDesc));
+              }
+            };
+            xhr.onerror = () => reject(new Error('Network error connecting to Dropbox.'));
+            xhr.send(videoBlob);
+          });
+
+          // Step 2 Complete
+          if (step2Icon) step2Icon.textContent = '✓';
+          if (step2Label) step2Label.className = 'text-emerald-400 font-medium flex items-center gap-1.5';
+          if (step2Pct) step2Pct.textContent = '100%';
+          if (step2Bar) step2Bar.style.width = '100%';
+          if (step2DetailText) step2DetailText.textContent = `✓ Uploaded to ${folder}/${meta.filename}`;
+          if (pubOverallPct) pubOverallPct.textContent = '80%';
+
+          // Step 3: Turso LibSQL Database Sync
+          if (btn) btn.innerHTML = '<span>⚡</span> Syncing Turso...';
+          if (step3Icon) step3Icon.textContent = '⏳';
+          if (step3Label) step3Label.className = 'text-white font-medium flex items-center gap-1.5';
+          if (step3Status) step3Status.textContent = 'Syncing...';
+          if (step3Bar) step3Bar.style.width = '50%';
+          if (step3DetailText) step3DetailText.textContent = 'Writing story & dropbox_path to Turso libSQL...';
+
+          await pushStoryToTurso({
+            ...meta,
+            dropbox_path: path
+          });
+
+          // Mark item published in active package manager
           if (window.currentActiveItemId) {
             try {
               await fetch(`/api/items/${window.currentActiveItemId}/metadata`, {
@@ -3457,22 +3626,43 @@
             } catch (_) {}
           }
 
+          if (typeof loadSchedule === 'function') loadSchedule();
+
+          // Step 3 Complete
+          if (step3Icon) step3Icon.textContent = '✓';
+          if (step3Label) step3Label.className = 'text-emerald-400 font-medium flex items-center gap-1.5';
+          if (step3Status) step3Status.textContent = '✓ Synced';
+          if (step3Bar) step3Bar.style.width = '100%';
+          if (step3DetailText) step3DetailText.textContent = '✓ Turso libSQL record ready for Make.com auto-publish';
+          if (pubOverallPct) pubOverallPct.textContent = '100%';
+
           if (exportText) exportText.textContent = '✓ Rendered & Published!';
           if (exportBar) exportBar.style.width = '100%';
           if (exportPct) exportPct.textContent = '100%';
+
           showToast(`🚀 Successfully published "${meta.filename}" to Dropbox & Turso!`);
+
           if (btn) {
             btn.disabled = false;
-            btn.innerHTML = '<span>✓</span> Published to Dropbox!';
+            btn.innerHTML = '<span>✓</span> Published to Dropbox & Turso!';
             setTimeout(() => {
-              btn.innerHTML = '<span>🚀</span> Render &amp; Auto-Publish to Dropbox &amp; Turso';
-            }, 3500);
+              btn.innerHTML = '<span>🚀</span> Auto-Publish to Dropbox &amp; Sheets';
+            }, 4000);
           }
-        } catch (upErr) {
-          showToast(`Upload error: ${upErr.message}`, true);
+        } catch (err) {
+          showToast(`✕ Auto-publish error: ${err.message}`, true);
+          if (step2Icon && step2Icon.textContent === '⏳') {
+            step2Icon.textContent = '✕';
+            if (step2Label) step2Label.className = 'text-red-400 font-medium flex items-center gap-1.5';
+            if (step2DetailText) step2DetailText.textContent = `Upload failed: ${err.message}`;
+          } else if (step3Icon && step3Icon.textContent === '⏳') {
+            step3Icon.textContent = '✕';
+            if (step3Label) step3Label.className = 'text-red-400 font-medium flex items-center gap-1.5';
+            if (step3DetailText) step3DetailText.textContent = `Turso sync failed: ${err.message}`;
+          }
           if (btn) {
             btn.disabled = false;
-            btn.innerHTML = '<span>🚀</span> Render &amp; Auto-Publish to Dropbox &amp; Turso';
+            btn.innerHTML = '<span>🚀</span> Retry Auto-Publish';
           }
         }
       };
@@ -3481,18 +3671,30 @@
       sourceNode.start(0);
 
       const startTime = performance.now();
-      const duration = audioBuffer.duration;
 
       function autoRenderLoop() {
         const elapsed = (performance.now() - startTime) / 1000;
         const prog = Math.min(1.0, elapsed / duration);
-        if (exportBar) exportBar.style.width = `${Math.round(prog * 100)}%`;
-        if (exportPct) exportPct.textContent = `${Math.round(prog * 100)}%`;
+        const pct1 = Math.round(prog * 100);
+
+        if (step1Bar) step1Bar.style.width = `${pct1}%`;
+        if (step1Pct) step1Pct.textContent = `${pct1}%`;
+        if (step1Time) step1Time.textContent = `${formatTime(elapsed)} / ${formatTime(duration)}`;
+        if (exportBar) exportBar.style.width = `${pct1}%`;
+        if (exportPct) exportPct.textContent = `${pct1}%`;
+        if (pubOverallPct) pubOverallPct.textContent = `${Math.round(pct1 * 0.35)}%`;
 
         if (elapsed < duration) {
           drawFrame(elapsed);
           requestAnimationFrame(autoRenderLoop);
         } else {
+          drawFrame(duration);
+          if (step1Icon) step1Icon.textContent = '✓';
+          if (step1Label) step1Label.className = 'text-emerald-400 font-medium flex items-center gap-1.5';
+          if (step1Pct) step1Pct.textContent = '100%';
+          if (step1Bar) step1Bar.style.width = '100%';
+          if (step1DetailText) step1DetailText.textContent = '✓ Video Render Complete';
+          if (pubOverallPct) pubOverallPct.textContent = '35%';
           recorder.stop();
           sourceNode.stop();
         }
@@ -4784,6 +4986,8 @@
     }
 
     function pipeCfg(key, fallback) {
+      const el = document.getElementById(key);
+      if (el && el.value) return el.value.trim();
       return pipeLs(key) || fallback || '';
     }
 
