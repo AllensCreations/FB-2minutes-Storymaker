@@ -1066,21 +1066,27 @@
                             <td class="py-1.5 px-3 text-emerald-300 font-semibold">Exists</td>
                           </tr>
                           <tr>
+                            <td class="py-1.5 px-3 font-semibold text-white">dropbox_path</td>
+                            <td class="py-1.5 px-3 text-purple-300 font-bold bg-purple-950/30">{{2.dropbox_path}}</td>
+                            <td class="py-1.5 px-3 text-zinc-400 font-mono text-[9px]">{{1.data.results[1].response.result.rows[1][4].value}}</td>
+                            <td class="py-1.5 px-3 text-emerald-300 font-semibold">Exists</td>
+                          </tr>
+                          <tr>
                             <td class="py-1.5 px-3 font-semibold text-white">status</td>
                             <td class="py-1.5 px-3 text-purple-300 font-bold bg-purple-950/30">{{2.status}}</td>
-                            <td class="py-1.5 px-3 text-zinc-400 font-mono text-[9px]">{{1.data.results[1].response.result.rows[1][4].value}}</td>
+                            <td class="py-1.5 px-3 text-zinc-400 font-mono text-[9px]">{{1.data.results[1].response.result.rows[1][5].value}}</td>
                             <td class="py-1.5 px-3 text-zinc-400">Equal to: ready</td>
                           </tr>
                           <tr>
                             <td class="py-1.5 px-3 font-semibold text-white">uploaded_to_fb_ig</td>
                             <td class="py-1.5 px-3 text-purple-300 font-bold bg-purple-950/30">{{2.uploaded_to_fb_ig}}</td>
-                            <td class="py-1.5 px-3 text-zinc-400 font-mono text-[9px]">{{1.data.results[1].response.result.rows[1][5].value}}</td>
+                            <td class="py-1.5 px-3 text-zinc-400 font-mono text-[9px]">{{1.data.results[1].response.result.rows[1][6].value}}</td>
                             <td class="py-1.5 px-3 text-amber-300 font-semibold">Equal to: pending</td>
                           </tr>
                           <tr>
                             <td class="py-1.5 px-3 font-semibold text-white">uploaded_to_youtube</td>
                             <td class="py-1.5 px-3 text-purple-300 font-bold bg-purple-950/30">{{2.uploaded_to_youtube}}</td>
-                            <td class="py-1.5 px-3 text-zinc-400 font-mono text-[9px]">{{1.data.results[1].response.result.rows[1][6].value}}</td>
+                            <td class="py-1.5 px-3 text-zinc-400 font-mono text-[9px]">{{1.data.results[1].response.result.rows[1][7].value}}</td>
                             <td class="py-1.5 px-3 text-amber-300 font-semibold">Equal to: pending</td>
                           </tr>
                         </tbody>
@@ -1096,8 +1102,9 @@
                         <div><strong class="text-white">Condition 1:</strong> <span class="text-purple-300 font-bold">{{2.filename}}</span> <span class="text-emerald-400">Exists</span></div>
                         <div><span class="text-zinc-500 font-bold">AND</span> <strong class="text-white">Condition 2:</strong> <span class="text-purple-300 font-bold">{{2.caption}}</span> <span class="text-emerald-400">Exists</span></div>
                         <div><span class="text-zinc-500 font-bold">AND</span> <strong class="text-white">Condition 3:</strong> <span class="text-purple-300 font-bold">{{2.description}}</span> <span class="text-emerald-400">Exists</span></div>
-                        <div><span class="text-zinc-500 font-bold">AND</span> <strong class="text-white">Condition 4:</strong> <span class="text-purple-300 font-bold">{{2.uploaded_to_fb_ig}}</span> <span class="text-amber-300">Equal to (text)</span> <code class="text-amber-200">pending</code></div>
-                        <div><span class="text-zinc-500 font-bold">OR</span> <strong class="text-white">Condition 5:</strong> <span class="text-purple-300 font-bold">{{2.uploaded_to_youtube}}</span> <span class="text-amber-300">Equal to (text)</span> <code class="text-amber-200">pending</code></div>
+                        <div><span class="text-zinc-500 font-bold">AND</span> <strong class="text-white">Condition 4:</strong> <span class="text-purple-300 font-bold">{{2.dropbox_path}}</span> <span class="text-emerald-400">Exists</span></div>
+                        <div><span class="text-zinc-500 font-bold">AND</span> <strong class="text-white">Condition 5:</strong> <span class="text-purple-300 font-bold">{{2.uploaded_to_fb_ig}}</span> <span class="text-amber-300">Equal to (text)</span> <code class="text-amber-200">pending</code></div>
+                        <div><span class="text-zinc-500 font-bold">OR</span> <strong class="text-white">Condition 6:</strong> <span class="text-purple-300 font-bold">{{2.uploaded_to_youtube}}</span> <span class="text-amber-300">Equal to (text)</span> <code class="text-amber-200">pending</code></div>
                       </div>
                     </div>
 
@@ -5069,7 +5076,7 @@ ALTER TABLE stories ADD COLUMN uploaded_to_youtube TEXT DEFAULT 'pending';`;
             {
               type: "execute",
               stmt: {
-                sql: "SELECT json_object('filename', filename, 'caption', caption, 'description', description, 'status', status, 'uploaded_to_fb_ig', uploaded_to_fb_ig, 'uploaded_to_youtube', uploaded_to_youtube) AS story FROM stories WHERE (uploaded_to_fb_ig = 'pending' OR uploaded_to_youtube = 'pending') ORDER BY updated_at ASC LIMIT 1;"
+                sql: "SELECT json_object('filename', filename, 'caption', caption, 'description', description, 'dropbox_path', dropbox_path, 'status', status, 'uploaded_to_fb_ig', uploaded_to_fb_ig, 'uploaded_to_youtube', uploaded_to_youtube) AS story FROM stories WHERE dropbox_path IS NOT NULL AND (uploaded_to_fb_ig = 'pending' OR uploaded_to_youtube = 'pending') ORDER BY updated_at ASC LIMIT 1;"
               }
             },
             { type: "close" }
@@ -5140,7 +5147,7 @@ ALTER TABLE stories ADD COLUMN uploaded_to_youtube TEXT DEFAULT 'pending';`;
       const cfg = getLiveTursoConfig();
       const folder = pipeV('dbFolder') || '/Think with Tobi';
       const cleanFolder = folder.startsWith('/') ? folder : '/' + folder;
-      const pollSql = "SELECT json_object('filename', filename, 'caption', caption, 'description', description, 'status', status, 'uploaded_to_fb_ig', uploaded_to_fb_ig, 'uploaded_to_youtube', uploaded_to_youtube) AS story FROM stories WHERE (uploaded_to_fb_ig = 'pending' OR uploaded_to_youtube = 'pending') ORDER BY updated_at ASC LIMIT 1;";
+      const pollSql = "SELECT json_object('filename', filename, 'caption', caption, 'description', description, 'dropbox_path', dropbox_path, 'status', status, 'uploaded_to_fb_ig', uploaded_to_fb_ig, 'uploaded_to_youtube', uploaded_to_youtube) AS story FROM stories WHERE dropbox_path IS NOT NULL AND (uploaded_to_fb_ig = 'pending' OR uploaded_to_youtube = 'pending') ORDER BY updated_at ASC LIMIT 1;";
       const markSql = "UPDATE stories SET uploaded_to_fb_ig = 'published', updated_at = datetime('now') WHERE filename = '{{2.filename}}';";
 
       return {
@@ -5218,12 +5225,14 @@ ALTER TABLE stories ADD COLUMN uploaded_to_youtube TEXT DEFAULT 'pending';`;
                   { a: "{{2.filename}}", o: "exist" },
                   { a: "{{2.caption}}", o: "exist" },
                   { a: "{{2.description}}", o: "exist" },
+                  { a: "{{2.dropbox_path}}", o: "exist" },
                   { a: "{{2.uploaded_to_fb_ig}}", b: "pending", o: "text:equal" }
                 ],
                 [
                   { a: "{{2.filename}}", o: "exist" },
                   { a: "{{2.caption}}", o: "exist" },
                   { a: "{{2.description}}", o: "exist" },
+                  { a: "{{2.dropbox_path}}", o: "exist" },
                   { a: "{{2.uploaded_to_youtube}}", b: "pending", o: "text:equal" }
                 ]
               ]

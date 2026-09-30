@@ -1,17 +1,17 @@
 # Graph Report - FB-2minutes-Storymaker  (2026-09-29)
 
 ## Corpus Check
-- 50 files · ~122,784 words
+- 50 files · ~124,550 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 8 file(s) not represented in the graph (top: (none) 6, .zip 1, .lock 1)
 
 ## Summary
-- 577 nodes · 1104 edges · 39 communities (24 shown, 15 thin omitted)
+- 577 nodes · 1106 edges · 39 communities (24 shown, 15 thin omitted)
 - Extraction: 91% EXTRACTED · 9% INFERRED · 0% AMBIGUOUS · INFERRED: 101 edges (avg confidence: 0.89)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `c821e333`
+- Built from commit: `6ce255a4`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -63,7 +63,7 @@
 5. `SceneTimeline` - 16 edges
 6. `VideoExporter` - 16 edges
 7. `TestItemsManager` - 15 edges
-8. `run_video_render()` - 13 edges
+8. `run_video_render()` - 14 edges
 9. `run_tui_main()` - 13 edges
 10. `TestTursoClient` - 13 edges
 
@@ -83,12 +83,12 @@
 - None detected.
 
 ## Hyperedges (group relationships)
-- **Cloud Rendering and Social Publishing Flow**  -  index_html_client_studio, index_html_cloud_publisher, index_html_ffmpeg_renderer, index_html_social_lock_pattern [EXTRACTED 1.00]
-- **Client Application Deployment Mirrors**  -  index_html_client_studio, ar_html_studio, web_index_html_studio [EXTRACTED 1.00]
-- **Story Creation and Alignment Pipeline**  -  index_html_script_parser, index_html_gemini_voice_studio, index_html_audio_alignment, index_html_canvas_preview [EXTRACTED 1.00]
-- **Core Sequential Video Rendering Pipeline**  -  src_align_engine_readme_speech_cue_align_engine, src_duration_director_readme_overview, src_choreography_core_readme_overview, src_exporter_readme_overview [EXTRACTED 1.00]
-- **Automated Cloud Rendering and Social Distribution Flow**  -  docs_automation_guide_overview, _github_workflows_generate_and_publish_workflow, docs_automation_guide_make_webhook, docs_turso_make_guide_overview [INFERRED 0.85]
-- **Story Asset Ingestion and Schema Packaging System**  -  docs_google_studio_guide_json_schema, docs_google_studio_guide_zip_package, readme_storymaker_overview [INFERRED 0.85]
+- **Cloud Rendering and Social Publishing Flow** — index_html_client_studio, index_html_cloud_publisher, index_html_ffmpeg_renderer, index_html_social_lock_pattern [EXTRACTED 1.00]
+- **Client Application Deployment Mirrors** — index_html_client_studio, ar_html_studio, web_index_html_studio [EXTRACTED 1.00]
+- **Story Creation and Alignment Pipeline** — index_html_script_parser, index_html_gemini_voice_studio, index_html_audio_alignment, index_html_canvas_preview [EXTRACTED 1.00]
+- **Core Sequential Video Rendering Pipeline** — src_align_engine_readme_speech_cue_align_engine, src_duration_director_readme_overview, src_choreography_core_readme_overview, src_exporter_readme_overview [EXTRACTED 1.00]
+- **Automated Cloud Rendering and Social Distribution Flow** — docs_automation_guide_overview, _github_workflows_generate_and_publish_workflow, docs_automation_guide_make_webhook, docs_turso_make_guide_overview [INFERRED 0.85]
+- **Story Asset Ingestion and Schema Packaging System** — docs_google_studio_guide_json_schema, docs_google_studio_guide_zip_package, readme_storymaker_overview [INFERRED 0.85]
 
 ## Communities (39 total, 15 thin omitted)
 
@@ -126,7 +126,7 @@ Nodes (21): Aspect Ratio Auto-Switching Controller, AR Cinema Monitor Canvas Pre
 
 ### Community 8 - "turso_client.py"
 Cohesion: 0.08
-Nodes (39): execute_turso_pipeline(), init_turso_schema(), normalize_turso_url(), Any, Turso (libSQL Edge SQLite) HTTP Client for FB 2minutes Storymaker Provides…, Verify Turso credentials, ensure schema exists, and seed initial sample story…, Normalize libSQL/turso URL to standard https:// endpoint., Upsert story record into Turso stories table with social upload statuses. (+31 more)
+Nodes (39): execute_turso_pipeline(), init_turso_schema(), normalize_turso_url(), Any, Turso (libSQL Edge SQLite) HTTP Client for FB 2minutes Storymaker Provides…, Verify Turso credentials, ensure schema exists, and seed initial sample story…, Normalize libSQL/turso URL to standard https:// endpoint., Upsert story record into Turso stories table with social upload statuses and… (+31 more)
 
 ### Community 9 - "ArchiveManager"
 Cohesion: 0.19
@@ -191,7 +191,7 @@ Nodes (13): SimpleHTTPRequestHandler, get_local_ip(), Detect primary LAN IP addr
 ## Knowledge Gaps
 - **31 isolated node(s):** `install.sh script`, `GIT_TERMINAL_PROMPT`, `fb-2minutes-storymaker`, `setup_local.sh script`, `includeFiles` (+26 more)
   These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 258 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **15 thin communities (<3 nodes) omitted from report**  -  run `graphify query` to explore isolated nodes.
+- **15 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
@@ -201,7 +201,7 @@ _Questions this graph is uniquely positioned to answer:_
 - **Why does `VisualChoreographer` connect `VisualChoreographer` to `video_exporter.py`?**
   _High betweenness centrality (0.076) - this node is a cross-community bridge._
 - **Why does `SpeechCueAlignEngine` connect `SpeechCueAlignEngine` to `video_exporter.py`, `duration_director.py`, `termux_ui.py`, `SceneDurationDirector`, `TestAlignEngine`, `run_pipeline_thread`, `StorymakerRequestHandler`, `turso_client.py`?**
-  _High betweenness centrality (0.074) - this node is a cross-community bridge._
+  _High betweenness centrality (0.072) - this node is a cross-community bridge._
 - **Are the 10 inferred relationships involving `SpeechCueAlignEngine` (e.g. with `run_pipeline()` and `TestAlignEngine`) actually correct?**
   _`SpeechCueAlignEngine` has 10 INFERRED edges - model-reasoned connections that need verification._
 - **Are the 4 inferred relationships involving `VisualChoreographer` (e.g. with `SceneTimeline` and `VideoExporter`) actually correct?**

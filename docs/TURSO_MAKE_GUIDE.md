@@ -266,12 +266,13 @@ SELECT json_object(
   'filename', filename,
   'caption', caption,
   'description', description,
+  'dropbox_path', dropbox_path,
   'status', status,
   'uploaded_to_fb_ig', uploaded_to_fb_ig,
   'uploaded_to_youtube', uploaded_to_youtube
 ) AS story
 FROM stories
-WHERE (uploaded_to_fb_ig = 'pending' OR uploaded_to_youtube = 'pending')
+WHERE dropbox_path IS NOT NULL AND (uploaded_to_fb_ig = 'pending' OR uploaded_to_youtube = 'pending')
 ORDER BY updated_at ASC LIMIT 1;
 ```
 
@@ -285,9 +286,10 @@ Make.com immediately unpacks every column into a first-class named variable pill
 | **filename** | `{{2.filename}}` | `{{1.data.results[1].response.result.rows[1][1].value}}` | Exists |
 | **caption** | `{{2.caption}}` | `{{1.data.results[1].response.result.rows[1][2].value}}` | Exists |
 | **description** | `{{2.description}}` | `{{1.data.results[1].response.result.rows[1][3].value}}` | Exists |
-| **status** | `{{2.status}}` | `{{1.data.results[1].response.result.rows[1][4].value}}` | Equal to: ready |
-| **uploaded_to_fb_ig** | `{{2.uploaded_to_fb_ig}}` | `{{1.data.results[1].response.result.rows[1][5].value}}` | Equal to: pending |
-| **uploaded_to_youtube** | `{{2.uploaded_to_youtube}}` | `{{1.data.results[1].response.result.rows[1][6].value}}` | Equal to: pending |
+| **dropbox_path** | `{{2.dropbox_path}}` | `{{1.data.results[1].response.result.rows[1][4].value}}` | Exists |
+| **status** | `{{2.status}}` | `{{1.data.results[1].response.result.rows[1][5].value}}` | Equal to: ready |
+| **uploaded_to_fb_ig** | `{{2.uploaded_to_fb_ig}}` | `{{1.data.results[1].response.result.rows[1][6].value}}` | Equal to: pending |
+| **uploaded_to_youtube** | `{{2.uploaded_to_youtube}}` | `{{1.data.results[1].response.result.rows[1][7].value}}` | Equal to: pending |
 
 ---
 
@@ -298,8 +300,9 @@ Add a Filter on the connection line immediately between Module 2 and Module 3:
 - **Condition 1**: `{{2.filename}}` [Exists]
 - **AND Condition 2**: `{{2.caption}}` [Exists]
 - **AND Condition 3**: `{{2.description}}` [Exists]
-- **AND Condition 4**: `{{2.uploaded_to_fb_ig}}` [Equal to (text)] `pending`
-- **OR Condition 5**: `{{2.uploaded_to_youtube}}` [Equal to (text)] `pending`
+- **AND Condition 4**: `{{2.dropbox_path}}` [Exists]
+- **AND Condition 5**: `{{2.uploaded_to_fb_ig}}` [Equal to (text)] `pending`
+- **OR Condition 6**: `{{2.uploaded_to_youtube}}` [Equal to (text)] `pending`
 
 This ensures that only valid, fully-formed story records with pending publication queues proceed to download and post.
 

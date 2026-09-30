@@ -438,9 +438,9 @@ def upload_file_to_dropbox(access_token: str, file_path: Path, dropbox_path: str
         return json.loads(resp.read().decode("utf-8"))
 
 
-def log_to_turso_db(db_url: str, auth_token: str, filename: str, caption: str, description: str, status: str = "ready") -> Dict[str, Any]:
+def log_to_turso_db(db_url: str, auth_token: str, filename: str, caption: str, description: str, status: str = "ready", dropbox_path: Optional[str] = None) -> Dict[str, Any]:
     """Posts story record directly to Turso libSQL edge database."""
-    return turso_log_story(db_url, auth_token, filename, caption, description, status)
+    return turso_log_story(db_url, auth_token, filename, caption, description, status, dropbox_path=dropbox_path)
 
 
 def check_turso_duplicate(db_url: str, auth_token: str, filename: str) -> bool:
@@ -672,7 +672,8 @@ def auto_publish_story_item_thread(
                 out_filename,
                 caption,
                 description,
-                status="ready"
+                status="ready",
+                dropbox_path=db_path
             )
 
         # Step 4: Mark publish complete in catalog

@@ -186,6 +186,71 @@ def run_video_render():
         print("\n\n" + f"{C_GREEN}{C_BOLD}🎉 Render completed successfully!{C_RESET}")
         print(f"📁 Video Location: {C_BOLD}{output_path}{C_RESET}")
 
+        # Auto-publish to Dropbox & Turso in background/terminal if credentials exist
+        try:
+            import gemini_service
+            from turso_client import turso_log_story
+            env_cfg = gemini_service.read_env_settings()
+            turso_url = env_cfg.get("turso_db_url")
+            turso_token = env_cfg.get("turso_auth_token")
+            db_token = env_cfg.get("db_token")
+            db_app_key = env_cfg.get("db_app_key")
+            db_app_secret = env_cfg.get("db_app_secret")
+            db_refresh_token = env_cfg.get("db_refresh_token")
+
+            if (db_token or (db_app_key and db_app_secret and db_refresh_token)) and (turso_url and turso_token):
+                print(f"\n{C_BLUE}☁️ Auto-Publishing '{output_path.name}' to Dropbox & Turso...{C_RESET}")
+                
+                # 1. Dropbox upload
+                token = db_token
+                if not token and db_app_key and db_app_secret and db_refresh_token:
+                    import urllib.request, urllib.parse, json
+                    url = "https://api.dropbox.com/oauth2/token"
+                    data = urllib.parse.urlencode({
+                        "grant_type": "refresh_token",
+                        "refresh_token": db_refresh_token,
+                        "client_id": db_app_key,
+                        "client_secret": db_app_secret
+                    }).encode("utf-8")
+                    req = urllib.request.Request(url, data=data, method="POST")
+                    with urllib.request.urlopen(req, timeout=20) as resp:
+                        token = json.loads(resp.read().decode("utf-8")).get("access_token")
+
+                if token:
+                    db_target_path = f"/Storymaker_Exports/{output_path.name}"
+                    url = "https://content.dropboxapi.com/2/files/upload"
+                    headers = {
+                        "Authorization": f"Bearer {token}",
+                        "Dropbox-API-Arg": json.dumps({
+                            "path": db_target_path,
+                            "mode": "overwrite",
+                            "autorename": False,
+                            "mute": False,
+                            "strict_conflict": False
+                        }),
+                        "Content-Type": "application/octet-stream"
+                    }
+                    with open(output_path, "rb") as f:
+                        file_bytes = f.read()
+                    req = urllib.request.Request(url, data=file_bytes, headers=headers, method="POST")
+                    with urllib.request.urlopen(req, timeout=120) as resp:
+                        pass
+                    print(f"  {C_GREEN}✓ Uploaded to Dropbox: {db_target_path}{C_RESET}")
+
+                    # 2. Turso Log
+                    turso_log_story(
+                        db_url=turso_url,
+                        auth_token=turso_token,
+                        filename=output_path.name,
+                        caption="Story Video",
+                        description="#story #shorts",
+                        status="ready",
+                        dropbox_path=db_target_path
+                    )
+                    print(f"  {C_GREEN}✓ Logged metadata to Turso libSQL edge database!{C_RESET}")
+        except Exception as pub_err:
+            print(f"  {C_GRAY}(Cloud auto-publish skipped/failed: {pub_err}){C_RESET}")
+
         # Prompt to open immediately on Termux
         if is_termux() or shutil.which("termux-open") is not None:
             ans = input(f"\n{C_AMBER}▶️ Open video in Android video player now? [Y/n]: {C_RESET}").strip().lower()

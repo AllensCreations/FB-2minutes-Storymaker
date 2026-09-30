@@ -138,14 +138,15 @@ class TestTursoClient(unittest.TestCase):
             "#magic #forest",
             "ready",
             "pending",
-            "pending"
+            "pending",
+            "/Storymaker_Exports/forest.mp4"
         )
         self.assertTrue(mock_exec.called)
         statements = mock_exec.call_args[0][2]
         sql, args = statements[0]
         self.assertIn("INSERT INTO stories", sql)
         self.assertIn("ON CONFLICT(filename) DO UPDATE", sql)
-        self.assertEqual(args, ["forest.mp4", "Deep in the forest", "#magic #forest", "ready", "pending", "pending"])
+        self.assertEqual(args, ["forest.mp4", "Deep in the forest", "#magic #forest", "/Storymaker_Exports/forest.mp4", "ready", "pending", "pending"])
 
     @patch("turso_client.execute_turso_pipeline")
     def test_turso_check_duplicate_true(self, mock_exec):

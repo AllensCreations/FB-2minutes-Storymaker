@@ -207,13 +207,23 @@ class VisualChoreographer:
         self._vignette_overlay = img
         return self._vignette_overlay
 
-    def _draw_drop_shadow(self, base_img: Image.Image, x: int, y: int, w: int, h: int, radius: int = 24, offset_y: int = 4) -> None:
-        """Applies a soft Gaussian drop shadow behind the centered artwork."""
-        shadow_box = Image.new("RGBA", (self.width, self.height), (0, 0, 0, 0))
+    def _draw_drop_shadow(self, base_img: Image.Image, x: int, y: int, w: int, h: int, radius: int = 16, offset_y: int = 4) -> None:
+        """Applies a fast bounded drop shadow behind the centered artwork."""
+        pad = radius * 2
+        bx = max(0, x - pad)
+        by = max(0, y + offset_y - pad)
+        bw = min(self.width - bx, w + pad * 2)
+        bh = min(self.height - by, h + pad * 2)
+        if bw <= 0 or bh <= 0:
+            return
+
+        shadow_box = Image.new("RGBA", (bw, bh), (0, 0, 0, 0))
         sdraw = ImageDraw.Draw(shadow_box)
-        sdraw.rectangle([x, y + offset_y, x + w, y + h + offset_y], fill=(0, 0, 0, 165))
-        shadow_box = shadow_box.filter(ImageFilter.GaussianBlur(radius))
-        base_img.paste(shadow_box, (0, 0), shadow_box)
+        rx0 = x - bx
+        ry0 = (y + offset_y) - by
+        sdraw.rectangle([rx0, ry0, rx0 + w, ry0 + h], fill=(0, 0, 0, 160))
+        blurred = shadow_box.filter(ImageFilter.BoxBlur(radius // 2))
+        base_img.paste(blurred, (bx, by), blurred)
 
     def _render_scene_image(
         self,
@@ -230,7 +240,7 @@ class VisualChoreographer:
         fit_ratio = (self.width / src_img.width) * scale
         scaled_w = int(src_img.width * fit_ratio)
         scaled_h = int(src_img.height * fit_ratio)
-        scaled_img = src_img.resize((scaled_w, scaled_h), Image.Resampling.BICUBIC)
+        scaled_img = src_img.resize((scaled_w, scaled_h), Image.Resampling.BILINEAR)
 
         # 1. Ambient glow background sampled from the scene image
         bg = self.get_blurred_background(scene.image_path).copy().convert("RGBA")
@@ -242,7 +252,7 @@ class VisualChoreographer:
         # 3. Centered Width-Fitted Image with soft drop shadow
         final_x = int((self.width - scaled_w) // 2 + offset_x)
         final_y = int((self.height - scaled_h) // 2 + offset_y)
-        self._draw_drop_shadow(bg, final_x, final_y, scaled_w, scaled_h, radius=24, offset_y=4)
+        self._draw_drop_shadow(bg, final_x, final_y, scaled_w, scaled_h, radius=16, offset_y=4)
 
         if scaled_img.mode == "RGBA":
             bg.paste(scaled_img, (final_x, final_y), scaled_img)
