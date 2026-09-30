@@ -33,16 +33,6 @@ def check_assets():
     return has_voice, has_scripts, has_visuals
 
 
-def generate_sample_assets():
-    """Invoke the sample asset generator."""
-    if not ensure_pillow():
-        print("❌ Cannot generate sample assets without Pillow. Please install Pillow and try again.")
-        return
-
-    from scripts.generate_sample_assets import generate_all_sample_assets
-    generate_all_sample_assets()
-
-
 def run_pipeline(fps: int = 24, show_captions: bool = True):
     """Executes the full Picture-Book Motion storytelling pipeline."""
     # Ensure dependencies before running
@@ -104,7 +94,7 @@ def start_web_server(port=None, open_browser: bool = False):
     start_server(host="0.0.0.0", port=port, open_browser=open_browser)
 
 
-__version__ = "1.0.2"
+__version__ = "1.0.3"
 
 
 def check_for_updates(repo_dir: Path = BASE_DIR) -> bool:
@@ -161,8 +151,6 @@ def main():
     parser.add_argument("--web", action="store_true", help="Launch the local Web UI Studio")
     parser.add_argument("--port", type=int, default=None, help="Port for the Web UI (default: randomly assigned)")
     parser.add_argument("--open", action="store_true", help="Automatically open Web UI in browser")
-    parser.add_argument("--generate-assets", action="store_true", help="Generate or reset demo sample assets")
-    parser.add_argument("--preload", choices=["elsa", "scout"], nargs="?", const="elsa", help="Update and regenerate preloaded story assets")
     parser.add_argument("--fps", type=int, default=24, help="Frames per second for output video (default: 24)")
     parser.add_argument("--no-captions", action="store_true", help="Disable on-screen subtitle captions in output video")
     parser.add_argument("--check", action="store_true", help="Check asset status and exit")
@@ -181,22 +169,11 @@ def main():
         run_tui_main()
         return
 
-    # Route: Preload / Reset Assets
-    if args.preload:
-        from scripts.generate_sample_assets import generate_all_sample_assets
-        generate_all_sample_assets(theme=args.preload)
-        return
-
     # Route: Web UI
     if args.web:
         from deps_helper import is_termux
         auto_open = args.open or is_termux()
         start_web_server(args.port, open_browser=auto_open)
-        return
-
-    # Route: Generate Assets
-    if args.generate_assets:
-        generate_sample_assets()
         return
 
     print("FB 2minutes Storymaker - Automated Storytelling Engine")
@@ -215,8 +192,7 @@ def main():
         return
 
     if not (has_voice and has_scripts and has_visuals):
-        print("⚡ Assets missing. Automatically generating sample story assets...")
-        generate_sample_assets()
+        parser.error("Story assets are incomplete. Add narration, a script, and visuals before rendering.")
 
     # Run the storytelling pipeline
     run_pipeline(fps=args.fps, show_captions=not args.no_captions)

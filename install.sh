@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # ==============================================================================
 # FB 2minutes Storymaker - One-Line Installer & Auto-Updater
-# Version: 1.0.2
+# Version: 1.0.3
 #
 # Usage:
 #   Fresh Install / Auto-Update:
@@ -14,7 +14,7 @@
 
 set -e
 
-APP_VERSION="1.0.2"
+APP_VERSION="1.0.3"
 REPO_URL="https://github.com/AllensCreations/FB-2minutes-Storymaker.git"
 
 # Handle CLI flags
@@ -185,14 +185,17 @@ for trebedit_dir in "/storage/emulated/0/TrebEdit" "/sdcard/TrebEdit" "$HOME/sto
     fi
 done
 
-# 8. Generate / Verify Preloaded Story Assets
-echo "🎨 Ensuring preloaded story assets exist..."
-$PYTHON_BIN scripts/generate_sample_assets.py --theme elsa 2>/dev/null || true
-
-# 9. Create / Update Global CLI Launcher Command (fb-storymaker)
-echo "⚡ Setting up global 'fb-storymaker' launcher..."
+# 8. Create / Update Global CLI Launchers
+echo "⚡ Setting up global 'fbsm' and 'fb-storymaker' launchers..."
 LAUNCHER_SCRIPT="#!/usr/bin/env bash
 # FB 2minutes Storymaker Launcher v${APP_VERSION}
+exec $PYTHON_BIN \"$PROJECT_ABS_PATH/main.py\" \"\$@\"
+"
+TUI_LAUNCHER_SCRIPT="#!/usr/bin/env bash
+# FB 2minutes Storymaker Terminal Launcher v${APP_VERSION}
+if [ \"\$#\" -eq 0 ]; then
+    set -- --tui
+fi
 exec $PYTHON_BIN \"$PROJECT_ABS_PATH/main.py\" \"\$@\"
 "
 
@@ -213,6 +216,11 @@ if [ -n "$BIN_DIR" ]; then
     echo "$LAUNCHER_SCRIPT" > "$LAUNCHER_PATH"
     chmod +x "$LAUNCHER_PATH"
     echo "✓ Global launcher ready: $LAUNCHER_PATH"
+
+    TUI_LAUNCHER_PATH="$BIN_DIR/fbsm"
+    echo "$TUI_LAUNCHER_SCRIPT" > "$TUI_LAUNCHER_PATH"
+    chmod +x "$TUI_LAUNCHER_PATH"
+    echo "✓ Terminal launcher ready: $TUI_LAUNCHER_PATH"
 fi
 
 echo ""
@@ -223,15 +231,18 @@ echo "Location: $PROJECT_ABS_PATH"
 echo "Version:  v${APP_VERSION}"
 echo ""
 echo "🚀 Quickstart Commands:"
-echo "  1. Launch Creative Studio Web UI:  fb-storymaker --web"
+echo "  1. Open Terminal Studio:           fbsm"
+echo "     (Use --web with fb-storymaker for the Web Studio)"
+echo ""
+echo "  2. Launch Creative Studio Web UI:  fb-storymaker --web"
 echo "     (Then open: http://localhost:8000)"
 echo ""
-echo "  2. Interactive Mobile Terminal UI: fb-storymaker --tui"
+echo "  3. Interactive Terminal UI:       fb-storymaker --tui"
 echo "     (Dashboard with menu, rendering & matrix viewer)"
 echo ""
-echo "  3. Direct Video Render via CLI:    fb-storymaker --run"
+echo "  4. Direct Video Render via CLI:    fb-storymaker --run"
 echo ""
-echo "  4. Check Version & Options:        fb-storymaker --version"
+echo "  5. Check Version & Options:        fb-storymaker --version"
 echo ""
 echo "Or run directly inside the project folder:"
 if [ "$TARGET_DIR" != "." ]; then

@@ -1,5 +1,7 @@
 import sys
 import unittest
+import tempfile
+import wave
 from pathlib import Path
 
 # Add src to sys.path
@@ -15,15 +17,28 @@ class TestAlignEngine(unittest.TestCase):
 
     def setUp(self):
         self.engine = SpeechCueAlignEngine()
-        default_script = REPO_ROOT / "assets" / "scripts" / "story_default.txt"
-        self.script_path = default_script if default_script.exists() else (REPO_ROOT / "assets" / "scripts" / "story.txt")
-        self.audio_path = REPO_ROOT / "assets" / "voice-over" / "narration.mp3"
+        self.temp_dir = tempfile.TemporaryDirectory()
+        root = Path(self.temp_dir.name)
+        self.script_path = root / "story.txt"
+        self.script_path.write_text(
+            "\n".join(f"[Scene {i}: Opening]\nOpening scene {i} narration." for i in range(1, 7)),
+            encoding="utf-8",
+        )
+        self.audio_path = root / "narration.wav"
+        with wave.open(str(self.audio_path), "wb") as audio:
+            audio.setnchannels(1)
+            audio.setsampwidth(2)
+            audio.setframerate(8000)
+            audio.writeframes(b"\0\0" * 8000 * 21)
+
+    def tearDown(self):
+        self.temp_dir.cleanup()
 
     def test_parse_script(self):
         scenes = self.engine.parse_script(self.script_path)
         self.assertEqual(len(scenes), 6)
         self.assertTrue(scenes[0][0].startswith("Scene 1"))
-        self.assertIn("Elsa", scenes[0][1])
+        self.assertIn("Opening scene 1", scenes[0][1])
 
     def test_parse_json_script(self):
         # JSON Array format

@@ -1,4 +1,5 @@
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -22,7 +23,10 @@ class TestChoreographyCore(unittest.TestCase):
 
     def setUp(self):
         self.choreographer = VisualChoreographer(width=1080, height=1920)
-        img_path = REPO_ROOT / "assets" / "visuals" / "raw_frames" / "scene_1.png"
+        self.temp_dir = tempfile.TemporaryDirectory()
+        from PIL import Image
+        img_path = Path(self.temp_dir.name) / "scene_1.png"
+        Image.new("RGB", (256, 256), (100, 160, 200)).save(img_path)
         self.scene = SceneTimeline(
             scene_index=0,
             title="Scene 1: Introduction",
@@ -66,7 +70,9 @@ class TestChoreographyCore(unittest.TestCase):
         self.assertNotEqual(crop_with, crop_without, "Frame with captions should differ from frame without captions in the caption area.")
 
     def test_cross_dissolve_transition(self):
-        img_path2 = REPO_ROOT / "assets" / "visuals" / "raw_frames" / "scene_2.png"
+        from PIL import Image
+        img_path2 = Path(self.temp_dir.name) / "scene_2.png"
+        Image.new("RGB", (256, 256), (200, 120, 80)).save(img_path2)
         prev_scene = SceneTimeline(
             scene_index=0,
             title="Scene 1",
@@ -88,6 +94,9 @@ class TestChoreographyCore(unittest.TestCase):
         self.assertEqual(blend_frame.mode, "RGB")
         # Blended frame should be a valid frame with pixels differing from a non-transition frame
         self.assertNotEqual(blend_frame.tobytes(), pure_frame.tobytes())
+
+    def tearDown(self):
+        self.temp_dir.cleanup()
 
     def test_get_timed_caption_chunk(self):
         long_text = "One two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen"

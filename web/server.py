@@ -965,19 +965,6 @@ class StorymakerRequestHandler(SimpleHTTPRequestHandler):
             thread.start()
             self.send_json({"ok": True, "message": f"Render job started (captions: {'ON' if show_captions else 'OFF'}, style: {caption_style})."})
 
-        elif path == "/api/generate-assets":
-            try:
-                gen_script = REPO_ROOT / "scripts" / "generate_sample_assets.py"
-                import importlib.util
-                spec = importlib.util.spec_from_file_location("gen_assets", gen_script)
-                if spec and spec.loader:
-                    mod = importlib.util.module_from_spec(spec)
-                    spec.loader.exec_module(mod)
-                    mod.generate_all_sample_assets()
-                self.send_json({"ok": True, "message": "Sample assets refreshed."})
-            except Exception as e:
-                self.send_json({"ok": False, "error": str(e)}, status=500)
-
         elif path == "/api/save-script":
             try:
                 content_length = int(self.headers.get("Content-Length", 0))

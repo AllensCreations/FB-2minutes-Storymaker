@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 # ==============================================================================
 # FB 2minutes Storymaker - Local Setup Script
-# Version: 1.0.2
-# Sets up Python environment, dependencies, FFmpeg check, and sample assets.
+# Version: 1.0.3
+# Sets up Python environment and dependencies.
 # Includes first-class support for Termux (Android), Debian/Ubuntu, macOS, Windows.
 # ==============================================================================
 
 set -e
 
-APP_VERSION="1.0.2"
+APP_VERSION="1.0.3"
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$REPO_DIR"
 
@@ -115,10 +115,6 @@ fi
 echo "Syncing HTML assets..."
 cp -f "$REPO_DIR/index.html" "$REPO_DIR/web/index.html" 2>/dev/null || true
 cp -f "$REPO_DIR/index.html" "$REPO_DIR/AR.html" 2>/dev/null || true
-
-# 6. Generate Sample Assets
-echo "Ensuring sample story assets exist..."
-$RUN_PYTHON scripts/generate_sample_assets.py --theme elsa 2>/dev/null || true
 
 echo ""
 echo "========================================================"

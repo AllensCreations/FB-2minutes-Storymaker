@@ -1,5 +1,10 @@
 import sys
+import io
+import json
+import tempfile
 import unittest
+import wave
+import zipfile
 from pathlib import Path
 
 # Add src to sys.path
@@ -17,10 +22,31 @@ class TestDurationDirector(unittest.TestCase):
     def setUp(self):
         self.aligner = SpeechCueAlignEngine()
         self.director = SceneDurationDirector()
-        default_script = REPO_ROOT / "assets" / "scripts" / "story_default.txt"
-        self.script_path = default_script if default_script.exists() else (REPO_ROOT / "assets" / "scripts" / "story.txt")
-        self.audio_path = REPO_ROOT / "assets" / "voice-over" / "narration.mp3"
-        self.visuals_path = REPO_ROOT / "assets" / "visuals" / "story_visuals.zip"
+        self.temp_dir = tempfile.TemporaryDirectory()
+        root = Path(self.temp_dir.name)
+        self.script_path = root / "story.txt"
+        self.script_path.write_text(
+            "\n".join(f"[Scene {i}: Test]\nScene {i} narration." for i in range(1, 7)),
+            encoding="utf-8",
+        )
+        self.audio_path = root / "narration.wav"
+        with wave.open(str(self.audio_path), "wb") as audio:
+            audio.setnchannels(1)
+            audio.setsampwidth(2)
+            audio.setframerate(8000)
+            audio.writeframes(b"\0\0" * 8000 * 21)
+
+        from PIL import Image
+        self.visuals_path = root / "visuals.zip"
+        with zipfile.ZipFile(self.visuals_path, "w") as archive:
+            for index in range(1, 7):
+                image = Image.new("RGB", (64, 64), (index * 20, 80, 120))
+                image_bytes = io.BytesIO()
+                image.save(image_bytes, format="PNG")
+                archive.writestr(f"scene_{index}.png", image_bytes.getvalue())
+
+    def tearDown(self):
+        self.temp_dir.cleanup()
 
     def test_build_timeline(self):
         alignment = self.aligner.align_speech_with_script(self.audio_path, self.script_path)

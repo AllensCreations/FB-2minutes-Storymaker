@@ -1,6 +1,6 @@
 # End-to-End Workflow: FB 2minutes Storymaker
 
-This practical, end-to-end sample workflow illustrates exactly how assets move through the system from raw files to the final exported storytelling video.
+This practical, end-to-end workflow illustrates how assets move through the system from raw files to the final exported storytelling video.
 
 ---
 
@@ -30,7 +30,7 @@ Export illustrations on clean/white backgrounds and name them in matching order:
 
 ## Phase 2: Automated Analysis & Timing Alignment
 
-Once you drop the three files into the app (or click **"✨ Load Scout & Jem Sample Story"**), the engine runs the following steps automatically:
+Once you add the three files to the app, the engine runs the following steps automatically:
 
 ### Step A: Silence Detection
 The engine reads the waveform and spots natural breathing gaps where volume drops below **-35dB**:
