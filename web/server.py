@@ -984,37 +984,36 @@ class StorymakerRequestHandler(SimpleHTTPRequestHandler):
                     self.send_json({"ok": False, "error": "Could not parse any scenes from script text."}, status=400)
                     return
 
-                total_duration = engine.get_audio_duration(audio_path)
-                scene_word_counts = [max(1, len(text.split())) for _, text in parsed_scenes]
-                total_words = sum(scene_word_counts)
+                import tempfile
+                temp_script_path = None
+                try:
+                    with tempfile.NamedTemporaryFile("w", encoding="utf-8", delete=False, suffix=".txt") as tf:
+                        tf.write(script_text)
+                        temp_script_path = Path(tf.name)
+                    alignment = engine.align_speech_with_script(audio_path, temp_script_path)
+                finally:
+                    if temp_script_path and temp_script_path.exists():
+                        try:
+                            temp_script_path.unlink()
+                        except Exception:
+                            pass
 
-                segments = []
                 cuts = [0.0]
-                current_time = 0.0
-
-                for i, ((title, text), wc) in enumerate(zip(parsed_scenes, scene_word_counts)):
-                    if i == len(parsed_scenes) - 1:
-                        end_time = total_duration
-                    else:
-                        proportion = wc / total_words
-                        duration = max(1.8, proportion * total_duration)
-                        end_time = min(total_duration, current_time + duration)
-                    
-                    seg = {
-                        "scene": i + 1,
-                        "title": title,
-                        "text": text,
-                        "start": round(current_time, 2),
-                        "end": round(end_time, 2),
-                        "duration": round(end_time - current_time, 2)
-                    }
-                    segments.append(seg)
-                    cuts.append(round(end_time, 2))
-                    current_time = end_time
+                segments = []
+                for idx, seg in enumerate(alignment.segments, 1):
+                    cuts.append(seg.end_time)
+                    segments.append({
+                        "scene": idx,
+                        "title": seg.scene_title,
+                        "text": seg.text,
+                        "start": seg.start_time,
+                        "end": seg.end_time,
+                        "duration": round(seg.end_time - seg.start_time, 2)
+                    })
 
                 self.send_json({
                     "ok": True,
-                    "total_duration": round(total_duration, 2),
+                    "total_duration": alignment.total_duration,
                     "scene_count": len(segments),
                     "scene_cuts": cuts,
                     "segments": segments

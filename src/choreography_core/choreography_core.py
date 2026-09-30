@@ -284,11 +284,11 @@ class VisualChoreographer:
     @staticmethod
     def get_timed_caption_chunk(text: str, scene_t: float, duration: float, words_per_chunk: int = 7) -> str:
         """
-        Legacy phrase chunking for backwards compatibility.
+        Legacy phrase chunking for backwards compatibility (uppercased).
         """
         words = text.strip().split()
         if len(words) <= words_per_chunk:
-            return text.strip()
+            return text.strip().upper()
 
         chunks = []
         for i in range(0, len(words), words_per_chunk):
@@ -296,13 +296,13 @@ class VisualChoreographer:
 
         prog = max(0.0, min(scene_t / max(duration, 0.1), 0.999))
         chunk_idx = min(int(prog * len(chunks)), len(chunks) - 1)
-        return chunks[chunk_idx]
+        return chunks[chunk_idx].upper()
 
     @staticmethod
     def get_hormozi_caption_chunk(text: str, scene_t: float, duration: float) -> Tuple[str, float]:
         """
         Splits scene text into 1-2 word punchy chunks with character-weighted timing.
-        Returns: (active_chunk_text, scale_multiplier_for_spring_pop)
+        Returns: (active_chunk_text in UPPERCASE, scale_multiplier_for_spring_pop)
         """
         words = [w for w in text.strip().split() if w]
         if not words:
@@ -365,7 +365,7 @@ class VisualChoreographer:
         else:
             scale = 1.0
 
-        return active_chunk, scale
+        return active_chunk.upper(), scale
 
     def _draw_hormozi_caption(
         self,
@@ -374,9 +374,10 @@ class VisualChoreographer:
         scale: float,
         style_key: str = "gold"
     ):
-        """Draws 1-2 word punchy caption at lower third (~72% down) with outline & shadow."""
+        """Draws 1-2 word punchy caption at lower third (~72% down) with outline & shadow in UPPERCASE."""
         if not text:
             return
+        text = str(text).upper()
         style = self.CAPTION_PRESETS.get(style_key, self.CAPTION_PRESETS["gold"])
         font_size = int(style["font_size"] * scale)
         font = self._get_font(font_size)

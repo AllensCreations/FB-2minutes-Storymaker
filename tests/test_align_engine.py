@@ -65,6 +65,35 @@ class TestAlignEngine(unittest.TestCase):
         self.assertEqual(result.segments[0].start_time, 0.0)
         self.assertAlmostEqual(result.segments[-1].end_time, result.total_duration, delta=0.5)
 
+    def test_detect_silence_pauses(self):
+        pauses = self.engine.detect_silence_pauses(self.audio_path)
+        self.assertIsInstance(pauses, list)
+        if pauses:
+            for start, end in pauses:
+                self.assertLess(start, end)
+                self.assertGreaterEqual(start, 0.0)
+
+    def test_length_weighted_alignment(self):
+        import tempfile
+        script_text = (
+            "Short.\n"
+            "(Next image)\n"
+            "This is a much longer second scene with many words describing the journey into the enchanted forest."
+        )
+        with tempfile.NamedTemporaryFile("w", encoding="utf-8", delete=False, suffix=".txt") as tf:
+            tf.write(script_text)
+            temp_path = Path(tf.name)
+        try:
+            result = self.engine.align_speech_with_script(self.audio_path, temp_path)
+            self.assertEqual(len(result.segments), 2)
+            dur1 = result.segments[0].end_time - result.segments[0].start_time
+            dur2 = result.segments[1].end_time - result.segments[1].start_time
+            self.assertGreater(dur2, dur1)
+            self.assertAlmostEqual(result.segments[-1].end_time, result.total_duration, delta=0.1)
+        finally:
+            if temp_path.exists():
+                temp_path.unlink()
+
 
 if __name__ == "__main__":
     unittest.main()

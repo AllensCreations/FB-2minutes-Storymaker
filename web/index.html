@@ -1486,6 +1486,9 @@
             if (output && output.text) {
               transcriptText = output.text.trim();
               chunks = output.chunks || [];
+              if (chunks.length > 0) {
+                window.transcriptChunks = chunks;
+              }
             }
           }
 
@@ -1496,12 +1499,21 @@
             if (chunks.length > 0 && numImages > 1) {
               const perScene = Math.max(1, Math.ceil(chunks.length / numImages));
               const sceneTexts = [];
+              const calculatedCuts = [0];
               for (let i = 0; i < chunks.length; i += perScene) {
                 const slice = chunks.slice(i, i + perScene);
                 const txt = slice.map(c => c.text).join(' ').replace(/\s+/g, ' ').trim();
                 if (txt) sceneTexts.push(txt);
+                const lastChunk = slice[slice.length - 1];
+                if (lastChunk && lastChunk.timestamp && lastChunk.timestamp[1] !== null && lastChunk.timestamp[1] !== undefined) {
+                  calculatedCuts.push(Math.round(lastChunk.timestamp[1] * 100) / 100);
+                }
               }
               document.getElementById('scriptInput').value = sceneTexts.join('\n(Next image)\n');
+              if (calculatedCuts.length === sceneTexts.length + 1 && audioBuffer) {
+                calculatedCuts[calculatedCuts.length - 1] = Math.round(audioBuffer.duration * 100) / 100;
+                sceneCuts = calculatedCuts;
+              }
             } else {
               const sentences = transcriptText.match(/[^.!?]+[.!?]+|\s*[^.!?]+$/g) || [transcriptText];
               const cleanSentences = sentences.map(s => s.trim()).filter(s => s.length > 0);
@@ -1546,11 +1558,11 @@
       });
     }
 
-    // Detect speech pause timestamps using RMS energy (-35dB silence)
-    function findPauses(buffer, minPauseSec = 0.25, thresholdDb = -35) {
+    // Detect speech pause timestamps using RMS energy (-26dB silence)
+    function findPauses(buffer, minPauseSec = 0.18, thresholdDb = -26) {
       const data = buffer.getChannelData(0);
       const sampleRate = buffer.sampleRate;
-      const step = Math.floor(sampleRate * 0.05); // 50ms window
+      const step = Math.floor(sampleRate * 0.04); // 40ms window
       const threshold = Math.pow(10, thresholdDb / 20);
       let pauses = [];
       let silenceStart = null;
@@ -1622,8 +1634,20 @@
         detectedPauses = findPauses(audioBuffer);
       }
 
-      const wordCounts = scriptScenes.slice(0, count).map(s => Math.max(1, s.text.split(/\s+/).filter(w => w.trim()).length));
+      const targetScenes = scriptScenes.slice(0, count);
+      const charCounts = targetScenes.map(s => Math.max(1, (s.text || '').trim().length));
+      const wordCounts = targetScenes.map(s => Math.max(1, (s.text || '').split(/\s+/).filter(w => w.trim()).length));
+      const totalChars = charCounts.reduce((a, b) => a + b, 0);
       const totalWords = wordCounts.reduce((a, b) => a + b, 0);
+
+      // Combined weight: character count (55%) for syllables + word count (45%) for cadence
+      const weights = targetScenes.map((s, idx) =>
+        0.55 * (charCounts[idx] / totalChars) + 0.45 * (wordCounts[idx] / totalWords)
+      );
+
+      const minSceneDuration = Math.min(1.8, totalDur / Math.max(count * 1.5, 1));
+      const allocatable = totalDur - (count * minSceneDuration);
+      const targetDurations = weights.map(w => allocatable > 0 ? (minSceneDuration + w * allocatable) : (w * totalDur));
 
       // Save previous cuts for undo
       if (sceneCuts && sceneCuts.length > 1) {
@@ -1634,9 +1658,9 @@
       const pcmData = audioBuffer.getChannelData(0);
       const sampleRate = audioBuffer.sampleRate;
 
-      function findQuietTrough(targetSec, radiusSec = 1.2) {
+      function findQuietTrough(targetSec, radiusSec = 1.4) {
         // First check detected silence pauses
-        const candidatePauses = detectedPauses.filter(p => Math.abs(p - targetSec) <= radiusSec);
+        const candidatePauses = (detectedPauses || []).filter(p => Math.abs(p - targetSec) <= radiusSec);
         if (candidatePauses.length > 0) {
           candidatePauses.sort((a, b) => Math.abs(a - targetSec) - Math.abs(b - targetSec));
           return candidatePauses[0];
@@ -1665,13 +1689,29 @@
       }
 
       const newCuts = [0];
-      let runningWords = 0;
-      const minSceneDuration = 1.6;
+      let nominalSum = 0;
+
+      // Check if we have transcriptChunks with timestamps to snap cuts
+      const hasChunks = window.transcriptChunks && Array.isArray(window.transcriptChunks) && window.transcriptChunks.length > 0;
+      let chunkRunningWords = 0;
 
       for (let i = 0; i < count - 1; i++) {
-        runningWords += wordCounts[i];
-        const nominalTime = (runningWords / totalWords) * totalDur;
-        let cutTime = findQuietTrough(nominalTime, 1.2);
+        nominalSum += targetDurations[i];
+        let cutTime = nominalSum;
+
+        if (hasChunks) {
+          chunkRunningWords += wordCounts[i];
+          const targetWordRatio = chunkRunningWords / totalWords;
+          const chunkIdx = Math.min(Math.floor(targetWordRatio * window.transcriptChunks.length), window.transcriptChunks.length - 1);
+          const ch = window.transcriptChunks[chunkIdx];
+          if (ch && ch.timestamp && ch.timestamp[1] !== null && ch.timestamp[1] !== undefined) {
+            cutTime = ch.timestamp[1];
+          } else {
+            cutTime = findQuietTrough(nominalSum, 1.4);
+          }
+        } else {
+          cutTime = findQuietTrough(nominalSum, 1.4);
+        }
 
         // Enforce boundary constraints
         const minTime = newCuts[newCuts.length - 1] + minSceneDuration;
@@ -2147,7 +2187,7 @@
       if (showCaptions && activeScene.text) {
         const sceneDur = Math.max((activeScene.end - activeScene.start) || 0.1, 0.1);
         const sceneT = Math.max(0, currentTime - activeScene.start);
-        const chunkInfo = getHormoziCaptionChunk(activeScene.text, sceneT, sceneDur);
+        const chunkInfo = getHormoziCaptionChunk(activeScene.text, sceneT, sceneDur, activeScene.start);
         drawHormoziPopCaption(ctx, chunkInfo.text, chunkInfo.scale, currentCaptionStyle, canvas.width, canvas.height);
       }
 
@@ -2198,8 +2238,34 @@
       }
     };
 
-    function getHormoziCaptionChunk(text, sceneTime, sceneDuration) {
+    function getHormoziCaptionChunk(text, sceneTime, sceneDuration, sceneStart = 0) {
       if (!text || !text.trim()) return { text: '', scale: 1.0 };
+      const dur = Math.max(sceneDuration || 0.1, 0.1);
+      const absTime = (sceneStart || 0) + sceneTime;
+
+      // 1. High-precision 100% sync via transcript chunks if available
+      if (window.transcriptChunks && Array.isArray(window.transcriptChunks) && window.transcriptChunks.length > 0) {
+        const activeWord = window.transcriptChunks.find(c => {
+          if (!c || !c.timestamp) return false;
+          const start = c.timestamp[0];
+          const end = c.timestamp[1] !== null && c.timestamp[1] !== undefined ? c.timestamp[1] : (start + 0.6);
+          return absTime >= start && absTime < end;
+        });
+        if (activeWord && activeWord.text) {
+          const cleanWord = activeWord.text.trim().toUpperCase();
+          const wordStart = activeWord.timestamp[0];
+          const elapsed = Math.max(0, absTime - wordStart);
+          const popDur = 0.13;
+          let scale = 1.0;
+          if (elapsed < popDur) {
+            const prog = elapsed / popDur;
+            scale = 1.0 + 0.25 * Math.cos(prog * Math.PI * 0.5) * (1.0 - prog);
+          }
+          return { text: cleanWord, scale };
+        }
+      }
+
+      // 2. Character & punctuation weighted Hormozi spring pop chunks
       const words = text.trim().split(/\s+/).filter(Boolean);
       if (words.length === 0) return { text: '', scale: 1.0 };
 
@@ -2231,7 +2297,6 @@
       });
 
       const totalWeight = weights.reduce((a, b) => a + b, 0);
-      const dur = Math.max(sceneDuration || 0.1, 0.1);
 
       let curT = 0;
       const timeRanges = chunks.map((ch, idx) => {
@@ -2260,11 +2325,12 @@
         scale = 1.0 + 0.25 * Math.cos(prog * Math.PI * 0.5) * (1.0 - prog);
       }
 
-      return { text: activeChunk, scale };
+      return { text: activeChunk.toUpperCase(), scale };
     }
 
     function drawHormoziPopCaption(context, text, scale, styleKey, canvasWidth, canvasHeight) {
       if (!text) return;
+      text = String(text).toUpperCase();
       const style = CAPTION_STYLES[styleKey] || CAPTION_STYLES.gold;
       const fontSize = Math.round(style.fontSize * scale);
 
@@ -2301,18 +2367,20 @@
 
     function getTimedCaptionChunk(text, sceneTime, sceneDuration, wordsPerChunk = 7) {
       const words = text.trim().split(/\s+/);
-      if (words.length <= wordsPerChunk) return text.trim();
+      if (words.length <= wordsPerChunk) return text.trim().toUpperCase();
       const chunks = [];
       for (let i = 0; i < words.length; i += wordsPerChunk) {
         chunks.push(words.slice(i, i + wordsPerChunk).join(' '));
       }
       const dur = Math.max(sceneDuration || 0.1, 0.1);
       const prog = Math.max(0, Math.min(sceneTime / dur, 0.999));
-      const idx = Math.min(Math.floor(prog * chunks.length), chunks.length - 1);
-      return chunks[idx];
+      const chunkIdx = Math.min(Math.floor(prog * chunks.length), chunks.length - 1);
+      return chunks[chunkIdx].toUpperCase();
     }
 
     function drawFloatingCaption(context, text, centerX, centerY, maxWidth, lineHeight) {
+      if (!text) return;
+      text = String(text).toUpperCase();
       context.save();
       context.font = '600 34px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
       context.textAlign = 'center';

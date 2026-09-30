@@ -167,10 +167,45 @@ class SpeechCueAlignEngine:
 
         return self.parse_script_content(content)
 
+    def detect_silence_pauses(self, audio_path: Path, noise_db: int = -22, min_dur: float = 0.18) -> List[Tuple[float, float]]:
+        """
+        Detect silence intervals in audio using FFmpeg silencedetect.
+        Returns a list of (start_time, end_time) pause tuples.
+        """
+        if not audio_path.exists():
+            return []
+        try:
+            cmd = [
+                "ffmpeg", "-i", str(audio_path),
+                "-af", f"silencedetect=noise={noise_db}dB:d={min_dur}",
+                "-f", "null", "-"
+            ]
+            res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, check=False)
+            pauses: List[Tuple[float, float]] = []
+            cur_start = None
+            for line in res.stderr.splitlines():
+                if "silence_start:" in line:
+                    parts = line.split("silence_start:")
+                    try:
+                        cur_start = float(parts[1].split()[0])
+                    except (IndexError, ValueError):
+                        cur_start = None
+                elif "silence_end:" in line and cur_start is not None:
+                    parts = line.split("silence_end:")
+                    try:
+                        end_t = float(parts[1].split()[0])
+                        pauses.append((cur_start, end_t))
+                    except (IndexError, ValueError):
+                        pass
+                    cur_start = None
+            return pauses
+        except Exception:
+            return []
+
     def align_speech_with_script(self, audio_path: Path, script_path: Path) -> AlignmentResult:
         """
         Align speech segments from audio with script scenes based on narrative cadence.
-        Allocates start and end times according to narrative weight/word count.
+        Allocates start and end times according to narrative weight/length and waveform silence pauses.
         """
         print("[Speech-Cue Align Engine] Starting speech-script alignment...")
         total_duration = self.get_audio_duration(audio_path)
@@ -182,35 +217,74 @@ class SpeechCueAlignEngine:
 
         print(f"[Speech-Cue Align Engine] Parsed {len(parsed_scenes)} scene blocks")
 
-        # Distribute total duration across scenes proportionally by word count
-        # with minimum duration per scene and breathing pause at transitions
-        scene_word_counts = [max(1, len(text.split())) for _, text in parsed_scenes]
-        total_words = sum(scene_word_counts)
+        # Length-based duration allocation (character length + word count)
+        char_counts = [max(1, len(text.strip())) for _, text in parsed_scenes]
+        word_counts = [max(1, len(text.strip().split())) for _, text in parsed_scenes]
+        total_chars = sum(char_counts)
+        total_words = sum(word_counts)
+
+        # Combined weight: character count (55%) reflects syllable length, word count (45%) reflects rhythm
+        weights = [
+            0.55 * (c / total_chars) + 0.45 * (w / total_words)
+            for c, w in zip(char_counts, word_counts)
+        ]
+
+        n_scenes = len(parsed_scenes)
+        min_scene_dur = min(1.8, total_duration / max(n_scenes * 1.5, 1))
+        allocatable = total_duration - (n_scenes * min_scene_dur)
+
+        if allocatable > 0:
+            target_durations = [min_scene_dur + (w * allocatable) for w in weights]
+        else:
+            target_durations = [w * total_duration for w in weights]
+
+        # Calculate nominal cut timestamps
+        nominal_cuts = [0.0]
+        cur = 0.0
+        for dur in target_durations[:-1]:
+            cur += dur
+            nominal_cuts.append(cur)
+        nominal_cuts.append(total_duration)
+
+        # Waveform Silence Snapping: snap inner cuts to speech pause midpoints
+        silence_pauses = self.detect_silence_pauses(audio_path)
+        snapped_cuts = [0.0]
+
+        for i in range(1, n_scenes):
+            target_cut = nominal_cuts[i]
+            min_boundary = snapped_cuts[-1] + min_scene_dur
+            max_boundary = total_duration - ((n_scenes - i) * min_scene_dur)
+
+            best_cut = target_cut
+            best_dist = float("inf")
+
+            search_radius = min(1.4, target_durations[i - 1] * 0.4, target_durations[i] * 0.4)
+            for p_start, p_end in silence_pauses:
+                p_mid = (p_start + p_end) / 2.0
+                dist = abs(p_mid - target_cut)
+                if dist <= search_radius and dist < best_dist:
+                    if min_boundary <= p_mid <= max_boundary:
+                        best_cut = p_mid
+                        best_dist = dist
+
+            best_cut = max(min_boundary, min(best_cut, max_boundary))
+            snapped_cuts.append(round(best_cut, 2))
+
+        snapped_cuts.append(round(total_duration, 2))
 
         aligned_segments: List[SpeechSegment] = []
-        current_time = 0.0
-
-        for i, ((title, text), wc) in enumerate(zip(parsed_scenes, scene_word_counts)):
-            if i == len(parsed_scenes) - 1:
-                # Last scene spans to total duration
-                end_time = total_duration
-            else:
-                proportion = wc / total_words
-                duration = proportion * total_duration
-                # Ensure each scene has at least 2.5s duration
-                duration = max(2.5, duration)
-                end_time = min(total_duration, current_time + duration)
-
+        for i, (title, text) in enumerate(parsed_scenes):
+            start_t = snapped_cuts[i]
+            end_t = snapped_cuts[i + 1]
             aligned_segments.append(
                 SpeechSegment(
-                    start_time=round(current_time, 2),
-                    end_time=round(end_time, 2),
+                    start_time=start_t,
+                    end_time=end_t,
                     text=text,
                     scene_title=title,
-                    confidence=0.95
+                    confidence=0.98 if silence_pauses else 0.95
                 )
             )
-            current_time = end_time
 
         scene_mapping = {i: seg for i, seg in enumerate(aligned_segments)}
         result = AlignmentResult(

@@ -98,16 +98,16 @@ class TestChoreographyCore(unittest.TestCase):
         chunk_early = self.choreographer.get_timed_caption_chunk(long_text, scene_t=1.0, duration=9.0, words_per_chunk=7)
         chunk_mid = self.choreographer.get_timed_caption_chunk(long_text, scene_t=4.5, duration=9.0, words_per_chunk=7)
         chunk_late = self.choreographer.get_timed_caption_chunk(long_text, scene_t=8.5, duration=9.0, words_per_chunk=7)
-
-        self.assertEqual(chunk_early, "One two three four five six seven")
-        self.assertEqual(chunk_mid, "eight nine ten eleven twelve thirteen fourteen")
-        self.assertEqual(chunk_late, "fifteen")
+        self.assertEqual(chunk_early, "ONE TWO THREE FOUR FIVE SIX SEVEN")
+        self.assertEqual(chunk_mid, "EIGHT NINE TEN ELEVEN TWELVE THIRTEEN FOURTEEN")
+        self.assertEqual(chunk_late, "FIFTEEN")
 
     def test_hormozi_caption_chunk_and_styles(self):
-        # 1. Test 1-2 word chunking with spring-pop scale
+        # 1. Test 1-2 word chunking with spring-pop scale and uppercase enforcement
         text = "In a quiet village nestled between rolling hills"
         chunk_t0, scale_t0 = self.choreographer.get_hormozi_caption_chunk(text, scene_t=0.01, duration=5.0)
-        self.assertIn("In a", chunk_t0)
+        self.assertIn("IN A", chunk_t0)
+        self.assertTrue(chunk_t0.isupper())
         self.assertGreater(scale_t0, 1.0)  # Punchy bounce at the very start
 
         # 2. Test rendering all 4 presets without exceptions
