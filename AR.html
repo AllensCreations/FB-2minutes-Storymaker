@@ -1152,16 +1152,17 @@
       detectedPauses = findPauses(audioBuffer);
       resizeWaveform();
 
-      if (window._autoSyncOnAudio) {
+      const scriptVal = (document.getElementById('scriptInput') ? document.getElementById('scriptInput').value : '').trim();
+      if (scriptVal) {
         statusEl.textContent = "⚡ Auto-syncing story with voiceover...";
         setTimeout(() => {
-          if (typeof triggerSmartAutoAlign === 'function') triggerSmartAutoAlign();
+          autoAlignSpeechCuts({ silent: false });
           const pill = document.getElementById('activeItemStatusPill');
           if (pill) {
             pill.textContent = "✓ Audio Synced & Ready!";
-            pill.className = "px-2 py-0.5 text-[11px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 rounded font-semibold";
+            pill.className = "px-2.5 py-0.5 text-[11px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 rounded-full font-semibold";
           }
-          statusEl.textContent = `✓ Auto-synced story scenes with voice-over!`;
+          statusEl.textContent = "✓ Auto-synced story scenes with voice-over!";
           showToast("✓ Audio synchronized with story scenes!");
         }, 150);
       }
@@ -1534,7 +1535,11 @@
 
             updateScriptCounter();
             saveScriptToTermux(true);
-            statusEl.textContent = "✓ Audio transcribed! Scenes separated by (Next image). Click 'Align & Build' to view.";
+            statusEl.textContent = "✓ Audio transcribed! Auto-aligning scene cuts...";
+            setTimeout(() => {
+              autoAlignSpeechCuts({ silent: false });
+              showToast("✓ Audio transcribed & scenes auto-aligned with speech!");
+            }, 100);
           } else {
             // Fallback to acoustic speech pause segmentation if offline
             statusEl.textContent = "⚡ Using acoustic speech pause segmentation...";
@@ -5982,27 +5987,18 @@ CREATE INDEX IF NOT EXISTS idx_stories_status ON stories(status, fb_published, y
           resizeWaveform();
 
           // Auto-align timeline immediately (Zero extra clicks)
-          if (Array.isArray(data.cuts) && data.cuts.length > 0) {
-            sceneCuts = [0, ...data.cuts, Math.round(audioBuffer.duration * 100) / 100];
-            const scriptScenes = parseScriptScenes(document.getElementById('scriptInput').value);
-            rebuildScenes(scriptScenes.map(s => s.text));
-            drawWaveform();
-            drawFrame(0);
-            showToast(`✓ Voice-over generated (${voice}) & AI auto-aligned with precision!`);
-          } else {
-            statusEl.textContent = "⚡ Auto-aligning scene markers with Gemini voice-over...";
-            setTimeout(() => {
-              autoAlignSpeechCuts({ silent: false });
-              if (window.currentActiveItemId && sceneCuts && sceneCuts.length > 0) {
-                fetch(`/api/items/${window.currentActiveItemId}/save-timeline`, {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ cuts: sceneCuts })
-                }).catch(() => {});
-              }
-              showToast(`✓ Voice-over generated with Gemini (${voice}) & auto-aligned!`);
-            }, 150);
-          }
+          statusEl.textContent = "⚡ Auto-aligning scene markers with Gemini voice-over...";
+          setTimeout(() => {
+            autoAlignSpeechCuts({ silent: false });
+            if (window.currentActiveItemId && sceneCuts && sceneCuts.length > 0) {
+              fetch(`/api/items/${window.currentActiveItemId}/save-timeline`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ cuts: sceneCuts })
+              }).catch(() => {});
+            }
+            showToast(`✓ Voice-over generated with Gemini (${voice}) & auto-aligned!`);
+          }, 150);
 
         } catch (err) {
           showToast(`✕ Failed to generate voice-over: ${err.message}`);
