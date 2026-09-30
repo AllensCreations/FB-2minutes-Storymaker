@@ -90,9 +90,9 @@
     "semantic_hash": "1d3e2c60722b8a99a13835b25a42a1c0"
   },
   "web/server.py": {
-    "mtime": 1790738637.098005,
-    "seen": 1790738929.7109606,
-    "ast_hash": "0446938560231c356da0212228d131d9",
+    "mtime": 1790740548.1700048,
+    "seen": 1790740955.9224665,
+    "ast_hash": "b47278a109e4a3cb46c637a815df9498",
     "semantic_hash": ""
   },
   "EXAMPLE_WORKFLOW.md": {
@@ -114,15 +114,15 @@
     "semantic_hash": "343b70f1e36c4d365cb1904e3173c9ad"
   },
   "assets/scripts/story.txt": {
-    "mtime": 1790737951.1820052,
-    "seen": 1790738022.7994447,
+    "mtime": 1790740929.6100047,
+    "seen": 1790740955.9224832,
     "ast_hash": "e8c07420ecb83fd82d6ba23abc64cdc2",
     "semantic_hash": ""
   },
   "index.html": {
-    "mtime": 1790738735.470005,
-    "seen": 1790738929.7109878,
-    "ast_hash": "a1c42dad9378a9eeefcb994a128f251d",
+    "mtime": 1790740698.6860046,
+    "seen": 1790740955.9224977,
+    "ast_hash": "da6e4f92b2ca896ec4e9e3effbdbd9b2",
     "semantic_hash": ""
   },
   "requirements.txt": {
@@ -156,9 +156,9 @@
     "semantic_hash": "2a409372d935a8f34b7285773eff2404"
   },
   "web/index.html": {
-    "mtime": 1790738827.846005,
-    "seen": 1790738929.711005,
-    "ast_hash": "a1c42dad9378a9eeefcb994a128f251d",
+    "mtime": 1790740821.1260047,
+    "seen": 1790740955.9225178,
+    "ast_hash": "da6e4f92b2ca896ec4e9e3effbdbd9b2",
     "semantic_hash": ""
   },
   "assets/voice-over/narration.mp3": {
@@ -186,9 +186,9 @@
     "semantic_hash": "b51fb2b5b4ed6c1d823f2016e341826a"
   },
   "AR.html": {
-    "mtime": 1790738827.886005,
-    "seen": 1790738929.710966,
-    "ast_hash": "a1c42dad9378a9eeefcb994a128f251d",
+    "mtime": 1790740821.1380048,
+    "seen": 1790740955.9224725,
+    "ast_hash": "da6e4f92b2ca896ec4e9e3effbdbd9b2",
     "semantic_hash": ""
   },
   "scripts/ci_render_and_publish.py": {
@@ -324,10 +324,10 @@
     "semantic_hash": "6f8e19e7517c77f2cfb41fd0d0513be7"
   },
   "docs/TURSO_MAKE_GUIDE.md": {
-    "mtime": 1790696755.274006,
-    "seen": 1790730791.5063295,
-    "ast_hash": "94a9a88fb10e481633e720a49c13a6c8",
-    "semantic_hash": "94a9a88fb10e481633e720a49c13a6c8"
+    "mtime": 1790740815.8380046,
+    "seen": 1790740955.9224946,
+    "ast_hash": "366ae13e5123890e92a52b697fe66189",
+    "semantic_hash": ""
   },
   "scripts/serve_graph.py": {
     "mtime": 1790732739.122006,
@@ -348,15 +348,15 @@
     "semantic_hash": ""
   },
   "src/turso_client.py": {
-    "mtime": 1790736414.8500054,
-    "seen": 1790738022.7994065,
-    "ast_hash": "ca99f35ae6112fdcab01ea93855f56f4",
+    "mtime": 1790740524.0740047,
+    "seen": 1790740955.922429,
+    "ast_hash": "cef1e7446215093d7d22679a8f0a26a5",
     "semantic_hash": ""
   },
   "tests/test_turso_client.py": {
-    "mtime": 1790737383.9540052,
-    "seen": 1790738022.799428,
-    "ast_hash": "1eaf37822f8a6b8b0f7475f67ae8a386",
+    "mtime": 1790740888.5820048,
+    "seen": 1790740955.922461,
+    "ast_hash": "d9870bb1d0c9aa65fea990ee684421ed",
     "semantic_hash": ""
   }
 }

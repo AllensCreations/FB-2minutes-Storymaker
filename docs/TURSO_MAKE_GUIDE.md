@@ -93,26 +93,27 @@ Paste the following table schema:
 
 ```sql
 CREATE TABLE IF NOT EXISTS stories (
-    id TEXT PRIMARY KEY,
-    filename TEXT UNIQUE NOT NULL,
-    title TEXT NOT NULL,
+    filename TEXT PRIMARY KEY,
+    title TEXT,
     caption TEXT,
     description TEXT,
     dropbox_path TEXT,
     status TEXT DEFAULT 'ready',             -- 'pending', 'ready', 'published', 'failed'
-    fb_published INTEGER DEFAULT 0,          -- 0 = No, 1 = Yes
-    fb_published_at TEXT,
+    uploaded_to_fb_ig TEXT DEFAULT 'pending', -- 'pending', 'published', 'failed'
+    uploaded_to_youtube TEXT DEFAULT 'pending', -- 'pending', 'published', 'failed'
     fb_post_id TEXT,
-    yt_published INTEGER DEFAULT 0,          -- 0 = No, 1 = Yes
-    yt_published_at TEXT,
     yt_video_id TEXT,
     created_at TEXT DEFAULT (datetime('now')),
     updated_at TEXT DEFAULT (datetime('now'))
 );
 
 -- Indexes for ultra-fast queue polling and duplicate checking
-CREATE INDEX IF NOT EXISTS idx_stories_status ON stories(status, fb_published, yt_published);
+CREATE INDEX IF NOT EXISTS idx_stories_status ON stories(status, uploaded_to_fb_ig, uploaded_to_youtube);
 CREATE INDEX IF NOT EXISTS idx_stories_filename ON stories(filename);
+
+-- Safe migration for existing databases:
+ALTER TABLE stories ADD COLUMN uploaded_to_fb_ig TEXT DEFAULT 'pending';
+ALTER TABLE stories ADD COLUMN uploaded_to_youtube TEXT DEFAULT 'pending';
 ```
 
 Type `.quit` to exit the shell.
@@ -211,7 +212,7 @@ Query Turso for the next pending story.
     {
       "type": "execute",
       "stmt": {
-        "sql": "SELECT id, filename, title, caption, description, dropbox_path FROM stories WHERE fb_published = 0 AND status = 'ready' ORDER BY created_at ASC LIMIT 1;"
+        "sql": "SELECT filename, title, caption, description, dropbox_path, uploaded_to_fb_ig, uploaded_to_youtube FROM stories WHERE uploaded_to_fb_ig = 'pending' OR uploaded_to_youtube = 'pending' ORDER BY updated_at ASC LIMIT 1;"
       }
     },
     { "type": "close" }
@@ -310,7 +311,7 @@ Now update Turso so the story is never posted again:
     {
       "type": "execute",
       "stmt": {
-        "sql": "UPDATE stories SET fb_published = 1, fb_published_at = datetime('now'), fb_post_id = '{{4.id}}', yt_published = 1, yt_published_at = datetime('now'), yt_video_id = '{{5.id}}', status = 'published', updated_at = datetime('now') WHERE filename = '{{1.data.results[1].response.result.rows[1][2].value}}';"
+        "sql": "UPDATE stories SET uploaded_to_fb_ig = 'published', fb_post_id = '{{4.id}}', uploaded_to_youtube = 'published', yt_video_id = '{{5.id}}', status = 'published', updated_at = datetime('now') WHERE filename = '{{1.data.results[1].response.result.rows[1][0].value}}';"
       }
     },
     { "type": "close" }
@@ -328,19 +329,20 @@ You can log to Turso in Python without any external dependencies using standard 
 import json
 import urllib.request
 
-def log_to_turso(turso_url: str, auth_token: str, filename: str, title: str, caption: str, description: str, dropbox_path: str):
+def log_to_turso(turso_url: str, auth_token: str, filename: str, caption: str, description: str, status: str = "ready", uploaded_to_fb_ig: str = "pending", uploaded_to_youtube: str = "pending"):
     """
     Inserts or updates a story record in Turso via HTTP Pipeline API.
     """
     pipeline_url = f"{turso_url.rstrip('/')}/v2/pipeline"
     sql = """
-    INSERT INTO stories (id, filename, title, caption, description, dropbox_path, status)
-    VALUES (?, ?, ?, ?, ?, ?, 'ready')
+    INSERT INTO stories (filename, caption, description, status, uploaded_to_fb_ig, uploaded_to_youtube, updated_at)
+    VALUES (?, ?, ?, ?, ?, ?, datetime('now'))
     ON CONFLICT(filename) DO UPDATE SET
-        title = excluded.title,
         caption = excluded.caption,
         description = excluded.description,
-        dropbox_path = excluded.dropbox_path,
+        status = excluded.status,
+        uploaded_to_fb_ig = excluded.uploaded_to_fb_ig,
+        uploaded_to_youtube = excluded.uploaded_to_youtube,
         updated_at = datetime('now');
     """
     
@@ -351,12 +353,12 @@ def log_to_turso(turso_url: str, auth_token: str, filename: str, title: str, cap
                 "stmt": {
                     "sql": sql,
                     "args": [
-                        {"type": "text", "value": filename.replace(".mp4", "")},
                         {"type": "text", "value": filename},
-                        {"type": "text", "value": title},
                         {"type": "text", "value": caption},
                         {"type": "text", "value": description},
-                        {"type": "text", "value": dropbox_path}
+                        {"type": "text", "value": status},
+                        {"type": "text", "value": uploaded_to_fb_ig},
+                        {"type": "text", "value": uploaded_to_youtube}
                     ]
                 }
             },

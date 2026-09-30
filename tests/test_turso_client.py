@@ -115,8 +115,10 @@ class TestTursoClient(unittest.TestCase):
         mock_exec.return_value = {"results": []}
         turso_client.init_turso_schema("https://test.turso.io", "token")
         self.assertTrue(mock_exec.called)
-        sql = mock_exec.call_args[0][2][0][0]
-        self.assertIn("CREATE TABLE IF NOT EXISTS stories", sql)
+        all_sqls = [call[0][2][0][0] for call in mock_exec.call_args_list]
+        self.assertTrue(any("CREATE TABLE IF NOT EXISTS stories" in s for s in all_sqls))
+        self.assertTrue(any("uploaded_to_fb_ig" in s for s in all_sqls))
+        self.assertTrue(any("uploaded_to_youtube" in s for s in all_sqls))
 
     @patch("turso_client.execute_turso_pipeline")
     def test_turso_test_connection(self, mock_exec):
@@ -134,14 +136,16 @@ class TestTursoClient(unittest.TestCase):
             "forest.mp4",
             "Deep in the forest",
             "#magic #forest",
-            "ready"
+            "ready",
+            "pending",
+            "pending"
         )
         self.assertTrue(mock_exec.called)
         statements = mock_exec.call_args[0][2]
         sql, args = statements[0]
         self.assertIn("INSERT INTO stories", sql)
         self.assertIn("ON CONFLICT(filename) DO UPDATE", sql)
-        self.assertEqual(args, ["forest.mp4", "Deep in the forest", "#magic #forest", "ready"])
+        self.assertEqual(args, ["forest.mp4", "Deep in the forest", "#magic #forest", "ready", "pending", "pending"])
 
     @patch("turso_client.execute_turso_pipeline")
     def test_turso_check_duplicate_true(self, mock_exec):
@@ -192,10 +196,19 @@ class TestTursoClient(unittest.TestCase):
     @patch("turso_client.execute_turso_pipeline")
     def test_turso_update_status(self, mock_exec):
         mock_exec.return_value = {"results": [{"type": "ok"}]}
-        turso_client.turso_update_status("https://test.turso.io", "token", "forest.mp4", "published")
+        turso_client.turso_update_status(
+            "https://test.turso.io",
+            "token",
+            "forest.mp4",
+            status="published",
+            uploaded_to_fb_ig="published",
+            uploaded_to_youtube="pending"
+        )
         sql, args = mock_exec.call_args[0][2][0]
-        self.assertIn("UPDATE stories SET status =", sql)
-        self.assertEqual(args, ["published", "forest.mp4"])
+        self.assertIn("UPDATE stories SET", sql)
+        self.assertIn("uploaded_to_fb_ig = ?", sql)
+        self.assertIn("uploaded_to_youtube = ?", sql)
+        self.assertEqual(args, ["published", "published", "pending", "forest.mp4"])
 
     @patch("turso_client.execute_turso_pipeline")
     def test_turso_list_stories(self, mock_exec):
@@ -206,12 +219,20 @@ class TestTursoClient(unittest.TestCase):
                     "response": {
                         "type": "execute",
                         "result": {
-                            "cols": [{"name": "filename"}, {"name": "caption"}, {"name": "status"}],
+                            "cols": [
+                                {"name": "filename"},
+                                {"name": "caption"},
+                                {"name": "status"},
+                                {"name": "uploaded_to_fb_ig"},
+                                {"name": "uploaded_to_youtube"}
+                            ],
                             "rows": [
                                 [
                                     {"type": "text", "value": "story_1.mp4"},
                                     {"type": "text", "value": "A wonderful journey"},
-                                    {"type": "text", "value": "published"}
+                                    {"type": "text", "value": "published"},
+                                    {"type": "text", "value": "published"},
+                                    {"type": "text", "value": "pending"}
                                 ]
                             ]
                         }
@@ -224,6 +245,8 @@ class TestTursoClient(unittest.TestCase):
         self.assertEqual(stories[0]["filename"], "story_1.mp4")
         self.assertEqual(stories[0]["caption"], "A wonderful journey")
         self.assertEqual(stories[0]["status"], "published")
+        self.assertEqual(stories[0]["uploaded_to_fb_ig"], "published")
+        self.assertEqual(stories[0]["uploaded_to_youtube"], "pending")
 
 
 if __name__ == "__main__":

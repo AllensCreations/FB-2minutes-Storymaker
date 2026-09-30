@@ -1334,7 +1334,7 @@
       "file_type": "code",
       "norm_label": "start_server()",
       "source_file": "web/server.py",
-      "source_location": "L2092"
+      "source_location": "L2111"
     },
     {
       "id": "web_server_start_server_open",
@@ -1346,7 +1346,7 @@
       "file_type": "code",
       "norm_label": "_open()",
       "source_file": "web/server.py",
-      "source_location": "L2141"
+      "source_location": "L2160"
     },
     {
       "id": "tests_test_api_gateway_testapigatewaynode_run_node_eval",
@@ -1946,7 +1946,7 @@
       "file_type": "code",
       "norm_label": ".test_turso_check_duplicate_false()",
       "source_file": "tests/test_turso_client.py",
-      "source_location": "L166"
+      "source_location": "L170"
     },
     {
       "id": "tests_test_turso_client_testtursoclient_test_turso_check_duplicate_true",
@@ -1958,7 +1958,7 @@
       "file_type": "code",
       "norm_label": ".test_turso_check_duplicate_true()",
       "source_file": "tests/test_turso_client.py",
-      "source_location": "L147"
+      "source_location": "L151"
     },
     {
       "id": "tests_test_turso_client_testtursoclient_test_turso_delete_story",
@@ -1970,7 +1970,7 @@
       "file_type": "code",
       "norm_label": ".test_turso_delete_story()",
       "source_file": "tests/test_turso_client.py",
-      "source_location": "L185"
+      "source_location": "L189"
     },
     {
       "id": "tests_test_turso_client_testtursoclient_test_turso_list_stories",
@@ -1982,7 +1982,7 @@
       "file_type": "code",
       "norm_label": ".test_turso_list_stories()",
       "source_file": "tests/test_turso_client.py",
-      "source_location": "L201"
+      "source_location": "L214"
     },
     {
       "id": "tests_test_turso_client_testtursoclient_test_turso_log_story",
@@ -1994,7 +1994,7 @@
       "file_type": "code",
       "norm_label": ".test_turso_log_story()",
       "source_file": "tests/test_turso_client.py",
-      "source_location": "L129"
+      "source_location": "L131"
     },
     {
       "id": "tests_test_turso_client_testtursoclient_test_turso_test_connection",
@@ -2006,7 +2006,7 @@
       "file_type": "code",
       "norm_label": ".test_turso_test_connection()",
       "source_file": "tests/test_turso_client.py",
-      "source_location": "L122"
+      "source_location": "L124"
     },
     {
       "id": "tests_test_turso_client_testtursoclient_test_turso_update_status",
@@ -2018,7 +2018,7 @@
       "file_type": "code",
       "norm_label": ".test_turso_update_status()",
       "source_file": "tests/test_turso_client.py",
-      "source_location": "L193"
+      "source_location": "L197"
     },
     {
       "id": "tests_test_align_engine_testalignengine_setup",
@@ -2198,7 +2198,7 @@
       "file_type": "code",
       "norm_label": ".do_delete()",
       "source_file": "web/server.py",
-      "source_location": "L1999"
+      "source_location": "L2018"
     },
     {
       "id": "web_server_storymakerrequesthandler_do_get",
@@ -2234,7 +2234,7 @@
       "file_type": "code",
       "norm_label": ".do_options()",
       "source_file": "web/server.py",
-      "source_location": "L2012"
+      "source_location": "L2031"
     },
     {
       "id": "web_server_storymakerrequesthandler_send_json",
@@ -2246,7 +2246,7 @@
       "file_type": "code",
       "norm_label": ".send_json()",
       "source_file": "web/server.py",
-      "source_location": "L2019"
+      "source_location": "L2038"
     },
     {
       "id": "web_server_storymakerrequesthandler_serve_file",
@@ -2258,7 +2258,7 @@
       "file_type": "code",
       "norm_label": ".serve_file()",
       "source_file": "web/server.py",
-      "source_location": "L2029"
+      "source_location": "L2048"
     },
     {
       "id": "web_server_storymakerrequesthandler_serve_video_range",
@@ -2270,7 +2270,7 @@
       "file_type": "code",
       "norm_label": ".serve_video_range()",
       "source_file": "web/server.py",
-      "source_location": "L2045"
+      "source_location": "L2064"
     },
     {
       "id": "src_items_manager_parse_multipart_request",
@@ -2906,7 +2906,7 @@
       "file_type": "code",
       "norm_label": "turso_check_duplicate()",
       "source_file": "src/turso_client.py",
-      "source_location": "L128"
+      "source_location": "L152"
     },
     {
       "id": "src_turso_client_turso_delete_story",
@@ -2918,7 +2918,7 @@
       "file_type": "code",
       "norm_label": "turso_delete_story()",
       "source_file": "src/turso_client.py",
-      "source_location": "L144"
+      "source_location": "L168"
     },
     {
       "id": "src_turso_client_turso_list_stories",
@@ -2930,7 +2930,7 @@
       "file_type": "code",
       "norm_label": "turso_list_stories()",
       "source_file": "src/turso_client.py",
-      "source_location": "L156"
+      "source_location": "L200"
     },
     {
       "id": "src_turso_client_turso_log_story",
@@ -2942,7 +2942,7 @@
       "file_type": "code",
       "norm_label": "turso_log_story()",
       "source_file": "src/turso_client.py",
-      "source_location": "L106"
+      "source_location": "L122"
     },
     {
       "id": "src_turso_client_turso_test_connection",
@@ -2954,7 +2954,7 @@
       "file_type": "code",
       "norm_label": "turso_test_connection()",
       "source_file": "src/turso_client.py",
-      "source_location": "L95"
+      "source_location": "L111"
     },
     {
       "id": "src_turso_client_turso_update_status",
@@ -2966,7 +2966,7 @@
       "file_type": "code",
       "norm_label": "turso_update_status()",
       "source_file": "src/turso_client.py",
-      "source_location": "L150"
+      "source_location": "L174"
     },
     {
       "id": "web_server_auto_publish_story_item_thread",
@@ -5396,7 +5396,7 @@
       "source_location": "L124"
     },
     {
-      "id": "web_server_rationale_2046",
+      "id": "web_server_rationale_2065",
       "label": "Supports HTTP 206 Partial Content for streaming/scrubbing in HTML5 video.",
       "_origin": "ast",
       "community": 38,
@@ -5404,7 +5404,7 @@
       "file_type": "rationale",
       "norm_label": "supports http 206 partial content for streaming/scrubbing in html5 video.",
       "source_file": "web/server.py",
-      "source_location": "L2046"
+      "source_location": "L2065"
     },
     {
       "id": "web_server_rationale_685",
@@ -5869,18 +5869,29 @@
       "source_location": "L1"
     },
     {
-      "id": "src_turso_client_rationale_114",
-      "label": "Upsert story record into Turso stories table.",
+      "id": "src_turso_client_rationale_112",
+      "label": "Verify Turso credentials and ensure schema exists.",
       "_origin": "ast",
       "community": 8,
       "community_name": "turso_client.py",
       "file_type": "rationale",
-      "norm_label": "upsert story record into turso stories table.",
+      "norm_label": "verify turso credentials and ensure schema exists.",
       "source_file": "src/turso_client.py",
-      "source_location": "L114"
+      "source_location": "L112"
     },
     {
-      "id": "src_turso_client_rationale_129",
+      "id": "src_turso_client_rationale_132",
+      "label": "Upsert story record into Turso stories table with social upload statuses.",
+      "_origin": "ast",
+      "community": 8,
+      "community_name": "turso_client.py",
+      "file_type": "rationale",
+      "norm_label": "upsert story record into turso stories table with social upload statuses.",
+      "source_file": "src/turso_client.py",
+      "source_location": "L132"
+    },
+    {
+      "id": "src_turso_client_rationale_153",
       "label": "Check if story filename already exists in Turso.",
       "_origin": "ast",
       "community": 8,
@@ -5888,40 +5899,7 @@
       "file_type": "rationale",
       "norm_label": "check if story filename already exists in turso.",
       "source_file": "src/turso_client.py",
-      "source_location": "L129"
-    },
-    {
-      "id": "src_turso_client_rationale_145",
-      "label": "Delete story record from Turso.",
-      "_origin": "ast",
-      "community": 8,
-      "community_name": "turso_client.py",
-      "file_type": "rationale",
-      "norm_label": "delete story record from turso.",
-      "source_file": "src/turso_client.py",
-      "source_location": "L145"
-    },
-    {
-      "id": "src_turso_client_rationale_151",
-      "label": "Update story publication status in Turso.",
-      "_origin": "ast",
-      "community": 8,
-      "community_name": "turso_client.py",
-      "file_type": "rationale",
-      "norm_label": "update story publication status in turso.",
-      "source_file": "src/turso_client.py",
-      "source_location": "L151"
-    },
-    {
-      "id": "src_turso_client_rationale_157",
-      "label": "Retrieve recent stories from Turso.",
-      "_origin": "ast",
-      "community": 8,
-      "community_name": "turso_client.py",
-      "file_type": "rationale",
-      "norm_label": "retrieve recent stories from turso.",
-      "source_file": "src/turso_client.py",
-      "source_location": "L157"
+      "source_location": "L153"
     },
     {
       "id": "src_turso_client_rationale_16",
@@ -5933,6 +5911,39 @@
       "norm_label": "normalize libsql/turso url to standard https:// endpoint.",
       "source_file": "src/turso_client.py",
       "source_location": "L16"
+    },
+    {
+      "id": "src_turso_client_rationale_169",
+      "label": "Delete story record from Turso.",
+      "_origin": "ast",
+      "community": 8,
+      "community_name": "turso_client.py",
+      "file_type": "rationale",
+      "norm_label": "delete story record from turso.",
+      "source_file": "src/turso_client.py",
+      "source_location": "L169"
+    },
+    {
+      "id": "src_turso_client_rationale_182",
+      "label": "Update story publication and platform upload statuses in Turso.",
+      "_origin": "ast",
+      "community": 8,
+      "community_name": "turso_client.py",
+      "file_type": "rationale",
+      "norm_label": "update story publication and platform upload statuses in turso.",
+      "source_file": "src/turso_client.py",
+      "source_location": "L182"
+    },
+    {
+      "id": "src_turso_client_rationale_201",
+      "label": "Retrieve recent stories from Turso.",
+      "_origin": "ast",
+      "community": 8,
+      "community_name": "turso_client.py",
+      "file_type": "rationale",
+      "norm_label": "retrieve recent stories from turso.",
+      "source_file": "src/turso_client.py",
+      "source_location": "L201"
     },
     {
       "id": "src_turso_client_rationale_30",
@@ -5947,25 +5958,14 @@
     },
     {
       "id": "src_turso_client_rationale_82",
-      "label": "Initialize minimal stories table in Turso if not present.",
+      "label": "Initialize stories table in Turso if not present and ensure social upload\u2026",
       "_origin": "ast",
       "community": 8,
       "community_name": "turso_client.py",
       "file_type": "rationale",
-      "norm_label": "initialize minimal stories table in turso if not present.",
+      "norm_label": "initialize stories table in turso if not present and ensure social upload...",
       "source_file": "src/turso_client.py",
       "source_location": "L82"
-    },
-    {
-      "id": "src_turso_client_rationale_96",
-      "label": "Verify Turso credentials and ensure schema exists.",
-      "_origin": "ast",
-      "community": 8,
-      "community_name": "turso_client.py",
-      "file_type": "rationale",
-      "norm_label": "verify turso credentials and ensure schema exists.",
-      "source_file": "src/turso_client.py",
-      "source_location": "L96"
     },
     {
       "id": "web_server_rationale_406",
@@ -8739,7 +8739,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/turso_client.py",
-      "source_location": "L92",
+      "source_location": "L97",
       "weight": 1.0
     },
     {
@@ -8751,7 +8751,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/turso_client.py",
-      "source_location": "L132",
+      "source_location": "L156",
       "weight": 1.0
     },
     {
@@ -8763,7 +8763,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/turso_client.py",
-      "source_location": "L147",
+      "source_location": "L171",
       "weight": 1.0
     },
     {
@@ -8775,7 +8775,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/turso_client.py",
-      "source_location": "L158",
+      "source_location": "L202",
       "weight": 1.0
     },
     {
@@ -8787,7 +8787,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/turso_client.py",
-      "source_location": "L160",
+      "source_location": "L207",
       "weight": 1.0
     },
     {
@@ -8799,7 +8799,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/turso_client.py",
-      "source_location": "L115",
+      "source_location": "L133",
       "weight": 1.0
     },
     {
@@ -8811,7 +8811,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/turso_client.py",
-      "source_location": "L125",
+      "source_location": "L145",
       "weight": 1.0
     },
     {
@@ -8823,7 +8823,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/turso_client.py",
-      "source_location": "L97",
+      "source_location": "L113",
       "weight": 1.0
     },
     {
@@ -8835,7 +8835,19 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/turso_client.py",
-      "source_location": "L98",
+      "source_location": "L114",
+      "weight": 1.0
+    },
+    {
+      "source": "src_turso_client_turso_update_status",
+      "target": "src_turso_client_init_turso_schema",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/turso_client.py",
+      "source_location": "L183",
       "weight": 1.0
     },
     {
@@ -8847,7 +8859,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/turso_client.py",
-      "source_location": "L153",
+      "source_location": "L197",
       "weight": 1.0
     },
     {
@@ -8955,7 +8967,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "web/server.py",
-      "source_location": "L2006",
+      "source_location": "L2025",
       "weight": 1.0
     },
     {
@@ -9087,7 +9099,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "web/server.py",
-      "source_location": "L1819",
+      "source_location": "L1823",
       "weight": 1.0
     },
     {
@@ -9099,7 +9111,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "web/server.py",
-      "source_location": "L1832",
+      "source_location": "L1836",
       "weight": 1.0
     },
     {
@@ -9111,7 +9123,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "web/server.py",
-      "source_location": "L1867",
+      "source_location": "L1881",
       "weight": 1.0
     },
     {
@@ -9279,7 +9291,7 @@
       "confidence_score": 1.0,
       "context": "decorator",
       "source_file": "tests/test_turso_client.py",
-      "source_location": "L165",
+      "source_location": "L169",
       "weight": 1.0
     },
     {
@@ -9291,7 +9303,7 @@
       "confidence_score": 1.0,
       "context": "decorator",
       "source_file": "tests/test_turso_client.py",
-      "source_location": "L146",
+      "source_location": "L150",
       "weight": 1.0
     },
     {
@@ -9303,7 +9315,7 @@
       "confidence_score": 1.0,
       "context": "decorator",
       "source_file": "tests/test_turso_client.py",
-      "source_location": "L184",
+      "source_location": "L188",
       "weight": 1.0
     },
     {
@@ -9315,7 +9327,7 @@
       "confidence_score": 1.0,
       "context": "decorator",
       "source_file": "tests/test_turso_client.py",
-      "source_location": "L200",
+      "source_location": "L213",
       "weight": 1.0
     },
     {
@@ -9327,7 +9339,7 @@
       "confidence_score": 1.0,
       "context": "decorator",
       "source_file": "tests/test_turso_client.py",
-      "source_location": "L128",
+      "source_location": "L130",
       "weight": 1.0
     },
     {
@@ -9339,7 +9351,7 @@
       "confidence_score": 1.0,
       "context": "decorator",
       "source_file": "tests/test_turso_client.py",
-      "source_location": "L121",
+      "source_location": "L123",
       "weight": 1.0
     },
     {
@@ -9351,7 +9363,7 @@
       "confidence_score": 1.0,
       "context": "decorator",
       "source_file": "tests/test_turso_client.py",
-      "source_location": "L192",
+      "source_location": "L196",
       "weight": 1.0
     },
     {
@@ -9855,7 +9867,7 @@
       "confidence_score": 1.0,
       "context": "generic_arg",
       "source_file": "src/turso_client.py",
-      "source_location": "L144",
+      "source_location": "L168",
       "weight": 1.0
     },
     {
@@ -9867,7 +9879,7 @@
       "confidence_score": 1.0,
       "context": "generic_arg",
       "source_file": "src/turso_client.py",
-      "source_location": "L156",
+      "source_location": "L200",
       "weight": 1.0
     },
     {
@@ -9879,7 +9891,7 @@
       "confidence_score": 1.0,
       "context": "generic_arg",
       "source_file": "src/turso_client.py",
-      "source_location": "L106",
+      "source_location": "L122",
       "weight": 1.0
     },
     {
@@ -9891,7 +9903,7 @@
       "confidence_score": 1.0,
       "context": "generic_arg",
       "source_file": "src/turso_client.py",
-      "source_location": "L95",
+      "source_location": "L111",
       "weight": 1.0
     },
     {
@@ -9903,7 +9915,7 @@
       "confidence_score": 1.0,
       "context": "generic_arg",
       "source_file": "src/turso_client.py",
-      "source_location": "L150",
+      "source_location": "L174",
       "weight": 1.0
     },
     {
@@ -12135,7 +12147,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "web/server.py",
-      "source_location": "L2158",
+      "source_location": "L2177",
       "weight": 1.0
     },
     {
@@ -13515,7 +13527,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "web/server.py",
-      "source_location": "L2029",
+      "source_location": "L2048",
       "weight": 1.0
     },
     {
@@ -13527,7 +13539,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "web/server.py",
-      "source_location": "L2045",
+      "source_location": "L2064",
       "weight": 1.0
     },
     {
@@ -14556,35 +14568,24 @@
     },
     {
       "source": "src_turso_client",
+      "target": "src_turso_client_turso_test_connection",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/turso_client.py",
+      "source_location": "L111",
+      "weight": 1.0
+    },
+    {
+      "source": "src_turso_client",
       "target": "src_turso_client_turso_log_story",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/turso_client.py",
-      "source_location": "L106",
-      "weight": 1.0
-    },
-    {
-      "source": "src_turso_client",
-      "target": "src_turso_client_turso_check_duplicate",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "src/turso_client.py",
-      "source_location": "L128",
-      "weight": 1.0
-    },
-    {
-      "source": "src_turso_client",
-      "target": "src_turso_client_turso_delete_story",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "src/turso_client.py",
-      "source_location": "L144",
+      "source_location": "L122",
       "weight": 1.0
     },
     {
@@ -14600,13 +14601,35 @@
     },
     {
       "source": "src_turso_client",
+      "target": "src_turso_client_turso_check_duplicate",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/turso_client.py",
+      "source_location": "L152",
+      "weight": 1.0
+    },
+    {
+      "source": "src_turso_client",
+      "target": "src_turso_client_turso_delete_story",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/turso_client.py",
+      "source_location": "L168",
+      "weight": 1.0
+    },
+    {
+      "source": "src_turso_client",
       "target": "src_turso_client_turso_update_status",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/turso_client.py",
-      "source_location": "L150",
+      "source_location": "L174",
       "weight": 1.0
     },
     {
@@ -14617,7 +14640,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/turso_client.py",
-      "source_location": "L156",
+      "source_location": "L200",
       "weight": 1.0
     },
     {
@@ -14640,17 +14663,6 @@
       "confidence_score": 1.0,
       "source_file": "src/turso_client.py",
       "source_location": "L81",
-      "weight": 1.0
-    },
-    {
-      "source": "src_turso_client",
-      "target": "src_turso_client_turso_test_connection",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "src/turso_client.py",
-      "source_location": "L95",
       "weight": 1.0
     },
     {
@@ -14848,7 +14860,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "web/server.py",
-      "source_location": "L2092",
+      "source_location": "L2111",
       "weight": 1.0
     },
     {
@@ -16322,7 +16334,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "tests/test_turso_client.py",
-      "source_location": "L122",
+      "source_location": "L124",
       "weight": 1.0
     },
     {
@@ -16333,7 +16345,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "tests/test_turso_client.py",
-      "source_location": "L129",
+      "source_location": "L131",
       "weight": 1.0
     },
     {
@@ -16344,7 +16356,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "tests/test_turso_client.py",
-      "source_location": "L147",
+      "source_location": "L151",
       "weight": 1.0
     },
     {
@@ -16355,7 +16367,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "tests/test_turso_client.py",
-      "source_location": "L166",
+      "source_location": "L170",
       "weight": 1.0
     },
     {
@@ -16366,7 +16378,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "tests/test_turso_client.py",
-      "source_location": "L185",
+      "source_location": "L189",
       "weight": 1.0
     },
     {
@@ -16377,7 +16389,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "tests/test_turso_client.py",
-      "source_location": "L193",
+      "source_location": "L197",
       "weight": 1.0
     },
     {
@@ -16388,7 +16400,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "tests/test_turso_client.py",
-      "source_location": "L201",
+      "source_location": "L214",
       "weight": 1.0
     },
     {
@@ -16443,7 +16455,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "web/server.py",
-      "source_location": "L1999",
+      "source_location": "L2018",
       "weight": 1.0
     },
     {
@@ -16454,7 +16466,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "web/server.py",
-      "source_location": "L2012",
+      "source_location": "L2031",
       "weight": 1.0
     },
     {
@@ -16465,7 +16477,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "web/server.py",
-      "source_location": "L2019",
+      "source_location": "L2038",
       "weight": 1.0
     },
     {
@@ -16476,7 +16488,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "web/server.py",
-      "source_location": "L2029",
+      "source_location": "L2048",
       "weight": 1.0
     },
     {
@@ -16487,7 +16499,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "web/server.py",
-      "source_location": "L2045",
+      "source_location": "L2064",
       "weight": 1.0
     },
     {
@@ -17866,58 +17878,36 @@
       "weight": 1.0
     },
     {
-      "source": "src_turso_client_rationale_114",
+      "source": "src_turso_client_rationale_112",
+      "target": "src_turso_client_turso_test_connection",
+      "relation": "rationale_for",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/turso_client.py",
+      "source_location": "L112",
+      "weight": 1.0
+    },
+    {
+      "source": "src_turso_client_rationale_132",
       "target": "src_turso_client_turso_log_story",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/turso_client.py",
-      "source_location": "L114",
+      "source_location": "L132",
       "weight": 1.0
     },
     {
-      "source": "src_turso_client_rationale_129",
+      "source": "src_turso_client_rationale_153",
       "target": "src_turso_client_turso_check_duplicate",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/turso_client.py",
-      "source_location": "L129",
-      "weight": 1.0
-    },
-    {
-      "source": "src_turso_client_rationale_145",
-      "target": "src_turso_client_turso_delete_story",
-      "relation": "rationale_for",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "src/turso_client.py",
-      "source_location": "L145",
-      "weight": 1.0
-    },
-    {
-      "source": "src_turso_client_rationale_151",
-      "target": "src_turso_client_turso_update_status",
-      "relation": "rationale_for",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "src/turso_client.py",
-      "source_location": "L151",
-      "weight": 1.0
-    },
-    {
-      "source": "src_turso_client_rationale_157",
-      "target": "src_turso_client_turso_list_stories",
-      "relation": "rationale_for",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "src/turso_client.py",
-      "source_location": "L157",
+      "source_location": "L153",
       "weight": 1.0
     },
     {
@@ -17929,6 +17919,39 @@
       "confidence_score": 1.0,
       "source_file": "src/turso_client.py",
       "source_location": "L16",
+      "weight": 1.0
+    },
+    {
+      "source": "src_turso_client_rationale_169",
+      "target": "src_turso_client_turso_delete_story",
+      "relation": "rationale_for",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/turso_client.py",
+      "source_location": "L169",
+      "weight": 1.0
+    },
+    {
+      "source": "src_turso_client_rationale_182",
+      "target": "src_turso_client_turso_update_status",
+      "relation": "rationale_for",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/turso_client.py",
+      "source_location": "L182",
+      "weight": 1.0
+    },
+    {
+      "source": "src_turso_client_rationale_201",
+      "target": "src_turso_client_turso_list_stories",
+      "relation": "rationale_for",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/turso_client.py",
+      "source_location": "L201",
       "weight": 1.0
     },
     {
@@ -17951,17 +17974,6 @@
       "confidence_score": 1.0,
       "source_file": "src/turso_client.py",
       "source_location": "L82",
-      "weight": 1.0
-    },
-    {
-      "source": "src_turso_client_rationale_96",
-      "target": "src_turso_client_turso_test_connection",
-      "relation": "rationale_for",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "src/turso_client.py",
-      "source_location": "L96",
       "weight": 1.0
     },
     {
@@ -18097,14 +18109,14 @@
       "weight": 1.0
     },
     {
-      "source": "web_server_rationale_2046",
+      "source": "web_server_rationale_2065",
       "target": "web_server_storymakerrequesthandler_serve_video_range",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "web/server.py",
-      "source_location": "L2046",
+      "source_location": "L2065",
       "weight": 1.0
     },
     {
@@ -18475,7 +18487,7 @@
       "confidence_score": 0.85,
       "context": "argument",
       "source_file": "web/server.py",
-      "source_location": "L2148",
+      "source_location": "L2167",
       "weight": 1.0
     },
     {
@@ -18955,7 +18967,7 @@
       "confidence_score": 0.85,
       "context": "call",
       "source_file": "web/server.py",
-      "source_location": "L2115",
+      "source_location": "L2134",
       "weight": 1.0
     },
     {
@@ -18967,7 +18979,7 @@
       "confidence_score": 0.85,
       "context": "call",
       "source_file": "web/server.py",
-      "source_location": "L2126",
+      "source_location": "L2145",
       "weight": 1.0
     },
     {
@@ -18979,7 +18991,7 @@
       "confidence_score": 0.85,
       "context": "call",
       "source_file": "web/server.py",
-      "source_location": "L2145",
+      "source_location": "L2164",
       "weight": 1.0
     },
     {
@@ -19051,7 +19063,7 @@
       "confidence_score": 0.85,
       "context": "call",
       "source_file": "web/server.py",
-      "source_location": "L1677",
+      "source_location": "L1678",
       "weight": 1.0
     },
     {
@@ -19801,5 +19813,5 @@
       "source_file": "docs/GOOGLE_STUDIO_GUIDE.md"
     }
   ],
-  "built_at_commit": "3dd8da5c4249d9f5875aebd9a87092e43f10a5d9"
+  "built_at_commit": "f09dd1b1879b6d9c3ed085a4214cb746d3e2ec22"
 }

@@ -1669,12 +1669,16 @@ class StorymakerRequestHandler(SimpleHTTPRequestHandler):
                 auth_token = payload.get("auth_token") or cfg.get("turso_auth_token", "")
                 filename = payload.get("filename", "").strip()
                 caption = payload.get("caption", "")
-                description = payload.get("description", "")
                 status = payload.get("status", "ready")
+                uploaded_to_fb_ig = payload.get("uploaded_to_fb_ig", "pending")
+                uploaded_to_youtube = payload.get("uploaded_to_youtube", "pending")
                 if not filename:
                     self.send_json({"ok": False, "error": "Filename is required."}, status=400)
                     return
-                res = turso_log_story(db_url, auth_token, filename, caption, description, status)
+                res = turso_log_story(
+                    db_url, auth_token, filename, caption, description, status,
+                    uploaded_to_fb_ig, uploaded_to_youtube
+                )
                 self.send_json(res)
             except Exception as e:
                 self.send_json({"ok": False, "error": str(e)}, status=500)
@@ -1864,7 +1868,22 @@ class StorymakerRequestHandler(SimpleHTTPRequestHandler):
 
                 turso_res = None
                 if turso_db_url:
-                    turso_res = update_turso_status(turso_db_url, turso_auth_token, filename, status)
+                    fb_stat = None
+                    yt_stat = None
+                    if platform in ("fb", "fbig", "fb_ig", "ig", "facebook", "instagram"):
+                        fb_stat = "published" if (value == "YES" or status == "published") else "pending"
+                    elif platform in ("yt", "youtube"):
+                        yt_stat = "published" if (value == "YES" or status == "published") else "pending"
+                    else:
+                        if value == "YES" or status == "published":
+                            fb_stat = "published"
+                            yt_stat = "published"
+                    turso_res = update_turso_status(
+                        turso_db_url, turso_auth_token, filename,
+                        status=status,
+                        uploaded_to_fb_ig=fb_stat,
+                        uploaded_to_youtube=yt_stat
+                    )
 
                 # Also sync back to any matching local item in ItemsManager
                 matched_item = None

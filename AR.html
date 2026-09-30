@@ -864,36 +864,110 @@
                   </div>
                 </div>
 
-                <!-- Step 3: Make.com Setup -->
-                <div class="space-y-1.5 pt-2 border-t border-white/[0.06]">
-                  <div class="flex items-center gap-2 text-xs font-bold text-zinc-200">
-                    <span class="w-5 h-5 rounded-full bg-indigo-900/60 border border-indigo-500/40 text-indigo-300 text-[10px] flex items-center justify-center font-mono font-bold">2</span>
-                    <span>Connect Turso in Make.com via HTTP Module</span>
+                <!-- Step 2: Make.com Setup with Auto-Setup Generator & Copy Buttons -->
+                <div class="space-y-2 pt-2 border-t border-white/[0.06]">
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2 text-xs font-bold text-zinc-200">
+                      <span class="w-5 h-5 rounded-full bg-indigo-900/60 border border-indigo-500/40 text-indigo-300 text-[10px] flex items-center justify-center font-mono font-bold">2</span>
+                      <span>Make.com HTTP Module Setup (Live Auto-Filled from Credentials)</span>
+                    </div>
+                    <button type="button" class="py-1 px-2.5 bg-indigo-900/60 hover:bg-indigo-800 border border-indigo-500/50 text-indigo-200 font-semibold rounded-lg text-[10px] transition flex items-center gap-1 cursor-pointer" onclick="copyFullMakeSetup()">
+                      <span>📋</span> Copy Full Setup (1-Click)
+                    </button>
                   </div>
-                  <div class="pl-7 space-y-2 text-[11px] text-zinc-300">
-                    <p>In Make.com, add an <strong>HTTP → Make a request</strong> module configured to poll Turso:</p>
-                    <ul class="list-disc list-inside space-y-1 text-zinc-400 font-mono text-[10px]">
-                      <li><strong class="text-zinc-200">URL:</strong> <code class="text-indigo-300">https://storymaker-db-[org].turso.io/v2/pipeline</code></li>
-                      <li><strong class="text-zinc-200">Method:</strong> <code class="text-indigo-300">POST</code></li>
-                      <li><strong class="text-zinc-200">Headers:</strong> <code class="text-indigo-300">Authorization: Bearer YOUR_TURSO_TOKEN</code>, <code class="text-indigo-300">Content-Type: application/json</code></li>
-                    </ul>
+                  
+                  <div class="pl-7 space-y-2.5 text-[11px] text-zinc-300">
+                    <p class="text-[11px] text-zinc-400">
+                      In Make.com, add an <strong>HTTP : Make a request</strong> module. The values below are automatically computed from your Turso Edge Database configuration above:
+                    </p>
+
+                    <!-- URL Field -->
+                    <div class="space-y-1">
+                      <div class="flex items-center justify-between text-[10px] text-zinc-400 font-mono">
+                        <span class="font-bold text-zinc-300">URL (Endpoint)</span>
+                        <button type="button" class="text-indigo-400 hover:text-indigo-300 font-sans text-[10px] flex items-center gap-1 cursor-pointer" onclick="copyMakeField('makeHttpUrl', 'URL')">
+                          <span>📋</span> Copy URL
+                        </button>
+                      </div>
+                      <input type="text" id="makeHttpUrl" readonly class="w-full bg-gray-950 border border-indigo-950/80 rounded-lg px-2.5 py-1.5 text-[11px] font-mono text-indigo-300 focus:outline-none" />
+                    </div>
+
+                    <!-- Method & Body Content Type -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      <div class="space-y-1">
+                        <div class="flex items-center justify-between text-[10px] text-zinc-400 font-mono">
+                          <span class="font-bold text-zinc-300">Method</span>
+                          <button type="button" class="text-indigo-400 hover:text-indigo-300 font-sans text-[10px] flex items-center gap-1 cursor-pointer" onclick="copyMakeField('makeHttpMethod', 'Method')">
+                            <span>📋</span> Copy
+                          </button>
+                        </div>
+                        <input type="text" id="makeHttpMethod" value="POST" readonly class="w-full bg-gray-950 border border-indigo-950/80 rounded-lg px-2.5 py-1.5 text-[11px] font-mono text-zinc-300 focus:outline-none" />
+                      </div>
+                      <div class="space-y-1">
+                        <div class="flex items-center justify-between text-[10px] text-zinc-400 font-mono">
+                          <span class="font-bold text-zinc-300">Body Content Type</span>
+                          <button type="button" class="text-indigo-400 hover:text-indigo-300 font-sans text-[10px] flex items-center gap-1 cursor-pointer" onclick="copyMakeField('makeHttpBodyType', 'Body Content Type')">
+                            <span>📋</span> Copy
+                          </button>
+                        </div>
+                        <input type="text" id="makeHttpBodyType" value="Raw (application/json)" readonly class="w-full bg-gray-950 border border-indigo-950/80 rounded-lg px-2.5 py-1.5 text-[11px] font-mono text-zinc-300 focus:outline-none" />
+                      </div>
+                    </div>
+
+                    <!-- Headers -->
+                    <div class="space-y-1">
+                      <div class="flex items-center justify-between text-[10px] text-zinc-400 font-mono">
+                        <span class="font-bold text-zinc-300">Headers (Name: Value)</span>
+                        <button type="button" class="text-indigo-400 hover:text-indigo-300 font-sans text-[10px] flex items-center gap-1 cursor-pointer" onclick="copyMakeField('makeHttpAuthHeader', 'Authorization Header')">
+                          <span>📋</span> Copy Auth Header
+                        </button>
+                      </div>
+                      <div class="space-y-1 font-mono text-[10px]">
+                        <div class="flex items-center gap-1.5">
+                          <span class="text-zinc-500 w-24">Authorization:</span>
+                          <input type="text" id="makeHttpAuthHeader" readonly class="flex-1 bg-gray-950 border border-indigo-950/80 rounded-lg px-2 py-1 text-[10px] font-mono text-amber-300 focus:outline-none" />
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                          <span class="text-zinc-500 w-24">Content-Type:</span>
+                          <input type="text" id="makeHttpContentTypeHeader" value="application/json" readonly class="flex-1 bg-gray-950 border border-indigo-950/80 rounded-lg px-2 py-1 text-[10px] font-mono text-zinc-300 focus:outline-none" />
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Request Content (Body JSON) with Tab Switcher -->
+                    <div class="space-y-1.5">
+                      <div class="flex items-center justify-between text-[10px]">
+                        <div class="flex items-center gap-1">
+                          <span class="font-bold text-zinc-300 font-mono">Request Content (Body)</span>
+                          <div class="inline-flex rounded-md bg-gray-900 border border-gray-800 p-0.5 text-[9px]">
+                            <button type="button" id="btnMakeTabPoll" class="px-2 py-0.5 rounded bg-indigo-600 text-white font-semibold cursor-pointer" onclick="switchMakeQueryTab('poll')">1. Poll Pending</button>
+                            <button type="button" id="btnMakeTabFb" class="px-2 py-0.5 rounded text-zinc-400 hover:text-zinc-200 cursor-pointer" onclick="switchMakeQueryTab('mark_fb')">2. Mark FB/IG</button>
+                            <button type="button" id="btnMakeTabYt" class="px-2 py-0.5 rounded text-zinc-400 hover:text-zinc-200 cursor-pointer" onclick="switchMakeQueryTab('mark_yt')">3. Mark YouTube</button>
+                          </div>
+                        </div>
+                        <button type="button" class="text-indigo-400 hover:text-indigo-300 text-[10px] flex items-center gap-1 cursor-pointer" onclick="copyMakeField('makeHttpRequestBody', 'Request Content JSON')">
+                          <span>📋</span> Copy JSON
+                        </button>
+                      </div>
+                      <textarea id="makeHttpRequestBody" rows="6" readonly class="w-full bg-gray-950 border border-indigo-900/40 rounded-lg p-2 text-[10px] font-mono text-purple-200/90 focus:outline-none"></textarea>
+                    </div>
                   </div>
                 </div>
 
-                <!-- Step 4: Make.com Scenario Flow -->
+                <!-- Step 3: Make.com Scenario Flow -->
                 <div class="space-y-1.5 pt-2 border-t border-white/[0.06]">
                   <div class="flex items-center gap-2 text-xs font-bold text-zinc-200">
                     <span class="w-5 h-5 rounded-full bg-emerald-900/60 border border-emerald-500/40 text-emerald-300 text-[10px] flex items-center justify-center font-mono font-bold">3</span>
                     <span>Make.com Automation Pipeline</span>
                   </div>
                   <div class="pl-7 flex flex-wrap items-center gap-1.5 text-[10px] font-mono text-zinc-300">
-                    <span class="px-2 py-1 rounded bg-gray-900 border border-gray-800">1. Turso Query (fb_published = 0)</span>
+                    <span class="px-2 py-1 rounded bg-gray-900 border border-gray-800">1. Turso Query (uploaded_to_fb_ig = 'pending')</span>
                     <span>→</span>
                     <span class="px-2 py-1 rounded bg-gray-900 border border-gray-800">2. Dropbox Download</span>
                     <span>→</span>
                     <span class="px-2 py-1 rounded bg-gray-900 border border-gray-800">3. Facebook &amp; YouTube Upload</span>
                     <span>→</span>
-                    <span class="px-2 py-1 rounded bg-gray-900 border border-gray-800">4. Turso Update (fb_published = 1)</span>
+                    <span class="px-2 py-1 rounded bg-gray-900 border border-gray-800">4. Turso Update (uploaded_to_fb_ig = 'published')</span>
                   </div>
                 </div>
 
@@ -4783,20 +4857,152 @@
     }
 
     const TURSO_SCHEMA_SQL = `CREATE TABLE IF NOT EXISTS stories (
-    id TEXT PRIMARY KEY,
-    filename TEXT UNIQUE NOT NULL,
-    title TEXT NOT NULL,
+    filename TEXT PRIMARY KEY,
+    title TEXT,
     caption TEXT,
     description TEXT,
     dropbox_path TEXT,
     status TEXT DEFAULT 'ready',
-    fb_published INTEGER DEFAULT 0,
-    fb_published_at TEXT,
-    yt_published INTEGER DEFAULT 0,
-    yt_published_at TEXT,
+    uploaded_to_fb_ig TEXT DEFAULT 'pending',
+    uploaded_to_youtube TEXT DEFAULT 'pending',
+    updated_at TEXT DEFAULT (datetime('now')),
     created_at TEXT DEFAULT (datetime('now'))
 );
-CREATE INDEX IF NOT EXISTS idx_stories_status ON stories(status, fb_published, yt_published);`;
+CREATE INDEX IF NOT EXISTS idx_stories_status ON stories(status, uploaded_to_fb_ig, uploaded_to_youtube);
+
+-- Safe migrations for existing tables:
+ALTER TABLE stories ADD COLUMN uploaded_to_fb_ig TEXT DEFAULT 'pending';
+ALTER TABLE stories ADD COLUMN uploaded_to_youtube TEXT DEFAULT 'pending';`;
+
+    window._activeMakeQueryTab = 'poll';
+
+    function getLiveTursoConfig() {
+      const rawUrl = (document.getElementById('tursoDbUrl') ? document.getElementById('tursoDbUrl').value : '').trim() || 'https://storymaker-db-[org].turso.io';
+      let normUrl = rawUrl.replace(/\/+$/, '');
+      if (normUrl.startsWith('libsql://')) {
+        normUrl = 'https://' + normUrl.slice('libsql://'.length);
+      } else if (!normUrl.startsWith('http://') && !normUrl.startsWith('https://')) {
+        normUrl = 'https://' + normUrl;
+      }
+      const pipelineUrl = normUrl.endsWith('/v2/pipeline') ? normUrl : `${normUrl}/v2/pipeline`;
+      const token = (document.getElementById('tursoAuthToken') ? document.getElementById('tursoAuthToken').value : '').trim() || 'YOUR_TURSO_AUTH_TOKEN';
+      return { pipelineUrl, token, normUrl };
+    }
+
+    function getMakeQueryPayload(type = 'poll') {
+      if (type === 'mark_fb') {
+        return JSON.stringify({
+          requests: [
+            {
+              type: "execute",
+              stmt: {
+                sql: "UPDATE stories SET uploaded_to_fb_ig = 'published', updated_at = datetime('now') WHERE filename = ?;",
+                args: [{ type: "text", value: "{{1.filename}}" }]
+              }
+            },
+            { type: "close" }
+          ]
+        }, null, 2);
+      } else if (type === 'mark_yt') {
+        return JSON.stringify({
+          requests: [
+            {
+              type: "execute",
+              stmt: {
+                sql: "UPDATE stories SET uploaded_to_youtube = 'published', updated_at = datetime('now') WHERE filename = ?;",
+                args: [{ type: "text", value: "{{1.filename}}" }]
+              }
+            },
+            { type: "close" }
+          ]
+        }, null, 2);
+      } else {
+        return JSON.stringify({
+          requests: [
+            {
+              type: "execute",
+              stmt: {
+                sql: "SELECT filename, caption, description, status, uploaded_to_fb_ig, uploaded_to_youtube, updated_at FROM stories WHERE uploaded_to_fb_ig = 'pending' OR uploaded_to_youtube = 'pending' ORDER BY updated_at ASC LIMIT 5;"
+              }
+            },
+            { type: "close" }
+          ]
+        }, null, 2);
+      }
+    }
+
+    function updateMakeSetupBox() {
+      const cfg = getLiveTursoConfig();
+      const urlEl = document.getElementById('makeHttpUrl');
+      if (urlEl) urlEl.value = cfg.pipelineUrl;
+      const authHeaderEl = document.getElementById('makeHttpAuthHeader');
+      if (authHeaderEl) authHeaderEl.value = `Bearer ${cfg.token}`;
+      const reqBodyEl = document.getElementById('makeHttpRequestBody');
+      if (reqBodyEl) {
+        reqBodyEl.value = getMakeQueryPayload(window._activeMakeQueryTab || 'poll');
+      }
+    }
+
+    window.switchMakeQueryTab = function(tabKey) {
+      window._activeMakeQueryTab = tabKey;
+      const btnPoll = document.getElementById('btnMakeTabPoll');
+      const btnFb = document.getElementById('btnMakeTabFb');
+      const btnYt = document.getElementById('btnMakeTabYt');
+      const activeClass = "px-2 py-0.5 rounded bg-indigo-600 text-white font-semibold cursor-pointer";
+      const inactiveClass = "px-2 py-0.5 rounded text-zinc-400 hover:text-zinc-200 cursor-pointer";
+      if (btnPoll) btnPoll.className = tabKey === 'poll' ? activeClass : inactiveClass;
+      if (btnFb) btnFb.className = tabKey === 'mark_fb' ? activeClass : inactiveClass;
+      if (btnYt) btnYt.className = tabKey === 'mark_yt' ? activeClass : inactiveClass;
+      const reqBodyEl = document.getElementById('makeHttpRequestBody');
+      if (reqBodyEl) {
+        reqBodyEl.value = getMakeQueryPayload(tabKey);
+      }
+    };
+
+    window.copyMakeField = function(elementId, label) {
+      const el = document.getElementById(elementId);
+      const text = el ? (el.value || el.textContent || '') : '';
+      if (!text) return;
+      copyTextToClipboard(text, `Copied ${label} to clipboard!`);
+    };
+
+    window.copyFullMakeSetup = function() {
+      const cfg = getLiveTursoConfig();
+      const pollPayload = getMakeQueryPayload('poll');
+      const fullText = [
+        "=== MAKE.COM HTTP MODULE CONFIGURATION ===",
+        `URL: ${cfg.pipelineUrl}`,
+        "Method: POST",
+        "",
+        "Headers:",
+        "  1. Key: Authorization",
+        `     Value: Bearer ${cfg.token}`,
+        "  2. Key: Content-Type",
+        "     Value: application/json",
+        "",
+        "Body content type: Raw",
+        "Content type: JSON (application/json)",
+        "",
+        "Request content:",
+        pollPayload
+      ].join('\n');
+      copyTextToClipboard(fullText, "Make.com HTTP module configuration copied to clipboard!");
+    };
+
+    function copyTextToClipboard(text, successMsg = "Copied to clipboard!") {
+      if (!text) return;
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(() => {
+          showToast(successMsg);
+        }).catch(() => {
+          fallbackCopyText(text);
+          showToast(successMsg);
+        });
+      } else {
+        fallbackCopyText(text);
+        showToast(successMsg);
+      }
+    }
 
     window.toggleTursoGuide = function() {
       const el = document.getElementById("tursoGuideContent");
@@ -4807,6 +5013,7 @@ CREATE INDEX IF NOT EXISTS idx_stories_status ON stories(status, fb_published, y
         if (icon) icon.textContent = "▲";
         const ta = document.getElementById("tursoSchemaText");
         if (ta && !ta.value) ta.value = TURSO_SCHEMA_SQL;
+        updateMakeSetupBox();
       } else {
         el.classList.add("hidden");
         if (icon) icon.textContent = "▼";
@@ -4816,15 +5023,7 @@ CREATE INDEX IF NOT EXISTS idx_stories_status ON stories(status, fb_published, y
     window.copyTursoSchema = function() {
       const ta = document.getElementById("tursoSchemaText");
       if (ta) ta.value = TURSO_SCHEMA_SQL;
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(TURSO_SCHEMA_SQL).then(() => {
-          showToast("Turso SQL Schema copied to clipboard!");
-        }).catch(() => {
-          fallbackCopyText(TURSO_SCHEMA_SQL);
-        });
-      } else {
-        fallbackCopyText(TURSO_SCHEMA_SQL);
-      }
+      copyTextToClipboard(TURSO_SCHEMA_SQL, "Turso SQL Schema copied to clipboard!");
     };
 
         function updateTokenPill() {
@@ -5344,8 +5543,8 @@ CREATE INDEX IF NOT EXISTS idx_stories_status ON stories(status, fb_published, y
           filename: s.filename,
           caption: s.caption,
           description: s.description,
-          uploaded: (s.status === 'published' || s.fb_published) ? 'YES' : 'NO',
-          youtube: (s.status === 'published' || s.yt_published) ? 'YES' : 'NO'
+          uploaded: (s.uploaded_to_fb_ig === 'published' || s.fb_published || s.status === 'published') ? 'YES' : 'NO',
+          youtube: (s.uploaded_to_youtube === 'published' || s.yt_published || s.status === 'published') ? 'YES' : 'NO'
         }));
         renderScheduleTable(pipeSheetData);
       } catch (e) {
@@ -5410,12 +5609,19 @@ CREATE INDEX IF NOT EXISTS idx_stories_status ON stories(status, fb_published, y
       const folderEl = document.getElementById('dbFolder');
       if (folderEl) folderEl.value = pipeLs('dbFolder') || DEFAULT_FOLDER;
       const tursoDbUrlEl = document.getElementById('tursoDbUrl');
-      if (tursoDbUrlEl) tursoDbUrlEl.value = pipeLs('tursoDbUrl') || DEFAULT_TURSO_DB_URL;
+      if (tursoDbUrlEl) {
+        tursoDbUrlEl.value = pipeLs('tursoDbUrl') || DEFAULT_TURSO_DB_URL;
+        tursoDbUrlEl.addEventListener('input', updateMakeSetupBox);
+      }
       const tursoAuthTokenEl = document.getElementById('tursoAuthToken');
-      if (tursoAuthTokenEl) tursoAuthTokenEl.value = pipeLs('tursoAuthToken') || DEFAULT_TURSO_AUTH_TOKEN;
+      if (tursoAuthTokenEl) {
+        tursoAuthTokenEl.value = pipeLs('tursoAuthToken') || DEFAULT_TURSO_AUTH_TOKEN;
+        tursoAuthTokenEl.addEventListener('input', updateMakeSetupBox);
+      }
 
       updateTokenPill();
       updateStep3Banner();
+      updateMakeSetupBox();
       
       const savedMode = pipeLs('publisher_mode') || 'local';
       setPublisherMode(savedMode);

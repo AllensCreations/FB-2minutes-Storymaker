@@ -79,17 +79,33 @@ def execute_turso_pipeline(
 
 
 def init_turso_schema(db_url: str, auth_token: str) -> Dict[str, Any]:
-    """Initialize minimal stories table in Turso if not present."""
+    """Initialize stories table in Turso if not present and ensure social upload columns exist."""
     schema_sql = (
         "CREATE TABLE IF NOT EXISTS stories ("
         "  filename TEXT PRIMARY KEY,"
         "  caption TEXT,"
         "  description TEXT,"
         "  status TEXT DEFAULT 'ready',"
+        "  uploaded_to_fb_ig TEXT DEFAULT 'pending',"
+        "  uploaded_to_youtube TEXT DEFAULT 'pending',"
         "  updated_at TEXT DEFAULT (datetime('now'))"
         ");"
     )
-    return execute_turso_pipeline(db_url, auth_token, [(schema_sql, None)])
+    col_fb_sql = "ALTER TABLE stories ADD COLUMN uploaded_to_fb_ig TEXT DEFAULT 'pending';"
+    col_yt_sql = "ALTER TABLE stories ADD COLUMN uploaded_to_youtube TEXT DEFAULT 'pending';"
+    try:
+        execute_turso_pipeline(db_url, auth_token, [(schema_sql, None)])
+    except Exception:
+        pass
+    try:
+        execute_turso_pipeline(db_url, auth_token, [(col_fb_sql, None)])
+    except Exception:
+        pass
+    try:
+        execute_turso_pipeline(db_url, auth_token, [(col_yt_sql, None)])
+    except Exception:
+        pass
+    return {"ok": True}
 
 
 def turso_test_connection(db_url: str, auth_token: str) -> Dict[str, Any]:
@@ -109,20 +125,28 @@ def turso_log_story(
     filename: str,
     caption: str,
     description: str,
-    status: str = "ready"
+    status: str = "ready",
+    uploaded_to_fb_ig: str = "pending",
+    uploaded_to_youtube: str = "pending"
 ) -> Dict[str, Any]:
-    """Upsert story record into Turso stories table."""
+    """Upsert story record into Turso stories table with social upload statuses."""
     init_turso_schema(db_url, auth_token)
     sql = (
-        "INSERT INTO stories (filename, caption, description, status, updated_at) "
-        "VALUES (?, ?, ?, ?, datetime('now')) "
+        "INSERT INTO stories (filename, caption, description, status, uploaded_to_fb_ig, uploaded_to_youtube, updated_at) "
+        "VALUES (?, ?, ?, ?, ?, ?, datetime('now')) "
         "ON CONFLICT(filename) DO UPDATE SET "
         "caption=excluded.caption, "
         "description=excluded.description, "
         "status=excluded.status, "
+        "uploaded_to_fb_ig=COALESCE(excluded.uploaded_to_fb_ig, stories.uploaded_to_fb_ig), "
+        "uploaded_to_youtube=COALESCE(excluded.uploaded_to_youtube, stories.uploaded_to_youtube), "
         "updated_at=datetime('now');"
     )
-    return execute_turso_pipeline(db_url, auth_token, [(sql, [filename, caption, description, status])])
+    return execute_turso_pipeline(
+        db_url,
+        auth_token,
+        [(sql, [filename, caption, description, status, uploaded_to_fb_ig, uploaded_to_youtube])]
+    )
 
 
 def turso_check_duplicate(db_url: str, auth_token: str, filename: str) -> bool:
@@ -147,16 +171,39 @@ def turso_delete_story(db_url: str, auth_token: str, filename: str) -> Dict[str,
     return execute_turso_pipeline(db_url, auth_token, [(sql, [filename])])
 
 
-def turso_update_status(db_url: str, auth_token: str, filename: str, status: str) -> Dict[str, Any]:
-    """Update story publication status in Turso."""
-    sql = "UPDATE stories SET status = ?, updated_at = datetime('now') WHERE filename = ?;"
-    return execute_turso_pipeline(db_url, auth_token, [(sql, [status, filename])])
+def turso_update_status(
+    db_url: str,
+    auth_token: str,
+    filename: str,
+    status: Optional[str] = None,
+    uploaded_to_fb_ig: Optional[str] = None,
+    uploaded_to_youtube: Optional[str] = None
+) -> Dict[str, Any]:
+    """Update story publication and platform upload statuses in Turso."""
+    init_turso_schema(db_url, auth_token)
+    sets = ["updated_at = datetime('now')"]
+    args: List[Any] = []
+    if status is not None:
+        sets.append("status = ?")
+        args.append(status)
+    if uploaded_to_fb_ig is not None:
+        sets.append("uploaded_to_fb_ig = ?")
+        args.append(uploaded_to_fb_ig)
+    if uploaded_to_youtube is not None:
+        sets.append("uploaded_to_youtube = ?")
+        args.append(uploaded_to_youtube)
+    args.append(filename)
+    sql = f"UPDATE stories SET {', '.join(sets)} WHERE filename = ?;"
+    return execute_turso_pipeline(db_url, auth_token, [(sql, args)])
 
 
 def turso_list_stories(db_url: str, auth_token: str, limit: int = 50) -> List[Dict[str, Any]]:
     """Retrieve recent stories from Turso."""
     init_turso_schema(db_url, auth_token)
-    sql = "SELECT filename, caption, description, status, updated_at FROM stories ORDER BY updated_at DESC LIMIT ?;"
+    sql = (
+        "SELECT filename, caption, description, status, uploaded_to_fb_ig, uploaded_to_youtube, updated_at "
+        "FROM stories ORDER BY updated_at DESC LIMIT ?;"
+    )
     res = execute_turso_pipeline(db_url, auth_token, [(sql, [limit])])
     results = res.get("results", [])
     stories = []
