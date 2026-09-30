@@ -571,6 +571,11 @@
         <!-- Priority Filter Tabs for Items Queue -->
         <div class="flex flex-wrap items-center justify-between gap-3 bg-black/40 p-3 rounded-xl border border-white/[0.06]">
           <div class="flex flex-wrap items-center gap-2">
+            <label for="itemsQueueSearch" class="sr-only">Search story packages</label>
+            <div class="relative w-full sm:w-56">
+              <span class="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" aria-hidden="true">⌕</span>
+              <input id="itemsQueueSearch" type="search" placeholder="Search stories..." autocomplete="off" class="w-full bg-gray-950 border border-white/[0.08] focus:border-indigo-500 rounded-lg pl-8 pr-3 py-2 text-xs text-zinc-200 placeholder-zinc-600 focus:outline-none transition" />
+            </div>
             <span class="text-[10px] font-mono uppercase tracking-wider text-zinc-400 font-semibold mr-1">Priority Filter:</span>
             <button type="button" id="itemsFilterAll" onclick="setItemsFilter('all')" class="px-3 py-1 rounded-lg font-bold text-xs transition bg-indigo-600 text-white shadow cursor-pointer active:scale-[0.98]">
               All Stories (<span id="itemsFilterCountAll">0</span>)
@@ -3764,12 +3769,12 @@
     }
 
     window.itemsQueueFilter = 'all';
+    let itemsQueueSearchTimer;
     window.setItemsFilter = function(filter) {
       window.itemsQueueFilter = filter;
       const btnAll = document.getElementById('itemsFilterAll');
       const btnPending = document.getElementById('itemsFilterPending');
       const btnPublished = document.getElementById('itemsFilterPublished');
-      const summary = document.getElementById('itemsFilterSummary');
 
       const activeCls = 'px-3 py-1 rounded-lg font-bold text-xs transition bg-blue-600 text-white shadow';
       const inactiveCls = 'px-3 py-1 rounded-lg font-bold text-xs transition text-gray-400 hover:text-white bg-gray-900 border border-gray-800';
@@ -3778,18 +3783,21 @@
       if (btnPending) btnPending.className = filter === 'pending' ? activeCls : inactiveCls;
       if (btnPublished) btnPublished.className = filter === 'published' ? activeCls : inactiveCls;
 
-      if (summary) {
-        summary.textContent = filter === 'all'
-          ? 'Showing all packages'
-          : (filter === 'pending' ? 'Filtering: Action Needed only' : 'Filtering: Published stories only');
-      }
-
       loadItemsList();
     };
+
+    const itemsQueueSearch = document.getElementById('itemsQueueSearch');
+    if (itemsQueueSearch) {
+      itemsQueueSearch.addEventListener('input', () => {
+        clearTimeout(itemsQueueSearchTimer);
+        itemsQueueSearchTimer = setTimeout(loadItemsList, 200);
+      });
+    }
 
     // --- Items Queue Management ---
     async function loadItemsList() {
       if (!itemsContainer) return;
+      const summary = document.getElementById('itemsFilterSummary');
       try {
         const resItems = await fetch('/api/items');
         let items = [];
@@ -3864,13 +3872,31 @@
         } else if (currentFilter === 'published') {
           displayItems = processedItems.filter(it => it._isPublished);
         }
+        const searchQuery = itemsQueueSearch ? itemsQueueSearch.value.trim().toLocaleLowerCase() : '';
+        if (searchQuery) {
+          displayItems = displayItems.filter(item =>
+            [item.title, item.description, item.id].some(value =>
+              String(value || '').toLocaleLowerCase().includes(searchQuery)
+            )
+          );
+        }
+        if (summary) {
+          const filterLabel = currentFilter === 'pending' ? 'Needs action' : currentFilter === 'published' ? 'Published' : 'All';
+          summary.textContent = searchQuery
+            ? `${displayItems.length} match${displayItems.length === 1 ? '' : 'es'} for "${itemsQueueSearch.value.trim()}" · ${filterLabel}`
+            : currentFilter === 'all' ? `Showing all ${totalCount} packages` : `Showing ${displayItems.length} ${filterLabel.toLowerCase()} packages`;
+        }
 
         if (!displayItems || displayItems.length === 0) {
           let emptyTitle = "No Story Packages Yet";
           let emptySub = "Send a package from Google AI Studio using the API bridge, or click <strong>\"Upload ZIP Manually\"</strong> to add one directly.";
           let icon = "📭";
 
-          if (currentFilter === 'pending') {
+          if (searchQuery) {
+            emptyTitle = "No Matching Stories";
+            emptySub = "Try another title or description, or clear your search to see all packages.";
+            icon = "🔎";
+          } else if (currentFilter === 'pending') {
             emptyTitle = "🎉 All Caught Up!";
             emptySub = "Every story package has been rendered and fully published to Facebook & YouTube.";
             icon = "🏆";
@@ -3885,7 +3911,11 @@
               <div class="text-4xl">${icon}</div>
               <div class="text-sm font-semibold text-gray-200">${emptyTitle}</div>
               <p class="text-xs text-gray-400 max-w-md">${emptySub}</p>
-              ${totalCount === 0 ? `
+              ${searchQuery ? `
+                <button type="button" onclick="document.getElementById('itemsQueueSearch').value=''; document.getElementById('itemsQueueSearch').dispatchEvent(new Event('input'))" class="mt-2 px-3 py-1 bg-gray-800 hover:bg-gray-700 text-gray-200 text-xs font-semibold rounded transition border border-gray-700">
+                  Clear Search
+                </button>
+              ` : totalCount === 0 ? `
                 <div class="mt-2 text-[11px] font-mono bg-gray-900 px-3 py-1.5 rounded border border-gray-800 text-blue-400">
                   curl -X POST http://localhost:8000/api/upload_item -F "file=@story_pack.zip"
                 </div>
