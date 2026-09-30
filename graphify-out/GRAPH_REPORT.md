@@ -1,17 +1,17 @@
 # Graph Report - FB-2minutes-Storymaker  (2026-09-29)
 
 ## Corpus Check
-- 50 files · ~116,935 words
+- 50 files · ~118,629 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 8 file(s) not represented in the graph (top: (none) 6, .zip 1, .lock 1)
 
 ## Summary
-- 577 nodes · 1103 edges · 39 communities (24 shown, 15 thin omitted)
+- 577 nodes · 1104 edges · 39 communities (24 shown, 15 thin omitted)
 - Extraction: 91% EXTRACTED · 9% INFERRED · 0% AMBIGUOUS · INFERRED: 101 edges (avg confidence: 0.89)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `f09dd1b1`
+- Built from commit: `8bd80545`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -126,7 +126,7 @@ Nodes (21): Aspect Ratio Auto-Switching Controller, AR Cinema Monitor Canvas Pre
 
 ### Community 8 - "turso_client.py"
 Cohesion: 0.08
-Nodes (39): execute_turso_pipeline(), init_turso_schema(), normalize_turso_url(), Any, Turso (libSQL Edge SQLite) HTTP Client for FB 2minutes Storymaker Provides…, Verify Turso credentials and ensure schema exists., Upsert story record into Turso stories table with social upload statuses., Check if story filename already exists in Turso. (+31 more)
+Nodes (39): execute_turso_pipeline(), init_turso_schema(), normalize_turso_url(), Any, Turso (libSQL Edge SQLite) HTTP Client for FB 2minutes Storymaker Provides…, Verify Turso credentials, ensure schema exists, and seed initial sample story…, Normalize libSQL/turso URL to standard https:// endpoint., Upsert story record into Turso stories table with social upload statuses. (+31 more)
 
 ### Community 9 - "ArchiveManager"
 Cohesion: 0.19

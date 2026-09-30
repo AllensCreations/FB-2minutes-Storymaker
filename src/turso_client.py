@@ -108,13 +108,49 @@ def init_turso_schema(db_url: str, auth_token: str) -> Dict[str, Any]:
     return {"ok": True}
 
 
-def turso_test_connection(db_url: str, auth_token: str) -> Dict[str, Any]:
-    """Verify Turso credentials and ensure schema exists."""
+def turso_test_connection(db_url: str, auth_token: str, seed_sample: bool = True) -> Dict[str, Any]:
+    """Verify Turso credentials, ensure schema exists, and seed initial sample story if empty."""
     init_turso_schema(db_url, auth_token)
     res = execute_turso_pipeline(db_url, auth_token, [("SELECT COUNT(*) FROM stories;", None)])
+    count = 0
+    try:
+        results = res.get("results", [])
+        if results and results[0].get("type") == "ok":
+            rows = results[0].get("response", {}).get("result", {}).get("rows", [])
+            if rows and rows[0]:
+                val = rows[0][0].get("value") if isinstance(rows[0][0], dict) else rows[0][0]
+                count = int(val)
+    except Exception:
+        pass
+
+    seeded = False
+    if count == 0 and seed_sample:
+        try:
+            turso_log_story(
+                db_url=db_url,
+                auth_token=auth_token,
+                filename="sample_story_001.mp4",
+                caption="Stop waiting for tomorrow - take action now! #storymaker #motivation",
+                description="Demo story item created automatically during Turso connection verification.",
+                status="ready",
+                uploaded_to_fb_ig="pending",
+                uploaded_to_youtube="pending"
+            )
+            count = 1
+            seeded = True
+        except Exception:
+            pass
+
+    if seeded:
+        msg = "Connected to Turso database successfully. Schema verified and sample story seeded (1 item ready)!"
+    else:
+        msg = f"Connected to Turso database successfully. Schema verified ({count} story items in database)."
+
     return {
         "ok": True,
-        "message": "Connected to Turso database successfully. Schema verified.",
+        "message": msg,
+        "count": count,
+        "seeded": seeded,
         "details": res
     }
 

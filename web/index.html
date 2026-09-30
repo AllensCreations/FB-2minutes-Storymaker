@@ -871,14 +871,33 @@
                       <span class="w-5 h-5 rounded-full bg-indigo-900/60 border border-indigo-500/40 text-indigo-300 text-[10px] flex items-center justify-center font-mono font-bold">2</span>
                       <span>Make.com HTTP Module Setup (Live Auto-Filled from Credentials)</span>
                     </div>
-                    <button type="button" class="py-1 px-2.5 bg-indigo-900/60 hover:bg-indigo-800 border border-indigo-500/50 text-indigo-200 font-semibold rounded-lg text-[10px] transition flex items-center gap-1 cursor-pointer" onclick="copyFullMakeSetup()">
-                      <span>📋</span> Copy Full Setup (1-Click)
-                    </button>
+                    <div class="flex items-center gap-1.5 flex-wrap">
+                      <button type="button" class="py-1 px-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded-lg text-[10px] transition flex items-center gap-1 cursor-pointer shadow-sm" onclick="downloadMakeBlueprint()">
+                        <span>📥</span> Download Make Blueprint (.json)
+                      </button>
+                      <button type="button" class="py-1 px-2.5 bg-indigo-900/60 hover:bg-indigo-800 border border-indigo-500/50 text-indigo-200 font-semibold rounded-lg text-[10px] transition flex items-center gap-1 cursor-pointer" onclick="copyMakeBlueprint()">
+                        <span>📋</span> Copy Blueprint JSON
+                      </button>
+                      <button type="button" class="py-1 px-2.5 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-zinc-300 font-medium rounded-lg text-[10px] transition flex items-center gap-1 cursor-pointer" onclick="copyFullMakeSetup()">
+                        <span>📋</span> Copy Setup Text
+                      </button>
+                    </div>
                   </div>
                   
                   <div class="pl-7 space-y-2.5 text-[11px] text-zinc-300">
+                    <div class="p-2.5 rounded-lg bg-emerald-950/40 border border-emerald-500/30 text-[11px] text-emerald-200 flex flex-col gap-1">
+                      <div class="font-bold flex items-center gap-1.5 text-emerald-300">
+                        <span>⚡</span> Auto-Fill Make.com with 1 Click (Zero Manual Typing):
+                      </div>
+                      <div class="text-[10px] leading-relaxed text-emerald-200/90">
+                        1. Click <strong>"Download Make Blueprint (.json)"</strong> above.<br/>
+                        2. In Make.com, open or create a scenario, click the <strong>...</strong> (three dots) in the bottom toolbar, and choose <strong>Import Blueprint</strong>.<br/>
+                        3. Select the downloaded JSON: the HTTP module with your exact Turso Edge URL, Auth Token, Headers, and Queries is <strong>100% filled out automatically!</strong>
+                      </div>
+                    </div>
+
                     <p class="text-[11px] text-zinc-400">
-                      In Make.com, add an <strong>HTTP : Make a request</strong> module. The values below are automatically computed from your Turso Edge Database configuration above:
+                      Or copy individual fields below if configuring manually:
                     </p>
 
                     <!-- URL Field -->
@@ -4835,9 +4854,10 @@
         if (d.ok) {
           if (statusPill) {
             statusPill.className = "px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-emerald-950/80 text-emerald-300 border border-emerald-500/40";
-            statusPill.textContent = `✓ Connected (${d.version || 'libSQL'})`;
+            statusPill.textContent = `✓ Connected (${d.count !== undefined ? d.count + ' item(s)' : 'libSQL'})`;
           }
-          showToast("✓ Turso database connected and verified successfully!");
+          showToast(d.message || "✓ Turso database connected and verified successfully!");
+          loadSchedule();
         } else {
           if (statusPill) {
             statusPill.className = "px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-rose-950/80 text-rose-300 border border-rose-500/40";
@@ -4987,6 +5007,127 @@ ALTER TABLE stories ADD COLUMN uploaded_to_youtube TEXT DEFAULT 'pending';`;
         pollPayload
       ].join('\n');
       copyTextToClipboard(fullText, "Make.com HTTP module configuration copied to clipboard!");
+    };
+
+    function generateMakeBlueprint() {
+      const cfg = getLiveTursoConfig();
+      const pollSql = "SELECT filename, caption, description, status, uploaded_to_fb_ig, uploaded_to_youtube, updated_at FROM stories WHERE uploaded_to_fb_ig = 'pending' OR uploaded_to_youtube = 'pending' ORDER BY updated_at ASC LIMIT 1;";
+      const markSql = "UPDATE stories SET uploaded_to_fb_ig = 'published', uploaded_to_youtube = 'published', status = 'published', updated_at = datetime('now') WHERE filename = '{{1.data.results[1].response.result.rows[1][0].value}}';";
+
+      return {
+        name: "Storymaker Turso Edge Social Publisher",
+        flow: [
+          {
+            id: 1,
+            module: "http:ActionMakeRequest",
+            version: 3,
+            parameters: { handleErrors: false },
+            mapper: {
+              url: cfg.pipelineUrl,
+              method: "post",
+              headers: [
+                { name: "Authorization", value: `Bearer ${cfg.token}` },
+                { name: "Content-Type", value: "application/json" }
+              ],
+              serializeUrl: false,
+              shareCookies: false,
+              parseResponse: true,
+              followRedirect: true,
+              useCustomBody: true,
+              bodyType: "raw",
+              contentType: "application/json",
+              body: JSON.stringify({
+                requests: [
+                  { type: "execute", stmt: { sql: pollSql } },
+                  { type: "close" }
+                ]
+              })
+            },
+            metadata: {
+              designer: { x: 0, y: 0 },
+              restore: {
+                expect: {
+                  method: { mode: "chose", label: "POST" },
+                  bodyType: { mode: "chose", label: "Raw" },
+                  contentType: { mode: "chose", label: "JSON (application/json)" }
+                }
+              }
+            }
+          },
+          {
+            id: 2,
+            module: "http:ActionMakeRequest",
+            version: 3,
+            parameters: { handleErrors: false },
+            mapper: {
+              url: cfg.pipelineUrl,
+              method: "post",
+              headers: [
+                { name: "Authorization", value: `Bearer ${cfg.token}` },
+                { name: "Content-Type", value: "application/json" }
+              ],
+              serializeUrl: false,
+              shareCookies: false,
+              parseResponse: true,
+              followRedirect: true,
+              useCustomBody: true,
+              bodyType: "raw",
+              contentType: "application/json",
+              body: JSON.stringify({
+                requests: [
+                  { type: "execute", stmt: { sql: markSql } },
+                  { type: "close" }
+                ]
+              })
+            },
+            metadata: {
+              designer: { x: 300, y: 0 },
+              restore: {
+                expect: {
+                  method: { mode: "chose", label: "POST" },
+                  bodyType: { mode: "chose", label: "Raw" },
+                  contentType: { mode: "chose", label: "JSON (application/json)" }
+                }
+              }
+            }
+          }
+        ],
+        metadata: {
+          instant: false,
+          version: 1,
+          scenario: {
+            roundtrips: 1,
+            maxErrors: 3,
+            autoCommit: true,
+            autoCommitTriggerLast: true,
+            sequential: false,
+            confidential: false,
+            dataloss: false,
+            dlq: false,
+            freshVariables: false
+          },
+          designer: { orphans: [] }
+        }
+      };
+    }
+
+    window.downloadMakeBlueprint = function() {
+      const blueprint = generateMakeBlueprint();
+      const blob = new Blob([JSON.stringify(blueprint, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'storymaker_turso_make_blueprint.json';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showToast("✓ Downloaded Make Blueprint! Import in Make.com via ... > Import Blueprint");
+    };
+
+    window.copyMakeBlueprint = function() {
+      const blueprint = generateMakeBlueprint();
+      copyTextToClipboard(JSON.stringify(blueprint, null, 2), "Copied Make.com Blueprint JSON to clipboard! In Make.com, import via ... > Import Blueprint.");
     };
 
     function copyTextToClipboard(text, successMsg = "Copied to clipboard!") {
