@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-send_story.py — Direct Image-to-API Story Dispatcher
+send_story.py - Direct Image-to-API Story Dispatcher
 ---------------------------------------------------
 Use this when you already generate images but do NOT have a JSON file.
 Takes a folder of images (or image file paths), automatically creates
@@ -207,7 +207,7 @@ def main():
     parser.add_argument("--images-dir", type=str, help="Directory containing your generated scene images")
     parser.add_argument("--title", type=str, default="AI Generated Story", help="Story title")
     parser.add_argument("--script", type=str, help="Optional text script or file with (Next image) splits")
-    parser.add_argument("--upload", type=str, default="http://localhost:8000/api/upload_item", help="API URL")
+    parser.add_argument("--upload", type=str, default=None, help="API URL (defaults to auto-discovering active port from .active_port)")
     parser.add_argument("--update", "--replace", dest="replace", action="store_true", help="Update and replace existing package matched by title or ID")
     parser.add_argument("--item-id", type=str, help="Specific story package ID to update/replace")
     parser.add_argument("--output", type=str, help="Save generated ZIP package locally")
@@ -236,27 +236,35 @@ def main():
         Path(args.output).write_bytes(zip_bytes)
         print(f"💾 Saved to: {args.output}")
 
-    if args.upload:
-        dest_url = args.upload
-        if args.replace and dest_url.endswith("/upload_item"):
-            # Can send directly to /upload_item with replace flag or /update_item
-            pass
-        action_name = "Updating" if args.replace or args.item_id else "Sending"
-        print(f"🚀 {action_name} to Storymaker API: {dest_url} ...")
-        try:
-            res = send_images_to_api(
-                images=args.images_dir,
-                title=args.title,
-                script_text=args.script,
-                api_url=dest_url,
-                replace=args.replace,
-                item_id=args.item_id
-            )
-            print(f"🎉 Success! Item ID: {res.get('item', {}).get('id')} — Status: {res.get('message')}")
-            print(f"View in Items Queue: {dest_url.replace('/api/upload_item', '').replace('/api/update_item', '')}")
-        except Exception as e:
-            print(f"❌ Failed to dispatch to API: {e}")
-            sys.exit(1)
+    # Determine destination API URL (auto-discover active port if not specified)
+    dest_url = args.upload
+    if not dest_url:
+        active_port_file = Path(__file__).resolve().parent.parent / ".active_port"
+        active_port = 8000
+        if active_port_file.is_file():
+            try:
+                active_port = int(active_port_file.read_text(encoding="utf-8").strip())
+            except Exception:
+                pass
+        dest_url = f"http://localhost:{active_port}/api/upload_item"
+
+    action_name = "Updating" if args.replace or args.item_id else "Sending"
+    print(f"🚀 {action_name} to Storymaker API: {dest_url} ...")
+    try:
+        res = send_images_to_api(
+            images=args.images_dir,
+            title=args.title,
+            script_text=args.script,
+            api_url=dest_url,
+            replace=args.replace,
+            item_id=args.item_id
+        )
+        print(f"🎉 Success! Item ID: {res.get('item', {}).get('id')} - Status: {res.get('message')}")
+        print(f"View in Items Queue: {dest_url.replace('/api/upload_item', '').replace('/api/update_item', '')}")
+    except Exception as e:
+        print(f"❌ Failed to dispatch to API: {e}")
+        sys.exit(1)
+
 
 
 if __name__ == "__main__":

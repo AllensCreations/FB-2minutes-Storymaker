@@ -96,7 +96,7 @@ def run_pipeline(fps: int = 24, show_captions: bool = True):
     return final_video
 
 
-def start_web_server(port: int = 8000, open_browser: bool = False):
+def start_web_server(port=None, open_browser: bool = False):
     """Starts the local web studio interface."""
     ensure_pillow()
     from web.server import start_server
@@ -114,7 +114,7 @@ def main():
     parser.add_argument("--tui", action="store_true", help="Launch the interactive Termux / mobile Terminal UI")
     parser.add_argument("--run", action="store_true", help="Execute the complete story generation pipeline")
     parser.add_argument("--web", action="store_true", help="Launch the local Web UI Studio")
-    parser.add_argument("--port", type=int, default=8000, help="Port for the Web UI (default: 8000)")
+    parser.add_argument("--port", type=int, default=None, help="Port for the Web UI (default: randomly assigned)")
     parser.add_argument("--open", action="store_true", help="Automatically open Web UI in browser")
     parser.add_argument("--generate-assets", action="store_true", help="Generate or reset demo sample assets")
     parser.add_argument("--preload", choices=["elsa", "scout"], nargs="?", const="elsa", help="Update and regenerate preloaded story assets")

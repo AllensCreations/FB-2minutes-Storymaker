@@ -138,17 +138,88 @@ app = wsgi_app
 application = wsgi_app
 
 if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 8000))
+    import sys
+    import time
+    src_dir = BASE_DIR / "src"
+    if str(src_dir) not in sys.path:
+        sys.path.insert(0, str(src_dir))
+
+    try:
+        from port_helper import find_random_available_port, save_active_port
+    except Exception:
+        def find_random_available_port(host="0.0.0.0", min_port=5000, max_port=9999):
+            import socket, random
+            for p in random.sample(range(min_port, max_port + 1), 50):
+                try:
+                    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                        s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+                        s.bind((host, p))
+                        return p
+                except OSError:
+                    continue
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                s.bind((host, 0))
+                return s.getsockname()[1]
+
+        def save_active_port(port, filename=".active_port"):
+            try:
+                (BASE_DIR / filename).write_text(str(port), encoding="utf-8")
+            except Exception:
+                pass
+
     try:
         from web.server import StorymakerRequestHandler
         server_handler = StorymakerRequestHandler
     except Exception:
         server_handler = handler
+
     try:
         from http.server import ThreadingHTTPServer
         server_cls = ThreadingHTTPServer
     except Exception:
         server_cls = HTTPServer
-    server = server_cls(('0.0.0.0', port), server_handler)
-    print(f'Starting local server on http://localhost:{port}')
-    server.serve_forever()
+
+    server_cls.allow_reuse_address = True
+    server = None
+    active_port = None
+
+    # If PORT env var is explicitly provided, try it first
+    env_port_str = os.environ.get('PORT')
+    if env_port_str:
+        try:
+            target_port = int(env_port_str)
+            server = server_cls(('0.0.0.0', target_port), server_handler)
+            active_port = target_port
+        except OSError:
+            print(f"⚠️ Warning: Environment port {env_port_str} is in use. Picking random available port...")
+
+    # Otherwise assign random available port
+    if server is None:
+        for _ in range(20):
+            try:
+                p = find_random_available_port(min_port=5000, max_port=9999)
+                server = server_cls(('0.0.0.0', p), server_handler)
+                active_port = p
+                break
+            except OSError:
+                continue
+
+    if server is None:
+        raise RuntimeError("Failed to bind server to any available port.")
+
+    save_active_port(active_port)
+    cache_buster = int(time.time())
+    print("==================================================")
+    print("🎬 FB-2minutes Storymaker Server Running")
+    print(f"🎲 Random Assigned Port:  {active_port}")
+    print(f"👉 Direct URL (No Cache): http://localhost:{active_port}/?v={cache_buster}")
+    print(f"👉 Standard URL:          http://localhost:{active_port}")
+    print(f"👉 Saved port marker:     {BASE_DIR / '.active_port'}")
+    print("==================================================")
+
+    try:
+        server.serve_forever()
+    except KeyboardInterrupt:
+        print("\nStopping server...")
+        server.server_close()
+

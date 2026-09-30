@@ -33,6 +33,7 @@ from duration_director import SceneDurationDirector
 from deps_helper import ensure_pillow, ensure_ffmpeg
 from items_manager import default_manager, parse_multipart_request, natural_sort_key
 from archive_manager import ArchiveManager, get_local_ip
+from port_helper import find_random_available_port, save_active_port
 
 WEB_DIR = Path(__file__).resolve().parent
 ASSETS_DIR = REPO_ROOT / "assets"
@@ -2036,34 +2037,48 @@ class StorymakerRequestHandler(SimpleHTTPRequestHandler):
             pass
 
 
-def start_server(host: str = "0.0.0.0", port: int = 8000, open_browser: bool = False, max_retries: int = 10):
+def start_server(host: str = "0.0.0.0", port=None, open_browser: bool = False, max_retries: int = 15):
     ThreadingHTTPServer.allow_reuse_address = True
     httpd = None
-    active_port = port
+    active_port = None
 
-    for p in range(port, port + max_retries):
+    if port is not None and int(port) > 0:
+        target_port = int(port)
         try:
-            httpd = ThreadingHTTPServer((host, p), StorymakerRequestHandler)
-            active_port = p
-            break
+            httpd = ThreadingHTTPServer((host, target_port), StorymakerRequestHandler)
+            active_port = target_port
         except OSError as e:
             if e.errno in (98, 48) or "already in use" in str(e).lower():
-                print(f"⚠️ Port {p} is currently in use. Trying port {p + 1}...")
+                print(f"⚠️ Port {target_port} is currently in use. Selecting a random available port to prevent server overlap...")
+            else:
+                raise
+
+    # If port was None, 0, or in use, randomly assign an available port
+    if httpd is None:
+        for _ in range(max_retries):
+            p = find_random_available_port(host=host, min_port=5000, max_port=9999)
+            try:
+                httpd = ThreadingHTTPServer((host, p), StorymakerRequestHandler)
+                active_port = p
+                break
+            except OSError:
                 continue
-            raise
 
     if httpd is None:
-        raise RuntimeError(f"Could not bind server to any port from {port} to {port + max_retries - 1}")
+        raise RuntimeError("Could not bind server to any available port.")
 
+    save_active_port(active_port)
     cache_buster = int(time.time())
     url = f"http://localhost:{active_port}"
     direct_url = f"http://localhost:{active_port}/?v={cache_buster}"
 
     print("==================================================")
-    print(f"🎬 FB-2minutes Storymaker Web UI Server Running")
+    print("🎬 FB-2minutes Storymaker Web UI Server Running")
+    print(f"🎲 Random Assigned Port:  {active_port}")
     print(f"👉 Direct URL (No Cache): {direct_url}")
     print(f"👉 Standard URL:          {url}")
     print(f"👉 Local Network:         http://{host}:{active_port}")
+    print(f"👉 Saved port marker:     {REPO_ROOT / '.active_port'}")
     print("==================================================")
 
     if open_browser:
@@ -2087,7 +2102,8 @@ if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser(description="FB 2minutes Storymaker Web UI Server")
     parser.add_argument("--host", type=str, default="0.0.0.0", help="Host address")
-    parser.add_argument("--port", type=int, default=8000, help="Port number")
+    parser.add_argument("--port", type=int, default=None, help="Port number (default: randomly assigned)")
     parser.add_argument("--open", action="store_true", help="Automatically open browser")
     args = parser.parse_args()
     start_server(args.host, args.port, open_browser=args.open)
+
