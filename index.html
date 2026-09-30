@@ -5011,17 +5011,21 @@ ALTER TABLE stories ADD COLUMN uploaded_to_youtube TEXT DEFAULT 'pending';`;
 
     function generateMakeBlueprint() {
       const cfg = getLiveTursoConfig();
-      const pollSql = "SELECT filename, caption, description, status, uploaded_to_fb_ig, uploaded_to_youtube, updated_at FROM stories WHERE uploaded_to_fb_ig = 'pending' OR uploaded_to_youtube = 'pending' ORDER BY updated_at ASC LIMIT 1;";
-      const markSql = "UPDATE stories SET uploaded_to_fb_ig = 'published', uploaded_to_youtube = 'published', status = 'published', updated_at = datetime('now') WHERE filename = '{{1.data.results[1].response.result.rows[1][0].value}}';";
+      const folder = pipeV('dbFolder') || '/Think with Tobi';
+      const cleanFolder = folder.startsWith('/') ? folder : '/' + folder;
+      const pollSql = "SELECT filename, caption, description, status, uploaded_to_fb_ig, uploaded_to_youtube FROM stories WHERE uploaded_to_fb_ig = 'pending' ORDER BY updated_at ASC LIMIT 1;";
+      const markSql = "UPDATE stories SET uploaded_to_fb_ig = 'published', updated_at = datetime('now') WHERE filename = '{{1.data.results[1].response.result.rows[1][1].value}}';";
 
       return {
-        name: "Storymaker Turso Edge Social Publisher",
+        name: "Storymaker Turso Edge - Facebook & Instagram Reels",
         flow: [
           {
             id: 1,
-            module: "http:ActionMakeRequest",
-            version: 3,
-            parameters: { handleErrors: false },
+            module: "http:MakeRequest",
+            version: 4,
+            parameters: {
+              authenticationType: "none"
+            },
             mapper: {
               url: cfg.pipelineUrl,
               method: "post",
@@ -5050,15 +5054,118 @@ ALTER TABLE stories ADD COLUMN uploaded_to_youtube TEXT DEFAULT 'pending';`;
                   method: { mode: "chose", label: "POST" },
                   bodyType: { mode: "chose", label: "Raw" },
                   contentType: { mode: "chose", label: "JSON (application/json)" }
+                },
+                parameters: {
+                  authenticationType: { mode: "chose", label: "None" }
                 }
               }
             }
           },
           {
-            id: 2,
-            module: "http:ActionMakeRequest",
-            version: 3,
-            parameters: { handleErrors: false },
+            id: 3,
+            module: "dropbox:createShareLink",
+            version: 5,
+            parameters: {
+              __IMTCONN__: 5723972
+            },
+            mapper: {
+              path: `${cleanFolder}/{{1.data.results[1].response.result.rows[1][1].value}}`,
+              select: "file",
+              select_1: "file",
+              settings: {
+                allow_download: true
+              }
+            },
+            metadata: {
+              designer: { x: 300, y: 0 },
+              restore: {
+                expect: {
+                  path: { mode: "edit" },
+                  select: { label: "Select a file/folder" },
+                  select_1: { label: "File" },
+                  settings: {
+                    nested: {
+                      access: { mode: "chose", label: "Empty" },
+                      allow_download: { mode: "chose" },
+                      require_password: { mode: "chose" },
+                      requested_visibility: { mode: "chose", label: "Empty" }
+                    }
+                  }
+                },
+                parameters: {
+                  __IMTCONN__: {
+                    data: { scoped: "true", connection: "dropbox" },
+                    label: "Dropbox Connection"
+                  }
+                }
+              }
+            }
+          },
+          {
+            id: 4,
+            module: "instagram-business:CreateAReelPost",
+            version: 1,
+            parameters: {
+              __IMTCONN__: 6299087
+            },
+            mapper: {
+              caption: "{{1.data.results[1].response.result.rows[1][2].value}}",
+              accountId: "17841415041260370",
+              video_url: "{{3.downloadUrl}}",
+              share_to_feed: true
+            },
+            metadata: {
+              designer: { x: 600, y: 0 },
+              restore: {
+                expect: {
+                  accountId: { mode: "chose", label: "Instagram Account" },
+                  share_to_feed: { mode: "chose" }
+                },
+                parameters: {
+                  __IMTCONN__: {
+                    data: { scoped: "true", connection: "facebook" },
+                    label: "Facebook / Instagram Connection"
+                  }
+                }
+              }
+            }
+          },
+          {
+            id: 12,
+            module: "facebook-pages:UploadVideo",
+            version: 6,
+            parameters: {
+              __IMTCONN__: 6299087
+            },
+            mapper: {
+              url: "{{3.downloadUrl}}",
+              type: "url",
+              page_id: "1018714077985968",
+              description: "{{1.data.results[1].response.result.rows[1][2].value}}"
+            },
+            metadata: {
+              designer: { x: 900, y: 0 },
+              restore: {
+                expect: {
+                  type: { mode: "chose", label: "download a video from URL" },
+                  page_id: { mode: "chose", label: "Facebook Page" }
+                },
+                parameters: {
+                  __IMTCONN__: {
+                    data: { scoped: "true", connection: "facebook" },
+                    label: "Facebook Connection"
+                  }
+                }
+              }
+            }
+          },
+          {
+            id: 9,
+            module: "http:MakeRequest",
+            version: 4,
+            parameters: {
+              authenticationType: "none"
+            },
             mapper: {
               url: cfg.pipelineUrl,
               method: "post",
@@ -5081,12 +5188,15 @@ ALTER TABLE stories ADD COLUMN uploaded_to_youtube TEXT DEFAULT 'pending';`;
               })
             },
             metadata: {
-              designer: { x: 300, y: 0 },
+              designer: { x: 1200, y: 0 },
               restore: {
                 expect: {
                   method: { mode: "chose", label: "POST" },
                   bodyType: { mode: "chose", label: "Raw" },
                   contentType: { mode: "chose", label: "JSON (application/json)" }
+                },
+                parameters: {
+                  authenticationType: { mode: "chose", label: "None" }
                 }
               }
             }
@@ -5101,12 +5211,15 @@ ALTER TABLE stories ADD COLUMN uploaded_to_youtube TEXT DEFAULT 'pending';`;
             autoCommit: true,
             autoCommitTriggerLast: true,
             sequential: false,
+            slots: null,
             confidential: false,
             dataloss: false,
             dlq: false,
             freshVariables: false
           },
-          designer: { orphans: [] }
+          designer: { orphans: [] },
+          zone: "us2.make.com",
+          notes: []
         }
       };
     }
