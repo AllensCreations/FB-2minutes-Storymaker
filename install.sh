@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # ==============================================================================
 # FB 2minutes Storymaker - One-Line Installer & Auto-Updater
-# Version: 1.0.1
+# Version: 1.0.2
 #
 # Usage:
 #   Fresh Install / Auto-Update:
@@ -14,7 +14,7 @@
 
 set -e
 
-APP_VERSION="1.0.1"
+APP_VERSION="1.0.2"
 REPO_URL="https://github.com/AllensCreations/FB-2minutes-Storymaker.git"
 
 # Handle CLI flags

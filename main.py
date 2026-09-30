@@ -4,6 +4,8 @@ Based on the architectural blueprint for "Picture-Book Motion" storytelling vide
 """
 
 import argparse
+import os
+import subprocess
 import sys
 from pathlib import Path
 
@@ -102,7 +104,51 @@ def start_web_server(port=None, open_browser: bool = False):
     start_server(host="0.0.0.0", port=port, open_browser=open_browser)
 
 
-__version__ = "1.0.1"
+__version__ = "1.0.2"
+
+
+def check_for_updates(repo_dir: Path = BASE_DIR) -> bool:
+    """Fetch and fast-forward the current branch; fail closed if freshness is unknown."""
+    def git(*args):
+        try:
+            return subprocess.run(
+                ["git", *args],
+                cwd=repo_dir,
+                check=True,
+                capture_output=True,
+                text=True,
+                timeout=30,
+            ).stdout.strip()
+        except (OSError, subprocess.SubprocessError) as error:
+            detail = getattr(error, "stderr", None)
+            raise RuntimeError(detail.strip() if detail else str(error)) from error
+
+    if not (repo_dir / ".git").exists():
+        raise RuntimeError("This installation has no Git checkout; reinstall it with install.sh.")
+
+    upstream = git("rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{u}")
+    remote, _, branch = upstream.partition("/")
+    if not remote or not branch:
+        raise RuntimeError("The current branch has no configured upstream.")
+
+    git("fetch", "--quiet", remote, branch)
+    ahead, behind = map(int, git("rev-list", "--left-right", "--count", f"HEAD...{upstream}").split())
+
+    if behind == 0:
+        if ahead:
+            print(f"ℹ️ Local branch is {ahead} commit(s) ahead of {upstream}.")
+        else:
+            print(f"✓ Storymaker is up to date ({upstream}).")
+        return False
+
+    if ahead:
+        raise RuntimeError(f"Local branch has diverged from {upstream}; resolve it with Git before continuing.")
+    if git("status", "--porcelain"):
+        raise RuntimeError(f"An update is available on {upstream}, but local changes prevent a safe update.")
+
+    git("merge", "--ff-only", upstream)
+    print(f"⬆ Updated to the latest {upstream}; restarting.")
+    return True
 
 
 def main():
@@ -122,6 +168,12 @@ def main():
     parser.add_argument("--check", action="store_true", help="Check asset status and exit")
 
     args = parser.parse_args()
+
+    try:
+        if check_for_updates():
+            os.execv(sys.executable, [sys.executable, str(BASE_DIR / "main.py"), *sys.argv[1:]])
+    except RuntimeError as error:
+        parser.error(f"Unable to verify/update Storymaker: {error}")
 
     # Route: Termux Interactive TUI
     if args.tui or (len(sys.argv) == 1 and sys.stdin.isatty()):
