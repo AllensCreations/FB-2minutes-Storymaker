@@ -1334,7 +1334,7 @@
       "file_type": "code",
       "norm_label": "start_server()",
       "source_file": "web/server.py",
-      "source_location": "L2111"
+      "source_location": "L2143"
     },
     {
       "id": "web_server_start_server_open",
@@ -1346,7 +1346,7 @@
       "file_type": "code",
       "norm_label": "_open()",
       "source_file": "web/server.py",
-      "source_location": "L2160"
+      "source_location": "L2192"
     },
     {
       "id": "tests_test_api_gateway_testapigatewaynode_run_node_eval",
@@ -2198,7 +2198,7 @@
       "file_type": "code",
       "norm_label": ".do_delete()",
       "source_file": "web/server.py",
-      "source_location": "L2018"
+      "source_location": "L2050"
     },
     {
       "id": "web_server_storymakerrequesthandler_do_get",
@@ -2234,7 +2234,7 @@
       "file_type": "code",
       "norm_label": ".do_options()",
       "source_file": "web/server.py",
-      "source_location": "L2031"
+      "source_location": "L2063"
     },
     {
       "id": "web_server_storymakerrequesthandler_send_json",
@@ -2246,7 +2246,7 @@
       "file_type": "code",
       "norm_label": ".send_json()",
       "source_file": "web/server.py",
-      "source_location": "L2038"
+      "source_location": "L2070"
     },
     {
       "id": "web_server_storymakerrequesthandler_serve_file",
@@ -2258,7 +2258,7 @@
       "file_type": "code",
       "norm_label": ".serve_file()",
       "source_file": "web/server.py",
-      "source_location": "L2048"
+      "source_location": "L2080"
     },
     {
       "id": "web_server_storymakerrequesthandler_serve_video_range",
@@ -2270,7 +2270,7 @@
       "file_type": "code",
       "norm_label": ".serve_video_range()",
       "source_file": "web/server.py",
-      "source_location": "L2064"
+      "source_location": "L2096"
     },
     {
       "id": "src_items_manager_parse_multipart_request",
@@ -3074,7 +3074,7 @@
       "file_type": "code",
       "norm_label": ".do_post()",
       "source_file": "web/server.py",
-      "source_location": "L870"
+      "source_location": "L902"
     },
     {
       "id": "web_server_update_turso_status",
@@ -5396,7 +5396,7 @@
       "source_location": "L124"
     },
     {
-      "id": "web_server_rationale_2065",
+      "id": "web_server_rationale_2097",
       "label": "Supports HTTP 206 Partial Content for streaming/scrubbing in HTML5 video.",
       "_origin": "ast",
       "community": 38,
@@ -5404,7 +5404,7 @@
       "file_type": "rationale",
       "norm_label": "supports http 206 partial content for streaming/scrubbing in html5 video.",
       "source_file": "web/server.py",
-      "source_location": "L2065"
+      "source_location": "L2097"
     },
     {
       "id": "web_server_rationale_685",
@@ -8979,7 +8979,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "web/server.py",
-      "source_location": "L2025",
+      "source_location": "L2057",
       "weight": 1.0
     },
     {
@@ -9051,7 +9051,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "web/server.py",
-      "source_location": "L746",
+      "source_location": "L778",
       "weight": 1.0
     },
     {
@@ -9075,7 +9075,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "web/server.py",
-      "source_location": "L1566",
+      "source_location": "L1598",
       "weight": 1.0
     },
     {
@@ -9087,7 +9087,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "web/server.py",
-      "source_location": "L1578",
+      "source_location": "L1610",
       "weight": 1.0
     },
     {
@@ -9099,7 +9099,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "web/server.py",
-      "source_location": "L1579",
+      "source_location": "L1611",
       "weight": 1.0
     },
     {
@@ -9111,7 +9111,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "web/server.py",
-      "source_location": "L1823",
+      "source_location": "L1855",
       "weight": 1.0
     },
     {
@@ -9123,7 +9123,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "web/server.py",
-      "source_location": "L1836",
+      "source_location": "L1868",
       "weight": 1.0
     },
     {
@@ -9135,7 +9135,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "web/server.py",
-      "source_location": "L1881",
+      "source_location": "L1913",
       "weight": 1.0
     },
     {
@@ -9147,7 +9147,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "web/server.py",
-      "source_location": "L891",
+      "source_location": "L923",
       "weight": 1.0
     },
     {
@@ -12152,18 +12152,6 @@
     },
     {
       "source": "web_server",
-      "target": "argparse",
-      "relation": "imports",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "import",
-      "source_file": "web/server.py",
-      "source_location": "L2177",
-      "weight": 1.0
-    },
-    {
-      "source": "web_server",
       "target": "urllib_error",
       "relation": "imports",
       "_origin": "ast",
@@ -12172,6 +12160,18 @@
       "context": "import",
       "source_file": "web/server.py",
       "source_location": "L22",
+      "weight": 1.0
+    },
+    {
+      "source": "web_server",
+      "target": "argparse",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "web/server.py",
+      "source_location": "L2209",
       "weight": 1.0
     },
     {
@@ -13539,7 +13539,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "web/server.py",
-      "source_location": "L2048",
+      "source_location": "L2080",
       "weight": 1.0
     },
     {
@@ -13551,7 +13551,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "web/server.py",
-      "source_location": "L2064",
+      "source_location": "L2096",
       "weight": 1.0
     },
     {
@@ -14872,7 +14872,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "web/server.py",
-      "source_location": "L2111",
+      "source_location": "L2143",
       "weight": 1.0
     },
     {
@@ -16467,7 +16467,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "web/server.py",
-      "source_location": "L2018",
+      "source_location": "L2050",
       "weight": 1.0
     },
     {
@@ -16478,7 +16478,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "web/server.py",
-      "source_location": "L2031",
+      "source_location": "L2063",
       "weight": 1.0
     },
     {
@@ -16489,7 +16489,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "web/server.py",
-      "source_location": "L2038",
+      "source_location": "L2070",
       "weight": 1.0
     },
     {
@@ -16500,7 +16500,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "web/server.py",
-      "source_location": "L2048",
+      "source_location": "L2080",
       "weight": 1.0
     },
     {
@@ -16511,7 +16511,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "web/server.py",
-      "source_location": "L2064",
+      "source_location": "L2096",
       "weight": 1.0
     },
     {
@@ -16544,7 +16544,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "web/server.py",
-      "source_location": "L870",
+      "source_location": "L902",
       "weight": 1.0
     },
     {
@@ -18121,14 +18121,14 @@
       "weight": 1.0
     },
     {
-      "source": "web_server_rationale_2065",
+      "source": "web_server_rationale_2097",
       "target": "web_server_storymakerrequesthandler_serve_video_range",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "web/server.py",
-      "source_location": "L2065",
+      "source_location": "L2097",
       "weight": 1.0
     },
     {
@@ -18499,7 +18499,7 @@
       "confidence_score": 0.85,
       "context": "argument",
       "source_file": "web/server.py",
-      "source_location": "L2167",
+      "source_location": "L2199",
       "weight": 1.0
     },
     {
@@ -18511,7 +18511,7 @@
       "confidence_score": 0.85,
       "context": "argument",
       "source_file": "web/server.py",
-      "source_location": "L1433",
+      "source_location": "L1465",
       "weight": 1.0
     },
     {
@@ -18523,7 +18523,7 @@
       "confidence_score": 0.85,
       "context": "argument",
       "source_file": "web/server.py",
-      "source_location": "L1602",
+      "source_location": "L1634",
       "weight": 1.0
     },
     {
@@ -18535,7 +18535,7 @@
       "confidence_score": 0.85,
       "context": "argument",
       "source_file": "web/server.py",
-      "source_location": "L893",
+      "source_location": "L925",
       "weight": 1.0
     },
     {
@@ -18979,7 +18979,7 @@
       "confidence_score": 0.85,
       "context": "call",
       "source_file": "web/server.py",
-      "source_location": "L2134",
+      "source_location": "L2166",
       "weight": 1.0
     },
     {
@@ -18991,7 +18991,7 @@
       "confidence_score": 0.85,
       "context": "call",
       "source_file": "web/server.py",
-      "source_location": "L2145",
+      "source_location": "L2177",
       "weight": 1.0
     },
     {
@@ -19003,7 +19003,7 @@
       "confidence_score": 0.85,
       "context": "call",
       "source_file": "web/server.py",
-      "source_location": "L2164",
+      "source_location": "L2196",
       "weight": 1.0
     },
     {
@@ -19015,7 +19015,7 @@
       "confidence_score": 0.85,
       "context": "call",
       "source_file": "web/server.py",
-      "source_location": "L731",
+      "source_location": "L743",
       "weight": 1.0
     },
     {
@@ -19027,55 +19027,7 @@
       "confidence_score": 0.85,
       "context": "call",
       "source_file": "web/server.py",
-      "source_location": "L739",
-      "weight": 1.0
-    },
-    {
-      "source": "web_server_storymakerrequesthandler_do_post",
-      "target": "src_items_manager_parse_multipart_request",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "INFERRED",
-      "confidence_score": 0.85,
-      "context": "call",
-      "source_file": "web/server.py",
-      "source_location": "L1039",
-      "weight": 1.0
-    },
-    {
-      "source": "web_server_storymakerrequesthandler_do_post",
-      "target": "src_items_manager_natural_sort_key",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "INFERRED",
-      "confidence_score": 0.85,
-      "context": "call",
-      "source_file": "web/server.py",
-      "source_location": "L1060",
-      "weight": 1.0
-    },
-    {
-      "source": "web_server_storymakerrequesthandler_do_post",
-      "target": "src_turso_client_turso_test_connection",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "INFERRED",
-      "confidence_score": 0.85,
-      "context": "call",
-      "source_file": "web/server.py",
-      "source_location": "L1657",
-      "weight": 1.0
-    },
-    {
-      "source": "web_server_storymakerrequesthandler_do_post",
-      "target": "src_turso_client_turso_log_story",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "INFERRED",
-      "confidence_score": 0.85,
-      "context": "call",
-      "source_file": "web/server.py",
-      "source_location": "L1678",
+      "source_location": "L771",
       "weight": 1.0
     },
     {
@@ -19087,7 +19039,55 @@
       "confidence_score": 0.85,
       "context": "call",
       "source_file": "web/server.py",
-      "source_location": "L981",
+      "source_location": "L1013",
+      "weight": 1.0
+    },
+    {
+      "source": "web_server_storymakerrequesthandler_do_post",
+      "target": "src_items_manager_parse_multipart_request",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "context": "call",
+      "source_file": "web/server.py",
+      "source_location": "L1071",
+      "weight": 1.0
+    },
+    {
+      "source": "web_server_storymakerrequesthandler_do_post",
+      "target": "src_items_manager_natural_sort_key",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "context": "call",
+      "source_file": "web/server.py",
+      "source_location": "L1092",
+      "weight": 1.0
+    },
+    {
+      "source": "web_server_storymakerrequesthandler_do_post",
+      "target": "src_turso_client_turso_test_connection",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "context": "call",
+      "source_file": "web/server.py",
+      "source_location": "L1689",
+      "weight": 1.0
+    },
+    {
+      "source": "web_server_storymakerrequesthandler_do_post",
+      "target": "src_turso_client_turso_log_story",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "context": "call",
+      "source_file": "web/server.py",
+      "source_location": "L1710",
       "weight": 1.0
     },
     {
@@ -19473,7 +19473,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.95,
       "source_file": "web/server.py",
-      "source_location": "L981",
+      "source_location": "L1013",
       "weight": 0.8
     },
     {
@@ -19825,5 +19825,5 @@
       "source_file": "docs/GOOGLE_STUDIO_GUIDE.md"
     }
   ],
-  "built_at_commit": "8bd80545ae21abe623c267153d85c3a636540ced"
+  "built_at_commit": "c821e333228beccc8dc25cb5ac5d3647c3a28a1e"
 }

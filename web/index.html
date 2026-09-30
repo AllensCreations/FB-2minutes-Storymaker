@@ -569,48 +569,99 @@
           </div>
         </div>
 
-        <!-- Schedule Filter Bar -->
-        <div class="flex flex-wrap items-center justify-between gap-3 bg-gray-950/80 p-3 rounded-xl border border-gray-800">
-          <div class="flex flex-wrap items-center gap-2">
-            <span class="text-[10px] font-mono uppercase tracking-wider text-gray-400 font-semibold mr-1">Filter:</span>
-            <button type="button" id="scheduleFilterAll" onclick="setScheduleFilter('all')" class="px-3 py-1 rounded-lg font-bold text-xs transition bg-indigo-600 text-white shadow cursor-pointer">
-              All (<span id="scheduleCountAll">0</span>)
-            </button>
-            <button type="button" id="scheduleFilterPending" onclick="setScheduleFilter('pending')" class="px-3 py-1 rounded-lg font-bold text-xs transition text-gray-400 hover:text-amber-300 bg-gray-900 border border-gray-800 cursor-pointer">
-              🔥 Needs Action (<span id="scheduleCountPending">0</span>)
-            </button>
-            <button type="button" id="scheduleFilterPublished" onclick="setScheduleFilter('published')" class="px-3 py-1 rounded-lg font-bold text-xs transition text-gray-400 hover:text-emerald-400 bg-gray-900 border border-gray-800 cursor-pointer">
-              ✓ Published (<span id="scheduleCountPublished">0</span>)
-            </button>
+        <!-- Google Sheets Style Spreadsheet Container -->
+        <div class="rounded-2xl border border-emerald-900/60 bg-gray-950/90 overflow-hidden shadow-2xl">
+          <!-- Spreadsheet Title Bar -->
+          <div class="flex flex-wrap items-center justify-between px-4 py-2.5 bg-gray-900/90 border-b border-gray-800 text-xs">
+            <div class="flex items-center gap-2.5">
+              <span class="w-6 h-6 rounded-md bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center font-bold text-xs">📗</span>
+              <div>
+                <span class="font-bold text-gray-200 font-mono text-[12px]">Stories Database Manifest</span>
+                <span class="ml-2 text-[10px] font-mono text-emerald-300 bg-emerald-950/90 px-1.5 py-0.5 rounded border border-emerald-500/40">Google Sheet Mode</span>
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              <button id="refreshScheduleBtn" type="button" class="py-1.5 px-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-semibold transition flex items-center gap-1.5 shadow-md shadow-emerald-950/40 cursor-pointer active:scale-[0.98]">
+                <span id="refreshScheduleIcon">🔄</span>
+                <span>Refresh HTTP</span>
+              </button>
+            </div>
           </div>
-          <div class="text-[11px] text-gray-400 font-mono" id="scheduleMeta">
-            Ready to load
-          </div>
-        </div>
 
-        <!-- Schedule Table -->
-        <div class="overflow-x-auto rounded-xl border border-gray-800 bg-gray-950/60 shadow-inner">
-          <table class="w-full text-left text-xs">
-            <thead class="bg-gray-900/90 text-gray-400 font-mono text-[10px] uppercase tracking-wider border-b border-gray-800">
-              <tr>
-                <th class="py-3 px-3.5 w-10">#</th>
-                <th class="py-3 px-3.5 font-semibold">Filename / Media</th>
-                <th class="py-3 px-3.5 font-semibold">Caption</th>
-                <th class="py-3 px-3.5 font-semibold">Description</th>
-                <th class="py-3 px-3.5 font-semibold w-28 text-center">Facebook</th>
-                <th class="py-3 px-3.5 font-semibold w-28 text-center">YouTube</th>
-                <th class="py-3 px-3.5 font-semibold w-28 text-center">Status</th>
-                <th class="py-3 px-3.5 font-semibold w-20 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody id="scheduleTableBody" class="divide-y divide-gray-800/80">
-              <tr>
-                <td colspan="8" class="py-12 text-center text-gray-500 font-mono text-xs">
-                  Click <strong class="text-emerald-400">Refresh Schedule</strong> to load live spreadsheet entries.
-                </td>
-              </tr>
-            </tbody>
-          </table>
+          <!-- Formula Bar (fx) -->
+          <div class="flex items-center gap-2 px-3 py-1.5 bg-gray-950 border-b border-gray-800/80 font-mono text-[11px]">
+            <div class="flex items-center gap-1 text-gray-400 border-r border-gray-800 pr-2.5">
+              <span class="px-1.5 py-0.5 rounded bg-gray-900 text-gray-300 font-bold text-[10px]">A1</span>
+              <span class="text-emerald-400 font-serif italic font-bold text-xs">fx</span>
+            </div>
+            <input type="text" id="sheetFormulaInput" readonly value="=Stories!A1:G" class="flex-1 bg-transparent text-emerald-300 font-mono text-xs focus:outline-none" />
+            <div class="text-[10px] text-gray-400 font-mono" id="sheetFormulaDesc">Show all records</div>
+          </div>
+
+          <!-- Google Sheet Boolean Logic Filter Bar -->
+          <div class="flex flex-wrap items-center justify-between gap-2 px-3.5 py-2 bg-gray-900/60 border-b border-gray-800 text-xs">
+            <div class="flex flex-wrap items-center gap-1">
+              <span class="text-[10px] font-mono uppercase tracking-wider text-gray-400 font-semibold mr-1">Formula Logic:</span>
+              <button type="button" id="btnLogicAll" onclick="setLogicFilter('all')" class="px-2 py-0.5 rounded font-mono text-[11px] font-bold transition bg-emerald-600 text-white cursor-pointer shadow-sm">ALL (<span id="countLogicAll">0</span>)</button>
+              <button type="button" id="btnLogicOr" onclick="setLogicFilter('or')" class="px-2 py-0.5 rounded font-mono text-[11px] font-medium transition text-gray-300 hover:text-white bg-gray-800 border border-gray-700 cursor-pointer" title="OR(D='NO', E='NO') - Needs FB or YT">OR (<span id="countLogicOr">0</span>)</button>
+              <button type="button" id="btnLogicAnd" onclick="setLogicFilter('and')" class="px-2 py-0.5 rounded font-mono text-[11px] font-medium transition text-gray-300 hover:text-white bg-gray-800 border border-gray-700 cursor-pointer" title="AND(D='NO', E='NO') - Needs Both">AND (<span id="countLogicAnd">0</span>)</button>
+              <button type="button" id="btnLogicNor" onclick="setLogicFilter('nor')" class="px-2 py-0.5 rounded font-mono text-[11px] font-medium transition text-gray-300 hover:text-white bg-gray-800 border border-gray-700 cursor-pointer" title="NOT(OR(D='YES', E='YES')) - Neither published">NOR (<span id="countLogicNor">0</span>)</button>
+              <button type="button" id="btnLogicNand" onclick="setLogicFilter('nand')" class="px-2 py-0.5 rounded font-mono text-[11px] font-medium transition text-gray-300 hover:text-white bg-gray-800 border border-gray-700 cursor-pointer" title="NOT(AND(D='YES', E='YES')) - Not both published">NAND (<span id="countLogicNand">0</span>)</button>
+              <button type="button" id="btnLogicXor" onclick="setLogicFilter('xor')" class="px-2 py-0.5 rounded font-mono text-[11px] font-medium transition text-gray-300 hover:text-white bg-gray-800 border border-gray-700 cursor-pointer" title="XOR(D='YES', E='YES') - Exactly one published">XOR (<span id="countLogicXor">0</span>)</button>
+              <button type="button" id="btnLogicFbOnly" onclick="setLogicFilter('fb_only')" class="px-2 py-0.5 rounded font-mono text-[11px] font-medium transition text-gray-300 hover:text-white bg-gray-800 border border-gray-700 cursor-pointer" title="Needs Facebook only">FB ONLY (<span id="countLogicFbOnly">0</span>)</button>
+              <button type="button" id="btnLogicYtOnly" onclick="setLogicFilter('yt_only')" class="px-2 py-0.5 rounded font-mono text-[11px] font-medium transition text-gray-300 hover:text-white bg-gray-800 border border-gray-700 cursor-pointer" title="Needs YouTube only">YT ONLY (<span id="countLogicYtOnly">0</span>)</button>
+              <button type="button" id="btnLogicDone" onclick="setLogicFilter('done')" class="px-2 py-0.5 rounded font-mono text-[11px] font-medium transition text-gray-300 hover:text-white bg-gray-800 border border-gray-700 cursor-pointer" title="AND(D='YES', E='YES') - Fully published">DONE (<span id="countLogicDone">0</span>)</button>
+            </div>
+            <div class="text-[11px] text-gray-400 font-mono" id="scheduleMeta">
+              Ready to load
+            </div>
+          </div>
+
+          <!-- Spreadsheet Table Grid -->
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs border-collapse">
+              <thead class="bg-gray-900/90 text-gray-400 font-mono text-[10px] uppercase border-b border-gray-800 select-none">
+                <tr>
+                  <th class="py-2.5 px-3 w-10 text-center bg-gray-950 border-r border-gray-800 text-gray-500">#</th>
+                  <th class="py-2.5 px-3 font-semibold border-r border-gray-800/80"><span class="text-emerald-400 mr-1">A</span> FILENAME</th>
+                  <th class="py-2.5 px-3 font-semibold border-r border-gray-800/80"><span class="text-emerald-400 mr-1">B</span> CAPTION</th>
+                  <th class="py-2.5 px-3 font-semibold border-r border-gray-800/80"><span class="text-emerald-400 mr-1">C</span> DESCRIPTION</th>
+                  <th class="py-2.5 px-3 font-semibold w-28 text-center border-r border-gray-800/80"><span class="text-emerald-400 mr-1">D</span> FACEBOOK</th>
+                  <th class="py-2.5 px-3 font-semibold w-28 text-center border-r border-gray-800/80"><span class="text-emerald-400 mr-1">E</span> YOUTUBE</th>
+                  <th class="py-2.5 px-3 font-semibold w-28 text-center border-r border-gray-800/80"><span class="text-emerald-400 mr-1">F</span> STATUS</th>
+                  <th class="py-2.5 px-3 font-semibold w-20 text-right"><span class="text-emerald-400 mr-1">G</span> ACTIONS</th>
+                </tr>
+              </thead>
+              <tbody id="scheduleTableBody" class="divide-y divide-gray-800/60 font-mono text-[11px]">
+                <tr>
+                  <td colspan="8" class="py-12 text-center text-gray-500 font-mono text-xs">
+                    Click <strong class="text-emerald-400">Refresh HTTP</strong> to load live spreadsheet entries.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Google Sheet Tab Footer & Observability Telemetry Strip -->
+          <div class="bg-gray-950 border-t border-gray-800 px-3.5 py-1.5 flex flex-wrap items-center justify-between gap-3 text-[11px] font-mono">
+            <!-- Sheet Tabs (Left) -->
+            <div class="flex items-center gap-1">
+              <div class="px-3 py-1 bg-gray-900 border-t-2 border-emerald-500 text-gray-200 font-semibold rounded-t flex items-center gap-1.5 text-[11px]">
+                <span>Sheet1: Stories</span>
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_6px_#34d399]"></span>
+              </div>
+              <span class="text-gray-600 px-1 font-bold">+</span>
+            </div>
+
+            <!-- Observability & Instrumentation Telemetry Bar (Right) -->
+            <div id="httpTelemetryBar" class="flex flex-wrap items-center gap-3 text-[10px] text-gray-400">
+              <span id="telemetryStatus" class="px-1.5 py-0.5 rounded bg-emerald-950/80 border border-emerald-500/40 text-emerald-300 font-bold">HTTP 200 OK</span>
+              <span id="telemetryLatency" class="text-gray-300">⏱️ --ms</span>
+              <span id="telemetryEndpoint" class="text-purple-300">GET /api/turso/stories</span>
+              <span id="telemetryRows" class="text-amber-300">📊 0 rows</span>
+              <span id="telemetryTrace" class="text-zinc-500">req-init</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -5620,56 +5671,170 @@ ALTER TABLE stories ADD COLUMN uploaded_to_youtube TEXT DEFAULT 'pending';`;
       loadSheet();
     }
 
-    window.pipeScheduleFilter = "all";
-    window.setScheduleFilter = function(filter) {
-      window.pipeScheduleFilter = filter;
-      const btnAll = document.getElementById("scheduleFilterAll");
-      const btnPending = document.getElementById("scheduleFilterPending");
-      const btnPublished = document.getElementById("scheduleFilterPublished");
+    const LOGIC_FILTERS = {
+      all: {
+        label: "ALL",
+        btnId: "btnLogicAll",
+        countId: "countLogicAll",
+        formula: "=Stories!A1:G",
+        desc: "Show all records (SELECT *)",
+        test: () => true
+      },
+      or: {
+        label: "OR",
+        btnId: "btnLogicOr",
+        countId: "countLogicOr",
+        formula: '=FILTER(Stories, OR(D="NO", E="NO"))',
+        desc: "Needs FB OR Needs YT (Pending Action)",
+        test: (fbYes, ytYes) => (!fbYes || !ytYes)
+      },
+      and: {
+        label: "AND",
+        btnId: "btnLogicAnd",
+        countId: "countLogicAnd",
+        formula: '=FILTER(Stories, AND(D="NO", E="NO"))',
+        desc: "Needs FB AND Needs YT (Unpublished on Both)",
+        test: (fbYes, ytYes) => (!fbYes && !ytYes)
+      },
+      nor: {
+        label: "NOR",
+        btnId: "btnLogicNor",
+        countId: "countLogicNor",
+        formula: '=FILTER(Stories, NOT(OR(D="YES", E="YES")))',
+        desc: "Neither published yet",
+        test: (fbYes, ytYes) => !(fbYes || ytYes)
+      },
+      nand: {
+        label: "NAND",
+        btnId: "btnLogicNand",
+        countId: "countLogicNand",
+        formula: '=FILTER(Stories, NOT(AND(D="YES", E="YES")))',
+        desc: "Not both published (Any pending)",
+        test: (fbYes, ytYes) => !(fbYes && ytYes)
+      },
+      xor: {
+        label: "XOR",
+        btnId: "btnLogicXor",
+        countId: "countLogicXor",
+        formula: '=FILTER(Stories, XOR(D="YES", E="YES"))',
+        desc: "One published, one pending",
+        test: (fbYes, ytYes) => (fbYes ? !ytYes : ytYes)
+      },
+      fb_only: {
+        label: "FB ONLY",
+        btnId: "btnLogicFbOnly",
+        countId: "countLogicFbOnly",
+        formula: '=FILTER(Stories, AND(D="NO", E="YES"))',
+        desc: "Needs Facebook only",
+        test: (fbYes, ytYes) => (!fbYes && ytYes)
+      },
+      yt_only: {
+        label: "YT ONLY",
+        btnId: "btnLogicYtOnly",
+        countId: "countLogicYtOnly",
+        formula: '=FILTER(Stories, AND(D="YES", E="NO"))',
+        desc: "Needs YouTube only",
+        test: (fbYes, ytYes) => (fbYes && !ytYes)
+      },
+      done: {
+        label: "DONE",
+        btnId: "btnLogicDone",
+        countId: "countLogicDone",
+        formula: '=FILTER(Stories, AND(D="YES", E="YES"))',
+        desc: "Both FB and YT Published",
+        test: (fbYes, ytYes) => (fbYes && ytYes)
+      }
+    };
 
-      const activeCls = "px-3 py-1 rounded-lg font-bold text-xs transition bg-indigo-600 text-white shadow cursor-pointer";
-      const inactiveCls = "px-3 py-1 rounded-lg font-bold text-xs transition text-gray-400 hover:text-white bg-gray-900 border border-gray-800 cursor-pointer";
+    window.pipeScheduleLogicFilter = "all";
 
-      if (btnAll) btnAll.className = filter === "all" ? activeCls : inactiveCls;
-      if (btnPending) btnPending.className = filter === "pending" ? activeCls : inactiveCls;
-      if (btnPublished) btnPublished.className = filter === "published" ? activeCls : inactiveCls;
+    window.setLogicFilter = function(key) {
+      window.pipeScheduleLogicFilter = key;
+      const rule = LOGIC_FILTERS[key] || LOGIC_FILTERS.all;
+      const formulaInput = document.getElementById("sheetFormulaInput");
+      if (formulaInput) formulaInput.value = rule.formula;
+      const formulaDesc = document.getElementById("sheetFormulaDesc");
+      if (formulaDesc) formulaDesc.textContent = rule.desc;
+
+      const activeCls = "px-2 py-0.5 rounded font-mono text-[11px] font-bold transition bg-emerald-600 text-white cursor-pointer shadow-sm";
+      const inactiveCls = "px-2 py-0.5 rounded font-mono text-[11px] font-medium transition text-gray-300 hover:text-white bg-gray-800 border border-gray-700 cursor-pointer";
+
+      Object.entries(LOGIC_FILTERS).forEach(([k, r]) => {
+        const btn = document.getElementById(r.btnId);
+        if (btn) btn.className = k === key ? activeCls : inactiveCls;
+      });
 
       renderScheduleTable(pipeSheetData);
     };
+
+    window.setScheduleFilter = function(filter) {
+      if (filter === "pending") window.setLogicFilter("or");
+      else if (filter === "published") window.setLogicFilter("done");
+      else window.setLogicFilter("all");
+    };
+
+    function updateHttpTelemetry(telemetry) {
+      const statusEl = document.getElementById("telemetryStatus");
+      const latencyEl = document.getElementById("telemetryLatency");
+      const endpointEl = document.getElementById("telemetryEndpoint");
+      const rowsEl = document.getElementById("telemetryRows");
+      const traceEl = document.getElementById("telemetryTrace");
+
+      if (statusEl) {
+        const ok = telemetry.status >= 200 && telemetry.status < 300;
+        statusEl.className = ok
+          ? "px-1.5 py-0.5 rounded bg-emerald-950/80 border border-emerald-500/40 text-emerald-300 font-bold"
+          : "px-1.5 py-0.5 rounded bg-rose-950/80 border border-rose-500/40 text-rose-300 font-bold";
+        statusEl.textContent = `HTTP ${telemetry.status || 200} ${ok ? "OK" : "ERROR"}`;
+      }
+      if (latencyEl) latencyEl.textContent = `⏱️ ${telemetry.duration_ms || telemetry.durationMs || "--"}ms`;
+      if (endpointEl) endpointEl.textContent = telemetry.endpoint || "GET /api/turso/stories";
+      if (rowsEl && telemetry.rowCount !== undefined) {
+        rowsEl.textContent = `📊 ${telemetry.rowCount} item(s)`;
+      }
+      if (traceEl) traceEl.textContent = telemetry.request_id || telemetry.requestId || "req-local";
+
+      console.info("[Observability Telemetry]", telemetry);
+    }
 
     function renderScheduleTable(data) {
       const tb = document.getElementById("scheduleTableBody");
       if (!tb) return;
 
       const allRows = data || [];
-      const pendingCount = allRows.filter(r => !(String(r.uploaded).trim().toUpperCase() === "YES" && String(r.youtube).trim().toUpperCase() === "YES")).length;
-      const doneCount = allRows.length - pendingCount;
 
-      const elAll = document.getElementById("scheduleCountAll");
-      const elPending = document.getElementById("scheduleCountPending");
-      const elDone = document.getElementById("scheduleCountPublished");
-      if (elAll) elAll.textContent = String(allRows.length);
-      if (elPending) elPending.textContent = String(pendingCount);
-      if (elDone) elDone.textContent = String(doneCount);
+      // Update badge counts for each logic filter
+      Object.entries(LOGIC_FILTERS).forEach(([k, r]) => {
+        const cntEl = document.getElementById(r.countId);
+        if (cntEl) {
+          const c = allRows.filter(row => {
+            const fbYes = String(row.uploaded).trim().toUpperCase() === "YES";
+            const ytYes = String(row.youtube).trim().toUpperCase() === "YES";
+            return r.test(fbYes, ytYes);
+          }).length;
+          cntEl.textContent = String(c);
+        }
+      });
+
+      const activeKey = window.pipeScheduleLogicFilter || "all";
+      const rule = LOGIC_FILTERS[activeKey] || LOGIC_FILTERS.all;
+
+      const filteredRows = allRows.filter(row => {
+        const fbYes = String(row.uploaded).trim().toUpperCase() === "YES";
+        const ytYes = String(row.youtube).trim().toUpperCase() === "YES";
+        return rule.test(fbYes, ytYes);
+      });
 
       const meta = document.getElementById("scheduleMeta");
-      if (meta) meta.textContent = `${allRows.length} item(s) tracked`;
+      if (meta) meta.textContent = `${filteredRows.length} of ${allRows.length} row(s) [${rule.label}]`;
 
-      const filter = window.pipeScheduleFilter || "all";
-      let filteredRows = allRows;
-      if (filter === "pending") {
-        filteredRows = allRows.filter(r => !(String(r.uploaded).trim().toUpperCase() === "YES" && String(r.youtube).trim().toUpperCase() === "YES"));
-      } else if (filter === "published") {
-        filteredRows = allRows.filter(r => String(r.uploaded).trim().toUpperCase() === "YES" && String(r.youtube).trim().toUpperCase() === "YES");
-      }
+      const rowsEl = document.getElementById("telemetryRows");
+      if (rowsEl) rowsEl.textContent = `📊 ${filteredRows.length}/${allRows.length} rows [${rule.label}]`;
 
       if (!filteredRows.length) {
-        const msg = filter === "pending"
-          ? "🎉 All caught up! No pending records waiting to be published."
-          : (filter === "published"
-              ? "No published records yet in Turso database."
-              : "No records found in Turso database manifest.");
-        tb.innerHTML = `<tr><td colspan="8" class="py-12 text-center text-gray-500 font-mono text-xs">${msg}</td></tr>`;
+        tb.innerHTML = `<tr><td colspan="8" class="py-12 text-center text-gray-500 font-mono text-xs">
+          No records match formula: <code class="text-emerald-400 font-mono bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-900/60">${pipeEsc(rule.formula)}</code>
+        </td></tr>`;
         return;
       }
 
@@ -5677,50 +5842,46 @@ ALTER TABLE stories ADD COLUMN uploaded_to_youtube TEXT DEFAULT 'pending';`;
         const fbYes = String(row.uploaded).trim().toUpperCase() === "YES";
         const ytYes = String(row.youtube).trim().toUpperCase() === "YES";
         const isDone = fbYes && ytYes;
-        const rowNum = row.rowIndex || (i + 2);
+        const rowNum = i + 1;
         const filename = row.filename || "untitled.mp4";
 
-        let rowClass = "";
-        let priorityBadge = "";
+        let statusBadge = "";
+        let rowClass = "hover:bg-gray-900/70 transition duration-150";
 
         if (isDone) {
-          rowClass = "opacity-60 hover:opacity-100 bg-gray-950/30 border-l-4 border-l-emerald-600/40 transition duration-150";
-          priorityBadge = `<span class="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-emerald-950/80 text-emerald-300 border border-emerald-500/50 shadow-sm flex items-center justify-center gap-1"><span>✓</span> PUBLISH COMPLETE</span>`;
+          statusBadge = `<span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-950/80 text-emerald-300 border border-emerald-500/40">PUBLISHED</span>`;
         } else if (!fbYes && !ytYes) {
-          rowClass = "bg-amber-950/15 hover:bg-amber-950/25 border-l-4 border-l-amber-500 transition duration-150";
-          priorityBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40 inline-flex items-center justify-center gap-1 animate-pulse"><span>🔥</span> Action: Needs Both</span>`;
+          statusBadge = `<span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-amber-950/80 text-amber-300 border border-amber-500/40 animate-pulse">NEEDS BOTH</span>`;
         } else if (!fbYes) {
-          rowClass = "bg-blue-950/15 hover:bg-blue-950/25 border-l-4 border-l-blue-500 transition duration-150";
-          priorityBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-blue-500/20 text-blue-300 border border-blue-500/40 inline-flex items-center justify-center gap-1"><span>⚡</span> Needs Facebook</span>`;
+          statusBadge = `<span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-blue-950/80 text-blue-300 border border-blue-500/40">NEEDS FB</span>`;
         } else {
-          rowClass = "bg-red-950/15 hover:bg-red-950/25 border-l-4 border-l-red-500 transition duration-150";
-          priorityBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-red-500/20 text-red-300 border border-red-500/40 inline-flex items-center justify-center gap-1"><span>⚡</span> Needs YouTube</span>`;
+          statusBadge = `<span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-red-950/80 text-red-300 border border-red-500/40">NEEDS YT</span>`;
         }
 
         return `<tr id="sched-row-${rowNum}" class="${rowClass}">
-          <td class="py-3 px-3.5 text-gray-500 font-mono text-[11px]">${rowNum}</td>
-          <td class="py-3 px-3.5 font-mono text-xs">
-            <span class="font-semibold text-amber-300 break-all block">${pipeEsc(filename)}</span>
+          <td class="py-2.5 px-3 text-center bg-gray-950/80 text-gray-500 font-mono text-[10px] border-r border-gray-800/80 select-none">${rowNum}</td>
+          <td class="py-2 px-3 font-mono text-[11px] border-r border-gray-800/60">
+            <span class="font-semibold text-emerald-300 break-all block">${pipeEsc(filename)}</span>
           </td>
-          <td class="py-3 px-3.5 text-gray-300 max-w-[200px] truncate" title="${pipeEsc(row.caption)}">${pipeEsc(row.caption || "-")}</td>
-          <td class="py-3 px-3.5 text-gray-400 max-w-[180px] truncate" title="${pipeEsc(row.description)}">${pipeEsc(row.description || "-")}</td>
-          <td class="py-3 px-3.5 text-center">
+          <td class="py-2 px-3 text-gray-300 max-w-[200px] truncate border-r border-gray-800/60" title="${pipeEsc(row.caption)}">${pipeEsc(row.caption || "-")}</td>
+          <td class="py-2 px-3 text-gray-400 max-w-[180px] truncate border-r border-gray-800/60" title="${pipeEsc(row.description)}">${pipeEsc(row.description || "-")}</td>
+          <td class="py-2 px-3 text-center border-r border-gray-800/60">
             ${fbYes
-              ? `<button class="py-1 px-3 bg-emerald-950/80 hover:bg-amber-950/60 border border-emerald-500/40 hover:border-amber-500/40 text-emerald-300 hover:text-amber-300 font-mono text-[11px] font-bold rounded-lg transition" onclick="markScheduleStatus(${rowNum}, '${escapeHtml(filename)}', 'fb', 'YES', this)" title="Click to toggle back to NO">✓ YES</button>`
-              : `<button class="py-1 px-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg text-[11px] transition shadow" onclick="markScheduleStatus(${rowNum}, '${escapeHtml(filename)}', 'fb', 'NO', this)">Mark YES</button>`
+              ? `<button class="py-0.5 px-2.5 bg-emerald-950/90 hover:bg-amber-950/60 border border-emerald-500/50 text-emerald-300 hover:text-amber-300 font-mono text-[10px] font-bold rounded transition cursor-pointer" onclick="markScheduleStatus(${rowNum}, '${escapeHtml(filename)}', 'fb', 'YES', this)" title="Click to toggle NO">YES</button>`
+              : `<button class="py-0.5 px-2.5 bg-gray-900 hover:bg-blue-600/80 border border-gray-700 text-gray-300 hover:text-white font-mono text-[10px] font-bold rounded transition cursor-pointer" onclick="markScheduleStatus(${rowNum}, '${escapeHtml(filename)}', 'fb', 'NO', this)" title="Click to toggle YES">NO</button>`
             }
           </td>
-          <td class="py-3 px-3.5 text-center">
+          <td class="py-2 px-3 text-center border-r border-gray-800/60">
             ${ytYes
-              ? `<button class="py-1 px-3 bg-emerald-950/80 hover:bg-amber-950/60 border border-emerald-500/40 hover:border-amber-500/40 text-emerald-300 hover:text-amber-300 font-mono text-[11px] font-bold rounded-lg transition" onclick="markScheduleStatus(${rowNum}, '${escapeHtml(filename)}', 'yt', 'YES', this)" title="Click to toggle back to NO">✓ YES</button>`
-              : `<button class="py-1 px-3 bg-red-600 hover:bg-red-500 text-white font-bold rounded-lg text-[11px] transition shadow" onclick="markScheduleStatus(${rowNum}, '${escapeHtml(filename)}', 'yt', 'NO', this)">Mark YES</button>`
+              ? `<button class="py-0.5 px-2.5 bg-emerald-950/90 hover:bg-amber-950/60 border border-emerald-500/50 text-emerald-300 hover:text-amber-300 font-mono text-[10px] font-bold rounded transition cursor-pointer" onclick="markScheduleStatus(${rowNum}, '${escapeHtml(filename)}', 'yt', 'YES', this)" title="Click to toggle NO">YES</button>`
+              : `<button class="py-0.5 px-2.5 bg-gray-900 hover:bg-red-600/80 border border-gray-700 text-gray-300 hover:text-white font-mono text-[10px] font-bold rounded transition cursor-pointer" onclick="markScheduleStatus(${rowNum}, '${escapeHtml(filename)}', 'yt', 'NO', this)" title="Click to toggle YES">NO</button>`
             }
           </td>
-          <td class="py-3 px-3.5 text-center">
-            ${priorityBadge}
+          <td class="py-2 px-3 text-center border-r border-gray-800/60">
+            ${statusBadge}
           </td>
-          <td class="py-3 px-3.5 text-right">
-            <button onclick="deleteScheduleCampaign(${rowNum}, '${escapeHtml(filename)}', this)" class="py-1 px-2.5 bg-gray-900 hover:bg-red-950/80 border border-gray-800 hover:border-red-700/60 text-gray-400 hover:text-red-300 rounded-lg text-xs transition" title="Delete from Turso & Dropbox">
+          <td class="py-2 px-3 text-right">
+            <button onclick="deleteScheduleCampaign(${rowNum}, '${escapeHtml(filename)}', this)" class="py-0.5 px-2 bg-gray-900 hover:bg-red-950/80 border border-gray-800 hover:border-red-700/60 text-gray-400 hover:text-red-300 rounded text-[11px] transition cursor-pointer" title="Delete from Turso & Dropbox">
               🗑️
             </button>
           </td>
@@ -5736,6 +5897,7 @@ ALTER TABLE stories ADD COLUMN uploaded_to_youtube TEXT DEFAULT 'pending';`;
         btn.textContent = "…";
       }
 
+      const startT = performance.now();
       try {
         const res = await fetch("/api/schedule/update_status", {
           method: "POST",
@@ -5747,7 +5909,16 @@ ALTER TABLE stories ADD COLUMN uploaded_to_youtube TEXT DEFAULT 'pending';`;
             status: status
           })
         });
+        const durationMs = Math.round(performance.now() - startT);
         const data = await res.json();
+        updateHttpTelemetry({
+          event: "http_status_updated",
+          endpoint: "/api/schedule/update_status",
+          status: res.status,
+          duration_ms: durationMs,
+          request_id: data.telemetry?.request_id || "req-" + Math.random().toString(36).substring(2, 8),
+          rowCount: pipeSheetData.length
+        });
         if (!data.ok) throw new Error(data.error || "Failed to update status");
 
         const row = pipeSheetData.find(r => r.rowIndex === rowIndex || r.filename === filename);
@@ -5763,7 +5934,7 @@ ALTER TABLE stories ADD COLUMN uploaded_to_youtube TEXT DEFAULT 'pending';`;
         showToast(`✕ Status update failed: ${err.message}`, "error");
         if (btn) {
           btn.disabled = false;
-          btn.textContent = currentVal === "YES" ? "✓ YES" : "Mark YES";
+          btn.textContent = currentVal === "YES" ? "YES" : "NO";
         }
       }
     }
@@ -5782,6 +5953,7 @@ ALTER TABLE stories ADD COLUMN uploaded_to_youtube TEXT DEFAULT 'pending';`;
         btn.textContent = "⏳";
       }
 
+      const startT = performance.now();
       try {
         const res = await fetch("/api/schedule/delete", {
           method: "POST",
@@ -5794,7 +5966,16 @@ ALTER TABLE stories ADD COLUMN uploaded_to_youtube TEXT DEFAULT 'pending';`;
             db_folder: folder
           })
         });
+        const durationMs = Math.round(performance.now() - startT);
         const data = await res.json();
+        updateHttpTelemetry({
+          event: "http_campaign_deleted",
+          endpoint: "/api/schedule/delete",
+          status: res.status,
+          duration_ms: durationMs,
+          request_id: "req-" + Math.random().toString(36).substring(2, 8),
+          rowCount: pipeSheetData.length - 1
+        });
         if (!data.ok) throw new Error(data.error || "Delete failed");
 
         pipeSheetData = pipeSheetData.filter(r => r.filename !== filename && r.rowIndex !== rowIndex);
@@ -5815,11 +5996,25 @@ ALTER TABLE stories ADD COLUMN uploaded_to_youtube TEXT DEFAULT 'pending';`;
       const refreshIcon = document.getElementById("refreshScheduleIcon");
 
       if (refreshIcon) refreshIcon.classList.add("animate-spin");
-      if (meta) meta.textContent = "Loading schedule…";
+      if (meta) meta.textContent = "Loading HTTP…";
+
+      const startT = performance.now();
+      const traceId = "tr-" + Math.random().toString(36).substring(2, 8);
 
       try {
         const res = await fetch("/api/turso/stories");
+        const durationMs = Math.round(performance.now() - startT);
         const json = await res.json();
+
+        updateHttpTelemetry({
+          event: "http_stories_fetched",
+          endpoint: "/api/turso/stories",
+          status: res.status,
+          duration_ms: durationMs,
+          request_id: json.telemetry?.request_id || traceId,
+          rowCount: (json.stories || []).length
+        });
+
         if (!json.ok) {
           if (json.error && json.error.includes("not configured")) {
             if (tb) {
@@ -5843,6 +6038,15 @@ ALTER TABLE stories ADD COLUMN uploaded_to_youtube TEXT DEFAULT 'pending';`;
         }));
         renderScheduleTable(pipeSheetData);
       } catch (e) {
+        const durationMs = Math.round(performance.now() - startT);
+        updateHttpTelemetry({
+          event: "http_stories_failed",
+          endpoint: "/api/turso/stories",
+          status: 500,
+          duration_ms: durationMs,
+          request_id: traceId,
+          error: e.message
+        });
         if (meta) meta.textContent = "Load failed";
         if (tb) {
           tb.innerHTML = `<tr><td colspan="8" class="py-12 text-center text-rose-400 font-mono text-xs">

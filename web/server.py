@@ -720,18 +720,50 @@ class StorymakerRequestHandler(SimpleHTTPRequestHandler):
                 "turso_auth_token": cfg.get("turso_auth_token", "")
             })
         elif path == "/api/turso/stories":
+            import time
             import gemini_service
+            start_t = time.time()
+            req_id = f"req-{int(start_t * 1000) % 1000000:06d}"
             cfg = gemini_service.read_env_settings()
             db_url = cfg.get("turso_db_url", "")
             auth_token = cfg.get("turso_auth_token", "")
             if not db_url or not auth_token:
-                self.send_json({"ok": False, "error": "Turso database URL and auth token not configured."}, status=400)
+                telemetry = {
+                    "event": "http_request_rejected",
+                    "endpoint": "/api/turso/stories",
+                    "status": 400,
+                    "duration_ms": round((time.time() - start_t) * 1000, 2),
+                    "request_id": req_id,
+                    "error": "Turso database URL and auth token not configured."
+                }
+                print(f"[Observability] {json.dumps(telemetry)}")
+                self.send_json({"ok": False, "error": telemetry["error"], "telemetry": telemetry}, status=400)
                 return
             try:
                 res = turso_list_stories(db_url, auth_token)
-                self.send_json({"ok": True, "stories": res})
+                duration_ms = round((time.time() - start_t) * 1000, 2)
+                telemetry = {
+                    "event": "http_request_finished",
+                    "endpoint": "/api/turso/stories",
+                    "status": 200,
+                    "duration_ms": duration_ms,
+                    "request_id": req_id,
+                    "row_count": len(res)
+                }
+                print(f"[Observability] {json.dumps(telemetry)}")
+                self.send_json({"ok": True, "stories": res, "telemetry": telemetry})
             except Exception as e:
-                self.send_json({"ok": False, "error": str(e)}, status=500)
+                duration_ms = round((time.time() - start_t) * 1000, 2)
+                telemetry = {
+                    "event": "http_request_failed",
+                    "endpoint": "/api/turso/stories",
+                    "status": 500,
+                    "duration_ms": duration_ms,
+                    "request_id": req_id,
+                    "error": str(e)
+                }
+                print(f"[Observability] {json.dumps(telemetry)}")
+                self.send_json({"ok": False, "error": str(e), "telemetry": telemetry}, status=500)
         elif path == "/api/archive":
             self.send_json({
                 "ok": True,
