@@ -4,8 +4,6 @@ Manages offline video publishing, local media storage, and JSON manifest.
 """
 
 import json
-import os
-import re
 import socket
 import time
 from pathlib import Path

@@ -9,7 +9,6 @@ Compatible with:
 
 import base64
 import gzip
-import json
 import mimetypes
 import os
 from http.server import BaseHTTPRequestHandler, HTTPServer
@@ -203,4 +202,3 @@ if __name__ == '__main__':
     except KeyboardInterrupt:
         print("\nStopping server...")
         server.server_close()
-

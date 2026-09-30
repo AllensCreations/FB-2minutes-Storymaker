@@ -5,7 +5,6 @@ Replaces Google Apps Script with sub-10ms edge database queries.
 """
 
 import json
-import os
 import urllib.error
 import urllib.parse
 import urllib.request

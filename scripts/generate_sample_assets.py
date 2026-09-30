@@ -9,13 +9,12 @@ Creates complete, realistic sample assets for local testing:
 """
 
 import math
-import os
 import struct
 import subprocess
 import wave
 import zipfile
 from pathlib import Path
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 ASSETS_DIR = REPO_ROOT / "assets"
