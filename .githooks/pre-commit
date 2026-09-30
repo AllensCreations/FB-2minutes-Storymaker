@@ -1,0 +1,54 @@
+#!/usr/bin/env python3
+import re
+import subprocess
+from pathlib import Path
+
+
+root = Path(subprocess.check_output(
+    ["git", "rev-parse", "--show-toplevel"], text=True
+).strip())
+version_file = root / "VERSION"
+parts = version_file.read_text(encoding="utf-8").strip().split(".")
+if len(parts) != 3 or not all(part.isdigit() for part in parts):
+    raise SystemExit("VERSION must be a numeric major.minor.patch value")
+parts[2] = str(int(parts[2]) + 1)
+version = ".".join(parts)
+
+
+def replace(path, pattern, replacement, count=1):
+    file_path = root / path
+    text = file_path.read_text(encoding="utf-8")
+    updated, matches = re.subn(pattern, replacement, text, count=count)
+    if matches != count:
+        raise SystemExit(f"Expected {count} version match(es) in {path}, found {matches}")
+    file_path.write_text(updated, encoding="utf-8")
+
+
+version_pattern = r"\d+\.\d+\.\d+"
+replace("VERSION", rf"^{version_pattern}$", version)
+replace(".version", rf"^{version_pattern}$", version)
+replace("main.py", r'__version__\s*=\s*["\'][^"\']+["\']', f'__version__ = "{version}"')
+replace("pyproject.toml", r'version\s*=\s*"[^"]+"', f'version = "{version}"')
+replace("setup.py", r'version="[^"]+"', f'version="{version}"')
+replace("uv.lock", r'(name = "fb-2minutes-storymaker"\nversion = ")[^"]+(")', rf'\g<1>{version}\2')
+replace("install.sh", r"Version: \d+\.\d+\.\d+", f"Version: {version}")
+replace("install.sh", r'APP_VERSION="\d+\.\d+\.\d+"', f'APP_VERSION="{version}"')
+replace("setup_local.sh", r"Version: \d+\.\d+\.\d+", f"Version: {version}")
+replace("setup_local.sh", r'APP_VERSION="\d+\.\d+\.\d+"', f'APP_VERSION="{version}"')
+replace("README.md", r"version-\d+\.\d+\.\d+-blue\.svg", f"version-{version}-blue.svg")
+replace("README.md", r"latest \*\*v\d+\.\d+\.\d+\*\*", f"latest **v{version}**")
+replace(
+    "README.md",
+    r"(VERSION\s+# Release version indicator \()\d+\.\d+\.\d+(\))",
+    rf"\g<1>{version}\2",
+)
+
+subprocess.run(
+    [
+        "git", "add", "--",
+        "VERSION", ".version", "main.py", "pyproject.toml", "setup.py",
+        "uv.lock", "install.sh", "setup_local.sh", "README.md",
+    ],
+    cwd=root,
+    check=True,
+)

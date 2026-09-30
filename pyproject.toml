@@ -1,6 +1,6 @@
 [project]
 name = "fb-2minutes-storymaker"
-version = "2.0.0"
+version = "1.0.1"
 description = "FB 2minutes Storymaker - Automated Storytelling Engine"
 readme = "README.md"
 requires-python = ">=3.9"
