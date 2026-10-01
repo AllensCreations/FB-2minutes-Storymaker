@@ -634,128 +634,83 @@
     </div>
     <!-- End 2. Items Queue View -->
 
-    <!-- 3. Publishing Schedule & Manifest View (Promax) -->
-    <div id="scheduleView" class="hidden space-y-6">
-      <div class="promax-panel p-6 rounded-2xl space-y-5">
-        <!-- Schedule Header Banner -->
-        <div class="flex flex-wrap items-center justify-between gap-4 border-b border-white/[0.06] pb-5">
-          <div class="space-y-1">
-            <div class="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 mb-1">
-              <span>📅</span> Publishing Schedule
-            </div>
-            <h2 class="text-xl font-bold text-white tracking-tight">Social Publishing Schedule &amp; Manifest</h2>
-            <p class="text-xs text-gray-400 max-w-2xl leading-relaxed">
-              Live database tracker connected to your Turso edge database and Dropbox. Manage release status across Facebook and YouTube or delete completed campaigns.
-            </p>
+    <!-- 3. Publishing overview -->
+    <div id="scheduleView" class="hidden space-y-5">
+      <section class="promax-panel p-5 sm:p-6 rounded-2xl space-y-5">
+        <header class="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <div class="text-[11px] font-semibold uppercase tracking-[0.16em] text-indigo-300">Publishing overview</div>
+            <h2 class="mt-1 text-2xl font-bold text-white">Your campaigns</h2>
+            <p class="mt-1 text-sm text-gray-400">See what’s live and what still needs to go out.</p>
           </div>
-          <div class="flex items-center gap-2">
-            <button id="refreshScheduleBtn" type="button" class="py-2 px-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-semibold transition flex items-center gap-1.5 shadow-md shadow-emerald-950/40 cursor-pointer active:scale-[0.98]">
-              <span id="refreshScheduleIcon">🔄</span>
-              <span>Refresh Schedule</span>
-            </button>
-          </div>
+          <button id="refreshScheduleBtn" type="button" class="py-2.5 px-4 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-sm font-semibold transition inline-flex items-center gap-2">
+            <span id="refreshScheduleIcon">↻</span> Refresh
+          </button>
+        </header>
+
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3" aria-label="Publishing summary">
+          <article class="rounded-xl border border-white/[0.08] bg-gray-950/60 p-4">
+            <div class="text-xs text-gray-400">Total campaigns</div>
+            <div id="scheduleTotalCount" class="mt-2 text-2xl font-bold text-white">—</div>
+          </article>
+          <article class="rounded-xl border border-white/[0.08] bg-gray-950/60 p-4">
+            <div class="text-xs text-gray-400">Needs publishing</div>
+            <div id="schedulePendingCount" class="mt-2 text-2xl font-bold text-amber-300">—</div>
+          </article>
+          <article class="rounded-xl border border-white/[0.08] bg-gray-950/60 p-4">
+            <div class="text-xs text-gray-400">Facebook live</div>
+            <div id="scheduleFacebookCount" class="mt-2 text-2xl font-bold text-blue-300">—</div>
+          </article>
+          <article class="rounded-xl border border-white/[0.08] bg-gray-950/60 p-4">
+            <div class="text-xs text-gray-400">YouTube live</div>
+            <div id="scheduleYoutubeCount" class="mt-2 text-2xl font-bold text-red-300">—</div>
+          </article>
         </div>
 
-        <!-- Google Sheets Style Spreadsheet Container -->
-        <div class="rounded-2xl border border-emerald-900/60 bg-gray-950/90 overflow-hidden shadow-2xl">
-          <!-- Spreadsheet Title Bar -->
-          <div class="flex flex-wrap items-center justify-between px-4 py-2.5 bg-gray-900/90 border-b border-gray-800 text-xs">
-            <div class="flex items-center gap-2.5">
-              <span class="w-6 h-6 rounded-md bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center font-bold text-xs">📗</span>
-              <div>
-                <span class="font-bold text-gray-200 font-mono text-[12px]">Stories Database Manifest</span>
-                <span class="ml-2 text-[10px] font-mono text-emerald-300 bg-emerald-950/90 px-1.5 py-0.5 rounded border border-emerald-500/40">Google Sheet Mode</span>
-              </div>
-            </div>
-            <div class="flex items-center gap-2">
-              <button id="refreshScheduleBtn" type="button" class="py-1.5 px-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-semibold transition flex items-center gap-1.5 shadow-md shadow-emerald-950/40 cursor-pointer active:scale-[0.98]">
-                <span id="refreshScheduleIcon">🔄</span>
-                <span>Refresh HTTP</span>
-              </button>
-            </div>
+        <div class="flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
+          <div id="scheduleFilters" class="flex flex-wrap gap-2" aria-label="Filter campaigns">
+            <button type="button" data-schedule-filter="all" aria-pressed="true" class="schedule-filter px-3 py-1.5 rounded-lg bg-indigo-600 text-white text-xs font-semibold">All</button>
+            <button type="button" data-schedule-filter="pending" aria-pressed="false" class="schedule-filter px-3 py-1.5 rounded-lg bg-gray-900 border border-gray-800 text-gray-300 text-xs font-semibold hover:text-white">Needs publishing</button>
+            <button type="button" data-schedule-filter="published" aria-pressed="false" class="schedule-filter px-3 py-1.5 rounded-lg bg-gray-900 border border-gray-800 text-gray-300 text-xs font-semibold hover:text-white">Fully published</button>
+            <button type="button" data-schedule-filter="facebook" aria-pressed="false" class="schedule-filter px-3 py-1.5 rounded-lg bg-gray-900 border border-gray-800 text-gray-300 text-xs font-semibold hover:text-white">Facebook live</button>
+            <button type="button" data-schedule-filter="youtube" aria-pressed="false" class="schedule-filter px-3 py-1.5 rounded-lg bg-gray-900 border border-gray-800 text-gray-300 text-xs font-semibold hover:text-white">YouTube live</button>
           </div>
+          <label class="relative block w-full sm:w-72">
+            <span class="sr-only">Search campaigns</span>
+            <input id="scheduleSearch" type="search" placeholder="Search campaigns..." class="w-full rounded-xl border border-gray-800 bg-gray-950 px-3.5 py-2.5 pl-9 text-sm text-gray-100 placeholder-gray-500 focus:border-indigo-500 focus:outline-none" />
+            <span aria-hidden="true" class="absolute left-3 top-2.5 text-gray-500">⌕</span>
+          </label>
+        </div>
 
-          <!-- Formula Bar (fx) -->
-          <div class="flex items-center gap-2 px-3 py-1.5 bg-gray-950 border-b border-gray-800/80 font-mono text-[11px]">
-            <div class="flex items-center gap-1 text-gray-400 border-r border-gray-800 pr-2.5">
-              <span class="px-1.5 py-0.5 rounded bg-gray-900 text-gray-300 font-bold text-[10px]">A1</span>
-              <span class="text-emerald-400 font-serif italic font-bold text-xs">fx</span>
-            </div>
-            <input type="text" id="sheetFormulaInput" readonly value="=Stories!A1:G" class="flex-1 bg-transparent text-emerald-300 font-mono text-xs focus:outline-none" />
-            <div class="text-[10px] text-gray-400 font-mono" id="sheetFormulaDesc">Show all records</div>
+        <div id="scheduleMeta" class="text-xs text-gray-500" aria-live="polite">Refresh to load campaigns.</div>
+        <div id="scheduleCards" class="grid grid-cols-1 xl:grid-cols-2 gap-3" aria-live="polite">
+          <div class="col-span-full rounded-xl border border-dashed border-gray-800 px-4 py-12 text-center text-sm text-gray-500">
+            Your publishing overview will appear here.
           </div>
+        </div>
+      </section>
+    </div>
+    <!-- End Publishing overview -->
 
-          <!-- Google Sheet Boolean Logic Filter Bar -->
-          <div class="flex flex-wrap items-center justify-between gap-2 px-3.5 py-2 bg-gray-900/60 border-b border-gray-800 text-xs">
-            <div class="flex flex-wrap items-center gap-1">
-              <span class="text-[10px] font-mono uppercase tracking-wider text-gray-400 font-semibold mr-1">Formula Logic:</span>
-              <button type="button" id="btnLogicAll" onclick="setLogicFilter('all')" class="px-2 py-0.5 rounded font-mono text-[11px] font-bold transition bg-emerald-600 text-white cursor-pointer shadow-sm">ALL (<span id="countLogicAll">0</span>)</button>
-              <button type="button" id="btnLogicOr" onclick="setLogicFilter('or')" class="px-2 py-0.5 rounded font-mono text-[11px] font-medium transition text-gray-300 hover:text-white bg-gray-800 border border-gray-700 cursor-pointer" title="OR(D='NO', E='NO') - Needs FB or YT">OR (<span id="countLogicOr">0</span>)</button>
-              <button type="button" id="btnLogicAnd" onclick="setLogicFilter('and')" class="px-2 py-0.5 rounded font-mono text-[11px] font-medium transition text-gray-300 hover:text-white bg-gray-800 border border-gray-700 cursor-pointer" title="AND(D='NO', E='NO') - Needs Both">AND (<span id="countLogicAnd">0</span>)</button>
-              <button type="button" id="btnLogicNor" onclick="setLogicFilter('nor')" class="px-2 py-0.5 rounded font-mono text-[11px] font-medium transition text-gray-300 hover:text-white bg-gray-800 border border-gray-700 cursor-pointer" title="NOT(OR(D='YES', E='YES')) - Neither published">NOR (<span id="countLogicNor">0</span>)</button>
-              <button type="button" id="btnLogicNand" onclick="setLogicFilter('nand')" class="px-2 py-0.5 rounded font-mono text-[11px] font-medium transition text-gray-300 hover:text-white bg-gray-800 border border-gray-700 cursor-pointer" title="NOT(AND(D='YES', E='YES')) - Not both published">NAND (<span id="countLogicNand">0</span>)</button>
-              <button type="button" id="btnLogicXor" onclick="setLogicFilter('xor')" class="px-2 py-0.5 rounded font-mono text-[11px] font-medium transition text-gray-300 hover:text-white bg-gray-800 border border-gray-700 cursor-pointer" title="XOR(D='YES', E='YES') - Exactly one published">XOR (<span id="countLogicXor">0</span>)</button>
-              <button type="button" id="btnLogicFbOnly" onclick="setLogicFilter('fb_only')" class="px-2 py-0.5 rounded font-mono text-[11px] font-medium transition text-gray-300 hover:text-white bg-gray-800 border border-gray-700 cursor-pointer" title="Needs Facebook only">FB ONLY (<span id="countLogicFbOnly">0</span>)</button>
-              <button type="button" id="btnLogicYtOnly" onclick="setLogicFilter('yt_only')" class="px-2 py-0.5 rounded font-mono text-[11px] font-medium transition text-gray-300 hover:text-white bg-gray-800 border border-gray-700 cursor-pointer" title="Needs YouTube only">YT ONLY (<span id="countLogicYtOnly">0</span>)</button>
-              <button type="button" id="btnLogicDone" onclick="setLogicFilter('done')" class="px-2 py-0.5 rounded font-mono text-[11px] font-medium transition text-gray-300 hover:text-white bg-gray-800 border border-gray-700 cursor-pointer" title="AND(D='YES', E='YES') - Fully published">DONE (<span id="countLogicDone">0</span>)</button>
-            </div>
-            <div class="text-[11px] text-gray-400 font-mono" id="scheduleMeta">
-              Ready to load
-            </div>
+    <div id="scheduleDeleteModal" class="hidden fixed inset-0 z-[70] flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="scheduleDeleteTitle" aria-describedby="scheduleDeleteDescription">
+      <div class="w-full max-w-md rounded-2xl border border-red-400/20 bg-gray-950 p-5 shadow-2xl shadow-black/50">
+        <div class="flex items-start gap-3">
+          <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-red-500/10 text-lg text-red-300">!</div>
+          <div class="min-w-0">
+            <h2 id="scheduleDeleteTitle" class="text-base font-bold text-white">Remove this campaign?</h2>
+            <p id="scheduleDeleteDescription" class="mt-1 text-sm leading-relaxed text-gray-400">This removes the record from Turso and deletes its video from Dropbox.</p>
+            <p id="scheduleDeleteFilename" class="mt-3 break-all rounded-lg bg-gray-900 px-3 py-2 text-xs font-medium text-gray-200"></p>
           </div>
-
-          <!-- Spreadsheet Table Grid -->
-          <div class="overflow-x-auto">
-            <table class="w-full text-left text-xs border-collapse">
-              <thead class="bg-gray-900/90 text-gray-400 font-mono text-[10px] uppercase border-b border-gray-800 select-none">
-                <tr>
-                  <th class="py-2.5 px-3 w-10 text-center bg-gray-950 border-r border-gray-800 text-gray-500">#</th>
-                  <th class="py-2.5 px-3 font-semibold border-r border-gray-800/80"><span class="text-emerald-400 mr-1">A</span> FILENAME</th>
-                  <th class="py-2.5 px-3 font-semibold border-r border-gray-800/80"><span class="text-emerald-400 mr-1">B</span> CAPTION</th>
-                  <th class="py-2.5 px-3 font-semibold border-r border-gray-800/80"><span class="text-emerald-400 mr-1">C</span> DESCRIPTION</th>
-                  <th class="py-2.5 px-3 font-semibold w-28 text-center border-r border-gray-800/80"><span class="text-emerald-400 mr-1">D</span> FACEBOOK</th>
-                  <th class="py-2.5 px-3 font-semibold w-28 text-center border-r border-gray-800/80"><span class="text-emerald-400 mr-1">E</span> YOUTUBE</th>
-                  <th class="py-2.5 px-3 font-semibold w-28 text-center border-r border-gray-800/80"><span class="text-emerald-400 mr-1">F</span> STATUS</th>
-                  <th class="py-2.5 px-3 font-semibold w-20 text-right"><span class="text-emerald-400 mr-1">G</span> ACTIONS</th>
-                </tr>
-              </thead>
-              <tbody id="scheduleTableBody" class="divide-y divide-gray-800/60 font-mono text-[11px]">
-                <tr>
-                  <td colspan="8" class="py-12 text-center text-gray-500 font-mono text-xs">
-                    Click <strong class="text-emerald-400">Refresh HTTP</strong> to load live spreadsheet entries.
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
-          <!-- Google Sheet Tab Footer & Observability Telemetry Strip -->
-          <div class="bg-gray-950 border-t border-gray-800 px-3.5 py-1.5 flex flex-wrap items-center justify-between gap-3 text-[11px] font-mono">
-            <!-- Sheet Tabs (Left) -->
-            <div class="flex items-center gap-1">
-              <div class="px-3 py-1 bg-gray-900 border-t-2 border-emerald-500 text-gray-200 font-semibold rounded-t flex items-center gap-1.5 text-[11px]">
-                <span>Sheet1: Stories</span>
-                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_6px_#34d399]"></span>
-              </div>
-              <span class="text-gray-600 px-1 font-bold">+</span>
-            </div>
-
-            <!-- Observability & Instrumentation Telemetry Bar (Right) -->
-            <div id="httpTelemetryBar" class="flex flex-wrap items-center gap-3 text-[10px] text-gray-400">
-              <span id="telemetryStatus" class="px-1.5 py-0.5 rounded bg-emerald-950/80 border border-emerald-500/40 text-emerald-300 font-bold">HTTP 200 OK</span>
-              <span id="telemetryLatency" class="text-gray-300">⏱️ --ms</span>
-              <span id="telemetryEndpoint" class="text-purple-300">GET /api/turso/stories</span>
-              <span id="telemetryRows" class="text-amber-300">📊 0 rows</span>
-              <span id="telemetryTrace" class="text-zinc-500">req-init</span>
-            </div>
-          </div>
+        </div>
+        <div class="mt-5 flex justify-end gap-2 border-t border-white/[0.06] pt-4">
+          <button id="cancelScheduleDeleteBtn" type="button" class="rounded-lg border border-gray-800 px-3.5 py-2 text-xs font-semibold text-gray-300 hover:bg-gray-900 hover:text-white">Cancel</button>
+          <button id="confirmScheduleDeleteBtn" type="button" class="rounded-lg bg-red-600 px-3.5 py-2 text-xs font-semibold text-white hover:bg-red-500">Remove campaign</button>
         </div>
       </div>
     </div>
-    <!-- End 3. Schedule View -->
 
     <!-- Modal: Unified Settings (General & Cloud Publisher Credentials) -->
-    <div id="settingsModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm transition-all duration-200">
+    <div id="settingsModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm transition-all duration-200" role="dialog" aria-modal="true" aria-labelledby="settingsModalTitle">
       <div class="relative w-full max-w-3xl max-h-[92vh] bg-gray-950 border border-gray-800 rounded-2xl shadow-2xl flex flex-col overflow-hidden">
         <!-- Fixed Modal Header -->
         <div class="flex items-center justify-between border-b border-gray-800 px-6 py-4 bg-gray-950 shrink-0">
@@ -764,7 +719,7 @@
               ⚙️
             </div>
             <div>
-              <h3 class="text-base font-bold text-white tracking-tight">Settings &amp; Cloud Credentials</h3>
+              <h3 id="settingsModalTitle" class="text-base font-bold text-white tracking-tight">Settings &amp; Cloud Credentials</h3>
               <p class="text-[11px] text-gray-400">Configure Gemini AI, Dropbox credentials, and Turso Edge Database tracker</p>
             </div>
           </div>
@@ -1237,14 +1192,14 @@
   </div>
 
   <!-- Modal: Duplicate Publish Warning -->
-  <div id="duplicateWarningModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm transition-all duration-200">
-    <div class="relative w-full max-w-lg bg-gray-950 border border-amber-600/40 rounded-2xl shadow-2xl p-6 space-y-4">
+  <div id="duplicateWarningModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm transition-all duration-200" role="dialog" aria-modal="true" aria-labelledby="duplicateWarningTitle" aria-describedby="dupWarningText">
+    <div class="relative w-full max-w-lg bg-gray-950 border border-amber-600/30 rounded-2xl shadow-2xl p-6 space-y-4">
       <div class="flex items-start gap-3">
         <div class="p-2.5 rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/30 text-xl shrink-0">
           ⚠️
         </div>
         <div>
-          <h3 class="text-base font-bold text-white tracking-tight">Duplicate Video Detected!</h3>
+          <h3 id="duplicateWarningTitle" class="text-base font-bold text-white tracking-tight">Duplicate Video Detected</h3>
           <p id="dupWarningText" class="text-xs text-gray-300 mt-1 leading-relaxed">
             This story has already been published to Dropbox and Turso.
           </p>
@@ -1265,7 +1220,7 @@
   </div>
 
   <!-- Modal: Upload ZIP with Images + Paste JSON -->
-  <div id="zipJsonModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm transition-all duration-200">
+  <div id="zipJsonModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm transition-all duration-200" role="dialog" aria-modal="true" aria-labelledby="zipJsonModalTitle">
     <div class="relative w-full max-w-2xl bg-gray-950 border border-gray-800 rounded-2xl shadow-2xl p-6 space-y-5">
       
       <!-- Modal Header -->
@@ -1273,7 +1228,7 @@
         <div class="space-y-0.5">
           <div class="flex items-center gap-2">
             <span class="text-lg">📦</span>
-            <h3 class="text-base font-bold text-white tracking-tight">Upload ZIP + Paste JSON</h3>
+            <h3 id="zipJsonModalTitle" class="text-base font-bold text-white tracking-tight">Upload ZIP + Paste JSON</h3>
             <span class="text-[10px] font-semibold bg-blue-600/30 text-blue-300 border border-blue-500/40 px-2 py-0.5 rounded-full">New Story Package</span>
           </div>
           <p class="text-xs text-gray-400">Select a ZIP file of your scene images and paste the JSON script from Google Studio / Gemini.</p>
@@ -1340,7 +1295,7 @@
   </div>
 
   <!-- Modal: Video Preview Player -->
-  <div id="videoPreviewModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-md transition-all duration-200">
+  <div id="videoPreviewModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md transition-all duration-200" role="dialog" aria-modal="true" aria-labelledby="videoModalTitle">
     <div class="relative w-full max-w-2xl bg-gray-950 border border-gray-800 rounded-2xl shadow-2xl p-5 space-y-4">
       <div class="flex items-center justify-between border-b border-gray-800 pb-3">
         <div class="flex items-center gap-2 min-w-0">
@@ -3084,18 +3039,28 @@
       const isInfo = type === "info";
 
       const toast = document.createElement("div");
-      toast.className = `pointer-events-auto transform transition-all duration-300 ease-out translate-x-10 opacity-0 flex items-start gap-3 p-3.5 rounded-xl border shadow-2xl backdrop-blur-md text-xs font-medium leading-snug ${
+      toast.setAttribute("role", isError ? "alert" : "status");
+      toast.setAttribute("aria-live", isError ? "assertive" : "polite");
+      toast.className = `pointer-events-auto transform transition-all duration-300 ease-out translate-x-10 opacity-0 flex items-start gap-3 p-3.5 rounded-xl border shadow-2xl backdrop-blur-md text-xs font-medium leading-snug max-w-[min(24rem,calc(100vw-2rem))] ${
         isError ? "bg-red-950/90 text-red-200 border-red-700/60 shadow-red-950/40" :
         isWarn ? "bg-amber-950/90 text-amber-200 border-amber-700/60 shadow-amber-950/40" :
         isInfo ? "bg-blue-950/90 text-blue-200 border-blue-700/60 shadow-blue-950/40" :
         "bg-gray-950/90 text-emerald-200 border-emerald-600/50 shadow-emerald-950/30"
       }`;
       const icon = isError ? "❌" : (isWarn ? "⚠️" : (isInfo ? "ℹ️" : "✨"));
-      toast.innerHTML = `
-        <span class="text-sm shrink-0 mt-0.5">${icon}</span>
-        <div class="flex-1">${message}</div>
-        <button class="text-gray-400 hover:text-white transition text-xs shrink-0 ml-1 cursor-pointer" onclick="this.parentElement.remove()">✕</button>
-      `;
+      const iconEl = document.createElement("span");
+      iconEl.className = "text-sm shrink-0 mt-0.5";
+      iconEl.textContent = icon;
+      const textEl = document.createElement("div");
+      textEl.className = "min-w-0 flex-1 break-words";
+      textEl.textContent = String(message);
+      const closeButton = document.createElement("button");
+      closeButton.type = "button";
+      closeButton.className = "text-gray-400 hover:text-white transition text-xs shrink-0 ml-1 cursor-pointer";
+      closeButton.setAttribute("aria-label", "Dismiss notification");
+      closeButton.textContent = "✕";
+      closeButton.addEventListener("click", () => toast.remove());
+      toast.append(iconEl, textEl, closeButton);
       container.appendChild(toast);
       requestAnimationFrame(() => {
         toast.classList.remove("translate-x-10", "opacity-0");
@@ -6432,148 +6397,140 @@ ALTER TABLE stories ADD COLUMN uploaded_to_youtube TEXT DEFAULT 'pending';`;
       }
     };
 
-    window.pipeScheduleLogicFilter = "all";
-
-    window.setLogicFilter = function(key) {
-      window.pipeScheduleLogicFilter = key;
-      const rule = LOGIC_FILTERS[key] || LOGIC_FILTERS.all;
-      const formulaInput = document.getElementById("sheetFormulaInput");
-      if (formulaInput) formulaInput.value = rule.formula;
-      const formulaDesc = document.getElementById("sheetFormulaDesc");
-      if (formulaDesc) formulaDesc.textContent = rule.desc;
-
-      const activeCls = "px-2 py-0.5 rounded font-mono text-[11px] font-bold transition bg-emerald-600 text-white cursor-pointer shadow-sm";
-      const inactiveCls = "px-2 py-0.5 rounded font-mono text-[11px] font-medium transition text-gray-300 hover:text-white bg-gray-800 border border-gray-700 cursor-pointer";
-
-      Object.entries(LOGIC_FILTERS).forEach(([k, r]) => {
-        const btn = document.getElementById(r.btnId);
-        if (btn) btn.className = k === key ? activeCls : inactiveCls;
+    window.pipeScheduleFilter = "all";
+    window.setScheduleFilter = function(filter) {
+      window.pipeScheduleFilter = filter;
+      document.querySelectorAll(".schedule-filter").forEach(button => {
+        const active = button.dataset.scheduleFilter === filter;
+        button.setAttribute("aria-pressed", String(active));
+        button.className = `schedule-filter px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
+          active ? "bg-indigo-600 text-white" : "bg-gray-900 border border-gray-800 text-gray-300 hover:text-white"
+        }`;
       });
-
       renderScheduleTable(pipeSheetData);
     };
 
-    window.setScheduleFilter = function(filter) {
-      if (filter === "pending") window.setLogicFilter("or");
-      else if (filter === "published") window.setLogicFilter("done");
-      else window.setLogicFilter("all");
-    };
-
-    function updateHttpTelemetry(telemetry) {
-      const statusEl = document.getElementById("telemetryStatus");
-      const latencyEl = document.getElementById("telemetryLatency");
-      const endpointEl = document.getElementById("telemetryEndpoint");
-      const rowsEl = document.getElementById("telemetryRows");
-      const traceEl = document.getElementById("telemetryTrace");
-
-      if (statusEl) {
-        const ok = telemetry.status >= 200 && telemetry.status < 300;
-        statusEl.className = ok
-          ? "px-1.5 py-0.5 rounded bg-emerald-950/80 border border-emerald-500/40 text-emerald-300 font-bold"
-          : "px-1.5 py-0.5 rounded bg-rose-950/80 border border-rose-500/40 text-rose-300 font-bold";
-        statusEl.textContent = `HTTP ${telemetry.status || 200} ${ok ? "OK" : "ERROR"}`;
-      }
-      if (latencyEl) latencyEl.textContent = `⏱️ ${telemetry.duration_ms || telemetry.durationMs || "--"}ms`;
-      if (endpointEl) endpointEl.textContent = telemetry.endpoint || "GET /api/turso/stories";
-      if (rowsEl && telemetry.rowCount !== undefined) {
-        rowsEl.textContent = `📊 ${telemetry.rowCount} item(s)`;
-      }
-      if (traceEl) traceEl.textContent = telemetry.request_id || telemetry.requestId || "req-local";
-
-      console.info("[Observability Telemetry]", telemetry);
-    }
+    document.getElementById("scheduleFilters")?.addEventListener("click", event => {
+      const button = event.target.closest("[data-schedule-filter]");
+      if (button) window.setScheduleFilter(button.dataset.scheduleFilter);
+    });
+    document.getElementById("scheduleSearch")?.addEventListener("input", () => renderScheduleTable(pipeSheetData));
 
     function renderScheduleTable(data) {
-      const tb = document.getElementById("scheduleTableBody");
-      if (!tb) return;
-
+      const cards = document.getElementById("scheduleCards");
+      if (!cards) return;
       const allRows = data || [];
-
-      // Update badge counts for each logic filter
-      Object.entries(LOGIC_FILTERS).forEach(([k, r]) => {
-        const cntEl = document.getElementById(r.countId);
-        if (cntEl) {
-          const c = allRows.filter(row => {
-            const fbYes = String(row.uploaded).trim().toUpperCase() === "YES";
-            const ytYes = String(row.youtube).trim().toUpperCase() === "YES";
-            return r.test(fbYes, ytYes);
-          }).length;
-          cntEl.textContent = String(c);
-        }
+      const isLive = value => String(value).trim().toUpperCase() === "YES";
+      const facebookCount = allRows.filter(row => isLive(row.uploaded)).length;
+      const youtubeCount = allRows.filter(row => isLive(row.youtube)).length;
+      const doneCount = allRows.filter(row => isLive(row.uploaded) && isLive(row.youtube)).length;
+      const counts = {
+        scheduleTotalCount: allRows.length,
+        schedulePendingCount: allRows.length - doneCount,
+        scheduleFacebookCount: facebookCount,
+        scheduleYoutubeCount: youtubeCount
+      };
+      Object.entries(counts).forEach(([id, count]) => {
+        const element = document.getElementById(id);
+        if (element) element.textContent = String(count);
       });
 
-      const activeKey = window.pipeScheduleLogicFilter || "all";
-      const rule = LOGIC_FILTERS[activeKey] || LOGIC_FILTERS.all;
-
+      const filter = window.pipeScheduleFilter || "all";
+      const query = (document.getElementById("scheduleSearch")?.value || "").trim().toLowerCase();
       const filteredRows = allRows.filter(row => {
-        const fbYes = String(row.uploaded).trim().toUpperCase() === "YES";
-        const ytYes = String(row.youtube).trim().toUpperCase() === "YES";
-        return rule.test(fbYes, ytYes);
+        const fbYes = isLive(row.uploaded);
+        const ytYes = isLive(row.youtube);
+        const statusMatches = filter === "pending" ? !(fbYes && ytYes)
+          : filter === "published" ? fbYes && ytYes
+          : filter === "facebook" ? fbYes
+          : filter === "youtube" ? ytYes : true;
+        return statusMatches && [row.filename, row.caption, row.description]
+          .some(value => String(value || "").toLowerCase().includes(query));
       });
 
       const meta = document.getElementById("scheduleMeta");
-      if (meta) meta.textContent = `${filteredRows.length} of ${allRows.length} row(s) [${rule.label}]`;
-
-      const rowsEl = document.getElementById("telemetryRows");
-      if (rowsEl) rowsEl.textContent = `📊 ${filteredRows.length}/${allRows.length} rows [${rule.label}]`;
+      if (meta) meta.textContent = `${filteredRows.length} shown · ${allRows.length} campaign${allRows.length === 1 ? "" : "s"}`;
 
       if (!filteredRows.length) {
-        tb.innerHTML = `<tr><td colspan="8" class="py-12 text-center text-gray-500 font-mono text-xs">
-          No records match formula: <code class="text-emerald-400 font-mono bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-900/60">${pipeEsc(rule.formula)}</code>
-        </td></tr>`;
+        const message = allRows.length ? "No campaigns match this filter." : "No campaigns yet. Published stories will show up here.";
+        cards.innerHTML = `<div class="col-span-full rounded-xl border border-dashed border-gray-800 px-4 py-12 text-center text-sm text-gray-500">${message}</div>`;
         return;
       }
 
-      tb.innerHTML = filteredRows.map((row, i) => {
-        const fbYes = String(row.uploaded).trim().toUpperCase() === "YES";
-        const ytYes = String(row.youtube).trim().toUpperCase() === "YES";
+      cards.innerHTML = filteredRows.map(row => {
+        const fbYes = isLive(row.uploaded);
+        const ytYes = isLive(row.youtube);
         const isDone = fbYes && ytYes;
-        const rowNum = i + 1;
         const filename = row.filename || "untitled.mp4";
-
-        let statusBadge = "";
-        let rowClass = "hover:bg-gray-900/70 transition duration-150";
-
-        if (isDone) {
-          statusBadge = `<span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-950/80 text-emerald-300 border border-emerald-500/40">PUBLISHED</span>`;
-        } else if (!fbYes && !ytYes) {
-          statusBadge = `<span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-amber-950/80 text-amber-300 border border-amber-500/40 animate-pulse">NEEDS BOTH</span>`;
-        } else if (!fbYes) {
-          statusBadge = `<span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-blue-950/80 text-blue-300 border border-blue-500/40">NEEDS FB</span>`;
-        } else {
-          statusBadge = `<span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-red-950/80 text-red-300 border border-red-500/40">NEEDS YT</span>`;
-        }
-
-        return `<tr id="sched-row-${rowNum}" class="${rowClass}">
-          <td class="py-2.5 px-3 text-center bg-gray-950/80 text-gray-500 font-mono text-[10px] border-r border-gray-800/80 select-none">${rowNum}</td>
-          <td class="py-2 px-3 font-mono text-[11px] border-r border-gray-800/60">
-            <span class="font-semibold text-emerald-300 break-all block">${pipeEsc(filename)}</span>
-          </td>
-          <td class="py-2 px-3 text-gray-300 max-w-[200px] truncate border-r border-gray-800/60" title="${pipeEsc(row.caption)}">${pipeEsc(row.caption || "-")}</td>
-          <td class="py-2 px-3 text-gray-400 max-w-[180px] truncate border-r border-gray-800/60" title="${pipeEsc(row.description)}">${pipeEsc(row.description || "-")}</td>
-          <td class="py-2 px-3 text-center border-r border-gray-800/60">
-            ${fbYes
-              ? `<button class="py-0.5 px-2.5 bg-emerald-950/90 hover:bg-amber-950/60 border border-emerald-500/50 text-emerald-300 hover:text-amber-300 font-mono text-[10px] font-bold rounded transition cursor-pointer" onclick="markScheduleStatus(${rowNum}, '${escapeHtml(filename)}', 'fb', 'YES', this)" title="Click to toggle NO">YES</button>`
-              : `<button class="py-0.5 px-2.5 bg-gray-900 hover:bg-blue-600/80 border border-gray-700 text-gray-300 hover:text-white font-mono text-[10px] font-bold rounded transition cursor-pointer" onclick="markScheduleStatus(${rowNum}, '${escapeHtml(filename)}', 'fb', 'NO', this)" title="Click to toggle YES">NO</button>`
-            }
-          </td>
-          <td class="py-2 px-3 text-center border-r border-gray-800/60">
-            ${ytYes
-              ? `<button class="py-0.5 px-2.5 bg-emerald-950/90 hover:bg-amber-950/60 border border-emerald-500/50 text-emerald-300 hover:text-amber-300 font-mono text-[10px] font-bold rounded transition cursor-pointer" onclick="markScheduleStatus(${rowNum}, '${escapeHtml(filename)}', 'yt', 'YES', this)" title="Click to toggle NO">YES</button>`
-              : `<button class="py-0.5 px-2.5 bg-gray-900 hover:bg-red-600/80 border border-gray-700 text-gray-300 hover:text-white font-mono text-[10px] font-bold rounded transition cursor-pointer" onclick="markScheduleStatus(${rowNum}, '${escapeHtml(filename)}', 'yt', 'NO', this)" title="Click to toggle YES">NO</button>`
-            }
-          </td>
-          <td class="py-2 px-3 text-center border-r border-gray-800/60">
-            ${statusBadge}
-          </td>
-          <td class="py-2 px-3 text-right">
-            <button onclick="deleteScheduleCampaign(${rowNum}, '${escapeHtml(filename)}', this)" class="py-0.5 px-2 bg-gray-900 hover:bg-red-950/80 border border-gray-800 hover:border-red-700/60 text-gray-400 hover:text-red-300 rounded text-[11px] transition cursor-pointer" title="Delete from Turso & Dropbox">
-              🗑️
-            </button>
-          </td>
-        </tr>`;
+        const rowIndex = Number(row.rowIndex) || 0;
+        const statusButton = (platform, live) => `<button type="button" data-schedule-action="status" data-row-index="${rowIndex}" data-filename="${pipeEsc(filename)}" data-platform="${platform}" data-current="${live ? "YES" : "NO"}" aria-pressed="${live}" class="w-full rounded-lg border px-3 py-2 text-xs font-semibold transition ${
+          live ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-300 hover:bg-emerald-500/20" : "border-gray-700 bg-gray-900 text-gray-300 hover:border-indigo-500/50 hover:text-white"
+        }">${live ? "✓ Live" : "＋ Mark live"}</button>`;
+        return `<article class="rounded-xl border border-white/[0.08] bg-gray-950/60 p-4 hover:border-white/[0.15] transition">
+          <div class="flex items-start justify-between gap-3">
+            <div class="min-w-0">
+              <h3 class="font-semibold text-white break-words">${pipeEsc(filename)}</h3>
+              <p class="mt-1 text-xs text-gray-400 line-clamp-2">${pipeEsc(row.caption || "No caption added.")}</p>
+            </div>
+            <span class="shrink-0 rounded-full px-2.5 py-1 text-[10px] font-semibold ${
+              isDone ? "bg-emerald-500/10 text-emerald-300" : "bg-amber-500/10 text-amber-300"
+            }">${isDone ? "Complete" : "In progress"}</span>
+          </div>
+          ${row.description ? `<p class="mt-3 text-xs text-gray-500 line-clamp-2">${pipeEsc(row.description)}</p>` : ""}
+          <div class="mt-4 grid grid-cols-2 gap-2">
+            <div><div class="mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-gray-500">Facebook</div>${statusButton("fb", fbYes)}</div>
+            <div><div class="mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-gray-500">YouTube</div>${statusButton("yt", ytYes)}</div>
+          </div>
+          <div class="mt-3 flex justify-end border-t border-white/[0.06] pt-3">
+            <button type="button" data-schedule-action="delete" data-row-index="${rowIndex}" data-filename="${pipeEsc(filename)}" class="rounded-lg px-3 py-1.5 text-xs text-gray-500 hover:bg-red-500/10 hover:text-red-300 transition">Remove campaign</button>
+          </div>
+        </article>`;
       }).join("");
     }
+
+    let scheduleDeleteResolver = null;
+    let scheduleDeleteFocusTarget = null;
+    function confirmScheduleDelete(filename, returnFocus) {
+      const modal = document.getElementById("scheduleDeleteModal");
+      const name = document.getElementById("scheduleDeleteFilename");
+      const confirmButton = document.getElementById("confirmScheduleDeleteBtn");
+      if (!modal) return Promise.resolve(false);
+      scheduleDeleteFocusTarget = returnFocus;
+      name.textContent = filename;
+      modal.classList.remove("hidden");
+      confirmButton.focus();
+      return new Promise(resolve => { scheduleDeleteResolver = resolve; });
+    }
+
+    function closeScheduleDelete(confirmed) {
+      const modal = document.getElementById("scheduleDeleteModal");
+      if (modal) modal.classList.add("hidden");
+      const resolve = scheduleDeleteResolver;
+      scheduleDeleteResolver = null;
+      if (resolve) resolve(confirmed);
+      if (scheduleDeleteFocusTarget?.isConnected) scheduleDeleteFocusTarget.focus();
+      scheduleDeleteFocusTarget = null;
+    }
+
+    document.getElementById("cancelScheduleDeleteBtn")?.addEventListener("click", () => closeScheduleDelete(false));
+    document.getElementById("confirmScheduleDeleteBtn")?.addEventListener("click", () => closeScheduleDelete(true));
+    document.getElementById("scheduleDeleteModal")?.addEventListener("click", event => {
+      if (event.target.id === "scheduleDeleteModal") closeScheduleDelete(false);
+    });
+    window.addEventListener("keydown", event => {
+      if (event.key === "Escape" && scheduleDeleteResolver) closeScheduleDelete(false);
+    });
+
+    document.getElementById("scheduleCards")?.addEventListener("click", event => {
+      const button = event.target.closest("[data-schedule-action]");
+      if (!button) return;
+      const { scheduleAction, rowIndex, filename, platform, current } = button.dataset;
+      if (scheduleAction === "status") {
+        markScheduleStatus(Number(rowIndex), filename, platform, current, button);
+      } else if (scheduleAction === "delete") {
+        deleteScheduleCampaign(Number(rowIndex), filename, button);
+      }
+    });
 
     async function markScheduleStatus(rowIndex, filename, platform, currentVal, btn) {
       const nextVal = currentVal === "YES" ? "NO" : "YES";
@@ -6583,7 +6540,6 @@ ALTER TABLE stories ADD COLUMN uploaded_to_youtube TEXT DEFAULT 'pending';`;
         btn.textContent = "…";
       }
 
-      const startT = performance.now();
       try {
         const res = await fetch("/api/schedule/update_status", {
           method: "POST",
@@ -6595,17 +6551,8 @@ ALTER TABLE stories ADD COLUMN uploaded_to_youtube TEXT DEFAULT 'pending';`;
             status: status
           })
         });
-        const durationMs = Math.round(performance.now() - startT);
         const data = await res.json();
-        updateHttpTelemetry({
-          event: "http_status_updated",
-          endpoint: "/api/schedule/update_status",
-          status: res.status,
-          duration_ms: durationMs,
-          request_id: data.telemetry?.request_id || "req-" + Math.random().toString(36).substring(2, 8),
-          rowCount: pipeSheetData.length
-        });
-        if (!data.ok) throw new Error(data.error || "Failed to update status");
+        if (!res.ok || !data.ok) throw new Error(data.error || "Failed to update status");
 
         const row = pipeSheetData.find(r => r.rowIndex === rowIndex || r.filename === filename);
         if (row) {
@@ -6618,15 +6565,12 @@ ALTER TABLE stories ADD COLUMN uploaded_to_youtube TEXT DEFAULT 'pending';`;
         showToast(`✓ Updated ${platform.toUpperCase()} to ${nextVal} for "${filename}"`);
       } catch (err) {
         showToast(`✕ Status update failed: ${err.message}`, "error");
-        if (btn) {
-          btn.disabled = false;
-          btn.textContent = currentVal === "YES" ? "YES" : "NO";
-        }
+        renderScheduleTable(pipeSheetData);
       }
     }
 
     async function deleteScheduleCampaign(rowIndex, filename, btn) {
-      const ok = confirm(`⚠️ DELETE CAMPAIGN RECORD?\n\nAre you sure you want to permanently delete "${filename}"?\nThis will remove the entry from Turso and delete the video from Dropbox.`);
+      const ok = await confirmScheduleDelete(filename, btn);
       if (!ok) return;
 
       const appKey = pipeCfg("dbAppKey", DEFAULT_APP_KEY);
@@ -6639,7 +6583,6 @@ ALTER TABLE stories ADD COLUMN uploaded_to_youtube TEXT DEFAULT 'pending';`;
         btn.textContent = "⏳";
       }
 
-      const startT = performance.now();
       try {
         const res = await fetch("/api/schedule/delete", {
           method: "POST",
@@ -6652,68 +6595,32 @@ ALTER TABLE stories ADD COLUMN uploaded_to_youtube TEXT DEFAULT 'pending';`;
             db_folder: folder
           })
         });
-        const durationMs = Math.round(performance.now() - startT);
         const data = await res.json();
-        updateHttpTelemetry({
-          event: "http_campaign_deleted",
-          endpoint: "/api/schedule/delete",
-          status: res.status,
-          duration_ms: durationMs,
-          request_id: "req-" + Math.random().toString(36).substring(2, 8),
-          rowCount: pipeSheetData.length - 1
-        });
-        if (!data.ok) throw new Error(data.error || "Delete failed");
+        if (!res.ok || !data.ok) throw new Error(data.error || "Delete failed");
 
         pipeSheetData = pipeSheetData.filter(r => r.filename !== filename && r.rowIndex !== rowIndex);
         renderScheduleTable(pipeSheetData);
         showToast(`🗑️ Deleted "${filename}" from Turso & Dropbox.`);
       } catch (err) {
         showToast(`✕ Deletion error: ${err.message}`, "error");
-        if (btn) {
-          btn.disabled = false;
-          btn.textContent = "🗑️";
-        }
+        renderScheduleTable(pipeSheetData);
       }
     }
 
     async function loadSchedule() {
-      const tb = document.getElementById("scheduleTableBody");
+      const cards = document.getElementById("scheduleCards");
       const meta = document.getElementById("scheduleMeta");
       const refreshIcon = document.getElementById("refreshScheduleIcon");
 
       if (refreshIcon) refreshIcon.classList.add("animate-spin");
-      if (meta) meta.textContent = "Loading HTTP…";
-
-      const startT = performance.now();
-      const traceId = "tr-" + Math.random().toString(36).substring(2, 8);
+      if (meta) meta.textContent = "Loading campaigns…";
+      if (cards) cards.innerHTML = `<div class="col-span-full rounded-xl border border-dashed border-gray-800 px-4 py-12 text-center text-sm text-gray-400">Loading your publishing overview…</div>`;
 
       try {
         const res = await fetch("/api/turso/stories");
-        const durationMs = Math.round(performance.now() - startT);
         const json = await res.json();
 
-        updateHttpTelemetry({
-          event: "http_stories_fetched",
-          endpoint: "/api/turso/stories",
-          status: res.status,
-          duration_ms: durationMs,
-          request_id: json.telemetry?.request_id || traceId,
-          rowCount: (json.stories || []).length
-        });
-
-        if (!json.ok) {
-          if (json.error && json.error.includes("not configured")) {
-            if (tb) {
-              tb.innerHTML = `<tr><td colspan="8" class="py-12 text-center text-purple-400/90 font-mono text-xs">
-                ⚠️ Turso Database credentials not configured.<br/>
-                <span class="text-gray-400">Open <strong>Settings > Cloud Publisher Credentials</strong> to configure your Turso Database URL and Auth Token.</span>
-              </td></tr>`;
-            }
-            if (meta) meta.textContent = "Not configured";
-            return;
-          }
-          throw new Error(json.error || "Failed to fetch schedule from Turso");
-        }
+        if (!res.ok || !json.ok) throw new Error(json.error || `Request failed (${res.status})`);
         pipeSheetData = (json.stories || []).map((s, idx) => ({
           rowIndex: idx + 2,
           filename: s.filename,
@@ -6724,20 +6631,15 @@ ALTER TABLE stories ADD COLUMN uploaded_to_youtube TEXT DEFAULT 'pending';`;
         }));
         renderScheduleTable(pipeSheetData);
       } catch (e) {
-        const durationMs = Math.round(performance.now() - startT);
-        updateHttpTelemetry({
-          event: "http_stories_failed",
-          endpoint: "/api/turso/stories",
-          status: 500,
-          duration_ms: durationMs,
-          request_id: traceId,
-          error: e.message
-        });
-        if (meta) meta.textContent = "Load failed";
-        if (tb) {
-          tb.innerHTML = `<tr><td colspan="8" class="py-12 text-center text-rose-400 font-mono text-xs">
-            ✕ Failed to load Turso manifest: ${escapeHtml(e.message)}
-          </td></tr>`;
+        pipeSheetData = [];
+        if (meta) meta.textContent = "Could not load campaigns.";
+        const needsSettings = /not configured/i.test(e.message);
+        if (cards) {
+          cards.innerHTML = `<div class="col-span-full rounded-xl border border-rose-500/20 bg-rose-500/5 px-4 py-8 text-center text-sm text-rose-300">
+            <p>${needsSettings ? "Connect your Turso database to load campaigns." : `Could not load the publishing overview: ${pipeEsc(e.message)}`}</p>
+            ${needsSettings ? `<button id="scheduleOpenSettingsBtn" type="button" class="mt-4 rounded-lg bg-indigo-600 px-3.5 py-2 text-xs font-semibold text-white hover:bg-indigo-500">Open cloud settings</button>` : ""}
+          </div>`;
+          document.getElementById("scheduleOpenSettingsBtn")?.addEventListener("click", () => openSettingsModal("publisher"));
         }
       } finally {
         if (refreshIcon) refreshIcon.classList.remove("animate-spin");
@@ -6914,19 +6816,41 @@ ALTER TABLE stories ADD COLUMN uploaded_to_youtube TEXT DEFAULT 'pending';`;
 
     // Duplicate Warning Modal Controller
     let pendingDuplicateAction = null;
+    let duplicateWarningFocusTarget = null;
     function showDuplicateWarningModal(message, onConfirm) {
       const modal = document.getElementById('duplicateWarningModal');
       const textEl = document.getElementById('dupWarningText');
       if (textEl && message) textEl.textContent = message;
       pendingDuplicateAction = onConfirm;
-      if (modal) modal.classList.remove('hidden');
+      if (modal) {
+        duplicateWarningFocusTarget = document.activeElement;
+        modal.classList.remove('hidden');
+        document.getElementById('confirmDuplicatePublishBtn')?.focus();
+      }
     }
 
     function closeDuplicateWarningModal() {
       const modal = document.getElementById('duplicateWarningModal');
       if (modal) modal.classList.add('hidden');
       pendingDuplicateAction = null;
+      if (duplicateWarningFocusTarget?.isConnected) duplicateWarningFocusTarget.focus();
+      duplicateWarningFocusTarget = null;
     }
+
+    document.getElementById('duplicateWarningModal')?.addEventListener('click', event => {
+      if (event.target.id === 'duplicateWarningModal') closeDuplicateWarningModal();
+    });
+
+    window.addEventListener('keydown', event => {
+      if (event.key !== 'Escape') return;
+      if (!document.getElementById('duplicateWarningModal')?.classList.contains('hidden')) {
+        closeDuplicateWarningModal();
+      } else if (!settingsModal?.classList.contains('hidden')) {
+        closeSettingsModal();
+      } else if (!zipJsonModal?.classList.contains('hidden')) {
+        closeZipJsonModal();
+      }
+    });
 
     const confirmDupBtn = document.getElementById('confirmDuplicatePublishBtn');
     if (confirmDupBtn) {

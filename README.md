@@ -1,6 +1,6 @@
 # FB-2minutes Storymaker
 
-[![Version](https://img.shields.io/badge/version-1.0.6-blue.svg)](https://github.com/AllensCreations/FBStoryMaker)
+[![Version](https://img.shields.io/badge/version-1.0.7-blue.svg)](https://github.com/AllensCreations/FBStoryMaker)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![Tests](https://img.shields.io/badge/tests-unittest-blue.svg)](tests/)
@@ -88,7 +88,7 @@ From the dashboard, choose **Edit .env settings** to open `.env` in `$VISUAL`, `
 - **📦 Story Packages**: Manage incoming story packages, track real-time rendering progress via Server-Sent Events (SSE), filter by pending/published status, and load stories into the studio with one click.
 - **🎬 Studio**: Creative canvas with 30 FPS playback, interactive audio waveform, manual draggable cut markers, fast cadence alignment, and multimodal AI auto-alignment.
 - **⏳ Publish Queue**: Auto-publish saves the current package and starts background rendering/upload; Studio clears only after the server accepts the job. Follow progress here, and reopen failed stories to retry.
-- **📅 Schedule**: Calendar view tracking published campaigns, release dates, and Facebook/YouTube distribution channels.
+- **📅 Schedule**: Publishing overview with campaign search, platform filters, and interactive Facebook/YouTube status controls.
 - **⚙️ Settings Modal**: Consolidated credentials modal supporting Gemini API keys, Gemini model selection (`gemini-2.5-flash`, `gemini-1.5-pro`, `gemini-3.8-flash`), Dropbox cloud credentials, and Google Sheets manifest URLs.
 
 ### 2. Interactive Terminal Dashboard
