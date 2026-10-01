@@ -62,6 +62,13 @@ def _story_output_filename(title: str, item_id: str) -> str:
     return f"{slug or f'story_{item_id}'}.mp4"
 
 
+def _remove_saved_browser_render(item_id: str) -> None:
+    for extension in ("mp4", "webm"):
+        path = default_manager.get_item_file_path(item_id, f"rendered_video.{extension}")
+        if path:
+            path.unlink(missing_ok=True)
+
+
 def _apply_caption_word_timings(timeline, timings) -> None:
     """Apply saved ASR timings only to matching scene text and boundaries."""
     if not isinstance(timings, list):
@@ -923,6 +930,26 @@ class StorymakerRequestHandler(SimpleHTTPRequestHandler):
                     self.send_json(item)
                 else:
                     self.send_error(404, "Item not found")
+            # /api/items/<item_id>/rendered-video-info
+            elif len(parts) == 4 and parts[3] == "rendered-video-info":
+                item_id = parts[2]
+                if not default_manager.get_item(item_id):
+                    self.send_json({"ok": False, "error": "Story item not found."}, status=404)
+                    return
+                for extension in ("mp4", "webm"):
+                    rendered_path = default_manager.get_item_file_path(
+                        item_id, f"rendered_video.{extension}"
+                    )
+                    if rendered_path:
+                        self.send_json({
+                            "ok": True,
+                            "item_id": item_id,
+                            "available": True,
+                            "extension": extension,
+                            "bytes": rendered_path.stat().st_size
+                        })
+                        return
+                self.send_json({"ok": True, "item_id": item_id, "available": False})
             # /api/items/<item_id>/image/<img_name>
             elif len(parts) >= 5 and parts[3] == "image":
                 item_id = parts[2]
@@ -1539,6 +1566,7 @@ class StorymakerRequestHandler(SimpleHTTPRequestHandler):
 
                 updated = default_manager.save_item_audio(item_id, audio_bytes, filename)
                 if updated:
+                    _remove_saved_browser_render(item_id)
                     self.send_json({"ok": True, "item": updated, "audio_url": updated.get("audio_url")})
                 else:
                     self.send_json({"ok": False, "error": f"Story item {item_id} not found"}, status=404)
@@ -1561,6 +1589,7 @@ class StorymakerRequestHandler(SimpleHTTPRequestHandler):
                     payload.get("scene_texts")
                 )
                 if updated:
+                    _remove_saved_browser_render(item_id)
                     self.send_json({"ok": True, "item": updated})
                 else:
                     self.send_json({"ok": False, "error": f"Story item {item_id} not found"}, status=404)

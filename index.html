@@ -455,6 +455,9 @@
               <span id="studioPublishIcon">🚀</span>
               <span id="studioPublishText">Render in Studio &amp; Add to Queue</span>
             </button>
+            <button id="studioRerenderBtn" type="button" class="hidden w-full py-2 px-4 rounded-xl font-semibold text-xs bg-gray-800 hover:bg-gray-700 text-gray-200 border border-white/[0.08] transition">
+              Re-render &amp; Queue
+            </button>
             <!-- 3-Stage Progress Display for Auto-Publish -->
             <div id="studioPublishProgress" class="hidden space-y-2.5 bg-black/80 p-3 rounded-xl border border-gray-800 shadow-xl">
               <div class="flex items-center justify-between text-[11px] font-bold border-b border-gray-800/80 pb-1.5">
@@ -1331,6 +1334,7 @@
     let previousSceneCuts = null;
     let loadedImages = [];
     let draggingMarkerIdx = null;
+    let currentSavedRenderInfo = null;
 
     function clearCaptionWordTimings() {
       captionWordTimings = [];
@@ -1428,6 +1432,7 @@
     document.getElementById('audioInput').addEventListener('change', async (e) => {
       const file = e.target.files[0];
       if (!file) return;
+      setCurrentSavedRenderInfo(null);
       clearCaptionWordTimings();
       audioElement.src = URL.createObjectURL(file);
       statusEl.textContent = "Decoding audio...";
@@ -1669,7 +1674,10 @@
 
     const scriptInputEl = document.getElementById('scriptInput');
     if (scriptInputEl) {
-      scriptInputEl.addEventListener('input', updateScriptCounter);
+      scriptInputEl.addEventListener('input', () => {
+        setCurrentSavedRenderInfo(null);
+        updateScriptCounter();
+      });
       scriptInputEl.addEventListener('beforeinput', (e) => {
         if (window.currentActiveItemId && window.currentActiveItemPublished && !window._publishedEditConfirmed) {
           const ok = confirm(
@@ -1805,6 +1813,7 @@
                   calculatedCuts.push(Math.round(lastChunk.timestamp[1] * 100) / 100);
                 }
               }
+              setCurrentSavedRenderInfo(null);
               document.getElementById('scriptInput').value = sceneTexts.join('\n(Next image)\n');
               if (calculatedCuts.length === sceneTexts.length + 1 && audioBuffer) {
                 calculatedCuts[calculatedCuts.length - 1] = Math.round(audioBuffer.duration * 100) / 100;
@@ -1820,10 +1829,13 @@
                 for (let i = 0; i < cleanSentences.length; i += perScene) {
                   sceneTexts.push(cleanSentences.slice(i, i + perScene).join(' '));
                 }
+                setCurrentSavedRenderInfo(null);
                 document.getElementById('scriptInput').value = sceneTexts.join('\n(Next image)\n');
               } else if (cleanSentences.length > 1) {
+                setCurrentSavedRenderInfo(null);
                 document.getElementById('scriptInput').value = cleanSentences.join('\n(Next image)\n');
               } else {
+                setCurrentSavedRenderInfo(null);
                 document.getElementById('scriptInput').value = transcriptText;
               }
             }
@@ -2019,6 +2031,7 @@
         }
       }
 
+      setCurrentSavedRenderInfo(null);
       sceneCuts = newCuts;
       if (loadedImages.length > 0) {
         updateCanvasAspectRatio(loadedImages);
@@ -2356,6 +2369,7 @@
       newTime = Math.max(prevCut, Math.min(newTime, nextCut));
 
       sceneCuts[draggingMarkerIdx] = newTime;
+      setCurrentSavedRenderInfo(null);
       rebuildScenes();
       drawWaveform();
       drawFrame(audioElement.currentTime);
@@ -3254,6 +3268,16 @@
     // --- Studio Story Metadata & Publisher Automation ---
     let metadataSaveTimeout = null;
 
+    function setCurrentSavedRenderInfo(info) {
+      currentSavedRenderInfo = info?.available && info.item_id === window.currentActiveItemId ? info : null;
+      const label = document.getElementById('studioPublishText');
+      const rerenderBtn = document.getElementById('studioRerenderBtn');
+      if (label) label.textContent = currentSavedRenderInfo
+        ? `Queue Saved Render (${currentSavedRenderInfo.extension.toUpperCase()})`
+        : 'Render in Studio & Add to Queue';
+      if (rerenderBtn) rerenderBtn.classList.toggle('hidden', !currentSavedRenderInfo);
+    }
+
     async function renderStudioVideoForQueue() {
       if (!audioBuffer) throw new Error("Voiceover audio is required before rendering.");
       if (!window.MediaRecorder || !canvas.captureStream) {
@@ -3416,7 +3440,9 @@
         showToast(`✕ Browser render failed: ${error.message}`, true);
         if (btn) {
           btn.disabled = false;
-          btn.innerHTML = '<span>🚀</span> Render in Studio &amp; Add to Queue';
+          btn.innerHTML = currentSavedRenderInfo
+            ? '<span>🚀</span> Queue Saved Render'
+            : '<span>🚀</span> Render in Studio &amp; Add to Queue';
         }
       }
     }
@@ -3670,17 +3696,28 @@
 
     const studioAutoPublishBtnEl = document.getElementById("studioAutoPublishBtn");
     if (studioAutoPublishBtnEl) {
-      studioAutoPublishBtnEl.addEventListener("click", () => renderAndQueueStudioAutoPublish(false));
+      studioAutoPublishBtnEl.addEventListener("click", () => {
+        const saved = currentSavedRenderInfo;
+        if (saved && saved.item_id === window.currentActiveItemId) {
+          queueStudioAutoPublish(false, { saved: true, extension: saved.extension });
+        } else {
+          renderAndQueueStudioAutoPublish(false);
+        }
+      });
     }
+    document.getElementById("studioRerenderBtn")?.addEventListener(
+      "click", () => renderAndQueueStudioAutoPublish(false)
+    );
 
     async function queueStudioAutoPublish(force = false, renderedVideo = null) {
       let itemId = window.currentActiveItemId;
       const meta = getStudioStoryMetadata();
-      if (!audioBuffer) {
+      const reusingSavedRender = Boolean(renderedVideo?.saved);
+      if (!audioBuffer && !reusingSavedRender) {
         showToast("⚠️ Voiceover audio is required before Auto-publish.", true);
         return;
       }
-      if (!itemId && !loadedImages.length) {
+      if (!itemId && (!loadedImages.length || reusingSavedRender)) {
         showToast("⚠️ Add at least one scene image before queuing Auto-publish.", true);
         return;
       }
@@ -3715,10 +3752,10 @@
           (document.getElementById('scriptInput')?.value || '').trim()
         );
         const sceneTexts = scriptScenes.map(scene => scene.text);
-        if (!sceneTexts.length || sceneCuts.length !== sceneTexts.length + 1) {
+        if (!reusingSavedRender && (!sceneTexts.length || sceneCuts.length !== sceneTexts.length + 1)) {
           throw new Error("Align the scene cuts with the script before publishing.");
         }
-        rebuildScenes(sceneTexts);
+        if (!reusingSavedRender) rebuildScenes(sceneTexts);
         if (!itemId) {
           const packageForm = new FormData();
           packageForm.append('title', meta.title);
@@ -3748,46 +3785,54 @@
         }
         clearTimeout(metadataSaveTimeout);
         if (!await saveStudioMetadata(false)) throw new Error("Could not save story metadata.");
-        const cuts = sceneCuts.slice();
-        cuts[cuts.length - 1] = audioBuffer.duration;
-        const wordTimings = buildCaptionWordTimings();
+        if (!reusingSavedRender) {
+          const cuts = sceneCuts.slice();
+          cuts[cuts.length - 1] = audioBuffer.duration;
+          const wordTimings = buildCaptionWordTimings();
 
-        const audioForm = new FormData();
-        audioForm.append('file', audioBufferToWavBlob(audioBuffer), 'voiceover.wav');
-        const audioRes = await fetch(`/api/items/${itemId}/save-audio`, {
-          method: 'POST',
-          body: audioForm
-        });
-        const audioData = await audioRes.json();
-        if (!audioRes.ok || !audioData.ok) {
-          throw new Error(audioData.error || "Could not save voice-over audio to the package.");
-        }
+          const audioForm = new FormData();
+          audioForm.append('file', audioBufferToWavBlob(audioBuffer), 'voiceover.wav');
+          const audioRes = await fetch(`/api/items/${itemId}/save-audio`, {
+            method: 'POST',
+            body: audioForm
+          });
+          const audioData = await audioRes.json();
+          if (!audioRes.ok || !audioData.ok) {
+            throw new Error(audioData.error || "Could not save voice-over audio to the package.");
+          }
 
-        const timelineRes = await fetch(`/api/items/${itemId}/save-timeline`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            cuts,
-            scene_texts: sceneTexts,
-            caption_word_timings: wordTimings
-          })
-        });
-        const timelineData = await timelineRes.json();
-        if (!timelineRes.ok || !timelineData.ok) {
-          throw new Error(timelineData.error || "Could not save scene text and cut markers.");
-        }
+          const timelineRes = await fetch(`/api/items/${itemId}/save-timeline`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              cuts,
+              scene_texts: sceneTexts,
+              caption_word_timings: wordTimings
+            })
+          });
+          const timelineData = await timelineRes.json();
+          if (!timelineRes.ok || !timelineData.ok) {
+            throw new Error(timelineData.error || "Could not save scene text and cut markers.");
+          }
 
-        if (!renderedVideo?.blob || !["mp4", "webm"].includes(renderedVideo.extension)) {
-          throw new Error("Finish the browser render before adding this story to the Publish Queue.");
-        }
-        const renderRes = await fetch(`/api/items/${itemId}/save-render`, {
-          method: 'POST',
-          headers: { 'Content-Type': renderedVideo.blob.type },
-          body: renderedVideo.blob
-        });
-        const renderData = await renderRes.json();
-        if (!renderRes.ok || !renderData.ok) {
-          throw new Error(renderData.error || "Could not save the browser-rendered video.");
+          if (!renderedVideo?.blob || !["mp4", "webm"].includes(renderedVideo.extension)) {
+            throw new Error("Finish the browser render before adding this story to the Publish Queue.");
+          }
+          const renderRes = await fetch(`/api/items/${itemId}/save-render`, {
+            method: 'POST',
+            headers: { 'Content-Type': renderedVideo.blob.type },
+            body: renderedVideo.blob
+          });
+          const renderData = await renderRes.json();
+          if (!renderRes.ok || !renderData.ok) {
+            throw new Error(renderData.error || "Could not save the browser-rendered video.");
+          }
+          setCurrentSavedRenderInfo({
+            item_id: itemId,
+            available: true,
+            extension: renderedVideo.extension,
+            bytes: renderData.bytes
+          });
         }
 
         const publishRes = await fetch(`/api/items/${itemId}/auto-publish`, {
@@ -3813,7 +3858,7 @@
         if (publishRes.status === 409 && publishData.is_duplicate && !force) {
           if (btn) {
             btn.disabled = false;
-            btn.innerHTML = '<span>🚀</span> Render in Studio &amp; Add to Queue';
+            btn.innerHTML = '<span>🚀</span> Queue Saved Render';
           }
           showDuplicateWarningModal(publishData.message, () => queueStudioAutoPublish(true, renderedVideo));
           return;
@@ -3830,7 +3875,9 @@
         showToast(`✕ Could not queue Auto-publish: ${err.message}`, true);
         if (btn) {
           btn.disabled = false;
-          btn.innerHTML = '<span>🚀</span> Retry Auto-Publish';
+          btn.innerHTML = currentSavedRenderInfo
+            ? '<span>🚀</span> Queue Saved Render'
+            : '<span>🚀</span> Retry Queue';
         }
       }
     }
@@ -3850,6 +3897,7 @@
       draggingMarkerIdx = null;
       loadedImages = [];
       scenes = [];
+      setCurrentSavedRenderInfo(null);
       window.currentActiveItemId = null;
       window.currentActiveItemPublished = false;
       window._publishedEditConfirmed = false;
@@ -3974,6 +4022,7 @@
         if (audioElement && audioBuffer) {
           const t = audioElement.currentTime || 0;
           if (!sceneCuts.some(c => Math.abs(c - t) < 0.2)) {
+            setCurrentSavedRenderInfo(null);
             sceneCuts.push(t);
             sceneCuts.sort((a, b) => a - b);
             drawWaveform();
@@ -4434,6 +4483,7 @@
         // Track currently active item ID and published state
         window.currentActiveItemId = item.id;
         window.currentActiveItemPublished = isItemPublished;
+        setCurrentSavedRenderInfo(null);
 
         // Populate Studio Column 3 metadata fields
         const studioTitleInput = document.getElementById("studioStoryTitleInput");
@@ -4582,9 +4632,19 @@
           }
         }
 
+        try {
+          const renderRes = await fetch(`/api/items/${item.id}/rendered-video-info`);
+          if (renderRes.ok) setCurrentSavedRenderInfo(await renderRes.json());
+        } catch (err) {
+          console.warn("Could not check for a saved browser render:", err);
+        }
+
         statusEl.textContent = item.audio_url
           ? `Story & Audio loaded (${loadedImages.length} images). Speech cuts aligned!`
           : `Story loaded (${loadedImages.length} images). Drop or select voiceover audio to auto-sync!`;
+        if (currentSavedRenderInfo) {
+          statusEl.textContent += " Saved render available; queue it without re-rendering.";
+        }
 
       } catch (err) {
         console.error("Failed to load story package into Studio:", err);
@@ -4644,6 +4704,7 @@
         });
         const json = await res.json();
         if (json.ok) {
+          setCurrentSavedRenderInfo(null);
           showToast("✓ Voice-over audio saved to story package! Saved permanently.");
           if (activeItemStatusPill) {
             activeItemStatusPill.textContent = "✓ Audio Ready & Saved to Package";
@@ -6979,6 +7040,7 @@ ALTER TABLE stories ADD COLUMN uploaded_to_youtube TEXT DEFAULT 'pending';`;
           const prevCuts = sceneCuts ? sceneCuts.slice() : [0];
           const prevScript = document.getElementById('scriptInput').value;
 
+          setCurrentSavedRenderInfo(null);
           sceneCuts = [0, ...cuts, Math.round(audioDuration * 100) / 100];
           if (reconciledScript) {
             document.getElementById('scriptInput').value = reconciledScript;
@@ -7131,6 +7193,7 @@ ALTER TABLE stories ADD COLUMN uploaded_to_youtube TEXT DEFAULT 'pending';`;
           const actx = getAudioContext();
           const decoded = await actx.decodeAudioData(bytes.buffer.slice(0));
           clearCaptionWordTimings();
+          setCurrentSavedRenderInfo(null);
           audioBuffer = decoded;
 
           const blob = new Blob([bytes], { type: 'audio/wav' });

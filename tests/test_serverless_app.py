@@ -168,7 +168,80 @@ class TestServerlessApp(unittest.TestCase):
                 self.assertIn("await renderStudioVideoForQueue()", source)
                 self.assertIn("`/api/items/${itemId}/save-render`", source)
                 self.assertIn("rendered_video_extension: renderedVideo.extension", source)
+                self.assertIn("`/api/items/${item.id}/rendered-video-info`", source)
+                self.assertIn("Queue Saved Render", source)
                 self.assertNotIn("renderAndAutoPublish", source)
+
+    def test_saved_browser_render_info_and_invalidation(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            item_dir = Path(temp_dir) / "item-1"
+            item_dir.mkdir()
+            rendered_path = item_dir / "rendered_video.mp4"
+            rendered_path.write_bytes(b"saved render")
+
+            class FakeManager:
+                items_dir = Path(temp_dir)
+
+                def get_item(self, item_id):
+                    return {"id": item_id} if item_id == "item-1" else None
+
+                def get_item_file_path(self, item_id, filename):
+                    path = self.items_dir / item_id / filename
+                    return path if path.is_file() else None
+
+                def save_item_cuts(self, item_id, cuts, timings, texts):
+                    return {"id": item_id}
+
+                def save_item_audio(self, item_id, audio_bytes, filename):
+                    return {"id": item_id, "audio_url": "/audio.wav"}
+
+            manager = FakeManager()
+
+            def request(path, data=None, content_type=None):
+                server = HTTPServer(("127.0.0.1", 0), story_server.StorymakerRequestHandler)
+                thread = threading.Thread(target=server.handle_request)
+                thread.start()
+                headers = {"Content-Type": content_type} if content_type else {}
+                try:
+                    with patch.object(story_server, "default_manager", manager):
+                        req = urllib.request.Request(
+                            f"http://127.0.0.1:{server.server_port}{path}",
+                            data=data,
+                            headers=headers,
+                            method="POST" if data is not None else "GET"
+                        )
+                        with urllib.request.urlopen(req) as response:
+                            return json.loads(response.read())
+                finally:
+                    server.server_close()
+                    thread.join()
+
+            info = request("/api/items/item-1/rendered-video-info")
+            self.assertEqual(
+                info,
+                {
+                    "ok": True, "item_id": "item-1", "available": True,
+                    "extension": "mp4", "bytes": len(b"saved render")
+                }
+            )
+
+            timeline_result = request(
+                "/api/items/item-1/save-timeline",
+                data=json.dumps({"cuts": [0, 1]}).encode(),
+                content_type="application/json"
+            )
+            self.assertTrue(timeline_result["ok"])
+            self.assertFalse(rendered_path.exists())
+
+            rendered_webm = item_dir / "rendered_video.webm"
+            rendered_webm.write_bytes(b"another saved render")
+            audio_result = request(
+                "/api/items/item-1/save-audio",
+                data=b"replacement audio",
+                content_type="audio/wav"
+            )
+            self.assertTrue(audio_result["ok"])
+            self.assertFalse(rendered_webm.exists())
 
     def test_save_browser_render_api_persists_video_under_item(self):
         with tempfile.TemporaryDirectory() as temp_dir:

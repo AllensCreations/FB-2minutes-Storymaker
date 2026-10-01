@@ -8,5 +8,5 @@ resolution-markers = [
 
 [[package]]
 name = "fb-2minutes-storymaker"
-version = "1.0.11"
+version = "1.0.13"
 source = { editable = "." }
