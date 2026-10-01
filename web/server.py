@@ -517,9 +517,26 @@ def get_dropbox_access_token(app_key: str, app_secret: str, refresh_token: str) 
         "client_secret": app_secret
     }).encode("utf-8")
     req = urllib.request.Request(url, data=data, method="POST")
-    with urllib.request.urlopen(req, timeout=25) as resp:
-        res = json.loads(resp.read().decode("utf-8"))
-        return res["access_token"]
+    try:
+        with urllib.request.urlopen(req, timeout=25) as resp:
+            res = json.loads(resp.read().decode("utf-8"))
+    except urllib.error.HTTPError as exc:
+        try:
+            response = json.loads(exc.read().decode("utf-8"))
+            detail = response.get("error_description") or response.get("error") or exc.reason
+        except (UnicodeDecodeError, json.JSONDecodeError):
+            detail = exc.reason
+        finally:
+            exc.close()
+        raise RuntimeError(
+            f"Dropbox OAuth token refresh failed (HTTP {exc.code}): {detail}"
+        ) from exc
+    except urllib.error.URLError as exc:
+        raise RuntimeError(f"Could not reach Dropbox OAuth token service: {exc.reason}") from exc
+    token = res.get("access_token")
+    if not isinstance(token, str) or not token:
+        raise RuntimeError("Dropbox OAuth response did not include an access token.")
+    return token
 
 
 def upload_file_to_dropbox(access_token: str, file_path: Path, dropbox_path: str) -> Dict[str, Any]:
@@ -1786,6 +1803,18 @@ class StorymakerRequestHandler(SimpleHTTPRequestHandler):
                     self.send_json({"ok": False, "error": "Story scenes are required before publishing."}, status=400)
                     return
 
+                if not db_token:
+                    try:
+                        db_token = get_dropbox_access_token(
+                            db_app_key, db_app_secret, db_refresh_token
+                        )
+                    except Exception as exc:
+                        self.send_json({
+                            "ok": False,
+                            "error": f"Could not refresh Dropbox access token: {exc}"
+                        }, status=502)
+                        return
+
                 db_folder = (payload.get("db_folder") or env_cfg.get("db_folder", "/Think with Tobi")).strip()
                 if not db_folder.startswith("/"):
                     db_folder = "/" + db_folder
@@ -1815,19 +1844,14 @@ class StorymakerRequestHandler(SimpleHTTPRequestHandler):
                         return
 
                     # 3. Dropbox duplicate check
-                    if (db_token or (db_app_key and db_app_secret and db_refresh_token)):
-                        try:
-                            chk_token = db_token or get_dropbox_access_token(db_app_key, db_app_secret, db_refresh_token)
-                            if check_dropbox_duplicate(chk_token, target_db_path):
-                                self.send_json({
-                                    "ok": False,
-                                    "is_duplicate": True,
-                                    "filename": out_filename,
-                                    "message": f"Video '{out_filename}' already exists on Dropbox ({db_folder}/). Overwrite and re-publish?"
-                                }, status=409)
-                                return
-                        except Exception:
-                            pass
+                    if check_dropbox_duplicate(db_token, target_db_path):
+                        self.send_json({
+                            "ok": False,
+                            "is_duplicate": True,
+                            "filename": out_filename,
+                            "message": f"Video '{out_filename}' already exists on Dropbox ({db_folder}/). Overwrite and re-publish?"
+                        }, status=409)
+                        return
 
                 # Reserve the item before starting the worker so duplicate clicks cannot enqueue twice.
                 queued_at = time.time()

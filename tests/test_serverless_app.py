@@ -1,5 +1,6 @@
 import unittest
 from http.server import BaseHTTPRequestHandler, HTTPServer
+from io import BytesIO
 import json
 import threading
 import tempfile
@@ -37,6 +38,17 @@ class TestServerlessApp(unittest.TestCase):
     def test_story_filename_has_only_one_mp4_extension(self):
         self.assertEqual(_story_output_filename("A Story.mp4", "item-1"), "a-story.mp4")
         self.assertEqual(_story_output_filename("A Story.MP4.mp4", "item-1"), "a-story.mp4")
+
+    def test_dropbox_oauth_error_is_actionable(self):
+        error = urllib.error.HTTPError(
+            "https://api.dropbox.com/oauth2/token", 400, "Bad Request", {},
+            BytesIO(b'{"error":"invalid_grant","error_description":"Refresh token is invalid"}')
+        )
+        with patch.object(story_server.urllib.request, "urlopen", side_effect=error):
+            with self.assertRaisesRegex(
+                RuntimeError, "HTTP 400.*Refresh token is invalid"
+            ):
+                story_server.get_dropbox_access_token("key", "secret", "refresh")
 
     def test_publish_queue_api_returns_job_snapshot(self):
         with patch.dict(story_server.ITEM_RENDER_STATES, {
@@ -87,7 +99,8 @@ class TestServerlessApp(unittest.TestCase):
             thread = threading.Thread(target=server.handle_request)
             thread.start()
             payload = {
-                "db_token": "test-token", "turso_db_url": "https://db.example",
+                "db_app_key": "test-key", "db_app_secret": "test-secret",
+                "db_refresh_token": "test-refresh", "turso_db_url": "https://db.example",
                 "turso_auth_token": "test-auth", "rendered_video_extension": "webm"
             }
             with (
@@ -96,6 +109,7 @@ class TestServerlessApp(unittest.TestCase):
                 patch("gemini_service.read_env_settings", return_value={}),
                 patch.object(story_server, "check_turso_duplicate", return_value=False),
                 patch.object(story_server, "check_dropbox_duplicate", return_value=False),
+                patch.object(story_server, "get_dropbox_access_token", return_value="test-token") as refresh,
                 patch.object(story_server.threading, "Thread") as job_thread,
             ):
                 try:
@@ -110,8 +124,10 @@ class TestServerlessApp(unittest.TestCase):
                     self.assertTrue(data["ok"])
                     self.assertEqual(data["title"], "Queued story")
                     self.assertEqual(data["filename"], "queued-story.webm")
+                    refresh.assert_called_once_with("test-key", "test-secret", "test-refresh")
                     job_thread.return_value.start.assert_called_once()
                     self.assertEqual(job_thread.call_args.kwargs["args"][-1], "webm")
+                    self.assertEqual(job_thread.call_args.kwargs["args"][1]["token"], "test-token")
                     self.assertEqual(story_server.ITEM_RENDER_STATES["item-1"]["status"], "starting")
                 finally:
                     server.server_close()
@@ -175,6 +191,7 @@ class TestServerlessApp(unittest.TestCase):
                 self.assertIn("Queue Saved Render", source)
                 self.assertIn("Recent queue activity", source)
                 self.assertIn("data-queue-elapsed", source)
+                self.assertIn("}, 5000);", source)
                 self.assertNotIn("renderAndAutoPublish", source)
 
     def test_saved_browser_render_info_and_invalidation(self):

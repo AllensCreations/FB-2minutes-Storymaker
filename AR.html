@@ -3261,8 +3261,16 @@
       });
     }
     setInterval(updatePublishQueueElapsed, 1000);
+    let publishQueueLoadInFlight = false;
+    setInterval(() => {
+      if (publishQueueView && !publishQueueView.classList.contains('hidden')) {
+        loadPublishQueue();
+      }
+    }, 5000);
 
     async function loadPublishQueue() {
+      if (publishQueueLoadInFlight) return;
+      publishQueueLoadInFlight = true;
       try {
         const res = await fetch('/api/publish-queue');
         if (!res.ok) throw new Error(`Queue request failed (${res.status})`);
@@ -3273,6 +3281,8 @@
         if (publishQueueContainer) {
           publishQueueContainer.innerHTML = `<div class="text-sm text-red-300 text-center py-10">Could not load publish queue: ${escapeHtml(err.message)}</div>`;
         }
+      } finally {
+        publishQueueLoadInFlight = false;
       }
     }
 
