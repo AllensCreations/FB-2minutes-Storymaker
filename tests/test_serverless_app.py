@@ -194,6 +194,9 @@ class TestServerlessApp(unittest.TestCase):
                 self.assertIn("}, 5000);", source)
                 self.assertIn("function resetStudioAutoPublishButton()", source)
                 self.assertIn("resetStudioAutoPublishButton();", source)
+                self.assertIn("transcribeAudioBufferToWordChunks(", source)
+                self.assertIn("const previousWordEnd =", source)
+                self.assertIn("const nextWordStart =", source)
                 self.assertNotIn("renderAndAutoPublish", source)
 
     def test_saved_browser_render_info_and_invalidation(self):

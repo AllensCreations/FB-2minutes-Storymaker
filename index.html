@@ -1750,6 +1750,25 @@
       return rendered.getChannelData(0);
     }
 
+    async function transcribeAudioBufferToWordChunks(buffer, onStatus = () => {}) {
+      const hasTransformers = typeof window !== 'undefined' && (window.transformers || window.pipeline);
+      if (!hasTransformers) return [];
+      const pipelineFn = window.pipeline || window.transformers?.pipeline;
+      if (!whisperPipeline) {
+        onStatus("Loading Whisper for word-level scene alignment...");
+        whisperPipeline = await pipelineFn('automatic-speech-recognition', 'Xenova/whisper-tiny.en', {
+          chunk_length_s: 30,
+          stride_length_s: 5
+        });
+      }
+      onStatus("Finding each scene's spoken word boundaries...");
+      const output = await whisperPipeline(await getAudioBufferAs16kMono(buffer), {
+        return_timestamps: "word",
+        chunk_length_s: 30
+      });
+      return output?.chunks || [];
+    }
+
     if (transcribeBtn) {
       transcribeBtn.addEventListener('click', async () => {
         if (!audioBuffer) {
@@ -2007,8 +2026,20 @@
         let cutTime = nominalSum;
 
         if (transcriptSceneWords && transcriptSceneWords[i + 1].length) {
-          // Start the next image at its first spoken word, not mid-phrase.
-          cutTime = transcriptSceneWords[i + 1][0].start;
+          const previousWords = transcriptSceneWords[i];
+          const previousWordEnd = previousWords[previousWords.length - 1].end;
+          const nextWordStart = transcriptSceneWords[i + 1][0].start;
+          const gapStart = Math.min(previousWordEnd, nextWordStart);
+          const gapEnd = Math.max(previousWordEnd, nextWordStart);
+          const gapPauses = (detectedPauses || []).filter(p => p >= gapStart && p <= gapEnd);
+          cutTime = gapPauses.length
+            ? gapPauses.reduce((best, pause) =>
+              Math.abs(pause - (gapStart + gapEnd) / 2) < Math.abs(best - (gapStart + gapEnd) / 2)
+                ? pause : best
+            )
+            : previousWordEnd <= nextWordStart
+              ? (previousWordEnd + nextWordStart) / 2
+              : previousWordEnd;
         } else {
           cutTime = findQuietTrough(nominalSum, 1.4);
         }
@@ -7241,6 +7272,7 @@ ALTER TABLE stories ADD COLUMN uploaded_to_youtube TEXT DEFAULT 'pending';`;
           clearCaptionWordTimings();
           setCurrentSavedRenderInfo(null);
           audioBuffer = decoded;
+          window.transcriptChunks = [];
 
           const blob = new Blob([bytes], { type: 'audio/wav' });
           audioElement.src = URL.createObjectURL(blob);
@@ -7264,19 +7296,36 @@ ALTER TABLE stories ADD COLUMN uploaded_to_youtube TEXT DEFAULT 'pending';`;
           detectedPauses = findPauses(audioBuffer);
           resizeWaveform();
 
-          // Auto-align timeline immediately (Zero extra clicks)
-          statusEl.textContent = "⚡ Auto-aligning scene markers with Gemini voice-over...";
-          setTimeout(() => {
-            autoAlignSpeechCuts({ silent: false });
-            if (window.currentActiveItemId && sceneCuts && sceneCuts.length > 0) {
-              fetch(`/api/items/${window.currentActiveItemId}/save-timeline`, {
+          try {
+            window.transcriptChunks = await transcribeAudioBufferToWordChunks(
+              audioBuffer, message => { statusEl.textContent = `⚡ ${message}`; }
+            );
+          } catch (alignmentError) {
+            console.warn("Word-level transcription failed; using pause-aware alignment:", alignmentError);
+          }
+
+          autoAlignSpeechCuts({ silent: false });
+          captionWordTimings = buildCaptionWordTimings();
+          if (window.currentActiveItemId && sceneCuts.length > 0) {
+            try {
+              const timelineRes = await fetch(`/api/items/${window.currentActiveItemId}/save-timeline`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ cuts: sceneCuts })
-              }).catch(() => {});
+                body: JSON.stringify({
+                  cuts: sceneCuts,
+                  caption_word_timings: captionWordTimings
+                })
+              });
+              const timelineData = await timelineRes.json();
+              if (!timelineRes.ok || !timelineData.ok) {
+                throw new Error(timelineData.error || "Could not save aligned scene cuts.");
+              }
+            } catch (saveError) {
+              console.warn("Could not save the generated audio alignment:", saveError);
+              showToast(`⚠️ Audio aligned, but cuts could not be saved: ${saveError.message}`, true);
             }
-            showToast(`✓ Voice-over generated with Gemini (${voice}) & auto-aligned!`);
-          }, 150);
+          }
+          showToast(`✓ Voice-over generated with Gemini (${voice}) & auto-aligned!`);
 
         } catch (err) {
           showToast(`✕ Failed to generate voice-over: ${err.message}`);
