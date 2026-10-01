@@ -289,6 +289,49 @@ ITEM_RENDER_STATES = {}
 ITEM_RENDER_LOCK = threading.Lock()
 
 
+def _update_publish_job(
+    item_id: str,
+    message: str,
+    progress: Optional[float] = None,
+    status: Optional[str] = None,
+    error: Optional[str] = None
+) -> None:
+    now = time.time()
+    with ITEM_RENDER_LOCK:
+        job = ITEM_RENDER_STATES.setdefault(item_id, {
+            "job_type": "publish", "status": "running", "progress": 0.0,
+            "started_at": now, "logs": []
+        })
+        previous_progress = float(job.get("progress") or 0)
+        if progress is not None:
+            job["progress"] = round(progress, 1)
+        if status:
+            job["status"] = status
+        job["message"] = message
+        job["updated_at"] = now
+        if error:
+            job["error"] = error
+        logs = job.setdefault("logs", [])
+        if (
+            not logs
+            or logs[-1]["message"] != message
+            or (progress is not None and int(progress // 10) > int(previous_progress // 10))
+            or status in {"done", "error"}
+        ):
+            logs.append({
+                "time": now,
+                "message": message,
+                "progress": job.get("progress", 0.0)
+            })
+            del logs[:-12]
+        event = {
+            key: job[key]
+            for key in ("status", "progress", "message", "updated_at", "title", "filename", "error", "logs")
+            if key in job
+        }
+    default_manager.broadcast_event("render_progress", {"item_id": item_id, "job_type": "publish", **event})
+
+
 def render_story_item_thread(
     item_id: str,
     show_captions: bool = True,
@@ -588,19 +631,12 @@ def auto_publish_story_item_thread(
             "status": "running",
             "job_type": "publish",
             "progress": 5.0,
-            "message": "Preparing publish...",
             "started_at": time.time(),
             "filename": out_filename,
-            "title": item.get("title") or item_id
+            "title": item.get("title") or item_id,
+            "logs": []
         }
-
-    default_manager.broadcast_event("render_progress", {
-        "item_id": item_id,
-        "job_type": "publish",
-        "progress": 5.0,
-        "status": "running",
-        "message": "Preparing publish..."
-    })
+    _update_publish_job(item_id, "Preparing publish...", progress=5.0)
 
     try:
         if rendered_video_extension in {"webm", "mp4"}:
@@ -608,20 +644,10 @@ def auto_publish_story_item_thread(
             if not rendered_path.is_file():
                 raise FileNotFoundError("The browser-rendered video is missing from the story package.")
             shutil.copyfile(rendered_path, output_path)
-            with ITEM_RENDER_LOCK:
-                ITEM_RENDER_STATES[item_id]["progress"] = 75.0
-                ITEM_RENDER_STATES[item_id]["message"] = "Browser render ready; starting upload..."
+            _update_publish_job(item_id, "Browser render ready; starting upload...", progress=75.0)
         else:
             # Keep the legacy API render path for callers that do not submit a browser render.
-            with ITEM_RENDER_LOCK:
-                ITEM_RENDER_STATES[item_id]["message"] = "Starting video render..."
-            default_manager.broadcast_event("render_progress", {
-                "item_id": item_id,
-                "job_type": "publish",
-                "progress": 5.0,
-                "status": "running",
-                "message": "Starting video render..."
-            })
+            _update_publish_job(item_id, "Starting video render...")
 
             audio_file = item.get("audio_file") or "narration.wav"
             audio_path = item_folder / audio_file
@@ -677,16 +703,7 @@ def auto_publish_story_item_thread(
             from exporter import VideoExporter
             def on_progress(percent: float, status_msg: str):
                 scaled_pct = 5.0 + (percent * 0.70)
-                with ITEM_RENDER_LOCK:
-                    ITEM_RENDER_STATES[item_id]["progress"] = round(scaled_pct, 1)
-                    ITEM_RENDER_STATES[item_id]["message"] = status_msg
-                default_manager.broadcast_event("render_progress", {
-                    "item_id": item_id,
-                    "job_type": "publish",
-                    "progress": round(scaled_pct, 1),
-                    "status": "running",
-                    "message": status_msg
-                })
+                _update_publish_job(item_id, status_msg, progress=scaled_pct)
 
             exporter = VideoExporter(fps=24)
             exporter.export_video(
@@ -708,43 +725,21 @@ def auto_publish_story_item_thread(
         db_path = f"{folder}/{out_filename}"
         token = db_cfg.get("token")
         if not token and db_cfg.get("app_key") and db_cfg.get("app_secret") and db_cfg.get("refresh_token"):
-            with ITEM_RENDER_LOCK:
-                ITEM_RENDER_STATES[item_id]["progress"] = 78.0
-                ITEM_RENDER_STATES[item_id]["message"] = "Refreshing Dropbox access token..."
-            default_manager.broadcast_event("render_progress", {
-                "item_id": item_id,
-                "job_type": "publish",
-                "progress": 78.0,
-                "status": "running",
-                "message": "Refreshing Dropbox token..."
-            })
+            _update_publish_job(item_id, "Refreshing Dropbox access token...", progress=78.0)
             token = get_dropbox_access_token(db_cfg["app_key"], db_cfg["app_secret"], db_cfg["refresh_token"])
 
         if token:
-            with ITEM_RENDER_LOCK:
-                ITEM_RENDER_STATES[item_id]["progress"] = 82.0
-                ITEM_RENDER_STATES[item_id]["message"] = f"Uploading '{out_filename}' to Dropbox..."
-            default_manager.broadcast_event("render_progress", {
-                "item_id": item_id,
-                "job_type": "publish",
-                "progress": 82.0,
-                "status": "running",
-                "message": f"Uploading '{out_filename}' to Dropbox..."
-            })
+            _update_publish_job(
+                item_id,
+                f"Uploading '{out_filename}' to Dropbox; waiting for Dropbox response...",
+                progress=82.0
+            )
             upload_file_to_dropbox(token, output_path, db_path)
+            _update_publish_job(item_id, "Dropbox upload complete.", progress=90.0)
 
         # Step 3: Log to Turso database
         if turso_cfg and turso_cfg.get("db_url"):
-            with ITEM_RENDER_LOCK:
-                ITEM_RENDER_STATES[item_id]["progress"] = 94.0
-                ITEM_RENDER_STATES[item_id]["message"] = "Logging record to Turso edge database..."
-            default_manager.broadcast_event("render_progress", {
-                "item_id": item_id,
-                "job_type": "publish",
-                "progress": 94.0,
-                "status": "running",
-                "message": "Logging to Turso database..."
-            })
+            _update_publish_job(item_id, "Logging record to Turso edge database...", progress=94.0)
             caption = item.get("caption") or item.get("title") or "Story Video"
             description = item.get("description") or "#story #shorts"
             log_to_turso_db(
@@ -760,10 +755,12 @@ def auto_publish_story_item_thread(
         # Step 4: Mark publish complete in catalog
         default_manager.mark_publish_complete(item_id, True)
 
-        with ITEM_RENDER_LOCK:
-            ITEM_RENDER_STATES[item_id]["status"] = "done"
-            ITEM_RENDER_STATES[item_id]["progress"] = 100.0
-            ITEM_RENDER_STATES[item_id]["message"] = f"✓ Successfully published {out_filename} to Dropbox & Turso!"
+        _update_publish_job(
+            item_id,
+            f"✓ Successfully published {out_filename} to Dropbox & Turso!",
+            progress=100.0,
+            status="done"
+        )
 
         default_manager.broadcast_event("publish_completed", {
             "item_id": item_id,
@@ -774,10 +771,9 @@ def auto_publish_story_item_thread(
         })
 
     except Exception as e:
-        with ITEM_RENDER_LOCK:
-            ITEM_RENDER_STATES[item_id]["status"] = "error"
-            ITEM_RENDER_STATES[item_id]["error"] = str(e)
-            ITEM_RENDER_STATES[item_id]["message"] = f"Publish failed: {e}"
+        _update_publish_job(
+            item_id, f"Publish failed: {e}", status="error", error=str(e)
+        )
         default_manager.broadcast_event("render_error", {
             "item_id": item_id,
             "job_type": "publish",
@@ -1834,6 +1830,7 @@ class StorymakerRequestHandler(SimpleHTTPRequestHandler):
                             pass
 
                 # Reserve the item before starting the worker so duplicate clicks cannot enqueue twice.
+                queued_at = time.time()
                 with ITEM_RENDER_LOCK:
                     current = ITEM_RENDER_STATES.get(item_id, {})
                     if current.get("status") in {"starting", "running"}:
@@ -1846,7 +1843,13 @@ class StorymakerRequestHandler(SimpleHTTPRequestHandler):
                         "message": "Queued for auto-publish...",
                         "title": item.get("title") or item_id,
                         "filename": out_filename,
-                        "started_at": time.time()
+                        "started_at": queued_at,
+                        "updated_at": queued_at,
+                        "logs": [{
+                            "time": queued_at,
+                            "progress": 0.0,
+                            "message": "Queued for auto-publish..."
+                        }]
                     }
 
                 db_cfg = {
@@ -1881,7 +1884,13 @@ class StorymakerRequestHandler(SimpleHTTPRequestHandler):
                     "status": "starting",
                     "message": "Queued for auto-publish...",
                     "title": item.get("title") or item_id,
-                    "filename": out_filename
+                    "filename": out_filename,
+                    "updated_at": queued_at,
+                    "logs": [{
+                        "time": queued_at,
+                        "progress": 0.0,
+                        "message": "Queued for auto-publish..."
+                    }]
                 })
                 self.send_json({
                     "ok": True,

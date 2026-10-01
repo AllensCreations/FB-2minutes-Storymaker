@@ -42,7 +42,8 @@ class TestServerlessApp(unittest.TestCase):
         with patch.dict(story_server.ITEM_RENDER_STATES, {
             "item-1": {
                 "job_type": "publish", "status": "running", "progress": 42,
-                "title": "A Story", "message": "Rendering"
+                "title": "A Story", "message": "Rendering",
+                "updated_at": 123, "logs": [{"time": 123, "message": "Rendering", "progress": 42}]
             },
             "item-2": {"job_type": "render", "status": "running", "progress": 10}
         }, clear=True):
@@ -57,6 +58,8 @@ class TestServerlessApp(unittest.TestCase):
                 self.assertEqual(len(data["jobs"]), 1)
                 self.assertEqual(data["jobs"][0]["item_id"], "item-1")
                 self.assertEqual(data["jobs"][0]["progress"], 42)
+                self.assertEqual(data["jobs"][0]["logs"][0]["message"], "Rendering")
+                self.assertEqual(data["jobs"][0]["updated_at"], 123)
             finally:
                 server.server_close()
                 thread.join()
@@ -170,6 +173,8 @@ class TestServerlessApp(unittest.TestCase):
                 self.assertIn("rendered_video_extension: renderedVideo.extension", source)
                 self.assertIn("`/api/items/${item.id}/rendered-video-info`", source)
                 self.assertIn("Queue Saved Render", source)
+                self.assertIn("Recent queue activity", source)
+                self.assertIn("data-queue-elapsed", source)
                 self.assertNotIn("renderAndAutoPublish", source)
 
     def test_saved_browser_render_info_and_invalidation(self):
@@ -304,6 +309,14 @@ class TestServerlessApp(unittest.TestCase):
                 story_server.auto_publish_story_item_thread(
                     "item-1", {"token": "test-token"}, rendered_video_extension="webm"
                 )
+                job = story_server.ITEM_RENDER_STATES["item-1"]
+                self.assertEqual(job["status"], "done")
+                self.assertTrue(any(
+                    "Dropbox upload complete" in log["message"] for log in job["logs"]
+                ))
+                self.assertTrue(any(
+                    "waiting for Dropbox response" in log["message"] for log in job["logs"]
+                ))
 
             exporter_class.assert_not_called()
             upload.assert_called_once()
