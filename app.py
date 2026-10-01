@@ -43,7 +43,7 @@ def resolve_asset(path_str):
         return get_fallback_html(), 'text/html; charset=utf-8'
 
     # 2. Check direct file requests
-    for cand in [BASE_DIR / clean, Path.cwd() / clean]:
+    for cand in [BASE_DIR / clean, BASE_DIR / 'web' / clean, Path.cwd() / clean]:
         if cand.is_file() and not cand.name.endswith('.py') and not cand.name.endswith('.pyc'):
             ctype, _ = mimetypes.guess_type(str(cand))
             if not ctype:

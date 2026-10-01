@@ -519,11 +519,11 @@ def generate_gemini_tts(
     voice_name: str = "Puck",
     api_key: Optional[str] = None,
     model: Optional[str] = None,
-    speed: float = 1.0
+    speed: float = 1.3
 ) -> Dict[str, Any]:
     """
     Synthesizes natural cinematic storybook voiceover from script text using Gemini TTS.
-    Defaults to voice 'Puck' at 1.0x natural tempo.
+    Defaults to voice 'Puck' at 1.3x playback speed.
     Returns base64-encoded WAV audio ready for browser Web Audio playback and timeline alignment.
     """
     clean_script = str(script_text or "").strip()
@@ -592,7 +592,7 @@ def generate_gemini_tts(
             model=model
         )
 
-        # Apply 1.1x audio speed processing if requested
+        # Apply audio speed processing when it differs from natural tempo.
         if speed and abs(speed - 1.0) >= 0.01:
             wav_bytes = apply_audio_speed(wav_bytes, speed=speed)
 
@@ -837,4 +837,3 @@ Output strictly valid JSON with no markdown formatting:
         "method": "pace_silence_snapping_fallback",
         "message": f"Auto-aligned {count} scenes using speech cadence and silence snapping."
     }
-

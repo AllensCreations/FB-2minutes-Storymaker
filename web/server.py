@@ -1038,8 +1038,14 @@ class StorymakerRequestHandler(SimpleHTTPRequestHandler):
                 self.send_error(404, "Rendered video not found")
         else:
             # Fallback to static files in web/
-            candidate = (WEB_DIR / path.lstrip("/")).resolve()
-            if candidate.exists() and candidate.is_file() and str(candidate).startswith(str(WEB_DIR)):
+            static_root = REPO_ROOT / "web" / "assets"
+            candidate = (
+                REPO_ROOT / path.lstrip("/")
+                if path.startswith("/web/assets/")
+                else WEB_DIR / path.lstrip("/")
+            ).resolve()
+            allowed_root = static_root if path.startswith("/web/assets/") else WEB_DIR
+            if candidate.is_file() and str(candidate).startswith(str(allowed_root.resolve()) + "/"):
                 content_type, _ = mimetypes.guess_type(str(candidate))
                 self.serve_file(candidate, content_type or "application/octet-stream")
             else:
@@ -2048,7 +2054,10 @@ class StorymakerRequestHandler(SimpleHTTPRequestHandler):
                 payload = json.loads(body)
                 script_text = payload.get("script_text", "")
                 voice_name = payload.get("voice_name", "Puck")
-                speed = float(payload.get("speed", 1.0))
+                speed = float(payload.get("speed", 1.3))
+                if not math.isfinite(speed) or not 0.8 <= speed <= 2.0:
+                    self.send_json({"ok": False, "error": "Audio speed must be between 0.8 and 2.0."}, status=400)
+                    return
                 model = payload.get("gemini_model")
                 api_key = payload.get("gemini_api_key")
                 item_id = payload.get("item_id")
@@ -2335,7 +2344,17 @@ class StorymakerRequestHandler(SimpleHTTPRequestHandler):
     def do_DELETE(self):
         parsed = urlparse(self.path)
         path = parsed.path
-        if path.startswith("/api/items/"):
+        if path == "/api/publish-queue":
+            with ITEM_RENDER_LOCK:
+                finished_ids = [
+                    item_id for item_id, state in ITEM_RENDER_STATES.items()
+                    if state.get("job_type") == "publish"
+                    and state.get("status") in {"done", "error"}
+                ]
+                for item_id in finished_ids:
+                    del ITEM_RENDER_STATES[item_id]
+            self.send_json({"ok": True, "deleted": len(finished_ids)})
+        elif path.startswith("/api/items/"):
             item_id = path.replace("/api/items/", "").strip("/")
             success = default_manager.delete_item(item_id)
             if success:

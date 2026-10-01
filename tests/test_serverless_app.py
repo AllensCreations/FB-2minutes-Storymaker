@@ -76,6 +76,72 @@ class TestServerlessApp(unittest.TestCase):
                 server.server_close()
                 thread.join()
 
+    def test_delete_publish_queue_clears_only_finished_jobs(self):
+        with patch.dict(story_server.ITEM_RENDER_STATES, {
+            "done": {"job_type": "publish", "status": "done"},
+            "failed": {"job_type": "publish", "status": "error"},
+            "running": {"job_type": "publish", "status": "running"},
+            "render": {"job_type": "render", "status": "done"},
+        }, clear=True):
+            server = HTTPServer(("127.0.0.1", 0), story_server.StorymakerRequestHandler)
+            thread = threading.Thread(target=server.handle_request)
+            thread.start()
+            try:
+                request = urllib.request.Request(
+                    f"http://127.0.0.1:{server.server_port}/api/publish-queue",
+                    method="DELETE"
+                )
+                with urllib.request.urlopen(request) as response:
+                    data = json.loads(response.read())
+                self.assertEqual(data, {"ok": True, "deleted": 2})
+                self.assertEqual(set(story_server.ITEM_RENDER_STATES), {"running", "render"})
+            finally:
+                server.server_close()
+                thread.join()
+
+    def test_gemini_tts_api_defaults_to_1_3_speed(self):
+        server = HTTPServer(("127.0.0.1", 0), story_server.StorymakerRequestHandler)
+        thread = threading.Thread(target=server.handle_request)
+        thread.start()
+        try:
+            request = urllib.request.Request(
+                f"http://127.0.0.1:{server.server_port}/api/gemini-tts",
+                data=json.dumps({"script_text": "A short test."}).encode(),
+                headers={"Content-Type": "application/json"},
+                method="POST"
+            )
+            with patch(
+                "gemini_service.generate_gemini_tts",
+                return_value={"ok": True, "audio_base64": ""}
+            ) as generate:
+                with urllib.request.urlopen(request) as response:
+                    self.assertTrue(json.loads(response.read())["ok"])
+                self.assertEqual(generate.call_args.kwargs["speed"], 1.3)
+        finally:
+            server.server_close()
+            thread.join()
+
+    def test_gemini_tts_api_rejects_speed_out_of_range(self):
+        server = HTTPServer(("127.0.0.1", 0), story_server.StorymakerRequestHandler)
+        thread = threading.Thread(target=server.handle_request)
+        thread.start()
+        try:
+            request = urllib.request.Request(
+                f"http://127.0.0.1:{server.server_port}/api/gemini-tts",
+                data=json.dumps({"script_text": "A short test.", "speed": 2.1}).encode(),
+                headers={"Content-Type": "application/json"},
+                method="POST"
+            )
+            with patch("gemini_service.generate_gemini_tts") as generate:
+                with self.assertRaises(urllib.error.HTTPError) as raised:
+                    urllib.request.urlopen(request)
+                self.assertEqual(raised.exception.code, 400)
+                raised.exception.close()
+                generate.assert_not_called()
+        finally:
+            server.server_close()
+            thread.join()
+
     def test_auto_publish_api_queues_background_job(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             item_dir = Path(temp_dir) / "item-1"
@@ -180,9 +246,18 @@ class TestServerlessApp(unittest.TestCase):
 
     def test_browser_render_is_saved_before_publish_queueing(self):
         repo_root = Path(__file__).resolve().parent.parent
+        app_script = (repo_root / "web" / "assets" / "studio.js").read_text(encoding="utf-8")
+        self.assertIn('id="waveformZoom"', (repo_root / "index.html").read_text(encoding="utf-8"))
+        self.assertIn("waveformZoom = Number(waveformZoomInput.value)", app_script)
+        self.assertIn("const step = event.shiftKey ? 0.1 : 0.01", app_script)
+        self.assertIn("updateCutMarkerReadout", app_script)
+        self.assertIn("previous.end.toFixed(2)", app_script)
         for page in ("index.html", "web/index.html", "AR.html"):
             with self.subTest(page=page):
                 source = (repo_root / page).read_text(encoding="utf-8")
+                self.assertIn('/web/assets/studio.css', source)
+                self.assertIn('/web/assets/studio.js', source)
+                source += app_script
                 self.assertIn("async function renderStudioVideoForQueue()", source)
                 self.assertIn("await renderStudioVideoForQueue()", source)
                 self.assertIn("`/api/items/${itemId}/save-render`", source)
@@ -366,6 +441,20 @@ class TestServerlessApp(unittest.TestCase):
         finally:
             server.server_close()
             t.join()
+
+    def test_http_server_serves_external_studio_assets(self):
+        server = HTTPServer(("127.0.0.1", 0), story_server.StorymakerRequestHandler)
+        thread = threading.Thread(target=server.handle_request)
+        thread.start()
+        try:
+            with urllib.request.urlopen(
+                f"http://127.0.0.1:{server.server_port}/web/assets/studio.js"
+            ) as response:
+                self.assertEqual(response.status, 200)
+                self.assertIn(b"renderStudioVideoForQueue", response.read())
+        finally:
+            server.server_close()
+            thread.join()
 
     def test_wsgi_app_serves_html(self):
         """Vercel WSGI mode calls app(environ, start_response)."""
