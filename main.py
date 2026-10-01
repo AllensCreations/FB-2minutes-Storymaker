@@ -94,7 +94,7 @@ def start_web_server(port=None, open_browser: bool = False):
     start_server(host="0.0.0.0", port=port, open_browser=open_browser)
 
 
-__version__ = "1.0.4"
+__version__ = "1.0.6"
 
 
 def check_for_updates(repo_dir: Path = BASE_DIR) -> bool:
@@ -166,7 +166,7 @@ def main():
     # Route: Termux Interactive TUI
     if args.tui or (len(sys.argv) == 1 and sys.stdin.isatty()):
         from termux_ui import run_tui_main
-        run_tui_main()
+        run_tui_main(check_for_updates)
         return
 
     # Route: Web UI

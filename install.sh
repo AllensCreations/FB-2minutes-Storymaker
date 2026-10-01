@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 # ==============================================================================
 # FB 2minutes Storymaker - One-Line Installer & Auto-Updater
-# Version: 1.0.4
+# Version: 1.0.6
 #
 # Usage:
 #   Fresh Install / Auto-Update:
-#     curl -fsSL https://raw.githubusercontent.com/AllensCreations/FB-2minutes-Storymaker/main/install.sh | bash
+#     curl -fsSL https://raw.githubusercontent.com/AllensCreations/FBStoryMaker/main/install.sh | bash
 #   Check Installed Version:
 #     bash install.sh --version
 #   Update Existing Installation:
@@ -14,8 +14,8 @@
 
 set -e
 
-APP_VERSION="1.0.4"
-REPO_URL="https://github.com/AllensCreations/FB-2minutes-Storymaker.git"
+APP_VERSION="1.0.6"
+REPO_URL="https://github.com/AllensCreations/FBStoryMaker.git"
 
 # Handle CLI flags
 for arg in "$@"; do
@@ -38,11 +38,11 @@ for arg in "$@"; do
     esac
 done
 
-# If already inside the repo folder, install/update in-place; otherwise use ./FB-2minutes-Storymaker
-if [ -f "main.py" ] && ([ "$(basename "$(pwd)")" = "FB-2minutes-Storymaker" ] || [ -d "src/align_engine" ]); then
+# If already inside the repo folder, install/update in-place; otherwise use ./FBStoryMaker
+if [ -f "main.py" ] && ([ "$(basename "$(pwd)")" = "FBStoryMaker" ] || [ -d "src/align_engine" ]); then
     TARGET_DIR="."
 else
-    TARGET_DIR="./FB-2minutes-Storymaker"
+    TARGET_DIR="./FBStoryMaker"
 fi
 
 # Detect currently installed version if exists
@@ -129,9 +129,9 @@ if [ "$TARGET_DIR" = "." ]; then
         fi
     fi
     # If a nested clone exists inside this repo, update it as well
-    if [ -d "FB-2minutes-Storymaker" ] && [ -f "FB-2minutes-Storymaker/main.py" ]; then
-        echo "Notice: Found nested clone 'FB-2minutes-Storymaker'. Updating it as well..."
-        (cd FB-2minutes-Storymaker && timeout 10 git fetch origin main 2>/dev/null && git pull --rebase origin main 2>/dev/null || true)
+    if [ -d "FBStoryMaker" ] && [ -f "FBStoryMaker/main.py" ]; then
+        echo "Notice: Found nested clone 'FBStoryMaker'. Updating it as well..."
+        (cd FBStoryMaker && timeout 10 git fetch origin main 2>/dev/null && git pull --rebase origin main 2>/dev/null || true)
     fi
 elif [ -d "$TARGET_DIR" ]; then
     echo "📂 Directory '$TARGET_DIR' already exists. Auto-updating to v${APP_VERSION}..."
@@ -149,7 +149,7 @@ else
     else
         echo "Notice: git not found, downloading repository archive..."
         mkdir -p "$TARGET_DIR"
-        curl -fsSL "https://github.com/AllensCreations/FB-2minutes-Storymaker/archive/refs/heads/main.tar.gz" | tar -xz -C "$TARGET_DIR" --strip-components=1
+        curl -fsSL "https://github.com/AllensCreations/FBStoryMaker/archive/refs/heads/main.tar.gz" | tar -xz -C "$TARGET_DIR" --strip-components=1
         cd "$TARGET_DIR"
     fi
 fi

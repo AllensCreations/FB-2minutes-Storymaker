@@ -6,7 +6,7 @@ import shutil
 import sys
 import unittest
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 SRC_DIR = REPO_ROOT / "src"
@@ -65,11 +65,12 @@ class TestTermuxUI(unittest.TestCase):
         ):
             self.assertEqual(_draw_interactive_menu(FakeScreen([termux_ui.curses.KEY_DOWN, 10]), status), "2")
             self.assertEqual(_draw_interactive_menu(FakeScreen([ord("6")]), status), "6")
+            self.assertEqual(_draw_interactive_menu(FakeScreen([ord("7")]), status), "7")
 
     def test_short_terminal_scrolls_arrow_menu_to_all_actions(self):
         class ShortScreen:
             def __init__(self):
-                self.keys = [termux_ui.curses.KEY_DOWN] * 5 + [10]
+                self.keys = [termux_ui.curses.KEY_DOWN] * 6 + [10]
                 self.lines = []
 
             def keypad(self, enabled):
@@ -95,9 +96,29 @@ class TestTermuxUI(unittest.TestCase):
         with patch("termux_ui.curses.has_colors", return_value=False), patch(
             "termux_ui.curses.color_pair", return_value=0
         ):
-            self.assertEqual(_draw_interactive_menu(screen, status), "6")
-        self.assertTrue(any("[6] Check dependencies" in line for line in screen.lines))
+            self.assertEqual(_draw_interactive_menu(screen, status), "7")
+        self.assertTrue(any("[7] Check for updates" in line for line in screen.lines))
         self.assertFalse(any("sample story" in line.lower() for line in screen.lines))
+
+    @patch("termux_ui.input")
+    @patch("termux_ui.os.execv")
+    def test_update_menu_restarts_dashboard_after_update(self, execv, _input):
+        with patch("termux_ui.sys.executable", "/usr/bin/python"):
+            termux_ui._check_for_updates(lambda: True)
+
+        execv.assert_called_once_with(
+            "/usr/bin/python",
+            ["/usr/bin/python", str(REPO_ROOT / "main.py"), "--tui"],
+        )
+
+    @patch("termux_ui.input")
+    @patch("termux_ui.os.execv")
+    def test_update_menu_returns_to_dashboard_when_current(self, execv, _input):
+        checker = Mock(return_value=False)
+        termux_ui._check_for_updates(checker)
+
+        checker.assert_called_once_with()
+        execv.assert_not_called()
 
     def test_env_settings_opens_editor_and_creates_local_env_from_example(self):
         import tempfile

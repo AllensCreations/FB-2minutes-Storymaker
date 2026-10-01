@@ -5,13 +5,13 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="fb-2minutes-storymaker",
-    version="1.0.4",
+    version="1.0.6",
     author="AllensCreations",
     author_email="you@example.com",
     description="Automated storytelling engine for Picture-Book Motion videos",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/AllensCreations/FB-2minutes-Storymaker",
+    url="https://github.com/AllensCreations/FBStoryMaker",
     package_dir={"": "src"},
     packages=find_packages(where="src"),
     classifiers=[

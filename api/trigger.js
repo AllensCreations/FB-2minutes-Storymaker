@@ -105,7 +105,7 @@ export default async function handler(req, res) {
 
   // 5. GitHub Configuration & Dispatch
   const githubToken = process.env.GH_PAT || process.env.GITHUB_TOKEN || process.env.GH_TOKEN || "";
-  const githubRepo = process.env.GITHUB_REPOSITORY || "AllensCreations/FB-2minutes-Storymaker";
+  const githubRepo = process.env.GITHUB_REPOSITORY || "AllensCreations/FBStoryMaker";
 
   if (!githubToken) {
     return res.status(500).json({
@@ -140,7 +140,7 @@ export default async function handler(req, res) {
         "Authorization": `Bearer ${githubToken}`,
         "Accept": "application/vnd.github+json",
         "X-GitHub-Api-Version": "2022-11-28",
-        "User-Agent": "FB-2minutes-Storymaker-Vercel-Gateway",
+        "User-Agent": "FBStoryMaker-Vercel-Gateway",
         "Content-Type": "application/json"
       },
       body: JSON.stringify(dispatchBody)
