@@ -66,6 +66,7 @@ class TestServerlessApp(unittest.TestCase):
             item_dir = Path(temp_dir) / "item-1"
             item_dir.mkdir()
             (item_dir / "voiceover.wav").write_bytes(b"audio")
+            (item_dir / "rendered_video.webm").write_bytes(b"browser render")
 
             class FakeManager:
                 items_dir = Path(temp_dir)
@@ -84,7 +85,7 @@ class TestServerlessApp(unittest.TestCase):
             thread.start()
             payload = {
                 "db_token": "test-token", "turso_db_url": "https://db.example",
-                "turso_auth_token": "test-auth"
+                "turso_auth_token": "test-auth", "rendered_video_extension": "webm"
             }
             with (
                 patch.object(story_server, "default_manager", FakeManager()),
@@ -105,7 +106,9 @@ class TestServerlessApp(unittest.TestCase):
                         data = json.loads(response.read())
                     self.assertTrue(data["ok"])
                     self.assertEqual(data["title"], "Queued story")
+                    self.assertEqual(data["filename"], "queued-story.webm")
                     job_thread.return_value.start.assert_called_once()
+                    self.assertEqual(job_thread.call_args.kwargs["args"][-1], "webm")
                     self.assertEqual(story_server.ITEM_RENDER_STATES["item-1"]["status"], "starting")
                 finally:
                     server.server_close()
@@ -156,15 +159,82 @@ class TestServerlessApp(unittest.TestCase):
             exporter_class.return_value.export_video.assert_called_once()
             self.assertEqual(output_path.read_bytes(), b"fresh render")
 
-    def test_browser_autopublish_uses_container_matching_extension(self):
+    def test_browser_render_is_saved_before_publish_queueing(self):
         repo_root = Path(__file__).resolve().parent.parent
         for page in ("index.html", "web/index.html", "AR.html"):
             with self.subTest(page=page):
                 source = (repo_root / page).read_text(encoding="utf-8")
-                self.assertIn("const outputExtension = mimeType.includes('mp4') ? 'mp4' : 'webm';", source)
-                self.assertIn("const publishMeta = { ...meta, filename: outputFilename };", source)
-                self.assertIn("const weights = chunks.map(chunk =>", source)
-                self.assertNotIn("new File([videoBlob], meta.filename, { type: 'video/mp4' })", source)
+                self.assertIn("async function renderStudioVideoForQueue()", source)
+                self.assertIn("await renderStudioVideoForQueue()", source)
+                self.assertIn("`/api/items/${itemId}/save-render`", source)
+                self.assertIn("rendered_video_extension: renderedVideo.extension", source)
+                self.assertNotIn("renderAndAutoPublish", source)
+
+    def test_save_browser_render_api_persists_video_under_item(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            item_dir = Path(temp_dir) / "item-1"
+            item_dir.mkdir()
+
+            class FakeManager:
+                items_dir = Path(temp_dir)
+
+                def get_item(self, item_id):
+                    return {"id": item_id} if item_id == "item-1" else None
+
+            server = HTTPServer(("127.0.0.1", 0), story_server.StorymakerRequestHandler)
+            thread = threading.Thread(target=server.handle_request)
+            thread.start()
+            with patch.object(story_server, "default_manager", FakeManager()):
+                try:
+                    request = urllib.request.Request(
+                        f"http://127.0.0.1:{server.server_port}/api/items/item-1/save-render",
+                        data=b"browser rendered webm",
+                        headers={"Content-Type": "video/webm"},
+                        method="POST"
+                    )
+                    with urllib.request.urlopen(request) as response:
+                        data = json.loads(response.read())
+                    self.assertTrue(data["ok"])
+                    self.assertEqual((item_dir / "rendered_video.webm").read_bytes(), b"browser rendered webm")
+                finally:
+                    server.server_close()
+                    thread.join()
+
+    def test_publish_worker_uploads_browser_render_without_ffmpeg(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            item_dir = root / "items" / "item-1"
+            item_dir.mkdir(parents=True)
+            (item_dir / "rendered_video.webm").write_bytes(b"browser render")
+            output_dir = root / "output"
+            output_dir.mkdir()
+
+            class FakeManager:
+                items_dir = root / "items"
+
+                def get_item(self, item_id):
+                    return {"id": item_id, "title": "Browser Story"}
+
+                def broadcast_event(self, *args):
+                    pass
+
+                def mark_publish_complete(self, *args):
+                    pass
+
+            with (
+                patch.object(story_server, "default_manager", FakeManager()),
+                patch.object(story_server, "OUTPUT_DIR", output_dir),
+                patch.dict(story_server.ITEM_RENDER_STATES, {}, clear=True),
+                patch("exporter.VideoExporter") as exporter_class,
+                patch.object(story_server, "upload_file_to_dropbox") as upload,
+            ):
+                story_server.auto_publish_story_item_thread(
+                    "item-1", {"token": "test-token"}, rendered_video_extension="webm"
+                )
+
+            exporter_class.assert_not_called()
+            upload.assert_called_once()
+            self.assertEqual(upload.call_args.args[1].read_bytes(), b"browser render")
 
     def test_issubclass_base_http_request_handler(self):
         """Vercel's vc_init.py requires issubclass(handler, BaseHTTPRequestHandler)."""

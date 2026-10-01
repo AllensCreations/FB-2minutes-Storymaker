@@ -13,6 +13,7 @@ import mimetypes
 import os
 import queue
 import re
+import shutil
 import sys
 import threading
 import time
@@ -554,13 +555,14 @@ def auto_publish_story_item_thread(
     show_captions: bool = True,
     caption_style: str = "gold",
     caption_words_per_chunk: int = 5,
-    retro_flicker: bool = False
+    retro_flicker: bool = False,
+    rendered_video_extension: Optional[str] = None
 ):
 
     """
-    End-to-end background publishing pipeline:
-    1. Render video via upgraded FFmpeg VideoExporter
-    2. Upload MP4 directly to Dropbox
+    Background publishing pipeline:
+    1. Use a submitted browser render, or render with FFmpeg for legacy callers
+    2. Upload the video directly to Dropbox
     3. Log record to Turso database manifest
     4. Mark item as published_complete
     """
@@ -570,6 +572,8 @@ def auto_publish_story_item_thread(
 
     item_folder = (default_manager.items_dir / item_id).resolve()
     out_filename = _story_output_filename(item.get("title") or item_id, item_id)
+    if rendered_video_extension in {"webm", "mp4"}:
+        out_filename = f"{Path(out_filename).stem}.{rendered_video_extension}"
     output_path = OUTPUT_DIR / out_filename
 
     with ITEM_RENDER_LOCK:
@@ -592,93 +596,102 @@ def auto_publish_story_item_thread(
     })
 
     try:
-        # Render every publish with the current assets and settings; output names alone aren't a safe cache key.
-        with ITEM_RENDER_LOCK:
-            ITEM_RENDER_STATES[item_id]["message"] = "Starting video render..."
-        default_manager.broadcast_event("render_progress", {
-            "item_id": item_id,
-            "job_type": "publish",
-            "progress": 5.0,
-            "status": "running",
-            "message": "Starting video render..."
-        })
-
-        audio_file = item.get("audio_file") or "narration.wav"
-        audio_path = item_folder / audio_file
-        if not audio_path.exists():
-            for ext in [".wav", ".mp3", ".m4a", ".aac"]:
-                cand = list(item_folder.glob(f"*{ext}"))
-                if cand:
-                    audio_path = cand[0]
-                    break
-
-        if not audio_path.exists():
-            raise FileNotFoundError("Voiceover audio track missing from story package.")
-
-        aligner = SpeechCueAlignEngine()
-        audio_dur = aligner.get_audio_duration(audio_path)
-
-        scene_cuts = item.get("scene_cuts")
-        story_json_path = item_folder / "story.json"
-        story_data = {}
-        if story_json_path.exists():
-            try:
-                story_data = json.loads(story_json_path.read_text(encoding="utf-8"))
-                if not scene_cuts:
-                    scene_cuts = story_data.get("scene_cuts")
-            except Exception:
-                pass
-
-        if scene_cuts and len(scene_cuts) > 0:
-            cuts = sorted([float(c) for c in scene_cuts if 0 < float(c) < audio_dur])
-            time_points = [0.0] + cuts + [audio_dur]
-            scenes_data = item.get("scenes") or []
-            segments = []
-            scene_map = {}
-            for i in range(len(time_points) - 1):
-                st = time_points[i]
-                et = time_points[i + 1]
-                txt = scenes_data[i].get("text", f"Scene {i+1}") if i < len(scenes_data) else f"Scene {i+1}"
-                seg = SpeechSegment(start_time=st, end_time=et, text=txt, scene_title=f"Scene {i+1}")
-                segments.append(seg)
-                scene_map[i] = seg
-            alignment = AlignmentResult(segments=segments, scene_mapping=scene_map, total_duration=audio_dur)
-        else:
-            script_path = item_folder / "script.txt"
-            alignment = aligner.align_speech_with_script(audio_path, script_path)
-
-        director = SceneDurationDirector()
-        timeline = director.build_timeline(alignment, item_folder, fps=24)
-        _apply_caption_word_timings(
-            timeline,
-            story_data.get("caption_word_timings") or item.get("caption_word_timings")
-        )
-
-        from exporter import VideoExporter
-        def on_progress(percent: float, status_msg: str):
-            scaled_pct = 5.0 + (percent * 0.70)  # Render is 5% -> 75%
+        if rendered_video_extension in {"webm", "mp4"}:
+            rendered_path = item_folder / f"rendered_video.{rendered_video_extension}"
+            if not rendered_path.is_file():
+                raise FileNotFoundError("The browser-rendered video is missing from the story package.")
+            shutil.copyfile(rendered_path, output_path)
             with ITEM_RENDER_LOCK:
-                ITEM_RENDER_STATES[item_id]["progress"] = round(scaled_pct, 1)
-                ITEM_RENDER_STATES[item_id]["message"] = status_msg
+                ITEM_RENDER_STATES[item_id]["progress"] = 75.0
+                ITEM_RENDER_STATES[item_id]["message"] = "Browser render ready; starting upload..."
+        else:
+            # Keep the legacy API render path for callers that do not submit a browser render.
+            with ITEM_RENDER_LOCK:
+                ITEM_RENDER_STATES[item_id]["message"] = "Starting video render..."
             default_manager.broadcast_event("render_progress", {
                 "item_id": item_id,
                 "job_type": "publish",
-                "progress": round(scaled_pct, 1),
+                "progress": 5.0,
                 "status": "running",
-                "message": status_msg
+                "message": "Starting video render..."
             })
 
-        exporter = VideoExporter(fps=24)
-        exporter.export_video(
-            timeline=timeline,
-            audio_path=audio_path,
-            output_path=output_path,
-            progress_callback=on_progress,
-            show_captions=show_captions,
-            caption_style=caption_style,
-            caption_words_per_chunk=caption_words_per_chunk,
-            retro_flicker=retro_flicker
-        )
+            audio_file = item.get("audio_file") or "narration.wav"
+            audio_path = item_folder / audio_file
+            if not audio_path.exists():
+                for ext in [".wav", ".mp3", ".m4a", ".aac"]:
+                    cand = list(item_folder.glob(f"*{ext}"))
+                    if cand:
+                        audio_path = cand[0]
+                        break
+
+            if not audio_path.exists():
+                raise FileNotFoundError("Voiceover audio track missing from story package.")
+
+            aligner = SpeechCueAlignEngine()
+            audio_dur = aligner.get_audio_duration(audio_path)
+
+            scene_cuts = item.get("scene_cuts")
+            story_json_path = item_folder / "story.json"
+            story_data = {}
+            if story_json_path.exists():
+                try:
+                    story_data = json.loads(story_json_path.read_text(encoding="utf-8"))
+                    if not scene_cuts:
+                        scene_cuts = story_data.get("scene_cuts")
+                except Exception:
+                    pass
+
+            if scene_cuts and len(scene_cuts) > 0:
+                cuts = sorted([float(c) for c in scene_cuts if 0 < float(c) < audio_dur])
+                time_points = [0.0] + cuts + [audio_dur]
+                scenes_data = item.get("scenes") or []
+                segments = []
+                scene_map = {}
+                for i in range(len(time_points) - 1):
+                    st = time_points[i]
+                    et = time_points[i + 1]
+                    txt = scenes_data[i].get("text", f"Scene {i+1}") if i < len(scenes_data) else f"Scene {i+1}"
+                    seg = SpeechSegment(start_time=st, end_time=et, text=txt, scene_title=f"Scene {i+1}")
+                    segments.append(seg)
+                    scene_map[i] = seg
+                alignment = AlignmentResult(segments=segments, scene_mapping=scene_map, total_duration=audio_dur)
+            else:
+                script_path = item_folder / "script.txt"
+                alignment = aligner.align_speech_with_script(audio_path, script_path)
+
+            director = SceneDurationDirector()
+            timeline = director.build_timeline(alignment, item_folder, fps=24)
+            _apply_caption_word_timings(
+                timeline,
+                story_data.get("caption_word_timings") or item.get("caption_word_timings")
+            )
+
+            from exporter import VideoExporter
+            def on_progress(percent: float, status_msg: str):
+                scaled_pct = 5.0 + (percent * 0.70)
+                with ITEM_RENDER_LOCK:
+                    ITEM_RENDER_STATES[item_id]["progress"] = round(scaled_pct, 1)
+                    ITEM_RENDER_STATES[item_id]["message"] = status_msg
+                default_manager.broadcast_event("render_progress", {
+                    "item_id": item_id,
+                    "job_type": "publish",
+                    "progress": round(scaled_pct, 1),
+                    "status": "running",
+                    "message": status_msg
+                })
+
+            exporter = VideoExporter(fps=24)
+            exporter.export_video(
+                timeline=timeline,
+                audio_path=audio_path,
+                output_path=output_path,
+                progress_callback=on_progress,
+                show_captions=show_captions,
+                caption_style=caption_style,
+                caption_words_per_chunk=caption_words_per_chunk,
+                retro_flicker=retro_flicker
+            )
 
         # Step 2: Upload to Dropbox
         folder = db_cfg.get("folder") or "/Think with Tobi"
@@ -1454,6 +1467,49 @@ class StorymakerRequestHandler(SimpleHTTPRequestHandler):
             except Exception as e:
                 self.send_json({"ok": False, "error": str(e)}, status=500)
 
+        elif path.startswith("/api/items/") and path.endswith("/save-render"):
+            try:
+                item_id = path.replace("/api/items/", "").replace("/save-render", "").strip("/")
+                item = default_manager.get_item(item_id)
+                if not item:
+                    self.send_json({"ok": False, "error": f"Story item {item_id} not found"}, status=404)
+                    return
+
+                media_type = self.headers.get("Content-Type", "").split(";", 1)[0].strip().lower()
+                extension = {"video/mp4": "mp4", "video/webm": "webm"}.get(media_type)
+                if not extension:
+                    self.send_json({"ok": False, "error": "Rendered video must be MP4 or WebM."}, status=415)
+                    return
+
+                content_length = int(self.headers.get("Content-Length", 0))
+                if content_length <= 0 or content_length > 1024 * 1024 * 1024:
+                    self.send_json({"ok": False, "error": "Rendered video must be between 1 byte and 1 GB."}, status=413)
+                    return
+                video_bytes = self.rfile.read(content_length)
+                if len(video_bytes) != content_length:
+                    self.send_json({"ok": False, "error": "Rendered video upload was incomplete."}, status=400)
+                    return
+                item_root = default_manager.items_dir.resolve()
+                item_folder = (item_root / item_id).resolve()
+                try:
+                    item_folder.relative_to(item_root)
+                except ValueError:
+                    self.send_json({"ok": False, "error": "Invalid story item path."}, status=400)
+                    return
+                if not item_folder.is_dir():
+                    self.send_json({"ok": False, "error": f"Story item {item_id} not found"}, status=404)
+                    return
+                rendered_path = item_folder / f"rendered_video.{extension}"
+                temporary_path = rendered_path.with_suffix(rendered_path.suffix + ".tmp")
+                temporary_path.write_bytes(video_bytes)
+                temporary_path.replace(rendered_path)
+                for other_extension in {"mp4", "webm"} - {extension}:
+                    (item_folder / f"rendered_video.{other_extension}").unlink(missing_ok=True)
+
+                self.send_json({"ok": True, "extension": extension, "bytes": len(video_bytes)})
+            except Exception as e:
+                self.send_json({"ok": False, "error": str(e)}, status=500)
+
         elif path.startswith("/api/items/") and path.endswith("/save-audio"):
             try:
                 item_id = path.replace("/api/items/", "").replace("/save-audio", "").strip("/")
@@ -1690,8 +1746,17 @@ class StorymakerRequestHandler(SimpleHTTPRequestHandler):
                 caption_style = str(payload.get("caption_style", "gold")).strip().lower()
                 caption_words_per_chunk = max(5, min(10, int(payload.get("caption_words_per_chunk", 5))))
                 retro_flicker = bool(payload.get("retro_flicker", False))
+                rendered_video_extension = str(payload.get("rendered_video_extension") or "").lower()
+                if rendered_video_extension not in {"mp4", "webm"}:
+                    rendered_video_extension = None
 
                 out_filename = _story_output_filename(item.get("title") or item_id, item_id)
+                if rendered_video_extension:
+                    rendered_path = item_folder / f"rendered_video.{rendered_video_extension}"
+                    if not rendered_path.is_file():
+                        self.send_json({"ok": False, "error": "Browser-rendered video is missing."}, status=400)
+                        return
+                    out_filename = f"{Path(out_filename).stem}.{rendered_video_extension}"
                 if not item.get("scenes"):
                     self.send_json({"ok": False, "error": "Story scenes are required before publishing."}, status=400)
                     return
@@ -1770,7 +1835,7 @@ class StorymakerRequestHandler(SimpleHTTPRequestHandler):
                     target=auto_publish_story_item_thread,
                     args=(
                         item_id, db_cfg, turso_cfg, show_captions, caption_style,
-                        caption_words_per_chunk, retro_flicker
+                        caption_words_per_chunk, retro_flicker, rendered_video_extension
                     ),
                     daemon=True
                 )

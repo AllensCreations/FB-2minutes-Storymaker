@@ -1,6 +1,6 @@
 # FB-2minutes Storymaker
 
-[![Version](https://img.shields.io/badge/version-1.0.10-blue.svg)](https://github.com/AllensCreations/FBStoryMaker)
+[![Version](https://img.shields.io/badge/version-1.0.11-blue.svg)](https://github.com/AllensCreations/FBStoryMaker)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![Tests](https://img.shields.io/badge/tests-unittest-blue.svg)](tests/)
@@ -88,7 +88,7 @@ From the dashboard, choose **Edit .env settings** to open `.env` in `$VISUAL`, `
 ### 1. Studio & Publishing Queue
 - **📦 Story Packages**: Manage incoming story packages, track real-time rendering progress via Server-Sent Events (SSE), filter by pending/published status, and load stories into the studio with one click.
 - **🎬 Studio**: Creative canvas with 30 FPS playback, interactive audio waveform, manual draggable cut markers, fast cadence alignment, multimodal AI auto-alignment, and **web-based video rendering**. Click **Auto-Publish** to render and automatically queue for publishing.
-- **⏳ Publish Queue**: Auto-publish saves the current package and starts background rendering/upload; Studio clears only after the server accepts the job. Follow progress here, and reopen failed stories to retry.
+- **⏳ Publish Queue**: The completed browser render enters the queue; background work handles Dropbox upload and Turso sync without rendering it again. Studio clears only after the server accepts the job. Follow progress here, and reopen failed stories to retry.
 - **📅 Schedule**: Publishing overview with campaign search, platform filters, and interactive Facebook/YouTube status controls.
 - **⚙️ Settings Modal**: Consolidated credentials modal supporting Gemini API keys, Gemini model selection (`gemini-2.5-flash`, `gemini-1.5-pro`, `gemini-3.8-flash`), Dropbox cloud credentials, and Google Sheets manifest URLs.
 
@@ -96,7 +96,7 @@ From the dashboard, choose **Edit .env settings** to open `.env` in `$VISUAL`, `
 - **Web-Only Video Rendering**: All rendering happens in the browser via the Studio's **Auto-Publish** feature; the terminal menu remains available for launching the Studio and setup tools.
 - **In-Browser Canvas Render**: Video is rendered directly in the browser using MediaRecorder + canvas capture at 30 FPS.
 - **Automatic Queue on Completion**: Once the video is ready, it automatically enqueues for publishing (Dropbox + Sheets logging).
-- **Real-Time Progress**: The Publish Queue tab shows rendering status, upload progress, and completion with SSE updates.
+- **Real-Time Progress**: The Publish Queue tab shows upload and database-sync progress with SSE updates after browser rendering completes.
 
 ### 3. Auto-Jump & Instant Canvas Preview on "Open & Render"
 - Clicking **"🎬 Open & Render"** (or **"🎙️ Open & Add Voiceover"**) on any story package card automatically switches the view to Studio and scrolls to the top of the interface.

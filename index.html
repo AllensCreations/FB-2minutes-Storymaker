@@ -453,7 +453,7 @@
           <div class="pt-3 border-t border-white/[0.06] space-y-2.5">
             <button id="studioAutoPublishBtn" type="button" class="w-full py-2.5 px-4 rounded-xl font-bold text-xs bg-gradient-to-r from-amber-500 via-amber-600 to-amber-500 hover:from-amber-400 hover:to-amber-500 text-gray-950 shadow-lg shadow-amber-950/50 transition flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98] promax-btn-shine">
               <span id="studioPublishIcon">🚀</span>
-              <span id="studioPublishText">Auto-Publish to Dropbox &amp; Sheets</span>
+              <span id="studioPublishText">Render in Studio &amp; Add to Queue</span>
             </button>
             <!-- 3-Stage Progress Display for Auto-Publish -->
             <div id="studioPublishProgress" class="hidden space-y-2.5 bg-black/80 p-3 rounded-xl border border-gray-800 shadow-xl">
@@ -3254,6 +3254,173 @@
     // --- Studio Story Metadata & Publisher Automation ---
     let metadataSaveTimeout = null;
 
+    async function renderStudioVideoForQueue() {
+      if (!audioBuffer) throw new Error("Voiceover audio is required before rendering.");
+      if (!window.MediaRecorder || !canvas.captureStream) {
+        throw new Error("This browser does not support in-browser video rendering.");
+      }
+
+      const audioCtx = getAudioContext();
+      await audioCtx.resume();
+      const duration = audioBuffer.duration;
+      const canvasStream = canvas.captureStream(30);
+      const sourceNode = audioCtx.createBufferSource();
+      const audioDestination = audioCtx.createMediaStreamDestination();
+      sourceNode.buffer = audioBuffer;
+      sourceNode.connect(audioDestination);
+      sourceNode.connect(audioCtx.destination);
+
+      const stream = new MediaStream([
+        ...canvasStream.getVideoTracks(),
+        ...audioDestination.stream.getAudioTracks()
+      ]);
+      const mimeType = MediaRecorder.isTypeSupported('video/mp4;codecs=avc1')
+        ? 'video/mp4;codecs=avc1'
+        : (MediaRecorder.isTypeSupported('video/webm;codecs=vp9') ? 'video/webm;codecs=vp9' : 'video/webm');
+      let recorder;
+      try {
+        recorder = new MediaRecorder(stream, { mimeType, videoBitsPerSecond: 5000000 });
+      } catch (error) {
+        stream.getTracks().forEach(track => track.stop());
+        canvasStream.getTracks().forEach(track => track.stop());
+        audioDestination.stream.getTracks().forEach(track => track.stop());
+        sourceNode.disconnect();
+        audioDestination.disconnect();
+        throw error;
+      }
+      const chunks = [];
+      const publishProgress = document.getElementById('studioPublishProgress');
+      const publishTitle = document.getElementById('studioPublishTitle');
+      const step1Icon = document.getElementById('step1Icon');
+      const step1Label = document.getElementById('step1Label');
+      const step1Bar = document.getElementById('step1Bar');
+      const step1Pct = document.getElementById('step1Pct');
+      const step1Time = document.getElementById('step1Time');
+      const step1Detail = document.getElementById('step1DetailText');
+      const overallPct = document.getElementById('studioPublishOverallPct');
+      if (publishProgress) publishProgress.classList.remove('hidden');
+      if (publishTitle) publishTitle.textContent = `Browser Render: "${getStudioStoryMetadata().title}"`;
+      if (step1Icon) step1Icon.textContent = '⏳';
+      if (step1Label) step1Label.className = 'text-white font-medium flex items-center gap-1.5';
+      if (step1Bar) step1Bar.style.width = '0%';
+      if (step1Pct) step1Pct.textContent = '0%';
+      if (overallPct) overallPct.textContent = '0%';
+      const playWasDisabled = playBtn?.disabled;
+      if (playBtn) playBtn.disabled = true;
+
+      return new Promise((resolve, reject) => {
+        let animationFrame = null;
+        let settled = false;
+        const cleanup = () => {
+          if (animationFrame !== null) cancelAnimationFrame(animationFrame);
+          stream.getTracks().forEach(track => track.stop());
+          canvasStream.getTracks().forEach(track => track.stop());
+          audioDestination.stream.getTracks().forEach(track => track.stop());
+          sourceNode.disconnect();
+          audioDestination.disconnect();
+          if (playBtn) playBtn.disabled = playWasDisabled;
+        };
+        const fail = error => {
+          if (settled) return;
+          settled = true;
+          if (recorder.state === 'recording') recorder.stop();
+          try { sourceNode.stop(); } catch (_) {}
+          cleanup();
+          reject(error);
+        };
+        const finish = () => {
+          if (settled) return;
+          drawFrame(duration);
+          if (step1Bar) step1Bar.style.width = '100%';
+          if (step1Pct) step1Pct.textContent = '100%';
+          if (step1Time) step1Time.textContent = `${formatTime(duration)} / ${formatTime(duration)}`;
+          if (step1Detail) step1Detail.textContent = 'Browser playback render complete';
+          if (step1Icon) step1Icon.textContent = '✓';
+          if (step1Label) step1Label.className = 'text-emerald-400 font-medium flex items-center gap-1.5';
+          if (overallPct) overallPct.textContent = '35%';
+          if (recorder.state === 'recording') recorder.stop();
+        };
+
+        recorder.ondataavailable = event => {
+          if (event.data?.size) chunks.push(event.data);
+        };
+        recorder.onerror = event => fail(event.error || new Error("Browser video recording failed."));
+        recorder.onstop = () => {
+          if (settled) return;
+          settled = true;
+          cleanup();
+          const blob = new Blob(chunks, { type: mimeType });
+          if (!blob.size) {
+            reject(new Error("Browser render produced an empty video."));
+            return;
+          }
+          resolve({ blob, extension: mimeType.includes('mp4') ? 'mp4' : 'webm' });
+        };
+        sourceNode.onended = finish;
+
+        try {
+          recorder.start(100);
+          const startedAt = audioCtx.currentTime;
+          const drawPlaybackFrame = () => {
+            if (settled) return;
+            const elapsed = Math.min(duration, audioCtx.currentTime - startedAt);
+            drawFrame(elapsed);
+            const percent = Math.round(elapsed / duration * 100);
+            if (step1Bar) step1Bar.style.width = `${percent}%`;
+            if (step1Pct) step1Pct.textContent = `${percent}%`;
+            if (step1Time) step1Time.textContent = `${formatTime(elapsed)} / ${formatTime(duration)}`;
+            if (overallPct) overallPct.textContent = `${Math.round(percent * 0.35)}%`;
+            if (elapsed < duration) animationFrame = requestAnimationFrame(drawPlaybackFrame);
+          };
+          sourceNode.start();
+          drawPlaybackFrame();
+          if (step1Detail) step1Detail.textContent = 'Playing story in Studio and recording canvas...';
+        } catch (error) {
+          fail(error);
+        }
+      });
+    }
+
+    async function renderAndQueueStudioAutoPublish(force = false) {
+      const meta = getStudioStoryMetadata();
+      if (!audioBuffer) {
+        showToast("⚠️ Voiceover audio is required before Auto-publish.", true);
+        return;
+      }
+      if (!force && window.currentActiveItemPublished) {
+        showDuplicateWarningModal(
+          `Story "${meta.title}" has already been published. Overwrite and re-publish?`,
+          () => renderAndQueueStudioAutoPublish(true)
+        );
+        return;
+      }
+      const dbToken = pipeCfg('dbToken', '');
+      const dbAppKey = pipeCfg('dbAppKey', DEFAULT_APP_KEY);
+      const dbAppSecret = pipeCfg('dbAppSecret', DEFAULT_APP_SECRET);
+      const dbRefreshToken = pipeCfg('dbRefreshToken', DEFAULT_REFRESH_TOKEN);
+      if (!pipeCfg('tursoDbUrl', DEFAULT_TURSO_DB_URL) || !pipeCfg('tursoAuthToken', DEFAULT_TURSO_AUTH_TOKEN) ||
+          !(dbToken || (dbAppKey && dbAppSecret && dbRefreshToken))) {
+        showToast("⚠️ Configure Dropbox and Turso credentials in Settings > Cloud Publisher.", true);
+        openSettingsModal('publisher');
+        return;
+      }
+      const btn = document.getElementById('studioAutoPublishBtn');
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<span>⏳</span> Rendering in Studio...';
+      }
+      try {
+        const renderedVideo = await renderStudioVideoForQueue();
+        await queueStudioAutoPublish(force, renderedVideo);
+      } catch (error) {
+        showToast(`✕ Browser render failed: ${error.message}`, true);
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = '<span>🚀</span> Render in Studio &amp; Add to Queue';
+        }
+      }
+    }
+
     function pipeSlugify(text) {
       return String(text || "story_output").replace(/(?:\.mp4)+$/i, "")
         .toLowerCase()
@@ -3503,10 +3670,10 @@
 
     const studioAutoPublishBtnEl = document.getElementById("studioAutoPublishBtn");
     if (studioAutoPublishBtnEl) {
-      studioAutoPublishBtnEl.addEventListener("click", () => queueStudioAutoPublish(false));
+      studioAutoPublishBtnEl.addEventListener("click", () => renderAndQueueStudioAutoPublish(false));
     }
 
-    async function queueStudioAutoPublish(force = false) {
+    async function queueStudioAutoPublish(force = false, renderedVideo = null) {
       let itemId = window.currentActiveItemId;
       const meta = getStudioStoryMetadata();
       if (!audioBuffer) {
@@ -3520,7 +3687,7 @@
       if (!force && window.currentActiveItemPublished) {
         showDuplicateWarningModal(
           `Story "${meta.title}" has already been published. Overwrite and re-publish?`,
-          () => queueStudioAutoPublish(true)
+          () => queueStudioAutoPublish(true, renderedVideo)
         );
         return;
       }
@@ -3610,6 +3777,19 @@
           throw new Error(timelineData.error || "Could not save scene text and cut markers.");
         }
 
+        if (!renderedVideo?.blob || !["mp4", "webm"].includes(renderedVideo.extension)) {
+          throw new Error("Finish the browser render before adding this story to the Publish Queue.");
+        }
+        const renderRes = await fetch(`/api/items/${itemId}/save-render`, {
+          method: 'POST',
+          headers: { 'Content-Type': renderedVideo.blob.type },
+          body: renderedVideo.blob
+        });
+        const renderData = await renderRes.json();
+        if (!renderRes.ok || !renderData.ok) {
+          throw new Error(renderData.error || "Could not save the browser-rendered video.");
+        }
+
         const publishRes = await fetch(`/api/items/${itemId}/auto-publish`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -3625,16 +3805,17 @@
             show_captions: showCaptions,
             caption_style: currentCaptionStyle,
             caption_words_per_chunk: captionWordsPerChunk,
-            retro_flicker: retroFlickerEnabled
+            retro_flicker: retroFlickerEnabled,
+            rendered_video_extension: renderedVideo.extension
           })
         });
         const publishData = await publishRes.json();
         if (publishRes.status === 409 && publishData.is_duplicate && !force) {
           if (btn) {
             btn.disabled = false;
-            btn.innerHTML = '<span>🚀</span> Auto-Publish to Dropbox &amp; Sheets';
+            btn.innerHTML = '<span>🚀</span> Render in Studio &amp; Add to Queue';
           }
-          showDuplicateWarningModal(publishData.message, () => queueStudioAutoPublish(true));
+          showDuplicateWarningModal(publishData.message, () => queueStudioAutoPublish(true, renderedVideo));
           return;
         }
         if (!publishRes.ok || !publishData.ok) {
@@ -3726,341 +3907,6 @@
       if (!silent) {
         showToast(`Auto-pulled story "${meta.title}" into Publisher!`);
       }
-    }
-
-    async function renderAndAutoPublish(force = false) {
-      const meta = getStudioStoryMetadata();
-
-      const tursoDbUrl = pipeCfg('tursoDbUrl', '');
-      const tursoAuthToken = pipeCfg('tursoAuthToken', '');
-      const dbAppKey = pipeCfg('dbAppKey', DEFAULT_APP_KEY);
-      const dbAppSecret = pipeCfg('dbAppSecret', DEFAULT_APP_SECRET);
-      const dbRefreshToken = pipeCfg('dbRefreshToken', DEFAULT_REFRESH_TOKEN);
-      const dbToken = pipeCfg('dbToken', '');
-
-      const hasDropbox = !!(dbToken || (dbAppKey && dbAppSecret && dbRefreshToken));
-      const hasTurso = !!(tursoDbUrl && tursoAuthToken);
-
-      if (!hasDropbox || !hasTurso) {
-        showToast("⚠️ Please configure your Dropbox credentials & Turso Database credentials in Settings > Cloud Publisher first.", true);
-        if (typeof openSettingsModal === 'function') openSettingsModal('publisher');
-        return;
-      }
-
-      if (!audioBuffer) {
-        showToast("⚠️ Voiceover audio is required before auto-publishing. Please record or generate speech first.", true);
-        return;
-      }
-
-      // Pre-check duplicate in UI if already marked published and user did not explicitly force
-      if (!force && window.currentActiveItemId && window.currentActiveItemPublished) {
-        showDuplicateWarningModal(
-          `Story "${meta.title}" has already been published to Facebook & YouTube! Overwrite and re-publish?`,
-          () => renderAndAutoPublish(true)
-        );
-        return;
-      }
-
-      const btn = document.getElementById('studioAutoPublishBtn');
-      if (btn) {
-        btn.disabled = true;
-        btn.innerHTML = '<span>⏳</span> Rendering in Browser...';
-      }
-
-      // Studio 3-Stage Progress Elements
-      const publishProg = document.getElementById('studioPublishProgress');
-      const pubTitle = document.getElementById('studioPublishTitle');
-      const pubOverallPct = document.getElementById('studioPublishOverallPct');
-
-      const step1Icon = document.getElementById('step1Icon');
-      const step1Label = document.getElementById('step1Label');
-      const step1Pct = document.getElementById('step1Pct');
-      const step1Bar = document.getElementById('step1Bar');
-      const step1DetailText = document.getElementById('step1DetailText');
-      const step1Time = document.getElementById('step1Time');
-
-      const step2Icon = document.getElementById('step2Icon');
-      const step2Label = document.getElementById('step2Label');
-      const step2Pct = document.getElementById('step2Pct');
-      const step2Bar = document.getElementById('step2Bar');
-      const step2DetailText = document.getElementById('step2DetailText');
-      const step2Bytes = document.getElementById('step2Bytes');
-
-      const step3Icon = document.getElementById('step3Icon');
-      const step3Label = document.getElementById('step3Label');
-      const step3Status = document.getElementById('step3Status');
-      const step3Bar = document.getElementById('step3Bar');
-      const step3DetailText = document.getElementById('step3DetailText');
-
-      if (publishProg) publishProg.classList.remove('hidden');
-      if (pubTitle) pubTitle.textContent = `Auto-Publish: "${meta.title || meta.filename}"`;
-      if (pubOverallPct) pubOverallPct.textContent = '0%';
-
-      const duration = audioBuffer.duration || 1.0;
-
-      // Step 1: Active
-      if (step1Icon) step1Icon.textContent = '⏳';
-      if (step1Label) step1Label.className = 'text-white font-medium flex items-center gap-1.5';
-      if (step1Pct) step1Pct.textContent = '0%';
-      if (step1Bar) step1Bar.style.width = '0%';
-      if (step1DetailText) step1DetailText.textContent = 'Recording canvas frames...';
-      if (step1Time) step1Time.textContent = `0.0s / ${formatTime(duration)}`;
-
-      // Step 2: Pending
-      if (step2Icon) step2Icon.textContent = '⚪';
-      if (step2Label) step2Label.className = 'text-zinc-500 font-medium flex items-center gap-1.5';
-      if (step2Pct) step2Pct.textContent = '0%';
-      if (step2Bar) step2Bar.style.width = '0%';
-      if (step2DetailText) step2DetailText.textContent = 'Waiting for video render...';
-      if (step2Bytes) step2Bytes.textContent = '0 KB / 0 KB';
-
-      // Step 3: Pending
-      if (step3Icon) step3Icon.textContent = '⚪';
-      if (step3Label) step3Label.className = 'text-zinc-500 font-medium flex items-center gap-1.5';
-      if (step3Status) step3Status.textContent = 'Waiting';
-      if (step3Bar) step3Bar.style.width = '0%';
-      if (step3DetailText) step3DetailText.textContent = 'Waiting for Dropbox upload...';
-
-      if (exportProgress) {
-        exportProgress.classList.remove('hidden');
-        exportBar.style.width = '0%';
-        exportPct.textContent = '0%';
-        exportText.textContent = `Rendering video for "${meta.title}"...`;
-      }
-
-      // Auto-pull metadata into Publisher Stage 2 immediately
-      autoPullFromStudio(true);
-
-      // In-browser Web MediaRecorder Canvas render with live progress
-      audioElement.pause();
-      audioElement.currentTime = 0;
-      if (playBtn) playBtn.textContent = 'Play';
-
-      const videoStream = canvas.captureStream(30);
-      const audioCtx = getAudioContext();
-      const sourceNode = audioCtx.createBufferSource();
-      sourceNode.buffer = audioBuffer;
-
-      const dest = audioCtx.createMediaStreamDestination();
-      sourceNode.connect(dest);
-
-      const combined = new MediaStream([
-        ...videoStream.getVideoTracks(),
-        ...dest.stream.getAudioTracks()
-      ]);
-
-      const mimeType = MediaRecorder.isTypeSupported('video/mp4;codecs=avc1')
-        ? 'video/mp4;codecs=avc1'
-        : (MediaRecorder.isTypeSupported('video/webm;codecs=vp9') ? 'video/webm;codecs=vp9' : 'video/webm');
-
-      const recorder = new MediaRecorder(combined, {
-        mimeType: mimeType,
-        videoBitsPerSecond: 5000000
-      });
-      const chunks = [];
-
-      recorder.ondataavailable = e => {
-        if (e.data && e.data.size > 0) chunks.push(e.data);
-      };
-
-      recorder.onstop = async () => {
-        try {
-          if (step2Icon) step2Icon.textContent = '⏳';
-          if (step2Label) step2Label.className = 'text-white font-medium flex items-center gap-1.5';
-          if (step2DetailText) step2DetailText.textContent = 'Obtaining Dropbox token...';
-
-          const videoBlob = new Blob(chunks, { type: mimeType });
-          if (!videoBlob || videoBlob.size === 0) {
-            throw new Error('Rendered video file is empty. Please check audio and canvas preview.');
-          }
-
-          const outputExtension = mimeType.includes('mp4') ? 'mp4' : 'webm';
-          const outputFilename = `${meta.filename.replace(/\.(?:mp4|webm)$/i, '')}.${outputExtension}`;
-          const publishMeta = { ...meta, filename: outputFilename };
-          if (btn) btn.innerHTML = '<span>📤</span> Uploading to Dropbox...';
-          if (exportText) exportText.textContent = `Uploading "${outputFilename}" to Dropbox...`;
-
-          const token = await getAccessToken();
-          const folder = (pipeCfg('dbFolder', DEFAULT_FOLDER) || '/Think with Tobi').replace(/\/$/, '');
-          const path = `${folder}/${outputFilename}`;
-
-          if (step2DetailText) step2DetailText.textContent = `Uploading to ${folder}/...`;
-
-          await new Promise((resolve, reject) => {
-            const xhr = new XMLHttpRequest();
-            xhr.open('POST', 'https://content.dropboxapi.com/2/files/upload');
-            xhr.setRequestHeader('Authorization', `Bearer ${token}`);
-            xhr.setRequestHeader('Content-Type', 'application/octet-stream');
-            xhr.setRequestHeader('Dropbox-API-Arg', JSON.stringify({
-              path: path,
-              mode: 'overwrite',
-              autorename: false,
-              mute: false
-            }));
-
-            xhr.upload.onprogress = e => {
-              if (e.lengthComputable) {
-                const pct = Math.round(e.loaded / e.total * 100);
-                if (step2Bar) step2Bar.style.width = `${pct}%`;
-                if (step2Pct) step2Pct.textContent = `${pct}%`;
-                if (step2Bytes) step2Bytes.textContent = `${pipeFormatBytes(e.loaded)} / ${pipeFormatBytes(e.total)}`;
-                if (pubOverallPct) pubOverallPct.textContent = `${Math.round(35 + (pct * 0.45))}%`;
-              }
-            };
-
-            xhr.onload = () => {
-              if (xhr.status === 200) {
-                resolve();
-              } else {
-                let errDesc = xhr.responseText;
-                try {
-                  const p = JSON.parse(xhr.responseText);
-                  errDesc = p.error_summary || p.error_description || errDesc;
-                } catch (_) {}
-                reject(new Error(errDesc));
-              }
-            };
-            xhr.onerror = () => reject(new Error('Network error connecting to Dropbox API.'));
-            xhr.send(videoBlob);
-          });
-
-          // Step 2 Complete
-          if (step2Icon) step2Icon.textContent = '✓';
-          if (step2Label) step2Label.className = 'text-emerald-400 font-medium flex items-center gap-1.5';
-          if (step2Pct) step2Pct.textContent = '100%';
-          if (step2Bar) step2Bar.style.width = '100%';
-          if (step2DetailText) step2DetailText.textContent = `✓ Uploaded to ${folder}/${outputFilename}`;
-          if (pubOverallPct) pubOverallPct.textContent = '80%';
-
-          // Step 3: Turso LibSQL Database Sync
-          if (btn) btn.innerHTML = '<span>⚡</span> Syncing Turso...';
-          if (step3Icon) step3Icon.textContent = '⏳';
-          if (step3Label) step3Label.className = 'text-white font-medium flex items-center gap-1.5';
-          if (step3Status) step3Status.textContent = 'Syncing...';
-          if (step3Bar) step3Bar.style.width = '50%';
-          if (step3DetailText) step3DetailText.textContent = 'Writing story & dropbox_path to Turso libSQL...';
-
-          await pushStoryToTurso({
-            ...publishMeta,
-            dropbox_path: path
-          });
-
-          // Mark item published in active package manager
-          if (window.currentActiveItemId) {
-            try {
-              await fetch(`/api/items/${window.currentActiveItemId}/metadata`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ published_complete: true })
-              });
-              window.currentActiveItemPublished = true;
-              if (typeof loadItemsList === 'function') loadItemsList();
-            } catch (_) {}
-          }
-
-          if (typeof loadSchedule === 'function') loadSchedule();
-
-          // Step 3 Complete
-          if (step3Icon) step3Icon.textContent = '✓';
-          if (step3Label) step3Label.className = 'text-emerald-400 font-medium flex items-center gap-1.5';
-          if (step3Status) step3Status.textContent = '✓ Synced';
-          if (step3Bar) step3Bar.style.width = '100%';
-          if (step3DetailText) step3DetailText.textContent = '✓ Turso libSQL record ready for Make.com auto-publish';
-          if (pubOverallPct) pubOverallPct.textContent = '100%';
-
-          if (exportText) exportText.textContent = '✓ Rendered & Published!';
-          if (exportBar) exportBar.style.width = '100%';
-          if (exportPct) exportPct.textContent = '100%';
-
-          showToast(`🚀 Successfully published "${outputFilename}" to Dropbox & Turso!`);
-
-          if (btn) {
-            btn.disabled = false;
-            btn.innerHTML = '<span>✓</span> Published to Dropbox & Turso!';
-            setTimeout(() => {
-              btn.innerHTML = '<span>🚀</span> Auto-Publish to Dropbox &amp; Sheets';
-            }, 4000);
-          }
-        } catch (err) {
-          showToast(`✕ Auto-publish error: ${err.message}`, true);
-          if (step2Icon && (step2Icon.textContent === '⏳' || step2Icon.textContent === '⚪')) {
-            step2Icon.textContent = '✕';
-            if (step2Label) step2Label.className = 'text-red-400 font-medium flex items-center gap-1.5';
-            if (step2DetailText) step2DetailText.textContent = `Upload failed: ${err.message}`;
-          } else if (step3Icon && (step3Icon.textContent === '⏳' || step3Icon.textContent === '⚪')) {
-            step3Icon.textContent = '✕';
-            if (step3Label) step3Label.className = 'text-red-400 font-medium flex items-center gap-1.5';
-            if (step3DetailText) step3DetailText.textContent = `Turso sync failed: ${err.message}`;
-          }
-          if (btn) {
-            btn.disabled = false;
-            btn.innerHTML = '<span>🚀</span> Retry Auto-Publish';
-          }
-        }
-      };
-
-      recorder.start(100);
-      try {
-        sourceNode.start(0);
-      } catch (snErr) {
-        console.warn("sourceNode start:", snErr);
-      }
-
-      const startTime = performance.now();
-      let renderStopped = false;
-
-      function stopAndFinalizeRender() {
-        if (renderStopped) return;
-        renderStopped = true;
-
-        drawFrame(duration);
-        if (step1Icon) step1Icon.textContent = '✓';
-        if (step1Label) step1Label.className = 'text-emerald-400 font-medium flex items-center gap-1.5';
-        if (step1Pct) step1Pct.textContent = '100%';
-        if (step1Bar) step1Bar.style.width = '100%';
-        if (step1DetailText) step1DetailText.textContent = '✓ Video Render Complete';
-        if (pubOverallPct) pubOverallPct.textContent = '35%';
-
-        if (step2Icon) step2Icon.textContent = '⏳';
-        if (step2Label) step2Label.className = 'text-white font-medium flex items-center gap-1.5';
-        if (step2DetailText) step2DetailText.textContent = 'Finalizing video file...';
-        if (step2Pct) step2Pct.textContent = '5%';
-        if (step2Bar) step2Bar.style.width = '5%';
-
-        try {
-          if (recorder && recorder.state === 'recording') {
-            recorder.requestData();
-            recorder.stop();
-          }
-        } catch (recErr) {
-          console.warn('Recorder stop warning:', recErr);
-        }
-        try {
-          sourceNode.stop();
-        } catch (_) {}
-      }
-
-      function autoRenderLoop() {
-        if (renderStopped) return;
-        const elapsed = (performance.now() - startTime) / 1000;
-        const prog = Math.min(1.0, elapsed / duration);
-        const pct1 = Math.round(prog * 100);
-
-        if (step1Bar) step1Bar.style.width = `${pct1}%`;
-        if (step1Pct) step1Pct.textContent = `${pct1}%`;
-        if (step1Time) step1Time.textContent = `${formatTime(elapsed)} / ${formatTime(duration)}`;
-        if (exportBar) exportBar.style.width = `${pct1}%`;
-        if (exportPct) exportPct.textContent = `${pct1}%`;
-        if (pubOverallPct) pubOverallPct.textContent = `${Math.round(pct1 * 0.35)}%`;
-
-        if (elapsed < duration) {
-          drawFrame(elapsed);
-          requestAnimationFrame(autoRenderLoop);
-        } else {
-          stopAndFinalizeRender();
-        }
-      }
-      autoRenderLoop();
     }
 
     function showPublishView() {
@@ -5186,16 +5032,6 @@
       refreshItemsBtn.addEventListener('click', () => {
         loadItemsList();
         showToast("Items list refreshed.");
-      });
-    }
-
-    // --- Web Render + Auto-Enqueue to Publish Queue ---
-    const autoPublishBtn = document.getElementById('autoPublishBtn');
-    if (autoPublishBtn) {
-      autoPublishBtn.addEventListener('click', async () => {
-        await renderAndAutoPublish(false);
-        await new Promise(r => setTimeout(r, 500));
-        await queueStudioAutoPublish(false);
       });
     }
 
