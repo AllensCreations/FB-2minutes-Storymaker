@@ -13,7 +13,7 @@ class TestApiGatewayNode(unittest.TestCase):
         full_code = f"""
         process.env.API_SECRET_KEY = process.env.API_SECRET_KEY || '';
         process.env.GH_PAT = process.env.GH_PAT || 'mock_gh_token';
-        process.env.GITHUB_REPOSITORY = process.env.GITHUB_REPOSITORY || 'AllensCreations/FB-2minutes-Storymaker';
+        process.env.GITHUB_REPOSITORY = process.env.GITHUB_REPOSITORY || 'AllensCreations/FBStoryMaker';
 
         global.fetch = async (url, opts) => ({{
             status: 204,

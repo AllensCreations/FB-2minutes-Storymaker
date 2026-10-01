@@ -1,6 +1,6 @@
 # FB-2minutes Storymaker
 
-[![Version](https://img.shields.io/badge/version-1.0.4-blue.svg)](https://github.com/AllensCreations/FB-2minutes-Storymaker)
+[![Version](https://img.shields.io/badge/version-1.0.6-blue.svg)](https://github.com/AllensCreations/FBStoryMaker)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![Tests](https://img.shields.io/badge/tests-unittest-blue.svg)](tests/)
@@ -14,7 +14,7 @@ An automated storytelling engine that turns your narration, scripts, and artwork
 Install or update the application on **Linux**, **macOS**, or **Android Termux**:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/AllensCreations/FB-2minutes-Storymaker/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/AllensCreations/FBStoryMaker/main/install.sh | bash
 ```
 
 After installation, `fbsm` opens the interactive terminal dashboard. Terminal launches check the current Git branch's configured upstream, fast-forward and restart when an update is available, and stop with an error if an update cannot be verified or safely applied. A network connection is required.
@@ -94,6 +94,7 @@ From the dashboard, choose **Edit .env settings** to open `.env` in `$VISUAL`, `
 ### 2. Interactive Terminal Dashboard
 - Run `fbsm` to open the terminal dashboard (equivalent to `fb-storymaker --tui`).
 - Use Up/Down or J/K to navigate, Enter to select, number keys for shortcuts, and Q to exit. Short terminals scroll the selection menu.
+- Choose **Check for updates** to manually fetch updates; an updated install restarts the dashboard automatically.
 - Choose **Edit .env settings** to edit local credentials from the terminal.
 - On Git checkouts, startup checks for updates and safely fast-forwards to the configured upstream when behind.
 
@@ -150,13 +151,13 @@ The engine automatically inspects the dimensions of visual assets and adapts the
 
 Run the one-line installer:
 ```bash
-curl -fsSL https://raw.githubusercontent.com/AllensCreations/FB-2minutes-Storymaker/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/AllensCreations/FBStoryMaker/main/install.sh | bash
 ```
 
 Or clone and set up locally:
 ```bash
-git clone https://github.com/AllensCreations/FB-2minutes-Storymaker.git
-cd FB-2minutes-Storymaker
+git clone https://github.com/AllensCreations/FBStoryMaker.git
+cd FBStoryMaker
 bash setup_local.sh
 ```
 
@@ -280,7 +281,7 @@ python3 -m unittest discover -s tests -p 'test_*.py'
 ## 📁 Repository Structure
 
 ```
-FB-2minutes-Storymaker/
+FBStoryMaker/
 ├── index.html                  # Creative Studio Web UI (Main client application)
 ├── AR.html                     # Mirrored client UI
 ├── app.py                      # Universal Python HTTP server & API gateway

@@ -81,8 +81,8 @@ Make an authenticated HTTP POST request from Google Flow / Google Apps Script:
   "audio_source": "remote_url",
   "visuals_source": "remote_url",
   "make_webhook_configured": true,
-  "actions_url": "https://github.com/AllensCreations/FB-2minutes-Storymaker/actions",
-  "repository": "AllensCreations/FB-2minutes-Storymaker",
+  "actions_url": "https://github.com/AllensCreations/FBStoryMaker/actions",
+  "repository": "AllensCreations/FBStoryMaker",
   "timestamp": "2026-09-18T00:15:00.000Z",
   "message": "Story video generation successfully queued in GitHub Actions. Make.com will receive the published video once rendering completes."
 }
@@ -95,7 +95,7 @@ Make an authenticated HTTP POST request from Google Flow / Google Apps Script:
 ### Method B: Direct to GitHub REST API (Zero Servers)
 If you don't use Vercel, Google Flow can trigger GitHub Actions directly:
 
-* **URL:** `https://api.github.com/repos/AllensCreations/FB-2minutes-Storymaker/dispatches`
+* **URL:** `https://api.github.com/repos/AllensCreations/FBStoryMaker/dispatches`
 * **Method:** `POST`
 * **Headers:**
   * `Authorization: Bearer <YOUR_GITHUB_PAT>`
@@ -125,7 +125,7 @@ Once GitHub Actions completes the FFmpeg rendering (usually 60-90 seconds), it a
 
 ```json
 {
-  "video_url": "https://github.com/AllensCreations/FB-2minutes-Storymaker/releases/download/v-run-12345678/final_story.mp4",
+  "video_url": "https://github.com/AllensCreations/FBStoryMaker/releases/download/v-run-12345678/final_story.mp4",
   "title": "The Mystery of the Golden Forest",
   "description": "Elsa embarks on a journey deep into the Whispering Woods. #story #shorts #tiktok",
   "scheduled_time": "2026-09-18T18:00:00Z"
@@ -155,4 +155,4 @@ When deploying the API Gateway to Vercel:
 2. Add:
    * `API_SECRET_KEY`: Secret string required in `x-api-key` header to secure your endpoint against spam.
    * `GH_PAT` (or `GITHUB_TOKEN`): GitHub Personal Access Token (classic with `repo` scope or fine-grained token with Actions read/write).
-   * `GITHUB_REPOSITORY`: `AllensCreations/FB-2minutes-Storymaker`
+   * `GITHUB_REPOSITORY`: `AllensCreations/FBStoryMaker`

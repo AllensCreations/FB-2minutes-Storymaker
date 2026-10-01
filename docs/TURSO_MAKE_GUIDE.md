@@ -22,7 +22,7 @@ Complete guide on replacing **Google Apps Script (Google Sheets)** with **Turso 
 ```mermaid
 sequenceDiagram
     autonumber
-    participant App as FB-2minutes-Storymaker
+    participant App as FBStoryMaker
     participant DB as Turso libSQL Edge DB
     participant Drop as Dropbox Storage
     participant Make as Make.com Automation
@@ -361,7 +361,7 @@ Now update Turso so the story is never posted again:
 
 ---
 
-## 5. 🐍 How FB-2minutes-Storymaker Logs Directly to Turso
+## 5. 🐍 How FBStoryMaker Logs Directly to Turso
 
 You can log to Turso in Python without any external dependencies using standard Python `urllib`:
 

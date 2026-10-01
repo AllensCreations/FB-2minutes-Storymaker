@@ -129,6 +129,7 @@ def _draw_interactive_menu(stdscr, status):
         ("4", "Play latest video"),
         ("5", "Edit .env settings"),
         ("6", "Check dependencies"),
+        ("7", "Check for updates"),
         ("0", "Exit"),
     ]
     selected = 0
@@ -196,7 +197,7 @@ def _draw_interactive_menu(stdscr, status):
             selected = (selected + 1) % len(choices)
         elif key in (curses.KEY_ENTER, 10, 13):
             return choices[selected][0]
-        elif ord("0") <= key <= ord("6"):
+        elif ord("0") <= key <= ord("7"):
             return chr(key)
         elif key in (ord("q"), ord("Q")):
             return "0"
@@ -465,7 +466,16 @@ def run_termux_health_check():
     input(f"\n{C_DIM}Press [Enter] to return to menu...{C_RESET}")
 
 
-def run_tui_main():
+def _check_for_updates(update_checker):
+    try:
+        if update_checker():
+            os.execv(sys.executable, [sys.executable, str(REPO_ROOT / "main.py"), "--tui"])
+    except RuntimeError as error:
+        print(f"{C_RED}Update check failed: {error}{C_RESET}")
+    input(f"\n{C_DIM}Press [Enter] to return to menu...{C_RESET}")
+
+
+def run_tui_main(update_checker=None):
     """Main event loop for the Termux TUI."""
     while True:
         status = get_asset_status()
@@ -489,6 +499,7 @@ def run_tui_main():
             print(f"  {C_GREEN}[4]{C_RESET} Play latest video")
             print(f"  {C_AMBER}[5]{C_RESET} Edit .env settings")
             print(f"  {C_GRAY}[6]{C_RESET} Check dependencies")
+            print(f"  {C_CYAN}[7]{C_RESET} Check for updates")
             print(f"\n{C_DIM}Type a number and press Enter · [0] Exit{C_RESET}")
             choice = input(f"\n{C_BOLD}Action › {C_RESET}").strip().lower()
 
@@ -505,14 +516,20 @@ def run_tui_main():
             edit_env_settings()
         elif choice == "6":
             run_termux_health_check()
+        elif choice == "7":
+            if update_checker is None:
+                from main import check_for_updates
+                update_checker = check_for_updates
+            _check_for_updates(update_checker)
         elif choice in ("0", "q", "quit", "exit"):
             clear_screen()
             print(f"{C_ORANGE}👋 Thank you for using FB-2minutes Storymaker!{C_RESET}\n")
             break
         else:
-            print(f"\n{C_RED}Choose one of the listed actions (1-6), or 0 to exit.{C_RESET}")
+            print(f"\n{C_RED}Choose one of the listed actions (1-7), or 0 to exit.{C_RESET}")
             input(f"{C_DIM}Press Enter to continue...{C_RESET}")
 
 
 if __name__ == "__main__":
-    run_tui_main()
+    from main import check_for_updates
+    run_tui_main(check_for_updates)

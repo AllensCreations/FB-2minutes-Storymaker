@@ -37,7 +37,7 @@ def download_file(url: str, dest_path: Path):
     dest_path.parent.mkdir(parents=True, exist_ok=True)
     req = urllib.request.Request(
         url,
-        headers={"User-Agent": "FB-2minutes-Storymaker-CI/1.0"}
+        headers={"User-Agent": "FBStoryMaker-CI/1.0"}
     )
     with urllib.request.urlopen(req, timeout=60) as resp, open(dest_path, "wb") as f:
         f.write(resp.read())
@@ -72,7 +72,7 @@ def create_github_release_and_upload(
         "Authorization": f"Bearer {token}",
         "Accept": "application/vnd.github+json",
         "X-GitHub-Api-Version": "2022-11-28",
-        "User-Agent": "FB-2minutes-Storymaker-CI"
+        "User-Agent": "FBStoryMaker-CI"
     }
 
     # 1. Create Release
@@ -147,7 +147,7 @@ def notify_make_webhook(
         data=json.dumps(payload).encode("utf-8"),
         headers={
             "Content-Type": "application/json",
-            "User-Agent": "FB-2minutes-Storymaker-CI"
+            "User-Agent": "FBStoryMaker-CI"
         },
         method="POST"
     )
