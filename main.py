@@ -94,7 +94,7 @@ def start_web_server(port=None, open_browser: bool = False):
     start_server(host="0.0.0.0", port=port, open_browser=open_browser)
 
 
-__version__ = "1.0.8"
+__version__ = "1.0.9"
 
 
 def check_for_updates(repo_dir: Path = BASE_DIR) -> bool:
@@ -143,17 +143,18 @@ def check_for_updates(repo_dir: Path = BASE_DIR) -> bool:
 
 def main():
     parser = argparse.ArgumentParser(
-        description=f"FB 2minutes Storymaker v{__version__} - Automated Storytelling Engine"
+        description=f"FB 2minutes Storymaker v{__version__} - Web-Based Storytelling Engine"
     )
     parser.add_argument("--version", "-v", action="version", version=f"FB 2minutes Storymaker v{__version__}")
-    parser.add_argument("--tui", action="store_true", help="Launch the interactive Termux / mobile Terminal UI")
-    parser.add_argument("--run", action="store_true", help="Execute the complete story generation pipeline")
-    parser.add_argument("--web", action="store_true", help="Launch the local Web UI Studio")
     parser.add_argument("--port", type=int, default=None, help="Port for the Web UI (default: randomly assigned)")
     parser.add_argument("--open", action="store_true", help="Automatically open Web UI in browser")
-    parser.add_argument("--fps", type=int, default=24, help="Frames per second for output video (default: 24)")
-    parser.add_argument("--no-captions", action="store_true", help="Disable on-screen subtitle captions in output video")
     parser.add_argument("--check", action="store_true", help="Check asset status and exit")
+    # Legacy/deprecated args for backward compatibility (no-op)
+    parser.add_argument("--web", action="store_true", help=argparse.SUPPRESS)
+    parser.add_argument("--tui", action="store_true", help=argparse.SUPPRESS)
+    parser.add_argument("--run", action="store_true", help=argparse.SUPPRESS)
+    parser.add_argument("--fps", type=int, default=None, help=argparse.SUPPRESS)
+    parser.add_argument("--no-captions", action="store_true", help=argparse.SUPPRESS)
 
     args = parser.parse_args()
 
@@ -163,39 +164,21 @@ def main():
     except RuntimeError as error:
         parser.error(f"Unable to verify/update Storymaker: {error}")
 
-    # Route: Termux Interactive TUI
-    if args.tui or (len(sys.argv) == 1 and sys.stdin.isatty()):
-        from termux_ui import run_tui_main
-        run_tui_main(check_for_updates)
-        return
-
-    # Route: Web UI
-    if args.web:
-        from deps_helper import is_termux
-        auto_open = args.open or is_termux()
-        start_web_server(args.port, open_browser=auto_open)
-        return
-
-    print("FB 2minutes Storymaker - Automated Storytelling Engine")
-    print("=" * 55)
-    print("Architecture: Picture-Book Motion (9:16 Full Image TikTok Video)")
-    print()
-
-    has_voice, has_scripts, has_visuals = check_assets()
-    print("Asset Status:")
-    print(f"  Voice-over (.mp3/.wav): {'✓ Found' if has_voice else '✗ Missing'}")
-    print(f"  Scene Script (.txt):   {'✓ Found' if has_scripts else '✗ Missing'}")
-    print(f"  Visual Assets (.zip):   {'✓ Found' if has_visuals else '✗ Missing'}")
-    print()
-
     if args.check:
+        print("FB 2minutes Storymaker - Asset Status Check")
+        print("=" * 55)
+        has_voice, has_scripts, has_visuals = check_assets()
+        print("Asset Status:")
+        print(f"  Voice-over (.mp3/.wav): {'✓ Found' if has_voice else '✗ Missing'}")
+        print(f"  Scene Script (.txt):   {'✓ Found' if has_scripts else '✗ Missing'}")
+        print(f"  Visual Assets (.zip):   {'✓ Found' if has_visuals else '✗ Missing'}")
+        print()
         return
 
-    if not (has_voice and has_scripts and has_visuals):
-        parser.error("Story assets are incomplete. Add narration, a script, and visuals before rendering.")
-
-    # Run the storytelling pipeline
-    run_pipeline(fps=args.fps, show_captions=not args.no_captions)
+    # All routes lead to Web UI (terminal render deprecated)
+    from deps_helper import is_termux
+    auto_open = args.open or is_termux()
+    start_web_server(args.port, open_browser=auto_open)
 
 
 if __name__ == "__main__":

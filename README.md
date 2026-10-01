@@ -1,6 +1,6 @@
 # FB-2minutes Storymaker
 
-[![Version](https://img.shields.io/badge/version-1.0.8-blue.svg)](https://github.com/AllensCreations/FBStoryMaker)
+[![Version](https://img.shields.io/badge/version-1.0.9-blue.svg)](https://github.com/AllensCreations/FBStoryMaker)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![Tests](https://img.shields.io/badge/tests-unittest-blue.svg)](tests/)
@@ -86,17 +86,16 @@ From the dashboard, choose **Edit .env settings** to open `.env` in `$VISUAL`, `
 
 ### 1. Studio & Publishing Queue
 - **📦 Story Packages**: Manage incoming story packages, track real-time rendering progress via Server-Sent Events (SSE), filter by pending/published status, and load stories into the studio with one click.
-- **🎬 Studio**: Creative canvas with 30 FPS playback, interactive audio waveform, manual draggable cut markers, fast cadence alignment, and multimodal AI auto-alignment.
+- **🎬 Studio**: Creative canvas with 30 FPS playback, interactive audio waveform, manual draggable cut markers, fast cadence alignment, multimodal AI auto-alignment, and **web-based video rendering**. Click **Auto-Publish** to render and automatically queue for publishing.
 - **⏳ Publish Queue**: Auto-publish saves the current package and starts background rendering/upload; Studio clears only after the server accepts the job. Follow progress here, and reopen failed stories to retry.
 - **📅 Schedule**: Publishing overview with campaign search, platform filters, and interactive Facebook/YouTube status controls.
 - **⚙️ Settings Modal**: Consolidated credentials modal supporting Gemini API keys, Gemini model selection (`gemini-2.5-flash`, `gemini-1.5-pro`, `gemini-3.8-flash`), Dropbox cloud credentials, and Google Sheets manifest URLs.
 
-### 2. Interactive Terminal Dashboard
-- Run `fbsm` to open the terminal dashboard (equivalent to `fb-storymaker --tui`).
-- Use Up/Down or J/K to navigate, Enter to select, number keys for shortcuts, and Q to exit. Short terminals scroll the selection menu.
-- Choose **Check for updates** to manually fetch updates; an updated install restarts the dashboard automatically.
-- Choose **Edit .env settings** to edit local credentials from the terminal.
-- On Git checkouts, startup checks for updates and safely fast-forwards to the configured upstream when behind.
+### 2. Single Unified Web Render Workflow
+- **No Terminal/CLI Rendering**: All rendering happens in the browser via the Studio's **Auto-Publish** feature.
+- **In-Browser Canvas Render**: Video is rendered directly in the browser using MediaRecorder + canvas capture at 30 FPS.
+- **Automatic Queue on Completion**: Once the video is ready, it automatically enqueues for publishing (Dropbox + Sheets logging).
+- **Real-Time Progress**: The Publish Queue tab shows rendering status, upload progress, and completion with SSE updates.
 
 ### 3. Auto-Jump & Instant Canvas Preview on "Open & Render"
 - Clicking **"🎬 Open & Render"** (or **"🎙️ Open & Add Voiceover"**) on any story package card automatically switches the view to Studio and scrolls to the top of the interface.
@@ -189,29 +188,24 @@ PORT=8000
 
 ### 3. Launching the Application
 
-```bash
-# Launch the Web Studio
-fb-storymaker --web
-
-# Or run directly from the checkout
-python3 main.py --web
-```
-
-### 4. Terminal & Android Termux Mode
+All rendering happens via the web-based Studio. The terminal UI and CLI render modes have been removed in favor of the unified web-render workflow.
 
 ```bash
-# Interactive Terminal Dashboard for Termux / mobile consoles
+# Launch the Web Studio (default)
+python3 main.py
+
+# Or with optional flags
+python3 main.py --port 3000 --open    # Custom port + auto-open browser
+
+# Or via the installed command:
 fbsm
-# Use Up/Down (or J/K) to navigate, Enter to select, number keys to jump, Q to quit
-# Checks for upstream updates first; fast-forwards and restarts when safely behind.
-# Requires a Git checkout with an upstream configured and network access.
-
-# The long form remains available:
-fb-storymaker --tui
-
-# Batch render video directly from CLI
-fb-storymaker --run
 ```
+
+**Render Workflow:**
+1. Load or create a story package in the Studio
+2. Click **Auto-Publish** to start web-based rendering
+3. Video renders in the browser, then automatically queues for publishing
+4. Monitor progress in the Publish Queue tab; Studio clears after server accepts
 
 ---
 
