@@ -1952,7 +1952,7 @@ let audioBuffer = null;
       if (scheduleView) scheduleView.classList.add("hidden");
       resetNavStyles();
       if (navItemsBtn) navItemsBtn.className = "py-1.5 px-3.5 rounded-lg text-xs sm:text-sm font-semibold transition flex items-center gap-1.5 bg-blue-600 text-white shadow-lg shadow-blue-900/30 cursor-pointer";
-      loadItemsList();
+      loadItemsList(false);
     }
 
     function showPublishQueueView() {
@@ -1974,7 +1974,7 @@ let audioBuffer = null;
       scheduleView.classList.remove("hidden");
       resetNavStyles();
       if (navScheduleBtn) navScheduleBtn.className = "py-1.5 px-3.5 rounded-lg text-xs sm:text-sm font-semibold transition flex items-center gap-1.5 bg-emerald-600 text-white shadow-lg shadow-emerald-900/30 cursor-pointer";
-      loadSchedule();
+      loadSchedule(true);
     }
 
     if (navStudioBtn) navStudioBtn.addEventListener("click", showStudioView);
@@ -2947,6 +2947,13 @@ let audioBuffer = null;
 
     window.itemsQueueFilter = 'all';
     let itemsQueueSearchTimer;
+    let itemsListCache = null;
+    let itemsListRequest = null;
+    let refreshItemsAfterRequest = false;
+    let scheduleStoriesLoaded = false;
+    let scheduleStoriesRequest = null;
+    let refreshScheduleAfterRequest = false;
+    let scheduleStoriesTiming = "";
     window.setItemsFilter = function(filter) {
       window.itemsQueueFilter = filter;
       const btnAll = document.getElementById('itemsFilterAll');
@@ -2960,47 +2967,94 @@ let audioBuffer = null;
       if (btnPending) btnPending.className = filter === 'pending' ? activeCls : inactiveCls;
       if (btnPublished) btnPublished.className = filter === 'published' ? activeCls : inactiveCls;
 
-      loadItemsList();
+      loadItemsList(false);
     };
 
     const itemsQueueSearch = document.getElementById('itemsQueueSearch');
     if (itemsQueueSearch) {
       itemsQueueSearch.addEventListener('input', () => {
         clearTimeout(itemsQueueSearchTimer);
-        itemsQueueSearchTimer = setTimeout(loadItemsList, 200);
+        itemsQueueSearchTimer = setTimeout(() => loadItemsList(false), 200);
       });
     }
 
     // --- Items Queue Management ---
-    async function loadItemsList() {
+    async function getItemsListSnapshot(force = false) {
+      if (itemsListRequest) {
+        if (force) refreshItemsAfterRequest = true;
+        await itemsListRequest;
+        if (refreshItemsAfterRequest) {
+          refreshItemsAfterRequest = false;
+          return getItemsListSnapshot(true);
+        }
+        return itemsListCache;
+      }
+      if (!force && itemsListCache !== null) return itemsListCache;
+
+      itemsListRequest = (async () => {
+        const response = await fetch('/api/items');
+        if (!response.ok) throw new Error(`Story package request failed (${response.status})`);
+        itemsListCache = await response.json();
+      })();
+      try {
+        await itemsListRequest;
+      } finally {
+        itemsListRequest = null;
+      }
+      return itemsListCache;
+    }
+
+    async function getScheduleStories(force = false) {
+      if (scheduleStoriesRequest) {
+        if (force) refreshScheduleAfterRequest = true;
+        await scheduleStoriesRequest;
+        if (refreshScheduleAfterRequest) {
+          refreshScheduleAfterRequest = false;
+          return getScheduleStories(true);
+        }
+        return pipeSheetData;
+      }
+      if (!force && scheduleStoriesLoaded) return pipeSheetData;
+
+      scheduleStoriesRequest = (async () => {
+        const response = await fetch('/api/turso/stories');
+        const data = await response.json();
+        if (!response.ok || !data.ok) throw new Error(data.error || `Request failed (${response.status})`);
+        const serverMs = Number(data.telemetry?.duration_ms);
+        scheduleStoriesTiming = Number.isFinite(serverMs) && serverMs >= 0
+          ? `server/Turso ${serverMs} ms`
+          : "";
+        pipeSheetData = (data.stories || []).map((story, index) => ({
+          rowIndex: index + 2,
+          filename: story.filename,
+          caption: story.caption,
+          description: story.description,
+          uploaded: (story.status === 'published' || story.fb_published || story.uploaded_to_fb_ig === 'published') ? 'YES' : 'NO',
+          youtube: (story.status === 'published' || story.yt_published || story.uploaded_to_youtube === 'published') ? 'YES' : 'NO'
+        }));
+        scheduleStoriesLoaded = true;
+      })();
+      try {
+        await scheduleStoriesRequest;
+      } finally {
+        scheduleStoriesRequest = null;
+      }
+      return pipeSheetData;
+    }
+
+    async function loadItemsList(force = true, refreshManifest = false) {
       if (!itemsContainer) return;
       const summary = document.getElementById('itemsFilterSummary');
       try {
-        const resItems = await fetch('/api/items');
-        let items = [];
-        if (resItems && resItems.ok) {
-          items = await resItems.json();
-        }
+        const items = await getItemsListSnapshot(force);
 
-        let manifestList = Array.isArray(pipeSheetData) && pipeSheetData.length ? pipeSheetData : [];
-        if (!manifestList.length) {
+        if (refreshManifest || !scheduleStoriesLoaded) {
           try {
-            const resTurso = await fetch('/api/turso/stories');
-            const tursoJson = await resTurso.json();
-            if (tursoJson && tursoJson.ok && Array.isArray(tursoJson.stories)) {
-              pipeSheetData = tursoJson.stories.map((s, idx) => ({
-                rowIndex: idx + 2,
-                filename: s.filename,
-                caption: s.caption,
-                description: s.description,
-                uploaded: (s.status === 'published' || s.fb_published) ? 'YES' : 'NO',
-                youtube: (s.status === 'published' || s.yt_published) ? 'YES' : 'NO'
-              }));
-              manifestList = pipeSheetData;
-              if (typeof renderTable === 'function') renderTable(pipeSheetData);
-            }
+            await getScheduleStories(refreshManifest);
+            if (typeof renderTable === 'function') renderTable(pipeSheetData);
           } catch (_) {}
         }
+        const manifestList = pipeSheetData;
 
         const rawList = Array.isArray(items) ? items : [];
 
@@ -3961,7 +4015,7 @@ let audioBuffer = null;
 
     if (refreshItemsBtn) {
       refreshItemsBtn.addEventListener('click', () => {
-        loadItemsList();
+        loadItemsList(true, true);
         showToast("Items list refreshed.");
       });
     }
@@ -4042,7 +4096,7 @@ let audioBuffer = null;
       const es = new EventSource('/api/events');
       
       es.addEventListener('connected', () => {
-        loadItemsList();
+        loadItemsList(false);
         loadPublishQueue();
       });
 
@@ -4333,7 +4387,7 @@ let audioBuffer = null;
             statusPill.textContent = `✓ Connected (${d.count !== undefined ? d.count + ' item(s)' : 'libSQL'})`;
           }
           showToast(d.message || "✓ Turso database connected and verified successfully!");
-          loadSchedule();
+          loadSchedule(true);
         } else {
           if (statusPill) {
             statusPill.className = "px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-rose-950/80 text-rose-300 border border-rose-500/40";
@@ -5074,7 +5128,7 @@ ALTER TABLE stories ADD COLUMN uploaded_to_youtube TEXT DEFAULT 'pending';`;
         try {
           await pushStoryToTurso(pipeJsonData);
           showSt('uploadStatus', 's', `Saved as "${pipeJsonData.filename}" in ${folder}/ and added to Turso manifest!`);
-          loadSchedule();
+          loadSchedule(true);
         } catch (dbErr) {
           showSt('uploadStatus', 'w', `Uploaded to Dropbox, but Turso sync warning: ${dbErr.message}`);
         }
@@ -5092,7 +5146,7 @@ ALTER TABLE stories ADD COLUMN uploaded_to_youtube TEXT DEFAULT 'pending';`;
     }
 
     function refreshManifest() {
-      loadSheet();
+      loadSchedule(true);
     }
 
     const LOGIC_FILTERS = {
@@ -5384,10 +5438,16 @@ ALTER TABLE stories ADD COLUMN uploaded_to_youtube TEXT DEFAULT 'pending';`;
       }
     }
 
-    async function loadSchedule() {
+    async function loadSchedule(force = false) {
       const cards = document.getElementById("scheduleCards");
       const meta = document.getElementById("scheduleMeta");
       const refreshIcon = document.getElementById("refreshScheduleIcon");
+
+      if (!force && scheduleStoriesLoaded) {
+        scheduleLoadTiming = "cached · use Refresh to check for changes";
+        renderScheduleTable(pipeSheetData);
+        return;
+      }
 
       const startedAt = performance.now();
       scheduleLoadTiming = "";
@@ -5396,26 +5456,14 @@ ALTER TABLE stories ADD COLUMN uploaded_to_youtube TEXT DEFAULT 'pending';`;
       if (cards) cards.innerHTML = `<div class="col-span-full rounded-xl border border-dashed border-gray-800 px-4 py-12 text-center text-sm text-gray-400">Loading your publishing overview…</div>`;
 
       try {
-        const res = await fetch("/api/turso/stories");
-        const json = await res.json();
-
-        if (!res.ok || !json.ok) throw new Error(json.error || `Request failed (${res.status})`);
-        pipeSheetData = (json.stories || []).map((s, idx) => ({
-          rowIndex: idx + 2,
-          filename: s.filename,
-          caption: s.caption,
-          description: s.description,
-          uploaded: (s.uploaded_to_fb_ig === 'published' || s.fb_published || s.status === 'published') ? 'YES' : 'NO',
-          youtube: (s.uploaded_to_youtube === 'published' || s.yt_published || s.status === 'published') ? 'YES' : 'NO'
-        }));
+        await getScheduleStories(force);
         const browserMs = Math.round(performance.now() - startedAt);
-        const serverMs = Number(json.telemetry?.duration_ms);
-        scheduleLoadTiming = Number.isFinite(serverMs) && serverMs >= 0
-          ? `browser ${browserMs} ms · server/Turso ${serverMs} ms`
+        scheduleLoadTiming = scheduleStoriesTiming
+          ? `browser ${browserMs} ms · ${scheduleStoriesTiming}`
           : `browser ${browserMs} ms`;
         renderScheduleTable(pipeSheetData);
       } catch (e) {
-        pipeSheetData = [];
+        if (!scheduleStoriesLoaded) pipeSheetData = [];
         if (meta) meta.textContent = "Could not load campaigns.";
         const needsSettings = /not configured/i.test(e.message);
         if (cards) {
@@ -5431,10 +5479,10 @@ ALTER TABLE stories ADD COLUMN uploaded_to_youtube TEXT DEFAULT 'pending';`;
     }
 
     const refreshSchedBtn = document.getElementById("refreshScheduleBtn");
-    if (refreshSchedBtn) refreshSchedBtn.addEventListener("click", loadSchedule);
+    if (refreshSchedBtn) refreshSchedBtn.addEventListener("click", () => loadSchedule(true));
 
     // Backward-compat aliases
-    function loadSheet() { return loadSchedule(); }
+    function loadSheet() { return loadSchedule(true); }
     function renderTable(d) { return renderScheduleTable(d); }
 
     function pipeEsc(s) {
@@ -6168,7 +6216,7 @@ ALTER TABLE stories ADD COLUMN uploaded_to_youtube TEXT DEFAULT 'pending';`;
       initPublisherPipeline();
       fetchServerSettings();
       resizeWaveform();
-      loadItemsList();
+      loadItemsList(false);
       initSSE();
       if (window.location.protocol.startsWith('http')) {
         syncWithLocalTermux(false);

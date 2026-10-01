@@ -252,6 +252,9 @@ class TestServerlessApp(unittest.TestCase):
         self.assertIn("const step = event.shiftKey ? 0.1 : 0.01", app_script)
         self.assertIn("updateCutMarkerReadout", app_script)
         self.assertIn("previous.end.toFixed(2)", app_script)
+        self.assertIn("if (!force && itemsListCache !== null)", app_script)
+        self.assertIn("loadItemsList(true, true)", app_script)
+        self.assertIn("cached · use Refresh to check for changes", app_script)
         for page in ("index.html", "web/index.html", "AR.html"):
             with self.subTest(page=page):
                 source = (repo_root / page).read_text(encoding="utf-8")
