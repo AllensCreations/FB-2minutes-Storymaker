@@ -3310,6 +3310,17 @@
       if (rerenderBtn) rerenderBtn.classList.toggle('hidden', !currentSavedRenderInfo);
     }
 
+    function resetStudioAutoPublishButton() {
+      const btn = document.getElementById('studioAutoPublishBtn');
+      if (!btn) return;
+      btn.disabled = false;
+      btn.innerHTML = `<span id="studioPublishIcon">🚀</span><span id="studioPublishText">${
+        currentSavedRenderInfo
+          ? `Queue Saved Render (${currentSavedRenderInfo.extension.toUpperCase()})`
+          : 'Render in Studio &amp; Add to Queue'
+      }</span>`;
+    }
+
     async function renderStudioVideoForQueue() {
       if (!audioBuffer) throw new Error("Voiceover audio is required before rendering.");
       if (!window.MediaRecorder || !canvas.captureStream) {
@@ -3930,6 +3941,7 @@
       loadedImages = [];
       scenes = [];
       setCurrentSavedRenderInfo(null);
+      resetStudioAutoPublishButton();
       window.currentActiveItemId = null;
       window.currentActiveItemPublished = false;
       window._publishedEditConfirmed = false;
@@ -4449,6 +4461,8 @@
     // Open item inside Studio and prepare auto-sync (with Publish Complete Warning)
     window.openItemInStudio = async function(itemId) {
       statusEl.textContent = "⏳ Pre-loading story package from Items Queue...";
+      setCurrentSavedRenderInfo(null);
+      resetStudioAutoPublishButton();
       try {
         const res = await fetch(`/api/items/${itemId}`);
         if (!res.ok) throw new Error("Could not fetch story package details.");

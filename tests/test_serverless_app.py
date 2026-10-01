@@ -192,6 +192,8 @@ class TestServerlessApp(unittest.TestCase):
                 self.assertIn("Recent queue activity", source)
                 self.assertIn("data-queue-elapsed", source)
                 self.assertIn("}, 5000);", source)
+                self.assertIn("function resetStudioAutoPublishButton()", source)
+                self.assertIn("resetStudioAutoPublishButton();", source)
                 self.assertNotIn("renderAndAutoPublish", source)
 
     def test_saved_browser_render_info_and_invalidation(self):
