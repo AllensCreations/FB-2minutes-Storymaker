@@ -122,6 +122,7 @@ class TestTursoClient(unittest.TestCase):
         self.assertTrue(any("CREATE TABLE IF NOT EXISTS stories" in s for s in all_sqls))
         self.assertTrue(any("uploaded_to_fb_ig" in s for s in all_sqls))
         self.assertTrue(any("uploaded_to_youtube" in s for s in all_sqls))
+        self.assertTrue(any("CREATE TABLE IF NOT EXISTS publish_jobs" in s for s in all_sqls))
 
     @patch("turso_client.execute_turso_pipeline")
     def test_schema_initialization_is_cached_per_normalized_endpoint(self, mock_exec):
@@ -130,7 +131,7 @@ class TestTursoClient(unittest.TestCase):
         turso_client.init_turso_schema("libsql://test.turso.io/", "token")
         turso_client.init_turso_schema("https://test.turso.io", "token")
         self.assertEqual(mock_exec.call_count, 1)
-        self.assertEqual(len(mock_exec.call_args.args[2]), 4)
+        self.assertEqual(len(mock_exec.call_args.args[2]), 5)
 
         turso_client.init_turso_schema("https://another.turso.io", "token")
         self.assertEqual(mock_exec.call_count, 2)
@@ -278,6 +279,51 @@ class TestTursoClient(unittest.TestCase):
         self.assertEqual(stories[0]["status"], "published")
         self.assertEqual(stories[0]["uploaded_to_fb_ig"], "published")
         self.assertEqual(stories[0]["uploaded_to_youtube"], "pending")
+
+    @patch("turso_client.execute_turso_pipeline")
+    def test_save_publish_job_upserts_latest_snapshot(self, mock_exec):
+        mock_exec.return_value = {"results": [{"type": "ok"}]}
+        turso_client.turso_save_publish_job("https://queue-save.turso.io", "token", {
+            "item_id": "item-1", "title": "A Story", "filename": "story.mp4",
+            "status": "done", "progress": 100, "message": "Uploaded",
+            "error": None, "logs": [{"message": "Uploaded"}],
+            "started_at": 10, "updated_at": 20
+        })
+        sql, args = mock_exec.call_args.args[2][0]
+        self.assertIn("ON CONFLICT(item_id) DO UPDATE", sql)
+        self.assertEqual(args[0:5], ["item-1", "A Story", "story.mp4", "done", 100.0])
+        self.assertEqual(args[-1], 20)
+
+    @patch("turso_client.execute_turso_pipeline")
+    def test_list_publish_jobs_decodes_recent_rows(self, mock_exec):
+        mock_exec.side_effect = [
+            {"results": []},
+            {"results": [{
+                "type": "ok",
+                "response": {"result": {
+                    "cols": [{"name": name} for name in (
+                        "item_id", "title", "filename", "status", "progress", "message",
+                        "error", "logs_json", "started_at", "updated_at"
+                    )],
+                    "rows": [[
+                        {"type": "text", "value": "item-1"},
+                        {"type": "text", "value": "A Story"},
+                        {"type": "text", "value": "story.mp4"},
+                        {"type": "text", "value": "done"},
+                        {"type": "float", "value": 100},
+                        {"type": "text", "value": "Uploaded"},
+                        {"type": "null"},
+                        {"type": "text", "value": '[{"message":"Uploaded"}]'},
+                        {"type": "float", "value": 10},
+                        {"type": "float", "value": 20}
+                    ]]
+                }}
+            }]}
+        ]
+        jobs = turso_client.turso_list_publish_jobs("https://queue-list.turso.io", "token")
+        self.assertEqual(jobs[0]["item_id"], "item-1")
+        self.assertEqual(jobs[0]["progress"], 100)
+        self.assertEqual(jobs[0]["logs"], [{"message": "Uploaded"}])
 
 
 if __name__ == "__main__":

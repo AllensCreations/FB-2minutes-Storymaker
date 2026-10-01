@@ -43,6 +43,10 @@ from turso_client import (
     turso_delete_story,
     turso_update_status,
     turso_list_stories,
+    turso_save_publish_job,
+    turso_list_publish_jobs,
+    turso_delete_finished_publish_jobs,
+    normalize_turso_url,
 )
 
 WEB_DIR = Path(__file__).resolve().parent
@@ -287,6 +291,8 @@ def run_pipeline_thread(
 
 ITEM_RENDER_STATES = {}
 ITEM_RENDER_LOCK = threading.Lock()
+PUBLISH_JOB_TURSO_CONFIG = {}
+PUBLISH_JOB_TURSO_CACHE = {}
 
 
 def _update_publish_job(
@@ -297,6 +303,7 @@ def _update_publish_job(
     error: Optional[str] = None
 ) -> None:
     now = time.time()
+    should_persist = False
     with ITEM_RENDER_LOCK:
         job = ITEM_RENDER_STATES.setdefault(item_id, {
             "job_type": "publish", "status": "running", "progress": 0.0,
@@ -324,11 +331,38 @@ def _update_publish_job(
                 "progress": job.get("progress", 0.0)
             })
             del logs[:-12]
+            should_persist = True
+        elif status in {"done", "error"}:
+            should_persist = True
+        snapshot = {"item_id": item_id, **job, "logs": [dict(entry) for entry in logs]}
+        turso_cfg = PUBLISH_JOB_TURSO_CONFIG.get(item_id)
         event = {
             key: job[key]
-            for key in ("status", "progress", "message", "updated_at", "title", "filename", "error", "logs")
+            for key in ("status", "progress", "message", "updated_at", "title", "filename", "error", "logs", "persistence_error")
             if key in job
         }
+    if should_persist and turso_cfg and turso_cfg.get("db_url") and turso_cfg.get("auth_token"):
+        try:
+            turso_save_publish_job(turso_cfg["db_url"], turso_cfg["auth_token"], snapshot)
+            with ITEM_RENDER_LOCK:
+                current = ITEM_RENDER_STATES.get(item_id)
+                if current:
+                    current.pop("persistence_error", None)
+                cached = PUBLISH_JOB_TURSO_CACHE.get(normalize_turso_url(turso_cfg["db_url"]))
+                if cached and not cached.get("warning"):
+                    cached["jobs"][item_id] = snapshot
+            event.pop("persistence_error", None)
+        except Exception as persist_error:
+            error_message = str(persist_error)
+            print(f"[Publish Queue] Could not save job {item_id} to Turso: {error_message}")
+            with ITEM_RENDER_LOCK:
+                current = ITEM_RENDER_STATES.get(item_id)
+                if current:
+                    current["persistence_error"] = error_message
+            event["persistence_error"] = error_message
+    if status in {"done", "error"}:
+        with ITEM_RENDER_LOCK:
+            PUBLISH_JOB_TURSO_CONFIG.pop(item_id, None)
     default_manager.broadcast_event("render_progress", {"item_id": item_id, "job_type": "publish", **event})
 
 
@@ -635,6 +669,10 @@ def auto_publish_story_item_thread(
     """
     item = default_manager.get_item(item_id)
     if not item:
+        _update_publish_job(
+            item_id, "Story package was removed before publishing started.",
+            status="error", error="Story package was removed before publishing started."
+        )
         return
 
     item_folder = (default_manager.items_dir / item_id).resolve()
@@ -923,14 +961,43 @@ class StorymakerRequestHandler(SimpleHTTPRequestHandler):
             return
 
         elif path == "/api/publish-queue":
+            import gemini_service
             with ITEM_RENDER_LOCK:
-                jobs = [
-                    {"item_id": item_id, **state}
+                local_jobs = {
+                    item_id: {"item_id": item_id, **state}
                     for item_id, state in ITEM_RENDER_STATES.items()
                     if state.get("job_type") == "publish"
-                ]
+                }
+            cfg = gemini_service.read_env_settings()
+            history_warning = None
+            jobs = {}
+            if cfg.get("turso_db_url") and cfg.get("turso_auth_token"):
+                cache_key = normalize_turso_url(cfg["turso_db_url"])
+                refresh_history = parse_qs(parsed.query).get("refresh", [""])[0] == "1"
+                try:
+                    with ITEM_RENDER_LOCK:
+                        cached = PUBLISH_JOB_TURSO_CACHE.get(cache_key)
+                    if refresh_history or cached is None:
+                        saved_jobs = turso_list_publish_jobs(cfg["turso_db_url"], cfg["turso_auth_token"])
+                        cached = {
+                            "jobs": {job["item_id"]: job for job in saved_jobs},
+                            "warning": None
+                        }
+                        with ITEM_RENDER_LOCK:
+                            PUBLISH_JOB_TURSO_CACHE[cache_key] = cached
+                    with ITEM_RENDER_LOCK:
+                        jobs = dict(cached["jobs"])
+                        history_warning = cached.get("warning")
+                except Exception as e:
+                    history_warning = f"Could not load saved publish history from Turso: {e}"
+                    with ITEM_RENDER_LOCK:
+                        PUBLISH_JOB_TURSO_CACHE[cache_key] = {"jobs": {}, "warning": history_warning}
+            else:
+                history_warning = "Turso is not connected; saved publish history is unavailable."
+            jobs.update(local_jobs)
+            jobs = list(jobs.values())
             jobs.sort(key=lambda job: job.get("started_at", 0), reverse=True)
-            self.send_json({"jobs": jobs[:50]})
+            self.send_json({"jobs": jobs[:50], "history_warning": history_warning})
         elif path.startswith("/api/items"):
             parts = [p for p in path.split("/") if p]
             # /api/items
@@ -1866,6 +1933,10 @@ class StorymakerRequestHandler(SimpleHTTPRequestHandler):
                     if current.get("status") in {"starting", "running"}:
                         self.send_json({"ok": False, "message": "Publish job already queued for this story."}, status=409)
                         return
+                    PUBLISH_JOB_TURSO_CONFIG[item_id] = {
+                        "db_url": turso_db_url,
+                        "auth_token": turso_auth_token
+                    }
                     ITEM_RENDER_STATES[item_id] = {
                         "status": "starting",
                         "job_type": "publish",
@@ -1906,6 +1977,7 @@ class StorymakerRequestHandler(SimpleHTTPRequestHandler):
                 except Exception:
                     with ITEM_RENDER_LOCK:
                         ITEM_RENDER_STATES.pop(item_id, None)
+                        PUBLISH_JOB_TURSO_CONFIG.pop(item_id, None)
                     raise
                 default_manager.broadcast_event("render_progress", {
                     "item_id": item_id,
@@ -2345,6 +2417,21 @@ class StorymakerRequestHandler(SimpleHTTPRequestHandler):
         parsed = urlparse(self.path)
         path = parsed.path
         if path == "/api/publish-queue":
+            import gemini_service
+            cfg = gemini_service.read_env_settings()
+            if not cfg.get("turso_db_url") or not cfg.get("turso_auth_token"):
+                self.send_json({
+                    "ok": False,
+                    "error": "Connect Turso before deleting publish history so saved history is not left behind."
+                }, status=503)
+                return
+            try:
+                turso_delete_result = turso_delete_finished_publish_jobs(
+                    cfg["turso_db_url"], cfg["turso_auth_token"]
+                )
+            except Exception as e:
+                self.send_json({"ok": False, "error": f"Could not delete saved publish history from Turso: {e}"}, status=502)
+                return
             with ITEM_RENDER_LOCK:
                 finished_ids = [
                     item_id for item_id, state in ITEM_RENDER_STATES.items()
@@ -2353,7 +2440,17 @@ class StorymakerRequestHandler(SimpleHTTPRequestHandler):
                 ]
                 for item_id in finished_ids:
                     del ITEM_RENDER_STATES[item_id]
-            self.send_json({"ok": True, "deleted": len(finished_ids)})
+                    PUBLISH_JOB_TURSO_CONFIG.pop(item_id, None)
+                PUBLISH_JOB_TURSO_CACHE[normalize_turso_url(cfg["turso_db_url"])] = {
+                    "jobs": {},
+                    "warning": None
+                }
+            saved_deleted = 0
+            for result in turso_delete_result.get("results", []):
+                saved_deleted += int(
+                    result.get("response", {}).get("result", {}).get("affected_row_count", 0) or 0
+                )
+            self.send_json({"ok": True, "deleted": max(len(finished_ids), saved_deleted)})
         elif path.startswith("/api/items/"):
             item_id = path.replace("/api/items/", "").strip("/")
             success = default_manager.delete_item(item_id)

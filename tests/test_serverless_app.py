@@ -58,7 +58,7 @@ class TestServerlessApp(unittest.TestCase):
                 "updated_at": 123, "logs": [{"time": 123, "message": "Rendering", "progress": 42}]
             },
             "item-2": {"job_type": "render", "status": "running", "progress": 10}
-        }, clear=True):
+        }, clear=True), patch("gemini_service.read_env_settings", return_value={}):
             server = HTTPServer(("127.0.0.1", 0), story_server.StorymakerRequestHandler)
             thread = threading.Thread(target=server.handle_request)
             thread.start()
@@ -76,13 +76,59 @@ class TestServerlessApp(unittest.TestCase):
                 server.server_close()
                 thread.join()
 
+    def test_publish_queue_api_merges_saved_history_with_live_jobs(self):
+        with patch.dict(story_server.ITEM_RENDER_STATES, {
+            "item-live": {
+                "job_type": "publish", "status": "running", "progress": 42,
+                "title": "Live Story", "logs": []
+            }
+        }, clear=True), patch.dict(story_server.PUBLISH_JOB_TURSO_CACHE, {}, clear=True), \
+                patch("gemini_service.read_env_settings", return_value={
+                    "turso_db_url": "https://queue-history.turso.io", "turso_auth_token": "token"
+                }), patch.object(story_server, "turso_list_publish_jobs", return_value=[{
+                    "item_id": "item-old", "status": "done", "progress": 100,
+                    "started_at": 100, "updated_at": 120, "logs": []
+                }]) as list_jobs:
+            server = HTTPServer(("127.0.0.1", 0), story_server.StorymakerRequestHandler)
+            thread = threading.Thread(target=lambda: [server.handle_request() for _ in range(2)])
+            thread.start()
+            try:
+                data = None
+                for _ in range(2):
+                    with urllib.request.urlopen(
+                        f"http://127.0.0.1:{server.server_port}/api/publish-queue"
+                    ) as response:
+                        data = json.loads(response.read())
+                self.assertEqual({job["item_id"] for job in data["jobs"]}, {"item-old", "item-live"})
+                list_jobs.assert_called_once()
+            finally:
+                server.server_close()
+                thread.join()
+
+    def test_publish_job_snapshots_persist_only_on_logged_milestones(self):
+        with patch.dict(story_server.ITEM_RENDER_STATES, {
+            "item-1": {"job_type": "publish", "status": "running", "progress": 0, "logs": []}
+        }, clear=True), patch.dict(story_server.PUBLISH_JOB_TURSO_CONFIG, {
+            "item-1": {"db_url": "https://test.turso.io", "auth_token": "token"}
+        }, clear=True), patch.object(story_server, "turso_save_publish_job") as save_job, \
+                patch.object(story_server.default_manager, "broadcast_event"):
+            story_server._update_publish_job("item-1", "Rendering", progress=5)
+            story_server._update_publish_job("item-1", "Rendering", progress=6)
+            story_server._update_publish_job("item-1", "Published", progress=100, status="done")
+
+        self.assertEqual(save_job.call_count, 2)
+        self.assertEqual(save_job.call_args.args[2]["status"], "done")
+        self.assertEqual(save_job.call_args.args[2]["progress"], 100)
+
     def test_delete_publish_queue_clears_only_finished_jobs(self):
         with patch.dict(story_server.ITEM_RENDER_STATES, {
             "done": {"job_type": "publish", "status": "done"},
             "failed": {"job_type": "publish", "status": "error"},
             "running": {"job_type": "publish", "status": "running"},
             "render": {"job_type": "render", "status": "done"},
-        }, clear=True):
+        }, clear=True), patch("gemini_service.read_env_settings", return_value={
+            "turso_db_url": "https://test.turso.io", "turso_auth_token": "token"
+        }), patch.object(story_server, "turso_delete_finished_publish_jobs", return_value={}):
             server = HTTPServer(("127.0.0.1", 0), story_server.StorymakerRequestHandler)
             thread = threading.Thread(target=server.handle_request)
             thread.start()
@@ -172,6 +218,7 @@ class TestServerlessApp(unittest.TestCase):
             with (
                 patch.object(story_server, "default_manager", FakeManager()),
                 patch.dict(story_server.ITEM_RENDER_STATES, {}, clear=True),
+                patch.dict(story_server.PUBLISH_JOB_TURSO_CONFIG, {}, clear=True),
                 patch("gemini_service.read_env_settings", return_value={}),
                 patch.object(story_server, "check_turso_duplicate", return_value=False),
                 patch.object(story_server, "check_dropbox_duplicate", return_value=False),
@@ -254,6 +301,8 @@ class TestServerlessApp(unittest.TestCase):
         self.assertIn("previous.end.toFixed(2)", app_script)
         self.assertIn("if (!force && itemsListCache !== null)", app_script)
         self.assertIn("loadItemsList(true, true)", app_script)
+        schedule_view = app_script.split("function showScheduleView()", 1)[1].split("\n    }", 1)[0]
+        self.assertIn("loadSchedule();", schedule_view)
         self.assertIn("cached · use Refresh to check for changes", app_script)
         for page in ("index.html", "web/index.html", "AR.html"):
             with self.subTest(page=page):

@@ -1974,20 +1974,21 @@ let audioBuffer = null;
       scheduleView.classList.remove("hidden");
       resetNavStyles();
       if (navScheduleBtn) navScheduleBtn.className = "py-1.5 px-3.5 rounded-lg text-xs sm:text-sm font-semibold transition flex items-center gap-1.5 bg-emerald-600 text-white shadow-lg shadow-emerald-900/30 cursor-pointer";
-      loadSchedule(true);
+      loadSchedule();
     }
 
     if (navStudioBtn) navStudioBtn.addEventListener("click", showStudioView);
     if (navItemsBtn) navItemsBtn.addEventListener("click", showItemsView);
     if (navPublishQueueBtn) navPublishQueueBtn.addEventListener("click", showPublishQueueView);
     if (navScheduleBtn) navScheduleBtn.addEventListener("click", showScheduleView);
-    if (refreshPublishQueueBtn) refreshPublishQueueBtn.addEventListener("click", loadPublishQueue);
+    if (refreshPublishQueueBtn) refreshPublishQueueBtn.addEventListener("click", () => loadPublishQueue(true));
     const clearPublishHistoryBtn = document.getElementById('clearPublishHistoryBtn');
     const finishedPublishQueueContainer = document.getElementById('finishedPublishQueueContainer');
     const finishedPublishQueueCount = document.getElementById('finishedPublishQueueCount');
     const isPublishJobActive = job => ['starting', 'running'].includes(job.status);
 
     let publishQueueJobs = [];
+    let publishQueueHistoryWarning = '';
     function renderPublishQueue() {
       if (!publishQueueContainer) return;
       const activeJobs = publishQueueJobs.filter(isPublishJobActive);
@@ -2017,7 +2018,7 @@ let audioBuffer = null;
             <div class="h-full ${color} transition-all duration-300" style="width:${progress}%"></div>
           </div>
           <div class="flex flex-wrap items-center justify-between gap-2">
-            <p class="text-xs ${failed ? 'text-red-300' : 'text-gray-400'}">${escapeHtml(job.error || job.message || '')}</p>
+            <p class="text-xs ${failed ? 'text-red-300' : 'text-gray-400'}">${escapeHtml(job.persistence_error ? `History save warning: ${job.persistence_error}` : job.error || job.message || '')}</p>
             ${failed ? `<button type="button" data-open-publish-item="${escapeHtml(job.item_id)}" class="shrink-0 px-3 py-1.5 rounded-lg bg-gray-800 hover:bg-gray-700 text-xs text-white">Open story to retry</button>` : ''}
           </div>
           <p class="text-[11px] text-gray-500" data-queue-elapsed="${lastUpdate}">Waiting for status…</p>
@@ -2029,10 +2030,13 @@ let audioBuffer = null;
           </ol>` : ''}
         </article>`;
       }).join('') : '<div class="text-sm text-gray-500 py-3">No jobs in progress.</div>';
+      if (publishQueueHistoryWarning) {
+        publishQueueContainer.innerHTML = `<div class="mb-3 rounded-lg border border-amber-500/30 bg-amber-950/30 px-3 py-2 text-xs text-amber-200">${escapeHtml(publishQueueHistoryWarning)}</div>${publishQueueContainer.innerHTML}`;
+      }
       if (finishedPublishQueueContainer) {
         finishedPublishQueueContainer.innerHTML = finishedJobs.length ? finishedJobs.map(job => {
           const failed = job.status === 'error';
-          const detail = job.error || job.message || '';
+          const detail = job.persistence_error ? `History save warning: ${job.persistence_error}` : job.error || job.message || '';
           const when = Number(job.updated_at || job.started_at || 0);
           return `<article class="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 rounded-lg bg-gray-950/50 px-3 py-2 text-xs">
             <div class="min-w-0 flex-1">
@@ -2069,14 +2073,15 @@ let audioBuffer = null;
       }
     }, 5000);
 
-    async function loadPublishQueue() {
+    async function loadPublishQueue(force = false) {
       if (publishQueueLoadInFlight) return;
       publishQueueLoadInFlight = true;
       try {
-        const res = await fetch('/api/publish-queue');
+        const res = await fetch(`/api/publish-queue${force ? '?refresh=1' : ''}`);
         if (!res.ok) throw new Error(`Queue request failed (${res.status})`);
         const data = await res.json();
         publishQueueJobs = Array.isArray(data.jobs) ? data.jobs : [];
+        publishQueueHistoryWarning = data.history_warning || '';
         renderPublishQueue();
       } catch (err) {
         if (publishQueueContainer) {

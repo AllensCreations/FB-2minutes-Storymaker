@@ -102,6 +102,21 @@ def init_turso_schema(db_url: str, auth_token: str) -> Dict[str, Any]:
     col_dp_sql = "ALTER TABLE stories ADD COLUMN dropbox_path TEXT;"
     col_fb_sql = "ALTER TABLE stories ADD COLUMN uploaded_to_fb_ig TEXT DEFAULT 'pending';"
     col_yt_sql = "ALTER TABLE stories ADD COLUMN uploaded_to_youtube TEXT DEFAULT 'pending';"
+    publish_jobs_sql = (
+        "CREATE TABLE IF NOT EXISTS publish_jobs ("
+        "  item_id TEXT PRIMARY KEY,"
+        "  title TEXT,"
+        "  filename TEXT,"
+        "  status TEXT NOT NULL,"
+        "  progress REAL NOT NULL DEFAULT 0,"
+        "  message TEXT,"
+        "  error TEXT,"
+        "  logs_json TEXT NOT NULL DEFAULT '[]',"
+        "  started_at REAL,"
+        "  updated_at REAL,"
+        "  finished_at REAL"
+        ");"
+    )
     with _SCHEMA_INIT_LOCK:
         if base_url in _INITIALIZED_TURSO_URLS:
             return {"ok": True}
@@ -110,7 +125,8 @@ def init_turso_schema(db_url: str, auth_token: str) -> Dict[str, Any]:
                 (schema_sql, None),
                 (col_dp_sql, None),
                 (col_fb_sql, None),
-                (col_yt_sql, None)
+                (col_yt_sql, None),
+                (publish_jobs_sql, None)
             ])
         except Exception:
             return {"ok": True}
@@ -249,3 +265,82 @@ def turso_list_stories(db_url: str, auth_token: str, limit: int = 50) -> List[Di
                 entry[col] = val
             stories.append(entry)
     return stories
+
+
+def _raise_publish_job_response_error(response: Dict[str, Any]) -> None:
+    results = response.get("results", [])
+    for result in results:
+        if result.get("type") != "ok":
+            detail = result.get("error", {})
+            if isinstance(detail, dict):
+                detail = detail.get("message") or detail
+            raise RuntimeError(f"Turso publish queue query failed: {detail}")
+    if not results:
+        raise RuntimeError("Turso publish queue query returned no result.")
+
+
+def turso_save_publish_job(db_url: str, auth_token: str, job: Dict[str, Any]) -> Dict[str, Any]:
+    """Persist the latest publish-queue snapshot for one story package."""
+    init_turso_schema(db_url, auth_token)
+    sql = (
+        "INSERT INTO publish_jobs "
+        "(item_id, title, filename, status, progress, message, error, logs_json, started_at, updated_at, finished_at) "
+        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) "
+        "ON CONFLICT(item_id) DO UPDATE SET "
+        "title=excluded.title, filename=excluded.filename, status=excluded.status, "
+        "progress=excluded.progress, message=excluded.message, error=excluded.error, "
+        "logs_json=excluded.logs_json, started_at=excluded.started_at, updated_at=excluded.updated_at, "
+        "finished_at=excluded.finished_at;"
+    )
+    finished_at = job.get("updated_at") if job.get("status") in {"done", "error"} else None
+    args = [
+        job["item_id"], job.get("title"), job.get("filename"), job.get("status", "starting"),
+        float(job.get("progress") or 0), job.get("message"), job.get("error"),
+        json.dumps(job.get("logs") or [], ensure_ascii=False),
+        job.get("started_at"), job.get("updated_at"), finished_at
+    ]
+    response = execute_turso_pipeline(db_url, auth_token, [(sql, args)])
+    _raise_publish_job_response_error(response)
+    return response
+
+
+def turso_list_publish_jobs(db_url: str, auth_token: str, limit: int = 50) -> List[Dict[str, Any]]:
+    """Retrieve recent publish-queue snapshots from Turso."""
+    init_turso_schema(db_url, auth_token)
+    sql = (
+        "SELECT item_id, title, filename, status, progress, message, error, logs_json, started_at, updated_at "
+        "FROM publish_jobs ORDER BY updated_at DESC LIMIT ?;"
+    )
+    response = execute_turso_pipeline(db_url, auth_token, [(sql, [limit])])
+    _raise_publish_job_response_error(response)
+    results = response.get("results", [])
+    if not results or results[0].get("type") != "ok":
+        return []
+    result = results[0].get("response", {}).get("result", {})
+    columns = [column.get("name") for column in result.get("cols", [])]
+    jobs = []
+    for row in result.get("rows", []):
+        job = {
+            column: value.get("value") if isinstance(value, dict) else value
+            for column, value in zip(columns, row)
+        }
+        try:
+            job["progress"] = float(job.get("progress") or 0)
+            job["started_at"] = float(job["started_at"]) if job.get("started_at") is not None else 0
+            job["updated_at"] = float(job["updated_at"]) if job.get("updated_at") is not None else 0
+            job["logs"] = json.loads(job.pop("logs_json") or "[]")
+        except (TypeError, ValueError, json.JSONDecodeError) as error:
+            raise RuntimeError(f"Invalid publish queue row for {job.get('item_id')}: {error}") from error
+        jobs.append(job)
+    return jobs
+
+
+def turso_delete_finished_publish_jobs(db_url: str, auth_token: str) -> Dict[str, Any]:
+    """Delete only terminal publish-job history rows."""
+    init_turso_schema(db_url, auth_token)
+    response = execute_turso_pipeline(
+        db_url, auth_token,
+        [("DELETE FROM publish_jobs WHERE status IN ('done', 'error');", None)]
+    )
+    _raise_publish_job_response_error(response)
+    return response
