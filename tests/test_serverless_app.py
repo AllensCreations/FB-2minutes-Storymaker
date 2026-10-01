@@ -534,10 +534,29 @@ class TestServerlessApp(unittest.TestCase):
         self.assertIn('StoryShorts Studio', res['body'])
 
     def test_embedded_fallback_integrity(self):
-        """Fallback decompresses to full index.html even without disk access."""
+        """Embedded WebView fallback matches the checked-in entry pages."""
         fallback = app.get_fallback_html()
-        self.assertEqual(len(fallback), 62921)
+        repo_root = Path(__file__).resolve().parent.parent
+        index_html = (repo_root / "index.html").read_bytes()
+        self.assertEqual(fallback, index_html)
+        for page in ("web/index.html", "AR.html"):
+            self.assertEqual((repo_root / page).read_bytes(), index_html)
+        self.assertIn(b"/web/assets/studio.css", fallback)
+        self.assertIn(b"/web/assets/studio.js", fallback)
+        self.assertIn(b"waveformZoom", fallback)
+        self.assertIn(b"finishedPublishQueueContainer", fallback)
         self.assertIn(b'StoryShorts Studio', fallback)
+
+    def test_serverless_webview_assets_match_external_bundles(self):
+        repo_root = Path(__file__).resolve().parent.parent
+        for asset, content_type in (
+            ("studio.js", "text/javascript"),
+            ("studio.css", "text/css"),
+        ):
+            with self.subTest(asset=asset):
+                content, resolved_type = app.resolve_asset(f"/web/assets/{asset}")
+                self.assertEqual(content, (repo_root / "web" / "assets" / asset).read_bytes())
+                self.assertIn(content_type, resolved_type)
 
 
 if __name__ == '__main__':

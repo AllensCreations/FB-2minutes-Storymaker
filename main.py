@@ -94,7 +94,7 @@ def start_web_server(port=None, open_browser: bool = False):
     start_server(host="0.0.0.0", port=port, open_browser=open_browser)
 
 
-__version__ = "1.0.20"
+__version__ = "1.0.21"
 
 
 def check_for_updates(repo_dir: Path = BASE_DIR) -> bool:
