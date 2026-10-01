@@ -5189,9 +5189,15 @@
       });
     }
 
-    // --- Server-Side FFmpeg Render ---
-        const autoPublishBtn = document.getElementById('autoPublishBtn');
-    if (autoPublishBtn) autoPublishBtn.addEventListener('click', renderAndAutoPublish);
+    // --- Web Render + Auto-Enqueue to Publish Queue ---
+    const autoPublishBtn = document.getElementById('autoPublishBtn');
+    if (autoPublishBtn) {
+      autoPublishBtn.addEventListener('click', async () => {
+        await renderAndAutoPublish(false);
+        await new Promise(r => setTimeout(r, 500));
+        await queueStudioAutoPublish(false);
+      });
+    }
 
     if (serverRenderBtn) {
       serverRenderBtn.addEventListener('click', async () => {
@@ -6398,6 +6404,7 @@ ALTER TABLE stories ADD COLUMN uploaded_to_youtube TEXT DEFAULT 'pending';`;
     };
 
     window.pipeScheduleFilter = "all";
+    let scheduleLoadTiming = "";
     window.setScheduleFilter = function(filter) {
       window.pipeScheduleFilter = filter;
       document.querySelectorAll(".schedule-filter").forEach(button => {
@@ -6449,7 +6456,10 @@ ALTER TABLE stories ADD COLUMN uploaded_to_youtube TEXT DEFAULT 'pending';`;
       });
 
       const meta = document.getElementById("scheduleMeta");
-      if (meta) meta.textContent = `${filteredRows.length} shown · ${allRows.length} campaign${allRows.length === 1 ? "" : "s"}`;
+      if (meta) {
+        const campaignLabel = `${filteredRows.length} shown · ${allRows.length} campaign${allRows.length === 1 ? "" : "s"}`;
+        meta.textContent = scheduleLoadTiming ? `${campaignLabel} · ${scheduleLoadTiming}` : campaignLabel;
+      }
 
       if (!filteredRows.length) {
         const message = allRows.length ? "No campaigns match this filter." : "No campaigns yet. Published stories will show up here.";
@@ -6612,6 +6622,8 @@ ALTER TABLE stories ADD COLUMN uploaded_to_youtube TEXT DEFAULT 'pending';`;
       const meta = document.getElementById("scheduleMeta");
       const refreshIcon = document.getElementById("refreshScheduleIcon");
 
+      const startedAt = performance.now();
+      scheduleLoadTiming = "";
       if (refreshIcon) refreshIcon.classList.add("animate-spin");
       if (meta) meta.textContent = "Loading campaigns…";
       if (cards) cards.innerHTML = `<div class="col-span-full rounded-xl border border-dashed border-gray-800 px-4 py-12 text-center text-sm text-gray-400">Loading your publishing overview…</div>`;
@@ -6629,6 +6641,11 @@ ALTER TABLE stories ADD COLUMN uploaded_to_youtube TEXT DEFAULT 'pending';`;
           uploaded: (s.uploaded_to_fb_ig === 'published' || s.fb_published || s.status === 'published') ? 'YES' : 'NO',
           youtube: (s.uploaded_to_youtube === 'published' || s.yt_published || s.status === 'published') ? 'YES' : 'NO'
         }));
+        const browserMs = Math.round(performance.now() - startedAt);
+        const serverMs = Number(json.telemetry?.duration_ms);
+        scheduleLoadTiming = Number.isFinite(serverMs) && serverMs >= 0
+          ? `browser ${browserMs} ms · server/Turso ${serverMs} ms`
+          : `browser ${browserMs} ms`;
         renderScheduleTable(pipeSheetData);
       } catch (e) {
         pipeSheetData = [];

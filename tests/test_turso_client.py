@@ -20,6 +20,9 @@ import turso_client
 
 
 class TestTursoClient(unittest.TestCase):
+    def setUp(self):
+        with turso_client._SCHEMA_INIT_LOCK:
+            turso_client._INITIALIZED_TURSO_URLS.clear()
 
     def test_normalize_turso_url(self):
         self.assertEqual(
@@ -114,11 +117,32 @@ class TestTursoClient(unittest.TestCase):
     def test_init_turso_schema(self, mock_exec):
         mock_exec.return_value = {"results": []}
         turso_client.init_turso_schema("https://test.turso.io", "token")
-        self.assertTrue(mock_exec.called)
-        all_sqls = [call[0][2][0][0] for call in mock_exec.call_args_list]
+        mock_exec.assert_called_once()
+        all_sqls = [sql for sql, _ in mock_exec.call_args.args[2]]
         self.assertTrue(any("CREATE TABLE IF NOT EXISTS stories" in s for s in all_sqls))
         self.assertTrue(any("uploaded_to_fb_ig" in s for s in all_sqls))
         self.assertTrue(any("uploaded_to_youtube" in s for s in all_sqls))
+
+    @patch("turso_client.execute_turso_pipeline")
+    def test_schema_initialization_is_cached_per_normalized_endpoint(self, mock_exec):
+        mock_exec.return_value = {"results": []}
+
+        turso_client.init_turso_schema("libsql://test.turso.io/", "token")
+        turso_client.init_turso_schema("https://test.turso.io", "token")
+        self.assertEqual(mock_exec.call_count, 1)
+        self.assertEqual(len(mock_exec.call_args.args[2]), 4)
+
+        turso_client.init_turso_schema("https://another.turso.io", "token")
+        self.assertEqual(mock_exec.call_count, 2)
+
+    @patch("turso_client.execute_turso_pipeline")
+    def test_schema_initialization_retries_after_transport_failure(self, mock_exec):
+        mock_exec.side_effect = [RuntimeError("temporary failure"), {"results": []}]
+
+        turso_client.init_turso_schema("https://retry.turso.io", "token")
+        turso_client.init_turso_schema("https://retry.turso.io", "token")
+
+        self.assertEqual(mock_exec.call_count, 2)
 
     @patch("turso_client.execute_turso_pipeline")
     def test_turso_test_connection(self, mock_exec):

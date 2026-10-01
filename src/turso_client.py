@@ -1,14 +1,18 @@
 """
 Turso (libSQL Edge SQLite) HTTP Client for FB 2minutes Storymaker
-Provides zero-dependency HTTP v2 pipeline access to Turso databases.
-Replaces Google Apps Script with sub-10ms edge database queries.
+Provides zero-dependency HTTP v2 pipeline access to Turso databases. Query latency
+depends on network and region; server timings include the round trip to Turso.
 """
 
 import json
+import threading
 import urllib.error
 import urllib.parse
 import urllib.request
 from typing import Any, Dict, List, Optional, Tuple
+
+_INITIALIZED_TURSO_URLS = set()
+_SCHEMA_INIT_LOCK = threading.Lock()
 
 
 def normalize_turso_url(db_url: str) -> str:
@@ -78,7 +82,11 @@ def execute_turso_pipeline(
 
 
 def init_turso_schema(db_url: str, auth_token: str) -> Dict[str, Any]:
-    """Initialize stories table in Turso if not present and ensure social upload and dropbox_path columns exist."""
+    """Initialize schema once per database endpoint for this server process."""
+    base_url = normalize_turso_url(db_url)
+    if not base_url:
+        raise ValueError("Turso database URL is required.")
+
     schema_sql = (
         "CREATE TABLE IF NOT EXISTS stories ("
         "  filename TEXT PRIMARY KEY,"
@@ -94,22 +102,19 @@ def init_turso_schema(db_url: str, auth_token: str) -> Dict[str, Any]:
     col_dp_sql = "ALTER TABLE stories ADD COLUMN dropbox_path TEXT;"
     col_fb_sql = "ALTER TABLE stories ADD COLUMN uploaded_to_fb_ig TEXT DEFAULT 'pending';"
     col_yt_sql = "ALTER TABLE stories ADD COLUMN uploaded_to_youtube TEXT DEFAULT 'pending';"
-    try:
-        execute_turso_pipeline(db_url, auth_token, [(schema_sql, None)])
-    except Exception:
-        pass
-    try:
-        execute_turso_pipeline(db_url, auth_token, [(col_dp_sql, None)])
-    except Exception:
-        pass
-    try:
-        execute_turso_pipeline(db_url, auth_token, [(col_fb_sql, None)])
-    except Exception:
-        pass
-    try:
-        execute_turso_pipeline(db_url, auth_token, [(col_yt_sql, None)])
-    except Exception:
-        pass
+    with _SCHEMA_INIT_LOCK:
+        if base_url in _INITIALIZED_TURSO_URLS:
+            return {"ok": True}
+        try:
+            execute_turso_pipeline(db_url, auth_token, [
+                (schema_sql, None),
+                (col_dp_sql, None),
+                (col_fb_sql, None),
+                (col_yt_sql, None)
+            ])
+        except Exception:
+            return {"ok": True}
+        _INITIALIZED_TURSO_URLS.add(base_url)
     return {"ok": True}
 
 
