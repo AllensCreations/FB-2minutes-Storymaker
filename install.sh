@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # ==============================================================================
 # FB 2minutes Storymaker - One-Line Installer & Auto-Updater
-# Version: 1.0.9
+# Version: 1.0.10
 #
 # Usage:
 #   Fresh Install / Auto-Update:
@@ -14,7 +14,7 @@
 
 set -e
 
-APP_VERSION="1.0.9"
+APP_VERSION="1.0.10"
 REPO_URL="https://github.com/AllensCreations/FBStoryMaker.git"
 
 # Handle CLI flags
@@ -231,18 +231,16 @@ echo "Location: $PROJECT_ABS_PATH"
 echo "Version:  v${APP_VERSION}"
 echo ""
 echo "🚀 Quickstart Commands:"
-echo "  1. Open Terminal Studio:           fbsm"
-echo "     (Use --web with fb-storymaker for the Web Studio)"
+echo "  1. Open selector menu:             fbsm"
+echo "     (Use Up/Down and Enter; video rendering is in the Web Studio)"
 echo ""
 echo "  2. Launch Creative Studio Web UI:  fb-storymaker --web"
 echo "     (Then open: http://localhost:8000)"
 echo ""
 echo "  3. Interactive Terminal UI:       fb-storymaker --tui"
-echo "     (Dashboard with menu, rendering & matrix viewer)"
+echo "     (Open the selector menu directly)"
 echo ""
-echo "  4. Direct Video Render via CLI:    fb-storymaker --run"
-echo ""
-echo "  5. Check Version & Options:        fb-storymaker --version"
+echo "  4. Check Version & Options:        fb-storymaker --version"
 echo ""
 echo "Or run directly inside the project folder:"
 if [ "$TARGET_DIR" != "." ]; then
@@ -250,5 +248,5 @@ if [ "$TARGET_DIR" != "." ]; then
 fi
 echo "  make web    # Web UI Studio"
 echo "  make tui    # Termux Interactive Console"
-echo "  make run    # Direct CLI Render"
+echo "  make run    # App menu in a terminal; Web Studio otherwise"
 echo "========================================================"

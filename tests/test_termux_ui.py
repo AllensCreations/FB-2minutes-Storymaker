@@ -14,6 +14,7 @@ if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
 import termux_ui
+import main
 from termux_ui import _draw_interactive_menu, print_status_box
 
 
@@ -65,12 +66,12 @@ class TestTermuxUI(unittest.TestCase):
         ):
             self.assertEqual(_draw_interactive_menu(FakeScreen([termux_ui.curses.KEY_DOWN, 10]), status), "2")
             self.assertEqual(_draw_interactive_menu(FakeScreen([ord("6")]), status), "6")
-            self.assertEqual(_draw_interactive_menu(FakeScreen([ord("7")]), status), "7")
+            self.assertEqual(_draw_interactive_menu(FakeScreen([ord("0")]), status), "0")
 
     def test_short_terminal_scrolls_arrow_menu_to_all_actions(self):
         class ShortScreen:
             def __init__(self):
-                self.keys = [termux_ui.curses.KEY_DOWN] * 6 + [10]
+                self.keys = [termux_ui.curses.KEY_DOWN] * 5 + [10]
                 self.lines = []
 
             def keypad(self, enabled):
@@ -96,9 +97,17 @@ class TestTermuxUI(unittest.TestCase):
         with patch("termux_ui.curses.has_colors", return_value=False), patch(
             "termux_ui.curses.color_pair", return_value=0
         ):
-            self.assertEqual(_draw_interactive_menu(screen, status), "7")
-        self.assertTrue(any("[7] Check for updates" in line for line in screen.lines))
+            self.assertEqual(_draw_interactive_menu(screen, status), "6")
+        self.assertTrue(any("[6] Check for updates" in line for line in screen.lines))
         self.assertFalse(any("sample story" in line.lower() for line in screen.lines))
+
+    @patch("termux_ui.run_tui_main")
+    @patch("main.check_for_updates", return_value=False)
+    @patch("main.sys.argv", ["main.py", "--tui"])
+    def test_tui_flag_opens_terminal_menu_without_rendering(self, _check_updates, run_tui):
+        main.main()
+
+        run_tui.assert_called_once_with(main.check_for_updates)
 
     @patch("termux_ui.input")
     @patch("termux_ui.os.execv")

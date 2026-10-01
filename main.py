@@ -94,7 +94,7 @@ def start_web_server(port=None, open_browser: bool = False):
     start_server(host="0.0.0.0", port=port, open_browser=open_browser)
 
 
-__version__ = "1.0.9"
+__version__ = "1.0.10"
 
 
 def check_for_updates(repo_dir: Path = BASE_DIR) -> bool:
@@ -150,8 +150,8 @@ def main():
     parser.add_argument("--open", action="store_true", help="Automatically open Web UI in browser")
     parser.add_argument("--check", action="store_true", help="Check asset status and exit")
     # Legacy/deprecated args for backward compatibility (no-op)
-    parser.add_argument("--web", action="store_true", help=argparse.SUPPRESS)
-    parser.add_argument("--tui", action="store_true", help=argparse.SUPPRESS)
+    parser.add_argument("--web", action="store_true", help="Launch the Web Studio directly")
+    parser.add_argument("--tui", action="store_true", help="Launch the interactive terminal selector menu")
     parser.add_argument("--run", action="store_true", help=argparse.SUPPRESS)
     parser.add_argument("--fps", type=int, default=None, help=argparse.SUPPRESS)
     parser.add_argument("--no-captions", action="store_true", help=argparse.SUPPRESS)
@@ -175,7 +175,12 @@ def main():
         print()
         return
 
-    # All routes lead to Web UI (terminal render deprecated)
+    if args.tui or (not args.web and sys.stdin.isatty() and sys.stdout.isatty()):
+        from termux_ui import run_tui_main
+        run_tui_main(check_for_updates)
+        return
+
+    # Non-interactive launches and explicit --web invocations open the Web Studio.
     from deps_helper import is_termux
     auto_open = args.open or is_termux()
     start_web_server(args.port, open_browser=auto_open)

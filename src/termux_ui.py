@@ -2,7 +2,6 @@
 Interactive Terminal UI (TUI) for Termux & Android
 Provides a mobile-optimized terminal console with:
 - ASCII studio dashboard & live asset readiness
-- One-touch video rendering with terminal progress animation
 - Web Studio launcher that automatically opens the Android browser (termux-open-url)
 - Scene Mapping Matrix viewer showing -35dB cut timestamps
 - Mobile video launcher (termux-open) to watch the exported MP4 in Android media player
@@ -30,7 +29,7 @@ if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
 from align_engine import SpeechCueAlignEngine
-from deps_helper import ensure_ffmpeg, ensure_pillow, is_termux
+from deps_helper import is_termux
 from duration_director import SceneDurationDirector
 
 ASSETS_DIR = REPO_ROOT / "assets"
@@ -38,8 +37,6 @@ SCRIPTS_DIR = ASSETS_DIR / "scripts"
 VOICE_DIR = ASSETS_DIR / "voice-over"
 VISUALS_DIR = ASSETS_DIR / "visuals"
 OUTPUT_DIR = ASSETS_DIR / "output"
-PROCESSED_DIR = ASSETS_DIR / "processed"
-
 # ANSI Color Codes
 C_RESET = "\033[0m"
 C_BOLD = "\033[1m"
@@ -123,13 +120,12 @@ def print_status_box(status):
 
 def _draw_interactive_menu(stdscr, status):
     choices = [
-        ("1", "Render story video"),
-        ("2", "Open Web Studio"),
-        ("3", "Inspect scene timing"),
-        ("4", "Play latest video"),
-        ("5", "Edit .env settings"),
-        ("6", "Check dependencies"),
-        ("7", "Check for updates"),
+        ("1", "Open Web Studio"),
+        ("2", "Inspect scene timing"),
+        ("3", "Play latest video"),
+        ("4", "Edit .env settings"),
+        ("5", "Check dependencies"),
+        ("6", "Check for updates"),
         ("0", "Exit"),
     ]
     selected = 0
@@ -197,7 +193,7 @@ def _draw_interactive_menu(stdscr, status):
             selected = (selected + 1) % len(choices)
         elif key in (curses.KEY_ENTER, 10, 13):
             return choices[selected][0]
-        elif ord("0") <= key <= ord("7"):
+        elif ord("0") <= key <= ord("6"):
             return chr(key)
         elif key in (ord("q"), ord("Q")):
             return "0"
@@ -231,133 +227,6 @@ def open_media_file(file_path: Path):
         subprocess.run(["open", str(file_path)])
     else:
         print(f"👉 Video saved at: {file_path.resolve()}")
-
-
-def run_video_render():
-    """Runs the full Picture-Book Motion video export pipeline with live terminal progress."""
-    clear_screen()
-    print_banner()
-    print(f"\n{C_ORANGE}{C_BOLD}🚀 Starting Master Video Render...{C_RESET}\n")
-
-    if not ensure_pillow() or not ensure_ffmpeg():
-        print(f"{C_RED}❌ Missing dependencies. Run option 6 to install.{C_RESET}")
-        input(f"\n{C_DIM}Press [Enter] to return to menu...{C_RESET}")
-        return
-
-    from exporter import VideoExporter
-
-    voice_path = VOICE_DIR / "narration.mp3"
-    script_path = SCRIPTS_DIR / "story.txt"
-    visuals_path = VISUALS_DIR / "story_visuals.zip"
-    output_path = OUTPUT_DIR / "final_story.mp4"
-
-    try:
-        # Step 1: Align
-        print(f"{C_BLUE}[1/3] Speech-Cue Alignment...{C_RESET}")
-        aligner = SpeechCueAlignEngine()
-        alignment = aligner.align_speech_with_script(voice_path, script_path)
-
-        # Step 2: Duration Director
-        print(f"\n{C_BLUE}[2/3] Scene Duration Director...{C_RESET}")
-        director = SceneDurationDirector()
-        timeline = director.build_timeline(alignment, visuals_path, fps=24)
-
-        # Step 3: Exporter with Progress Bar
-        ans_cap = input(f"\n{C_AMBER}💬 Include TikTok subtitle captions? [Y/n]: {C_RESET}").strip().lower()
-        show_captions = (ans_cap != "n")
-        print(f"\n{C_BLUE}[3/3] Picture-Book Motion Video Exporter (FFmpeg, captions: {'ON' if show_captions else 'OFF'})...{C_RESET}")
-        exporter = VideoExporter(fps=24)
-
-        def on_progress(percent: float, msg: str):
-            bar_len = 24
-            filled = int(bar_len * (percent / 100.0))
-            bar = "█" * filled + "░" * (bar_len - filled)
-            sys.stdout.write(f"\r  {C_ORANGE}[{bar}]{C_RESET} {percent:5.1f}% | {msg[:35]:<35}")
-            sys.stdout.flush()
-
-        exporter.export_video(timeline, voice_path, output_path, progress_callback=on_progress, show_captions=show_captions)
-        print("\n\n" + f"{C_GREEN}{C_BOLD}🎉 Render completed successfully!{C_RESET}")
-        print(f"📁 Video Location: {C_BOLD}{output_path}{C_RESET}")
-
-        # Auto-publish to Dropbox & Turso in background/terminal if credentials exist
-        try:
-            import gemini_service
-            from turso_client import turso_log_story
-            env_cfg = gemini_service.read_env_settings()
-            turso_url = env_cfg.get("turso_db_url")
-            turso_token = env_cfg.get("turso_auth_token")
-            db_token = env_cfg.get("db_token")
-            db_app_key = env_cfg.get("db_app_key")
-            db_app_secret = env_cfg.get("db_app_secret")
-            db_refresh_token = env_cfg.get("db_refresh_token")
-
-            if (db_token or (db_app_key and db_app_secret and db_refresh_token)) and (turso_url and turso_token):
-                print(f"\n{C_BLUE}☁️ Auto-Publishing '{output_path.name}' to Dropbox & Turso...{C_RESET}")
-                
-                # 1. Dropbox upload
-                token = db_token
-                if not token and db_app_key and db_app_secret and db_refresh_token:
-                    import urllib.request, urllib.parse, json
-                    url = "https://api.dropbox.com/oauth2/token"
-                    data = urllib.parse.urlencode({
-                        "grant_type": "refresh_token",
-                        "refresh_token": db_refresh_token,
-                        "client_id": db_app_key,
-                        "client_secret": db_app_secret
-                    }).encode("utf-8")
-                    req = urllib.request.Request(url, data=data, method="POST")
-                    with urllib.request.urlopen(req, timeout=20) as resp:
-                        token = json.loads(resp.read().decode("utf-8")).get("access_token")
-
-                if token:
-                    db_folder = env_cfg.get("db_folder", "/Think with Tobi")
-                    if not db_folder.startswith("/"):
-                        db_folder = "/" + db_folder
-                    db_folder = db_folder.rstrip("/") or "/Think with Tobi"
-                    db_target_path = f"{db_folder}/{output_path.name}"
-                    url = "https://content.dropboxapi.com/2/files/upload"
-                    headers = {
-                        "Authorization": f"Bearer {token}",
-                        "Dropbox-API-Arg": json.dumps({
-                            "path": db_target_path,
-                            "mode": "overwrite",
-                            "autorename": False,
-                            "mute": False,
-                            "strict_conflict": False
-                        }),
-                        "Content-Type": "application/octet-stream"
-                    }
-                    with open(output_path, "rb") as f:
-                        file_bytes = f.read()
-                    req = urllib.request.Request(url, data=file_bytes, headers=headers, method="POST")
-                    with urllib.request.urlopen(req, timeout=120) as resp:
-                        pass
-                    print(f"  {C_GREEN}✓ Uploaded to Dropbox: {db_target_path}{C_RESET}")
-
-                    # 2. Turso Log
-                    turso_log_story(
-                        db_url=turso_url,
-                        auth_token=turso_token,
-                        filename=output_path.name,
-                        caption="Story Video",
-                        description="#story #shorts",
-                        status="ready",
-                        dropbox_path=db_target_path
-                    )
-                    print(f"  {C_GREEN}✓ Logged metadata to Turso libSQL edge database!{C_RESET}")
-        except Exception as pub_err:
-            print(f"  {C_GRAY}(Cloud auto-publish skipped/failed: {pub_err}){C_RESET}")
-
-        # Prompt to open immediately on Termux
-        if is_termux() or shutil.which("termux-open") is not None:
-            ans = input(f"\n{C_AMBER}▶️ Open video in Android video player now? [Y/n]: {C_RESET}").strip().lower()
-            if ans != "n":
-                open_media_file(output_path)
-
-    except Exception as e:
-        print(f"\n{C_RED}❌ Error during render: {e}{C_RESET}")
-
-    input(f"\n{C_DIM}Press [Enter] to return to menu...{C_RESET}")
 
 
 def show_scene_matrix():
@@ -491,32 +360,28 @@ def run_tui_main(update_checker=None):
             clear_screen()
             print_banner()
             print_status_box(status)
-            print(f"\n{C_BOLD}MAKE{C_RESET}")
-            print(f"  {C_ORANGE}[1]{C_RESET} Render story video")
-            print(f"  {C_CYAN}[2]{C_RESET} Open Web Studio")
-            print(f"  {C_BOLD}REVIEW & SETUP{C_RESET}")
-            print(f"  {C_BLUE}[3]{C_RESET} Inspect scene timing")
-            print(f"  {C_GREEN}[4]{C_RESET} Play latest video")
-            print(f"  {C_AMBER}[5]{C_RESET} Edit .env settings")
-            print(f"  {C_GRAY}[6]{C_RESET} Check dependencies")
-            print(f"  {C_CYAN}[7]{C_RESET} Check for updates")
+            print(f"\n{C_BOLD}ACTIONS{C_RESET}")
+            print(f"  {C_CYAN}[1]{C_RESET} Open Web Studio")
+            print(f"  {C_BLUE}[2]{C_RESET} Inspect scene timing")
+            print(f"  {C_GREEN}[3]{C_RESET} Play latest video")
+            print(f"  {C_AMBER}[4]{C_RESET} Edit .env settings")
+            print(f"  {C_GRAY}[5]{C_RESET} Check dependencies")
+            print(f"  {C_CYAN}[6]{C_RESET} Check for updates")
             print(f"\n{C_DIM}Type a number and press Enter · [0] Exit{C_RESET}")
             choice = input(f"\n{C_BOLD}Action › {C_RESET}").strip().lower()
 
         if choice == "1":
-            run_video_render()
-        elif choice == "2":
             launch_web_studio_and_browser()
-        elif choice == "3":
+        elif choice == "2":
             show_scene_matrix()
-        elif choice == "4":
+        elif choice == "3":
             open_media_file(OUTPUT_DIR / "final_story.mp4")
             time.sleep(1)
-        elif choice == "5":
+        elif choice == "4":
             edit_env_settings()
-        elif choice == "6":
+        elif choice == "5":
             run_termux_health_check()
-        elif choice == "7":
+        elif choice == "6":
             if update_checker is None:
                 from main import check_for_updates
                 update_checker = check_for_updates
@@ -526,7 +391,7 @@ def run_tui_main(update_checker=None):
             print(f"{C_ORANGE}👋 Thank you for using FB-2minutes Storymaker!{C_RESET}\n")
             break
         else:
-            print(f"\n{C_RED}Choose one of the listed actions (1-7), or 0 to exit.{C_RESET}")
+            print(f"\n{C_RED}Choose one of the listed actions (1-6), or 0 to exit.{C_RESET}")
             input(f"{C_DIM}Press Enter to continue...{C_RESET}")
 
 

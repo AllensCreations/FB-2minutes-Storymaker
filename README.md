@@ -1,6 +1,6 @@
 # FB-2minutes Storymaker
 
-[![Version](https://img.shields.io/badge/version-1.0.9-blue.svg)](https://github.com/AllensCreations/FBStoryMaker)
+[![Version](https://img.shields.io/badge/version-1.0.10-blue.svg)](https://github.com/AllensCreations/FBStoryMaker)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![Tests](https://img.shields.io/badge/tests-unittest-blue.svg)](tests/)
@@ -18,6 +18,7 @@ curl -fsSL https://raw.githubusercontent.com/AllensCreations/FBStoryMaker/main/i
 ```
 
 After installation, `fbsm` opens the interactive terminal dashboard. Terminal launches check the current Git branch's configured upstream, fast-forward and restart when an update is available, and stop with an error if an update cannot be verified or safely applied. A network connection is required.
+Use **Up/Down** (or **J/K**) to select a menu action and press **Enter**. Choose **Open Web Studio** to render and publish through the browser workflow.
 
 ```bash
 fbsm
@@ -92,7 +93,7 @@ From the dashboard, choose **Edit .env settings** to open `.env` in `$VISUAL`, `
 - **⚙️ Settings Modal**: Consolidated credentials modal supporting Gemini API keys, Gemini model selection (`gemini-2.5-flash`, `gemini-1.5-pro`, `gemini-3.8-flash`), Dropbox cloud credentials, and Google Sheets manifest URLs.
 
 ### 2. Single Unified Web Render Workflow
-- **No Terminal/CLI Rendering**: All rendering happens in the browser via the Studio's **Auto-Publish** feature.
+- **Web-Only Video Rendering**: All rendering happens in the browser via the Studio's **Auto-Publish** feature; the terminal menu remains available for launching the Studio and setup tools.
 - **In-Browser Canvas Render**: Video is rendered directly in the browser using MediaRecorder + canvas capture at 30 FPS.
 - **Automatic Queue on Completion**: Once the video is ready, it automatically enqueues for publishing (Dropbox + Sheets logging).
 - **Real-Time Progress**: The Publish Queue tab shows rendering status, upload progress, and completion with SSE updates.
@@ -188,17 +189,20 @@ PORT=8000
 
 ### 3. Launching the Application
 
-All rendering happens via the web-based Studio. The terminal UI and CLI render modes have been removed in favor of the unified web-render workflow.
+Video rendering happens via the web-based Studio. The `fbsm` terminal menu is retained for navigation and setup, but does not render videos itself.
 
 ```bash
-# Launch the Web Studio (default)
-python3 main.py
+# Open the arrow-key terminal menu
+fbsm
+
+# Launch the Web Studio directly
+python3 main.py --web
 
 # Or with optional flags
-python3 main.py --port 3000 --open    # Custom port + auto-open browser
+python3 main.py --web --port 3000 --open    # Custom port + auto-open browser
 
-# Or via the installed command:
-fbsm
+# Launch the menu explicitly from a terminal
+python3 main.py --tui
 ```
 
 **Render Workflow:**

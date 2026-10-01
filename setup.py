@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="fb-2minutes-storymaker",
-    version="1.0.9",
+    version="1.0.10",
     author="AllensCreations",
     author_email="you@example.com",
     description="Automated storytelling engine for Picture-Book Motion videos",

@@ -69,7 +69,7 @@ help:
 	@echo "FB 2minutes Storymaker - Available Commands:"
 	@echo "  make setup         - Run full local setup (FFmpeg check, venv, dependencies, assets)"
 	@echo "  make termux-setup  - Install Termux Android packages (python-pillow, ffmpeg)"
-	@echo "  make run           - Run the full storytelling pipeline and render final_story.mp4"
+	@echo "  make run           - Start the terminal menu or Web Studio"
 	@echo "  make web           - Launch the local Web UI Studio on http://localhost:8000"
 	@echo "  make tui           - Launch the interactive Termux / mobile Terminal UI"
 	@echo "  make test          - Run unit and pipeline integration tests"

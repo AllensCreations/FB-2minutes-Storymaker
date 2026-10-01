@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 # ==============================================================================
 # FB 2minutes Storymaker - Local Setup Script
-# Version: 1.0.9
+# Version: 1.0.10
 # Sets up Python environment and dependencies.
 # Includes first-class support for Termux (Android), Debian/Ubuntu, macOS, Windows.
 # ==============================================================================
 
 set -e
 
-APP_VERSION="1.0.9"
+APP_VERSION="1.0.10"
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$REPO_DIR"
 
@@ -123,7 +123,7 @@ echo "========================================================"
 echo ""
 echo "Quick Commands:"
 echo "  1. Launch Web UI Studio:    make web   (or $RUN_PYTHON main.py --web)"
-echo "  2. Interactive Console:     make tui   (or $RUN_PYTHON main.py --tui)"
-echo "  3. Run Storymaker via CLI:  make run   (or $RUN_PYTHON main.py)"
+echo "  2. Selector menu:           make tui   (or $RUN_PYTHON main.py --tui)"
+echo "  3. Run Storymaker:          make run   (menu in terminal, web otherwise)"
 echo "  4. Run Test Suite:          make test  (or $RUN_PYTHON -m unittest discover tests)"
 echo ""
