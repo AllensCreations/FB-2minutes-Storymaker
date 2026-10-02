@@ -65,10 +65,14 @@ def clear_screen():
 
 
 def print_banner():
-    print(f"{C_ORANGE}{C_BOLD}╭─────────────────────────────────────────────────────────────╮{C_RESET}")
-    print(f"{C_ORANGE}{C_BOLD}│  🎬 FB-2MINUTES STORYMAKER • TERMUX STUDIO                  │{C_RESET}")
-    print(f"{C_ORANGE}{C_BOLD}│  {C_GRAY}Picture-Book Motion Engine & Interactive Console           {C_ORANGE}{C_BOLD}│{C_RESET}")
-    print(f"{C_ORANGE}{C_BOLD}╰─────────────────────────────────────────────────────────────╯{C_RESET}")
+    width = max(42, min(72, shutil.get_terminal_size((80, 24)).columns - 2))
+    inner = width - 4
+    print(f"{C_ORANGE}{C_BOLD}╭{'─' * (width - 2)}╮{C_RESET}")
+    title = "🎬 FB-2MINUTES STORYMAKER • STUDIO CONSOLE"
+    sub = "Picture-Book Motion Engine & Interactive Console"
+    print(f"{C_ORANGE}{C_BOLD}│  {title:<{inner}}│{C_RESET}")
+    print(f"{C_ORANGE}{C_BOLD}│  {C_GRAY}{sub:<{inner}}{C_ORANGE}{C_BOLD}│{C_RESET}")
+    print(f"{C_ORANGE}{C_BOLD}╰{'─' * (width - 2)}╯{C_RESET}")
 
 
 def get_asset_status():
@@ -128,18 +132,68 @@ def print_status_box(status):
     print(f"{C_BOLD}└{'─' * (width - 2)}┘{C_RESET}")
 
 
+def print_vitals_box(status):
+    """Renders real-time system vitals card in Modern Studio Dark theme."""
+    width = max(42, min(72, shutil.get_terminal_size((80, 24)).columns - 2))
+    inner = width - 4
+    lan_ip = get_local_ip()
+    port = 8000
+    battery = get_battery_status()
+    device_label = battery if battery else ("Termux (Android)" if is_termux() else "Desktop System")
+    ready_count = sum(1 for v in status.values() if v[0])
+    total_count = len(status)
+    pipeline_state = "All Assets Ready" if ready_count == total_count else f"{ready_count}/{total_count} Assets Ready"
+
+    title = "╭─ SYSTEM VITALS " + "─" * (width - 18) + "╮"
+    print(f"{C_CYAN}{C_BOLD}{title}{C_RESET}")
+
+    def row(icon, label, val, color=""):
+        content = f"{icon} {C_BOLD}{label:<12}{C_RESET} {color}{val}{C_RESET}"
+        plain_len = len(f"{icon} {label:<12} {val}")
+        pad = " " * max(0, inner - plain_len)
+        print(f"│ {content}{pad} │")
+
+    row("🌐", "LAN Host:", f"http://{lan_ip}:{port}", C_CYAN)
+    row("🔋", "Device:", device_label, C_GREEN if battery else C_GRAY)
+    row("🎬", "Pipeline:", pipeline_state, C_GREEN if ready_count == total_count else C_AMBER)
+    print(f"{C_CYAN}{C_BOLD}╰{'─' * (width - 2)}╯{C_RESET}")
+
+
+MENU_ITEMS = [
+    # (key, category, title, hint)
+    ("1", "STUDIO & CREATION", "Launch Web Studio", "Start web server on port 8000 & open creative studio in browser"),
+    ("2", "STUDIO & CREATION", "Inspect Scene Timing & Matrix", "View speech-cue alignment, audio waveform duration, and -35dB cut markers"),
+    ("3", "STUDIO & CREATION", "Play Master Video", "Open the latest rendered story video in media player"),
+    ("7", "REMOTE SERVER & HOSTING", "Run as LAN Server (Phone Server Mode)", "Host Web Studio headlessly for other devices with QR code & dim screen"),
+    ("8", "REMOTE SERVER & HOSTING", "Termux Autostart & Battery Guard", "Configure Termux:Boot autostart script and manage screen brightness"),
+    ("6", "SYSTEM & ENVIRONMENT", "Check for Updates", "Fetch and fast-forward latest updates from GitHub repository"),
+    ("5", "SYSTEM & ENVIRONMENT", "Check Dependencies & Health", "Verify Python, FFmpeg, Pillow, and Termux environment health"),
+    ("4", "SYSTEM & ENVIRONMENT", "Configure .env Settings", "Open and edit environment variables and API keys in terminal editor"),
+    ("0", "SYSTEM & ENVIRONMENT", "Exit Studio", "Quit the interactive console and return to shell"),
+]
+
+
+def print_categorized_menu():
+    """Renders categorized menu options in text fallback mode."""
+    width = max(42, min(72, shutil.get_terminal_size((80, 24)).columns - 2))
+    title = "╭─ ACTIONS " + "─" * (width - 12) + "╮"
+    print(f"{C_BOLD}{title}{C_RESET}")
+    current_cat = None
+    for key, cat, title, _ in MENU_ITEMS:
+        if cat != current_cat:
+            if current_cat is not None:
+                print(f"│{' ' * (width - 2)}│")
+            icon = "🎬" if "STUDIO" in cat else ("📱" if "SERVER" in cat else "⚙️")
+            cat_header = f" {icon} {cat}"
+            print(f"│ {C_BOLD}{cat_header:<{width - 4}}{C_RESET} │")
+            current_cat = cat
+        row_str = f"   [{key}] {title}"
+        print(f"│ {C_CYAN if key in ('1', '7') else C_RESET}{row_str:<{width - 4}}{C_RESET} │")
+    print(f"{C_BOLD}╰{'─' * (width - 2)}╯{C_RESET}")
+
+
 def _draw_interactive_menu(stdscr, status):
-    choices = [
-        ("1", "Open Web Studio"),
-        ("2", "Inspect scene timing"),
-        ("3", "Play latest video"),
-        ("4", "Edit .env settings"),
-        ("5", "Check dependencies"),
-        ("6", "Check for updates"),
-        ("7", "Run as LAN Server (Phone Server Mode)"),
-        ("8", "Termux Autostart & Battery Guard"),
-        ("0", "Exit"),
-    ]
+    choices = MENU_ITEMS
     selected = 0
     first_visible = 0
     stdscr.keypad(True)
@@ -147,12 +201,20 @@ def _draw_interactive_menu(stdscr, status):
     if curses.has_colors():
         try:
             curses.start_color()
-            curses.init_pair(1, curses.COLOR_GREEN, curses.COLOR_BLACK)
-            curses.init_pair(2, curses.COLOR_RED, curses.COLOR_BLACK)
-            curses.init_pair(3, curses.COLOR_YELLOW, curses.COLOR_BLACK)
-            curses.init_pair(4, curses.COLOR_CYAN, curses.COLOR_BLACK)
+            curses.use_default_colors()
+            curses.init_pair(1, curses.COLOR_GREEN, -1)
+            curses.init_pair(2, curses.COLOR_RED, -1)
+            curses.init_pair(3, curses.COLOR_YELLOW, -1)
+            curses.init_pair(4, curses.COLOR_CYAN, -1)
+            curses.init_pair(5, curses.COLOR_MAGENTA, -1)
         except curses.error:
-            pass
+            try:
+                curses.init_pair(1, curses.COLOR_GREEN, curses.COLOR_BLACK)
+                curses.init_pair(2, curses.COLOR_RED, curses.COLOR_BLACK)
+                curses.init_pair(3, curses.COLOR_YELLOW, curses.COLOR_BLACK)
+                curses.init_pair(4, curses.COLOR_CYAN, curses.COLOR_BLACK)
+            except curses.error:
+                pass
 
     while True:
         stdscr.erase()
@@ -163,39 +225,74 @@ def _draw_interactive_menu(stdscr, status):
                 x = max(0, (width - len(text)) // 2) if centered else 2
                 stdscr.addnstr(y, x, text, max(0, width - x - 1), attr)
 
-        write(1, "FB 2MINUTES STORYMAKER", curses.color_pair(3) | curses.A_BOLD, centered=True)
-        write(2, "Create, review, and publish story videos", curses.A_DIM, centered=True)
-        write(4, "STORY ASSETS", curses.A_BOLD)
+        # Format live vitals chip string
+        lan_ip = get_local_ip()
+        port = 8000
+        battery = get_battery_status()
+        bat_chip = f"🔋 {battery}" if battery else ("📱 Termux" if is_termux() else "💻 Host")
+        ready_count = sum(1 for v in status.values() if v[0])
+        total_count = len(status)
+        pipe_chip = "● All Ready" if ready_count == total_count else f"● {ready_count}/{total_count} Ready"
+        vitals_bar = f"🌐 {lan_ip}:{port}  │  {bat_chip}  │  {pipe_chip}"
 
-        asset_labels = (
-            ("VOICE-OVER", status["voice"]),
-            ("SCRIPT", status["script"]),
-            ("VISUALS", status["visuals"]),
-            ("MASTER MP4", status["video"]),
-        )
-        for row, (label, (ready, detail)) in enumerate(asset_labels, start=5):
-            state = "READY  " if ready else "MISSING"
-            color = curses.color_pair(1 if ready else 2)
-            short_detail = textwrap.shorten(detail, width=max(8, width - 34), placeholder="...")
-            write(row, f"{label:<12} [{state}]  {short_detail}", color)
+        if height >= 24:
+            write(1, "🎬 FB-2MINUTES STORYMAKER • STUDIO CONSOLE", curses.color_pair(3) | curses.A_BOLD, centered=True)
+            write(2, vitals_bar, curses.color_pair(4) | curses.A_BOLD, centered=True)
+            write(4, "STORY ASSETS", curses.A_BOLD)
 
-        menu_top = 10
-        menu_bottom = max(menu_top + 1, height - 3)
-        visible_count = menu_bottom - menu_top
+            asset_labels = (
+                ("VOICE-OVER", status["voice"]),
+                ("SCRIPT", status["script"]),
+                ("VISUALS", status["visuals"]),
+                ("MASTER MP4", status["video"]),
+            )
+            for row, (label, (ready, detail)) in enumerate(asset_labels, start=5):
+                state = "READY  " if ready else "MISSING"
+                color = curses.color_pair(1 if ready else 2)
+                short_detail = textwrap.shorten(detail, width=max(8, width - 34), placeholder="…")
+                write(row, f" {label:<12} [{state}]  {short_detail}", color)
+
+            menu_top = 10
+        else:
+            write(0, "FB 2MINUTES STORYMAKER", curses.color_pair(3) | curses.A_BOLD, centered=True)
+            write(1, vitals_bar, curses.color_pair(4), centered=True)
+            menu_top = 3
+
+        # Footer hints & navigation controls
+        current_key, current_cat, current_label, current_hint = choices[selected]
+        if height >= 14:
+            footer_y = height - 3
+            write(footer_y, f"💡 {current_hint}", curses.color_pair(3))
+            write(height - 2, "↑/↓ or J/K: Navigate  ·  ENTER: Select  ·  Q: Exit", curses.A_DIM, centered=True)
+            menu_bottom = footer_y - 1
+        else:
+            write(height - 2, "↑/↓: Navigate  ENTER: Select  Q: Exit", curses.A_DIM, centered=True)
+            menu_bottom = height - 3
+
+        visible_count = max(1, menu_bottom - menu_top)
         if selected < first_visible:
             first_visible = selected
         elif selected >= first_visible + visible_count:
             first_visible = selected - visible_count + 1
-        write(menu_top - 1, "ACTIONS", curses.A_BOLD)
-        for row, index in enumerate(range(first_visible, min(len(choices), first_visible + visible_count))):
-            key, label = choices[index]
-            y = menu_top + row
-            if index == selected:
-                write(y, f">  [{key}] {label}", curses.A_REVERSE | curses.A_BOLD)
-            else:
-                write(y, f"   [{key}] {label}")
 
-        write(height - 2, "UP/DOWN or J/K: move    ENTER: select    Q: quit", curses.A_DIM, centered=True)
+        # Current Category Header
+        write(menu_top - 1, f"ACTIONS · {current_cat}", curses.A_BOLD)
+
+        # Draw menu items without number prefixes using sleek cursor highlight
+        for row, index in enumerate(range(first_visible, min(len(choices), first_visible + visible_count))):
+            key, cat, label, hint = choices[index]
+            y = menu_top + row
+            if width >= 64:
+                cat_badge = f"[{cat.split()[0]}]"
+                item_text = f"{label:<38} {cat_badge}"
+            else:
+                item_text = label
+
+            if index == selected:
+                write(y, f"❯  {item_text}", curses.A_REVERSE | curses.A_BOLD)
+            else:
+                write(y, f"   {item_text}")
+
         stdscr.refresh()
 
         key = stdscr.getch()
@@ -207,7 +304,7 @@ def _draw_interactive_menu(stdscr, status):
             return choices[selected][0]
         elif ord("0") <= key <= ord("8"):
             return chr(key)
-        elif key in (ord("q"), ord("Q")):
+        elif key in (ord("q"), ord("Q"), 27):
             return "0"
 
 
@@ -487,17 +584,10 @@ def run_tui_main(update_checker=None):
         if choice is None:
             clear_screen()
             print_banner()
+            print_vitals_box(status)
             print_status_box(status)
-            print(f"\n{C_BOLD}ACTIONS{C_RESET}")
-            print(f"  {C_CYAN}[1]{C_RESET} Open Web Studio")
-            print(f"  {C_BLUE}[2]{C_RESET} Inspect scene timing")
-            print(f"  {C_GREEN}[3]{C_RESET} Play latest video")
-            print(f"  {C_AMBER}[4]{C_RESET} Edit .env settings")
-            print(f"  {C_GRAY}[5]{C_RESET} Check dependencies")
-            print(f"  {C_CYAN}[6]{C_RESET} Check for updates")
-            print(f"  {C_GREEN}[7]{C_RESET} Run as LAN Server (Phone Server Mode)")
-            print(f"  {C_CYAN}[8]{C_RESET} Termux Autostart & Battery Guard")
-            print(f"\n{C_DIM}Type a number and press Enter · [0] Exit{C_RESET}")
+            print_categorized_menu()
+            print(f"\n{C_DIM}Type an action key (1-8, 0 to exit) · [q] Exit{C_RESET}")
             choice = input(f"\n{C_BOLD}Action › {C_RESET}").strip().lower()
 
         if choice == "1":

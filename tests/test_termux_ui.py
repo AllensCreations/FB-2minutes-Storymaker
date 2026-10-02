@@ -100,7 +100,7 @@ class TestTermuxUI(unittest.TestCase):
             "termux_ui.curses.color_pair", return_value=0
         ):
             self.assertEqual(_draw_interactive_menu(screen, status), "6")
-        self.assertTrue(any("[6] Check for updates" in line for line in screen.lines))
+        self.assertTrue(any("Check for Updates" in line for line in screen.lines))
         self.assertFalse(any("sample story" in line.lower() for line in screen.lines))
 
     @patch("termux_ui.run_tui_main")
