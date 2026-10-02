@@ -59,6 +59,22 @@ C_RED = "\033[38;5;203m"
 C_GRAY = "\033[38;5;244m"
 C_CYAN = "\033[38;5;80m"
 
+_vitals_cache = {
+    "timestamp": 0.0,
+    "lan_ip": "127.0.0.1",
+    "battery": None,
+}
+
+
+def get_cached_vitals(ttl: float = 3.0) -> tuple:
+    """Returns (lan_ip, battery) with cached TTL to prevent subprocess lag on keystrokes."""
+    now = time.time()
+    if now - _vitals_cache["timestamp"] > ttl or _vitals_cache["timestamp"] == 0.0:
+        _vitals_cache["lan_ip"] = get_local_ip()
+        _vitals_cache["battery"] = get_battery_status()
+        _vitals_cache["timestamp"] = now
+    return _vitals_cache["lan_ip"], _vitals_cache["battery"]
+
 
 def clear_screen():
     os.system("clear" if os.name != "nt" else "cls")
@@ -225,10 +241,9 @@ def _draw_interactive_menu(stdscr, status):
                 x = max(0, (width - len(text)) // 2) if centered else 2
                 stdscr.addnstr(y, x, text, max(0, width - x - 1), attr)
 
-        # Format live vitals chip string
-        lan_ip = get_local_ip()
+        # Format live vitals chip string (cached to prevent input lag)
+        lan_ip, battery = get_cached_vitals(ttl=3.0)
         port = 8000
-        battery = get_battery_status()
         bat_chip = f"🔋 {battery}" if battery else ("📱 Termux" if is_termux() else "💻 Host")
         ready_count = sum(1 for v in status.values() if v[0])
         total_count = len(status)

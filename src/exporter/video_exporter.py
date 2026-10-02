@@ -19,6 +19,29 @@ from choreography_core import VisualChoreographer
 from duration_director import MasterTimeline, SceneTimeline
 
 
+def get_optimal_ffmpeg_threads() -> str:
+    """
+    Determines optimal thread count for mobile devices and low-RAM hosts.
+    Prevents Android LMK (Low Memory Killer) crashes by limiting memory footprint.
+    """
+    try:
+        from deps_helper import is_termux
+        if is_termux():
+            return "2"
+        with open("/proc/meminfo", "r") as f:
+            for line in f:
+                if line.startswith("MemTotal:"):
+                    ram_mb = int(line.split()[1]) // 1024
+                    if ram_mb < 2048:
+                        return "1"
+                    elif ram_mb < 4096:
+                        return "2"
+                    break
+    except Exception:
+        pass
+    return "0"
+
+
 class VideoExporter:
     """
     Renders video frames and multiplexes audio using FFmpeg to export
@@ -66,6 +89,7 @@ class VideoExporter:
         except Exception:
             raise RuntimeError("FFmpeg is not installed or not found on PATH.")
 
+        threads = get_optimal_ffmpeg_threads()
         ffmpeg_cmd = [
             "ffmpeg", "-y",
             "-f", "rawvideo",
@@ -73,7 +97,7 @@ class VideoExporter:
             "-s", f"{timeline.width}x{timeline.height}",
             "-pix_fmt", "rgb24",
             "-r", str(fps),
-            "-threads", "0",
+            "-threads", threads,
             "-i", "-",
             "-i", str(audio_path),
             "-c:v", "libx264",
@@ -81,6 +105,8 @@ class VideoExporter:
             "-tune", "fastdecode",
             "-crf", "23",
             "-pix_fmt", "yuv420p",
+            "-max_muxing_queue_size", "1024",
+            "-bufsize", "4M",
             "-c:a", "aac",
             "-b:a", "192k",
             "-shortest",

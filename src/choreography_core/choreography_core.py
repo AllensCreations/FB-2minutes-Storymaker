@@ -17,6 +17,7 @@ src_dir = str(Path(__file__).resolve().parent.parent)
 if src_dir not in sys.path:
     sys.path.insert(0, src_dir)
 
+from collections import OrderedDict
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
 from duration_director import SceneTimeline
 
@@ -26,22 +27,39 @@ class VisualChoreographer:
     Renders video frames applying Picture-Book Motion choreographic rules.
     """
 
-    def __init__(self, width: int = 1080, height: int = 1920):
+    def __init__(self, width: int = 1080, height: int = 1920, max_cache_size: int = 4):
         self.width = width
         self.height = height
-        self._image_cache: Dict[str, Image.Image] = {}
+        self.max_cache_size = max(2, max_cache_size)
+        self._image_cache: OrderedDict[str, Image.Image] = OrderedDict()
+
+    def _cache_put(self, key: str, img: Image.Image) -> None:
+        """Stores image with LRU eviction to prevent high RAM usage on mobile devices."""
+        if key in self._image_cache:
+            self._image_cache.move_to_end(key)
+            return
+        if len(self._image_cache) >= self.max_cache_size:
+            _, old_img = self._image_cache.popitem(last=False)
+            try:
+                old_img.close()
+            except Exception:
+                pass
+        self._image_cache[key] = img
 
     def get_source_image(self, path_str: str) -> Image.Image:
-        """Loads and caches source artwork in RGBA format."""
-        if path_str not in self._image_cache:
-            img = Image.open(path_str).convert("RGBA")
-            self._image_cache[path_str] = img
-        return self._image_cache[path_str]
+        """Loads and caches source artwork in RGBA format with LRU eviction."""
+        if path_str in self._image_cache:
+            self._image_cache.move_to_end(path_str)
+            return self._image_cache[path_str]
+        img = Image.open(path_str).convert("RGBA")
+        self._cache_put(path_str, img)
+        return img
 
     def get_blurred_background(self, path_str: str) -> Image.Image:
         """Creates and caches a heavily blurred cover background for ambient glow framing."""
         cache_key = f"blur_{path_str}_{self.width}_{self.height}"
         if cache_key in self._image_cache:
+            self._image_cache.move_to_end(cache_key)
             return self._image_cache[cache_key]
 
         src = self.get_source_image(path_str)
@@ -64,7 +82,7 @@ class VisualChoreographer:
 
         # Scale up to full canvas dimensions
         bg_full = blurred.resize((self.width, self.height), Image.Resampling.BICUBIC).convert("RGB")
-        self._image_cache[cache_key] = bg_full
+        self._cache_put(cache_key, bg_full)
         return bg_full
 
     def _get_font(self, size: int = 50) -> ImageFont.ImageFont:

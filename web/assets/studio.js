@@ -13,6 +13,28 @@ let audioBuffer = null;
     let loadedImages = [];
     let draggingMarkerIdx = null;
     let currentSavedRenderInfo = null;
+    let _cachedWaveformPeaks = null;
+    let _cachedWaveformBuffer = null;
+    let _cachedWaveformWidth = 0;
+    const _backdropCache = new WeakMap();
+
+    function getBlurredBackdrop(img, targetW, targetH) {
+      if (!img) return null;
+      let cached = _backdropCache.get(img);
+      if (cached && cached.targetH === targetH) {
+        return cached.canvas;
+      }
+      const off = document.createElement('canvas');
+      off.width = 180;
+      off.height = Math.max(1, Math.round(180 * (targetH / targetW)));
+      const octx = off.getContext('2d');
+      if (octx) {
+        octx.filter = 'blur(6px) brightness(0.45) saturate(1.2)';
+        octx.drawImage(img, 0, 0, off.width, off.height);
+      }
+      _backdropCache.set(img, { canvas: off, targetH: targetH });
+      return off;
+    }
 
     function clearCaptionWordTimings() {
       captionWordTimings = [];
@@ -970,7 +992,7 @@ let audioBuffer = null;
       const curTime = audioElement.currentTime || 0;
       const playX = Math.max(0, Math.min((curTime / duration) * W, W));
 
-      // 3. Audio peaks with gradient illumination
+      // 3. Audio peaks with gradient illumination (cached to prevent 60fps audio sample scanning lag)
       const playedGrad = waveCtx.createLinearGradient(0, 0, 0, H);
       playedGrad.addColorStop(0, '#38bdf8');   // Neon Sky Blue
       playedGrad.addColorStop(0.5, '#6366f1'); // Electric Indigo
@@ -981,17 +1003,26 @@ let audioBuffer = null;
       unplayedGrad.addColorStop(0.5, '#334155');
       unplayedGrad.addColorStop(1, '#1e293b');
 
-      for (let x = 0; x < W; x++) {
-        let min = 1.0;
-        let max = -1.0;
-        const start = x * step;
-        const end = Math.min(start + step, data.length);
-        for (let j = start; j < end; j++) {
-          const val = data[j];
-          if (val < min) min = val;
-          if (val > max) max = val;
+      if (!_cachedWaveformPeaks || _cachedWaveformBuffer !== audioBuffer || _cachedWaveformWidth !== W) {
+        _cachedWaveformPeaks = new Float32Array(W);
+        for (let x = 0; x < W; x++) {
+          let min = 1.0;
+          let max = -1.0;
+          const start = x * step;
+          const end = Math.min(start + step, data.length);
+          for (let j = start; j < end; j++) {
+            const val = data[j];
+            if (val < min) min = val;
+            if (val > max) max = val;
+          }
+          _cachedWaveformPeaks[x] = Math.max(0.02, max - min);
         }
-        const barH = Math.max(2, (max - min) * amp);
+        _cachedWaveformBuffer = audioBuffer;
+        _cachedWaveformWidth = W;
+      }
+
+      for (let x = 0; x < W; x++) {
+        const barH = Math.max(2, _cachedWaveformPeaks[x] * amp);
         const yTop = (H - barH) / 2;
 
         waveCtx.fillStyle = (x <= playX) ? playedGrad : unplayedGrad;
@@ -1182,11 +1213,14 @@ let audioBuffer = null;
         ctx.save();
         if (alpha < 1.0) ctx.globalAlpha = alpha;
 
-        // 1. Ambient Glow Backdrop sampled from the scene image
-        ctx.save();
-        ctx.filter = 'blur(28px) brightness(0.45) saturate(1.2)';
-        ctx.drawImage(sceneImg, -20, -20, canvas.width + 40, canvas.height + 40);
-        ctx.restore();
+        // 1. Ambient Glow Backdrop sampled from the scene image (hardware-cached offscreen canvas)
+        const blurredBackdrop = getBlurredBackdrop(sceneImg, canvas.width, canvas.height);
+        if (blurredBackdrop) {
+          ctx.drawImage(blurredBackdrop, 0, 0, canvas.width, canvas.height);
+        } else {
+          ctx.fillStyle = '#080808';
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
 
         // 2. Subtle Vignette gradient top/bottom
         const ambientGrad = ctx.createLinearGradient(0, 0, 0, canvas.height);
