@@ -70,6 +70,28 @@ class TestTermuxServerHelper(unittest.TestCase):
                 stdout=-3, stderr=-3, check=False, timeout=2
             )
 
+    def test_device_status_endpoint_returns_json(self):
+        from http.server import ThreadingHTTPServer
+        import urllib.request
+        import web.server as story_server
+        import threading
+
+        server = ThreadingHTTPServer(("127.0.0.1", 0), story_server.StorymakerRequestHandler)
+        thread = threading.Thread(target=server.serve_forever)
+        thread.daemon = True
+        thread.start()
+        try:
+            req = urllib.request.Request(f"http://127.0.0.1:{server.server_port}/api/device-status")
+            with urllib.request.urlopen(req) as resp:
+                self.assertEqual(resp.status, 200)
+                data = json.loads(resp.read().decode("utf-8"))
+                self.assertTrue(data.get("ok"))
+                self.assertIn("battery", data)
+                self.assertIn("local_ip", data)
+        finally:
+            server.shutdown()
+            server.server_close()
+
 
 if __name__ == "__main__":
     unittest.main()

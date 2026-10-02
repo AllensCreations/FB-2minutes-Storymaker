@@ -6217,12 +6217,56 @@ ALTER TABLE stories ADD COLUMN uploaded_to_youtube TEXT DEFAULT 'pending';`;
       });
     }
 
+    async function updatePhoneBatteryBadge() {
+      const badge = document.getElementById('phoneBatteryBadge');
+      const icon = document.getElementById('phoneBatteryIcon');
+      const text = document.getElementById('phoneBatteryText');
+      if (!badge || !icon || !text) return;
+
+      try {
+        const res = await fetch('/api/device-status');
+        if (!res.ok) throw new Error('Status request failed');
+        const data = await res.json();
+        const b = data.battery;
+        if (!b || typeof b.percentage !== 'number') {
+          badge.classList.add('hidden');
+          badge.classList.remove('inline-flex');
+          return;
+        }
+
+        const pct = b.percentage;
+        const isCharging = b.status === 'CHARGING' || (b.plugged && b.plugged !== 'UNPLUGGED');
+        icon.textContent = isCharging ? '⚡' : (pct <= 20 ? '🪫' : '🔋');
+        text.textContent = `${pct}%`;
+
+        const tempInfo = typeof b.temperature === 'number' ? ` • ${b.temperature.toFixed(1)}°C` : '';
+        badge.title = `Phone Server: ${pct}% (${b.status || 'Active'}${tempInfo})`;
+
+        badge.classList.remove('hidden');
+        badge.classList.add('inline-flex');
+        if (isCharging) {
+          badge.className = 'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-950/60 border border-emerald-500/40 text-[11px] font-mono font-bold text-emerald-300 shadow-sm transition-colors select-none';
+        } else if (pct < 15) {
+          badge.className = 'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-rose-950/80 border border-rose-500/50 text-[11px] font-mono font-bold text-rose-300 shadow-sm animate-pulse transition-colors select-none';
+        } else if (pct <= 30) {
+          badge.className = 'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-950/60 border border-amber-500/40 text-[11px] font-mono font-bold text-amber-300 shadow-sm transition-colors select-none';
+        } else {
+          badge.className = 'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-gray-950/80 border border-white/[0.08] text-[11px] font-mono font-medium text-zinc-300 shadow-sm transition-colors select-none';
+        }
+      } catch (err) {
+        badge.classList.add('hidden');
+        badge.classList.remove('inline-flex');
+      }
+    }
+
     window.addEventListener('DOMContentLoaded', () => {
       initPublisherPipeline();
       fetchServerSettings();
       resizeWaveform();
       loadItemsList(false);
       initSSE();
+      updatePhoneBatteryBadge();
+      setInterval(updatePhoneBatteryBadge, 30000);
       if (window.location.protocol.startsWith('http')) {
         syncWithLocalTermux(false);
       }

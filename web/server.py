@@ -32,7 +32,7 @@ if str(SRC_DIR) not in sys.path:
 
 from align_engine import SpeechCueAlignEngine, AlignmentResult, SpeechSegment
 from duration_director import SceneDurationDirector
-from deps_helper import ensure_pillow, ensure_ffmpeg
+from deps_helper import ensure_pillow, ensure_ffmpeg, is_termux
 from items_manager import default_manager, parse_multipart_request, natural_sort_key
 from archive_manager import ArchiveManager, get_local_ip
 from port_helper import find_random_available_port, save_active_port
@@ -852,6 +852,31 @@ class StorymakerRequestHandler(SimpleHTTPRequestHandler):
             self.serve_file(index_path, "text/html")
         elif path == "/api/status":
             self.send_json(get_assets_status())
+        elif path == "/api/device-status":
+            from termux_server_helper import get_battery_status
+            battery_str = get_battery_status()
+            parsed_battery = None
+            if shutil.which("termux-battery-status"):
+                try:
+                    res = subprocess.run(["termux-battery-status"], capture_output=True, text=True, timeout=2, check=False)
+                    if res.returncode == 0 and res.stdout.strip():
+                        bdata = json.loads(res.stdout)
+                        parsed_battery = {
+                            "percentage": bdata.get("percentage"),
+                            "status": bdata.get("status", "").upper(),
+                            "plugged": bdata.get("plugged", "").replace("PLUGGED_", "").upper(),
+                            "temperature": bdata.get("temperature"),
+                        }
+                except Exception:
+                    pass
+
+            self.send_json({
+                "ok": True,
+                "is_termux": is_termux(),
+                "battery": parsed_battery,
+                "battery_text": battery_str,
+                "local_ip": get_local_ip(),
+            })
         elif path == "/api/project-assets":
             self.send_json(get_project_assets_info())
         elif path == "/api/scenes":
