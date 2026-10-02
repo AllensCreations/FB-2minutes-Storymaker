@@ -76,6 +76,12 @@ class TestStartupUpdates(unittest.TestCase):
             [sys.executable, str(Path(__file__).resolve().parent.parent / "main.py"), "--check"],
         )
 
+    def test_main_continues_when_update_check_fails(self):
+        with patch("main.sys.argv", ["main.py", "--check"]), patch(
+            "main.check_for_updates", side_effect=RuntimeError("local changes prevent a safe update")
+        ), patch("main.check_assets", return_value=(False, False, False)):
+            main()
+
 
 if __name__ == "__main__":
     unittest.main()

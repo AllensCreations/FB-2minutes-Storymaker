@@ -94,7 +94,7 @@ def start_web_server(port=None, open_browser: bool = False):
     start_server(host="0.0.0.0", port=port, open_browser=open_browser)
 
 
-__version__ = "1.0.25"
+__version__ = "1.0.26"
 
 
 def check_for_updates(repo_dir: Path = BASE_DIR) -> bool:
@@ -162,7 +162,7 @@ def main():
         if check_for_updates():
             os.execv(sys.executable, [sys.executable, str(BASE_DIR / "main.py"), *sys.argv[1:]])
     except RuntimeError as error:
-        parser.error(f"Unable to verify/update Storymaker: {error}")
+        print(f"⚠️ Notice: {error}")
 
     if args.check:
         print("FB 2minutes Storymaker - Asset Status Check")
