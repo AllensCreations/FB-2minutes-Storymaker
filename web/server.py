@@ -2585,7 +2585,8 @@ def start_server(host: str = "0.0.0.0", port=None, open_browser: bool = False, m
     print(f"🎲 Random Assigned Port:  {active_port}")
     print(f"👉 Direct URL (No Cache): {direct_url}")
     print(f"👉 Standard URL:          {url}")
-    print(f"👉 Local Network:         http://{host}:{active_port}")
+    lan_host = get_local_ip() if host in ("0.0.0.0", "") else host
+    print(f"👉 Local Network:         http://{lan_host}:{active_port}")
     print(f"👉 Saved port marker:     {REPO_ROOT / '.active_port'}")
     print("==================================================")
 

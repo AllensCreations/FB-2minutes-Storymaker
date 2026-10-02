@@ -29,6 +29,7 @@ if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
 from align_engine import SpeechCueAlignEngine
+from archive_manager import get_local_ip
 from deps_helper import is_termux
 from duration_director import SceneDurationDirector
 
@@ -126,6 +127,7 @@ def _draw_interactive_menu(stdscr, status):
         ("4", "Edit .env settings"),
         ("5", "Check dependencies"),
         ("6", "Check for updates"),
+        ("7", "Run as LAN Server (Phone Server Mode)"),
         ("0", "Exit"),
     ]
     selected = 0
@@ -193,7 +195,7 @@ def _draw_interactive_menu(stdscr, status):
             selected = (selected + 1) % len(choices)
         elif key in (curses.KEY_ENTER, 10, 13):
             return choices[selected][0]
-        elif ord("0") <= key <= ord("6"):
+        elif ord("0") <= key <= ord("7"):
             return chr(key)
         elif key in (ord("q"), ord("Q")):
             return "0"
@@ -275,6 +277,43 @@ def launch_web_studio_and_browser():
     except KeyboardInterrupt:
         print(f"\n{C_GRAY}Web server stopped.{C_RESET}")
         time.sleep(0.5)
+
+
+def launch_lan_server_mode():
+    """Runs Web Studio in headless host/server mode for access from other devices on the LAN."""
+    clear_screen()
+    print_banner()
+    port = 8000
+    lan_ip = get_local_ip()
+
+    has_wake_lock = False
+    if is_termux() and shutil.which("termux-wake-lock") is not None:
+        try:
+            subprocess.run(["termux-wake-lock"], check=False)
+            has_wake_lock = True
+        except Exception:
+            pass
+
+    print(f"\n{C_GREEN}{C_BOLD}📱 OLD PHONE SERVER MODE (LAN HOST){C_RESET}")
+    print(f"{C_GRAY}Server is active for other devices connected to the same Wi-Fi / Hotspot.{C_RESET}")
+    if has_wake_lock:
+        print(f"{C_CYAN}🔋 Termux wake-lock active (prevents phone from sleeping).{C_RESET}")
+    print(f"\n{C_BOLD}👉 Open this URL on your PC, tablet, or secondary phone:{C_RESET}")
+    print(f"   {C_ORANGE}{C_BOLD}http://{lan_ip}:{port}{C_RESET}\n")
+    print(f"{C_AMBER}Press [Ctrl + C] to stop the server and return to the menu.{C_RESET}\n")
+
+    from web.server import start_server
+    try:
+        start_server(host="0.0.0.0", port=port, open_browser=False)
+    except KeyboardInterrupt:
+        print(f"\n{C_GRAY}Server stopped.{C_RESET}")
+        time.sleep(0.5)
+    finally:
+        if has_wake_lock and shutil.which("termux-wake-unlock") is not None:
+            try:
+                subprocess.run(["termux-wake-unlock"], check=False)
+            except Exception:
+                pass
 
 
 def edit_env_settings():
@@ -367,6 +406,7 @@ def run_tui_main(update_checker=None):
             print(f"  {C_AMBER}[4]{C_RESET} Edit .env settings")
             print(f"  {C_GRAY}[5]{C_RESET} Check dependencies")
             print(f"  {C_CYAN}[6]{C_RESET} Check for updates")
+            print(f"  {C_GREEN}[7]{C_RESET} Run as LAN Server (Phone Server Mode)")
             print(f"\n{C_DIM}Type a number and press Enter · [0] Exit{C_RESET}")
             choice = input(f"\n{C_BOLD}Action › {C_RESET}").strip().lower()
 
@@ -386,12 +426,14 @@ def run_tui_main(update_checker=None):
                 from main import check_for_updates
                 update_checker = check_for_updates
             _check_for_updates(update_checker)
+        elif choice == "7":
+            launch_lan_server_mode()
         elif choice in ("0", "q", "quit", "exit"):
             clear_screen()
             print(f"{C_ORANGE}👋 Thank you for using FB-2minutes Storymaker!{C_RESET}\n")
             break
         else:
-            print(f"\n{C_RED}Choose one of the listed actions (1-6), or 0 to exit.{C_RESET}")
+            print(f"\n{C_RED}Choose one of the listed actions (1-7), or 0 to exit.{C_RESET}")
             input(f"{C_DIM}Press Enter to continue...{C_RESET}")
 
 

@@ -66,6 +66,7 @@ class TestTermuxUI(unittest.TestCase):
         ):
             self.assertEqual(_draw_interactive_menu(FakeScreen([termux_ui.curses.KEY_DOWN, 10]), status), "2")
             self.assertEqual(_draw_interactive_menu(FakeScreen([ord("6")]), status), "6")
+            self.assertEqual(_draw_interactive_menu(FakeScreen([ord("7")]), status), "7")
             self.assertEqual(_draw_interactive_menu(FakeScreen([ord("0")]), status), "0")
 
     def test_short_terminal_scrolls_arrow_menu_to_all_actions(self):
@@ -145,6 +146,19 @@ class TestTermuxUI(unittest.TestCase):
 
             self.assertEqual((root / ".env").read_text(encoding="utf-8"), 'GEMINI_API_KEY=""\n')
             self.assertEqual(run.call_args.args[0], ["nano", str(root / ".env")])
+
+    def test_launch_lan_server_mode_manages_wakelock_and_headless_server(self):
+        with patch("termux_ui.is_termux", return_value=True), patch(
+            "termux_ui.shutil.which", return_value="/data/data/com.termux/files/usr/bin/termux-wake-lock"
+        ), patch("termux_ui.subprocess.run") as mock_run, patch(
+            "web.server.start_server", side_effect=KeyboardInterrupt
+        ) as mock_server, patch("termux_ui.get_local_ip", return_value="192.168.1.100"):
+            termux_ui.launch_lan_server_mode()
+
+        mock_server.assert_called_once_with(host="0.0.0.0", port=8000, open_browser=False)
+        called_cmds = [call.args[0] for call in mock_run.call_args_list]
+        self.assertIn(["termux-wake-lock"], called_cmds)
+        self.assertIn(["termux-wake-unlock"], called_cmds)
 
 
 if __name__ == "__main__":
