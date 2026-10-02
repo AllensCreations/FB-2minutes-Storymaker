@@ -32,6 +32,15 @@ from align_engine import SpeechCueAlignEngine
 from archive_manager import get_local_ip
 from deps_helper import is_termux
 from duration_director import SceneDurationDirector
+from qr_terminal import get_qr_terminal_display
+from termux_server_helper import (
+    disable_termux_boot,
+    enable_termux_boot,
+    get_battery_status,
+    get_termux_boot_script_path,
+    is_termux_boot_enabled,
+    set_screen_brightness,
+)
 
 ASSETS_DIR = REPO_ROOT / "assets"
 SCRIPTS_DIR = ASSETS_DIR / "scripts"
@@ -128,6 +137,7 @@ def _draw_interactive_menu(stdscr, status):
         ("5", "Check dependencies"),
         ("6", "Check for updates"),
         ("7", "Run as LAN Server (Phone Server Mode)"),
+        ("8", "Termux Autostart & Battery Guard"),
         ("0", "Exit"),
     ]
     selected = 0
@@ -195,7 +205,7 @@ def _draw_interactive_menu(stdscr, status):
             selected = (selected + 1) % len(choices)
         elif key in (curses.KEY_ENTER, 10, 13):
             return choices[selected][0]
-        elif ord("0") <= key <= ord("7"):
+        elif ord("0") <= key <= ord("8"):
             return chr(key)
         elif key in (ord("q"), ord("Q")):
             return "0"
@@ -285,6 +295,7 @@ def launch_lan_server_mode():
     print_banner()
     port = 8000
     lan_ip = get_local_ip()
+    url = f"http://{lan_ip}:{port}"
 
     has_wake_lock = False
     if is_termux() and shutil.which("termux-wake-lock") is not None:
@@ -294,13 +305,34 @@ def launch_lan_server_mode():
         except Exception:
             pass
 
+    screen_dimmed = False
+    if is_termux():
+        screen_dimmed = set_screen_brightness(0)
+
     print(f"\n{C_GREEN}{C_BOLD}📱 OLD PHONE SERVER MODE (LAN HOST){C_RESET}")
-    print(f"{C_GRAY}Server is active for other devices connected to the same Wi-Fi / Hotspot.{C_RESET}")
+    print(f"{C_GRAY}Connect any phone, tablet, or PC on the same Wi-Fi / Hotspot.{C_RESET}\n")
+
+    # Render QR code for instant camera scan
+    qr_art = get_qr_terminal_display(url)
+    if qr_art:
+        print(qr_art)
+        print(f"\n{C_BOLD}👉 Scan QR code above to connect instantly!{C_RESET}")
+        print(f"   Or open in browser: {C_ORANGE}{C_BOLD}{url}{C_RESET}\n")
+    else:
+        print(f"{C_BOLD}👉 Open this URL on your PC, tablet, or secondary phone:{C_RESET}")
+        print(f"   {C_ORANGE}{C_BOLD}{url}{C_RESET}\n")
+
+    battery = get_battery_status()
+    if battery:
+        print(f"🔋 Battery:     {C_CYAN}{battery}{C_RESET}")
     if has_wake_lock:
-        print(f"{C_CYAN}🔋 Termux wake-lock active (prevents phone from sleeping).{C_RESET}")
-    print(f"\n{C_BOLD}👉 Open this URL on your PC, tablet, or secondary phone:{C_RESET}")
-    print(f"   {C_ORANGE}{C_BOLD}http://{lan_ip}:{port}{C_RESET}\n")
-    print(f"{C_AMBER}Press [Ctrl + C] to stop the server and return to the menu.{C_RESET}\n")
+        print(f"⚡ Wake-Lock:   {C_CYAN}Active (CPU stays awake with screen off){C_RESET}")
+    if is_termux_boot_enabled():
+        print(f"🚀 Autostart:   {C_GREEN}Enabled (runs automatically on phone power-on){C_RESET}")
+    if screen_dimmed:
+        print(f"💡 Screen:      {C_CYAN}Dimmed to save battery & prevent burn-in{C_RESET}")
+
+    print(f"\n{C_AMBER}Press [Ctrl + C] to stop the server and return to the menu.{C_RESET}\n")
 
     from web.server import start_server
     try:
@@ -309,11 +341,68 @@ def launch_lan_server_mode():
         print(f"\n{C_GRAY}Server stopped.{C_RESET}")
         time.sleep(0.5)
     finally:
+        if screen_dimmed:
+            set_screen_brightness(255)
         if has_wake_lock and shutil.which("termux-wake-unlock") is not None:
             try:
                 subprocess.run(["termux-wake-unlock"], check=False)
             except Exception:
                 pass
+
+
+def manage_boot_and_battery_guard():
+    """Interactive screen to configure Termux:Boot autostart and battery/screen preservation."""
+    while True:
+        clear_screen()
+        print_banner()
+        print(f"\n{C_BOLD}🔋 Termux Boot Autostart & Battery Guard{C_RESET}\n")
+
+        is_tx = is_termux()
+        boot_on = is_termux_boot_enabled()
+        boot_path = get_termux_boot_script_path()
+        battery = get_battery_status()
+
+        print(f"  Environment:       {'✓ Termux (Android)' if is_tx else 'ℹ️ Non-Termux System'}")
+        print(f"  Boot Autostart:    {C_GREEN + '✓ Enabled' if boot_on else C_GRAY + '✗ Disabled'}{C_RESET}")
+        if boot_on:
+            print(f"  Script Location:   {C_CYAN}{boot_path}{C_RESET}")
+        if battery:
+            print(f"  Battery Status:    {C_CYAN}{battery}{C_RESET}")
+        print(f"  Screen Dimmer:     {'✓ Available (termux-brightness)' if shutil.which('termux-brightness') else '✗ Not found'}")
+        print(f"  Termux Wake-Lock:  {'✓ Available (termux-wake-lock)' if shutil.which('termux-wake-lock') else '✗ Not found'}")
+
+        print(f"\n{C_BOLD}ACTIONS{C_RESET}")
+        if not boot_on:
+            print(f"  {C_GREEN}[1]{C_RESET} Enable autostart on phone boot")
+        else:
+            print(f"  {C_RED}[1]{C_RESET} Disable autostart on phone boot")
+        print(f"  {C_CYAN}[2]{C_RESET} Test dimming screen (brightness 0)")
+        print(f"  {C_CYAN}[3]{C_RESET} Restore full brightness (brightness 255)")
+        print(f"  {C_AMBER}[0]{C_RESET} Return to main menu")
+
+        ans = input(f"\n{C_BOLD}Action › {C_RESET}").strip().lower()
+        if ans == "1":
+            if not boot_on:
+                ok, msg = enable_termux_boot(REPO_ROOT)
+                print(f"\n{C_GREEN if ok else C_RED}{'✓ Enabled!' if ok else '✗ Failed:'} {msg}{C_RESET}")
+            else:
+                ok, msg = disable_termux_boot()
+                print(f"\n{C_GREEN if ok else C_RED}{msg}{C_RESET}")
+            input(f"\n{C_DIM}Press [Enter] to continue...{C_RESET}")
+        elif ans == "2":
+            if set_screen_brightness(0):
+                print(f"\n{C_GREEN}✓ Screen brightness set to 0.{C_RESET}")
+            else:
+                print(f"\n{C_RED}✗ termux-brightness not available or failed.{C_RESET}")
+            input(f"\n{C_DIM}Press [Enter] to continue...{C_RESET}")
+        elif ans == "3":
+            if set_screen_brightness(255):
+                print(f"\n{C_GREEN}✓ Screen brightness restored to 255.{C_RESET}")
+            else:
+                print(f"\n{C_RED}✗ termux-brightness not available or failed.{C_RESET}")
+            input(f"\n{C_DIM}Press [Enter] to continue...{C_RESET}")
+        elif ans in ("0", "q", "quit", "exit", ""):
+            break
 
 
 def edit_env_settings():
@@ -407,6 +496,7 @@ def run_tui_main(update_checker=None):
             print(f"  {C_GRAY}[5]{C_RESET} Check dependencies")
             print(f"  {C_CYAN}[6]{C_RESET} Check for updates")
             print(f"  {C_GREEN}[7]{C_RESET} Run as LAN Server (Phone Server Mode)")
+            print(f"  {C_CYAN}[8]{C_RESET} Termux Autostart & Battery Guard")
             print(f"\n{C_DIM}Type a number and press Enter · [0] Exit{C_RESET}")
             choice = input(f"\n{C_BOLD}Action › {C_RESET}").strip().lower()
 
@@ -428,12 +518,14 @@ def run_tui_main(update_checker=None):
             _check_for_updates(update_checker)
         elif choice == "7":
             launch_lan_server_mode()
+        elif choice == "8":
+            manage_boot_and_battery_guard()
         elif choice in ("0", "q", "quit", "exit"):
             clear_screen()
             print(f"{C_ORANGE}👋 Thank you for using FB-2minutes Storymaker!{C_RESET}\n")
             break
         else:
-            print(f"\n{C_RED}Choose one of the listed actions (1-7), or 0 to exit.{C_RESET}")
+            print(f"\n{C_RED}Choose one of the listed actions (1-8), or 0 to exit.{C_RESET}")
             input(f"{C_DIM}Press Enter to continue...{C_RESET}")
 
 
